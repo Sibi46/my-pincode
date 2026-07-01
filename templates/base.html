@@ -1,0 +1,379 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pincode — Find Jobs Near You. Hire People Near You. India's PIN-code based local job portal for white collar and blue collar jobs.">
+    <title>{% block title %}Pincode{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-logo"><i class="fas fa-map-pin"></i><span>Pincode</span></a>
+        <div class="nav-search">
+            <form action="/jobs/" method="get" style="display:flex;width:100%">
+                <input type="text" name="q" placeholder="Search jobs, skills..." value="{{ request.GET.q }}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="nav-links">
+            <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_employer %}
+                    <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
+                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                {% else %}
+                    <a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>
+                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                {% endif %}
+                {% if request.user.is_employer %}
+                    {% if request.user.advertiser %}
+                        <a href="/advertiser/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
+                    {% else %}
+                        <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+                    {% endif %}
+                {% endif %}
+                {% if request.user.is_staff %}
+                    <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
+                {% endif %}
+                <a href="/messages/" style="color:#0a66c2"><i class="fas fa-comment-dots"></i> Messages</a>
+                <a href="/profile/" class="btn-signin">My Profile</a>
+                <a href="/logout/">Logout</a>
+            {% else %}
+                <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+                <a href="/login/" class="btn-signin">Sign In</a>
+                <a href="/register/" class="btn-join">Join Now</a>
+            {% endif %}
+        </div>
+        <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="/jobs/">Browse Jobs</a>
+        <a href="/candidates/">Find Candidates</a>
+        {% if request.user.is_authenticated %}
+            {% if request.user.is_employer %}
+                <a href="/post-job/">Post Job</a>
+                <a href="/employer/dashboard/">Dashboard</a>
+            {% else %}
+                <a href="/jobseeker/dashboard/">Dashboard</a>
+                <a href="/jobseeker/profile/">My Profile</a>
+            {% endif %}
+            <a href="/messages/">Messages</a>
+            <a href="/logout/">Logout</a>
+        {% else %}
+            <a href="/login/">Sign In</a>
+            <a href="/register/">Join Now</a>
+            <a href="/advertise/">Advertise</a>
+        {% endif %}
+    </div>
+</nav>
+
+{% if messages %}
+<div class="messages-bar">
+    {% for msg in messages %}
+    <div class="msg msg-{{ msg.tags }}">{{ msg }} <span onclick="this.parentElement.remove()">✕</span></div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+    <div class="footer-grid">
+        <div class="footer-brand">
+            <h3><i class="fas fa-map-pin"></i> Pincode</h3>
+            <p>Find Jobs Near You. Hire People Near You.</p>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <h4>For Job Seekers</h4>
+            <a href="/jobs/">Browse Jobs</a>
+            <a href="/register/?type=employee">Create Profile</a>
+        </div>
+        <div class="footer-links">
+            <h4>For Employers</h4>
+            <a href="/post-job/">Post a Job</a>
+            <a href="/advertise/"><i class="fas fa-bullhorn"></i> Advertise With Us</a>
+        </div>
+        <div class="footer-links">
+            <h4>Company</h4>
+            <a href="#">About Us</a>
+            <a href="#">Contact</a>
+            <a href="/complaint/submit/">Submit Complaint</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 Pincode. All rights reserved.</p>
+        <button class="admin-footer-btn" onclick="openAdminPanel()">
+          <i class="fas fa-shield-alt"></i> Admin Panel
+        </button>
+    </div>
+</footer>
+
+<!-- ══ ADMIN PANEL MODAL ══════════════════════════════════════ -->
+<div class="admin-modal-overlay" id="adminModal" onclick="if(event.target===this)closeAdminPanel()">
+  <div class="admin-modal-box">
+    <div class="admin-modal-header">
+      <div>
+        <h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2>
+        <p>Pincode — Platform Management</p>
+      </div>
+      <button class="admin-modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    {% if request.user.is_authenticated and request.user.admin_role %}
+      <div class="admin-role-info">
+        {% if request.user.admin_role == 'super_admin' %}
+          <span class="admin-role-badge super"><i class="fas fa-crown"></i> Super Admin</span>
+          <span>Full platform access — National Level</span>
+        {% elif request.user.admin_role == 'state_admin' %}
+          <span class="admin-role-badge state"><i class="fas fa-map"></i> State Admin</span>
+          <span>State Level</span>
+        {% else %}
+          <span class="admin-role-badge district"><i class="fas fa-map-marker-alt"></i> District Admin</span>
+          <span>District Level</span>
+        {% endif %}
+        <a href="/logout/" class="admin-logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+
+      {% if request.user.admin_role == 'super_admin' %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/super-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+          <a href="/super-admin/analytics/" class="afc"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-users"></i> User Management</div>
+          <a href="/super-admin/state-admins/" class="afc"><i class="fas fa-user-shield"></i><span>State Admins</span></a>
+          <a href="/super-admin/state-admins/create/" class="afc"><i class="fas fa-user-plus"></i><span>Create Admin</span></a>
+          <a href="/admin/" class="afc"><i class="fas fa-cog"></i><span>Django Admin</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-map"></i> Geography</div>
+          <a href="/super-admin/states/" class="afc"><i class="fas fa-flag"></i><span>States</span></a>
+          <a href="/super-admin/pincodes/" class="afc"><i class="fas fa-map-pin"></i><span>PIN Codes</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-briefcase"></i> Jobs & Roles</div>
+          <a href="/super-admin/industries/" class="afc"><i class="fas fa-industry"></i><span>Industries</span></a>
+          <a href="/super-admin/job-roles/" class="afc"><i class="fas fa-briefcase"></i><span>Job Roles</span></a>
+          <a href="/district-admin/jobs/" class="afc"><i class="fas fa-tasks"></i><span>Moderate Jobs</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-credit-card"></i> Payments</div>
+          <a href="/super-admin/payment-plans/" class="afc"><i class="fas fa-file-invoice-dollar"></i><span>Payment Plans</span></a>
+          <a href="/super-admin/discounts/" class="afc"><i class="fas fa-tag"></i><span>Discounts</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-bullhorn"></i> Advertisers</div>
+          <a href="/admin-panel/advertisers/" class="afc"><i class="fas fa-user-tie"></i><span>Advertisers</span></a>
+          <a href="/admin-panel/ads/" class="afc"><i class="fas fa-ad"></i><span>Advertisements</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-exclamation-circle"></i> Support</div>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-triangle"></i><span>Complaints</span></a>
+          <a href="/super-admin/notifications/" class="afc"><i class="fas fa-bell"></i><span>Notifications</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-building"></i> Employers</div>
+          <a href="/state-admin/employers/" class="afc"><i class="fas fa-check-circle"></i><span>Verify Employers</span></a>
+          <a href="/district-admin/employers/" class="afc"><i class="fas fa-clipboard-check"></i><span>Approve Employers</span></a>
+        </div>
+      </div>
+      {% elif request.user.admin_role == 'state_admin' %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/state-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+          <a href="/state-admin/reports/" class="afc"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-users"></i> Management</div>
+          <a href="/state-admin/district-admins/create/" class="afc"><i class="fas fa-user-plus"></i><span>Create District Admin</span></a>
+          <a href="/state-admin/employers/" class="afc"><i class="fas fa-building"></i><span>Verify Employers</span></a>
+          <a href="/admin-panel/advertisers/" class="afc"><i class="fas fa-bullhorn"></i><span>Advertisers</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-exclamation-circle"></i> Support</div>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-triangle"></i><span>Complaints</span></a>
+          <a href="/super-admin/notifications/" class="afc"><i class="fas fa-bell"></i><span>Notifications</span></a>
+        </div>
+      </div>
+      {% else %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/district-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+          <a href="/district-admin/reports/" class="afc"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tasks"></i> Actions</div>
+          <a href="/district-admin/employers/" class="afc"><i class="fas fa-building"></i><span>Approve Employers</span></a>
+          <a href="/admin-panel/advertisers/" class="afc"><i class="fas fa-bullhorn"></i><span>Advertisers</span></a>
+          <a href="/district-admin/jobs/" class="afc"><i class="fas fa-briefcase"></i><span>Moderate Jobs</span></a>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-circle"></i><span>Complaints</span></a>
+        </div>
+      </div>
+      {% endif %}
+
+    {% elif request.user.is_authenticated %}
+      <div class="admin-login-prompt">
+        <i class="fas fa-lock" style="font-size:48px;color:#ddd;margin-bottom:16px;display:block"></i>
+        <h3>Admin Access Required</h3>
+        <p>You are logged in as <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>, but you don't have admin privileges.</p>
+        <a href="/dashboard/" class="admin-go-btn" style="margin-top:20px;display:inline-block">Go to My Dashboard</a>
+      </div>
+    {% else %}
+      <div class="admin-login-prompt">
+        <i class="fas fa-shield-alt" style="font-size:44px;color:#0a66c2;margin-bottom:12px;display:block"></i>
+        <h3>Admin Login</h3>
+        <p style="margin-bottom:20px">Enter your phone number and password</p>
+        {% if messages %}
+          {% for msg in messages %}
+            {% if 'admin' in msg.tags or 'error' in msg.tags %}
+            <div style="background:#fce4ec;color:#c62828;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:left">
+              <i class="fas fa-exclamation-circle"></i> {{ msg }}
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        <form method="POST" action="/admin-panel/login/" style="text-align:left">
+          {% csrf_token %}
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-phone"></i> Phone Number</label>
+            <input type="tel" name="phone" placeholder="Enter your 10-digit mobile number" maxlength="10"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-lock"></i> Password</label>
+            <input type="password" name="password" placeholder="Enter your password"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <button type="submit" style="width:100%;padding:12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+            <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+          </button>
+        </form>
+        <p style="margin-top:14px;font-size:12px;color:#aaa;text-align:center">Admin accounts are created by the Super Admin only.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+.admin-footer-btn{background:rgba(255,255,255,0.08);color:#aaa;border:1px solid rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .2s}
+.admin-footer-btn:hover{background:rgba(255,255,255,0.15);color:#fff}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.admin-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;padding:16px}
+.admin-modal-overlay.open{display:flex}
+.admin-modal-box{background:#fff;border-radius:16px;width:100%;max-width:900px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3)}
+.admin-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:24px 28px 16px;border-radius:16px 16px 0 0;background:linear-gradient(135deg,#0a66c2,#004182);color:white}
+.admin-modal-header h2{margin:0 0 4px;font-size:20px}
+.admin-modal-header p{margin:0;font-size:13px;opacity:.8}
+.admin-modal-close{background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0}
+.admin-modal-close:hover{background:rgba(255,255,255,0.35)}
+.admin-role-info{display:flex;align-items:center;gap:12px;padding:14px 28px;background:#f8faff;border-bottom:1px solid #eef0f6;font-size:14px;color:#555;flex-wrap:wrap}
+.admin-role-badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.admin-role-badge.super{background:#fff8e1;color:#f57f17;border:1px solid #ffe082}
+.admin-role-badge.state{background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9}
+.admin-role-badge.district{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
+.admin-logout-link{margin-left:auto;color:#ef4444;font-size:12px;text-decoration:none}
+.admin-features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding:20px 28px 24px}
+.admin-feature-group{background:#f9fafb;border:1px solid #eef0f4;border-radius:12px;padding:14px}
+.afg-title{font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.afc{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;color:#374151;font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px}
+.afc:hover{background:#e8f0fe;color:#0a66c2}
+.afc i{width:16px;text-align:center;color:#0a66c2;flex-shrink:0}
+.admin-login-prompt{padding:48px 28px;text-align:center}
+.admin-login-prompt h3{font-size:22px;color:#111;margin:0 0 8px}
+.admin-login-prompt p{color:#555;font-size:14px;margin:0}
+.admin-go-btn{display:inline-block;background:#0a66c2;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px}
+.admin-go-btn:hover{background:#004182}
+@media(max-width:600px){.admin-features-grid{grid-template-columns:1fr 1fr;padding:14px;gap:10px}.admin-modal-header{padding:16px}}
+</style>
+<script>
+function openAdminPanel(){document.getElementById('adminModal').classList.add('open')}
+function closeAdminPanel(){document.getElementById('adminModal').classList.remove('open')}
+if(document.addEventListener)document.addEventListener('keydown',function(e){if(e.key==='Escape'&&typeof closeAdminPanel==='function')closeAdminPanel()});
+</script>
+
+<!-- ══ APP-STYLE BOTTOM NAV (mobile) ══════════════════════════ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    {% if request.user.is_authenticated and request.user.is_employer %}
+      <a href="/candidates/" class="bn-item {% if '/candidates' in request.path %}active{% endif %}">
+        <i class="fas fa-users"></i><span>Candidates</span>
+      </a>
+      <a href="/post-job/" class="bn-item bn-fab">
+        <div class="bn-fab-icon"><i class="fas fa-plus"></i></div><span>Post</span>
+      </a>
+      <a href="/messages/" class="bn-item {% if '/messages' in request.path %}active{% endif %}">
+        <i class="fas fa-comment-dots"></i><span>Messages</span>
+      </a>
+      <a href="/profile/" class="bn-item {% if '/profile' in request.path or '/employer/dashboard' in request.path %}active{% endif %}">
+        <i class="fas fa-user"></i><span>Profile</span>
+      </a>
+    {% elif request.user.is_authenticated %}
+      <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
+        <i class="fas fa-briefcase"></i><span>Jobs</span>
+      </a>
+      <a href="/jobseeker/dashboard/" class="bn-item bn-fab">
+        <div class="bn-fab-icon"><i class="fas fa-th-large"></i></div><span>Dashboard</span>
+      </a>
+      <a href="/messages/" class="bn-item {% if '/messages' in request.path %}active{% endif %}">
+        <i class="fas fa-comment-dots"></i><span>Messages</span>
+      </a>
+      <a href="/profile/" class="bn-item {% if '/profile' in request.path %}active{% endif %}">
+        <i class="fas fa-user"></i><span>Profile</span>
+      </a>
+    {% else %}
+      <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
+        <i class="fas fa-briefcase"></i><span>Jobs</span>
+      </a>
+      <a href="/register/" class="bn-item bn-fab">
+        <div class="bn-fab-icon"><i class="fas fa-user-plus"></i></div><span>Join</span>
+      </a>
+      <a href="/advertise/" class="bn-item {% if '/advertise' in request.path %}active{% endif %}">
+        <i class="fas fa-bullhorn"></i><span>Advertise</span>
+      </a>
+      <a href="/login/" class="bn-item {% if '/login' in request.path %}active{% endif %}">
+        <i class="fas fa-sign-in-alt"></i><span>Sign In</span>
+      </a>
+    {% endif %}
+  </div>
+</nav>
+
+<style>
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.bn-item i{font-size:19px}
+.bn-item.active{color:#0a66c2}
+.bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
+.bn-fab{margin-top:-22px}
+.bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
+.bn-fab span{color:#0a66c2;font-weight:700}
+body{padding-bottom:62px}
+</style>
+
+<script src="{% static 'js/main.js' %}?v=2"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
+
+

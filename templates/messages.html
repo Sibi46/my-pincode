@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — Pincode Jobs</title>
+<link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/static/css/messages.css?v=3">
+<link rel="stylesheet" href="/static/css/bottom_nav.css?v=3">
+</head>
+<body class="msg-page">
+
+<!-- ── TOP BAR ─────────────────────────────────────────────────────── -->
+<header class="msg-topbar">
+  <a href="/" class="msg-logo">
+    <i class="fa-solid fa-location-dot"></i>
+    <span>Pincode<strong>Jobs</strong></span>
+  </a>
+  <div class="msg-topbar-title">
+    <i class="fa-solid fa-comment-dots"></i> Messages
+    {% if total_unread %}<span class="unread-pill">{{ total_unread }}</span>{% endif %}
+  </div>
+  <nav class="msg-topnav">
+    <a href="{% url 'home' %}"><i class="fa-solid fa-house"></i></a>
+    <a href="{% url 'job_list' %}"><i class="fa-solid fa-briefcase"></i></a>
+    <a href="{% url 'dashboard' %}"><i class="fa-solid fa-gauge"></i></a>
+  </nav>
+</header>
+
+<div class="msg-shell {% if active_conv %}has-active{% endif %}">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────── -->
+  <aside class="msg-sidebar" id="msgSidebar">
+    <div class="sidebar-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="convSearch" placeholder="Search conversations…" oninput="filterConvs(this.value)">
+    </div>
+
+    <div class="conv-list" id="convList">
+      {% for row in conversations %}
+      {% with conv=row.conv other=row.other last=row.last unread=row.unread %}
+      <a href="{% url 'chat_room' conv.pk %}"
+         class="conv-item {% if active_conv and active_conv.pk == conv.pk %}active{% endif %}"
+         data-name="{{ other.get_full_name|lower }} {{ other.username|lower }}">
+        <div class="conv-avatar">
+          {% if other.seeker.photo %}
+            <img src="{{ other.seeker.photo.url }}" alt="">
+          {% else %}
+            <span class="av-letter">{{ other.get_full_name|first|upper|default:other.username|first|upper }}</span>
+          {% endif %}
+        </div>
+        <div class="conv-info">
+          <div class="conv-top">
+            <strong>{{ other.get_full_name|default:other.username }}</strong>
+            {% if last %}<span class="conv-time">{{ last.sent_at|date:"g:i A" }}</span>{% endif %}
+          </div>
+          <div class="conv-preview">
+            {% if last %}
+              {% if last.msg_type == 'image' %}<i class="fa-solid fa-image"></i> Photo
+              {% elif last.msg_type == 'file' or last.msg_type == 'resume' %}<i class="fa-solid fa-paperclip"></i> File
+              {% elif last.msg_type == 'interview_invite' %}<i class="fa-solid fa-calendar-check"></i> Interview Invitation
+              {% else %}{{ last.content|truncatechars:40 }}
+              {% endif %}
+            {% else %}
+              <em>No messages yet</em>
+            {% endif %}
+          </div>
+          {% if conv.job %}<div class="conv-job-tag"><i class="fa-solid fa-briefcase"></i> {{ conv.job.title|truncatechars:25 }}</div>{% endif %}
+        </div>
+        {% if unread %}<span class="conv-unread">{{ unread }}</span>{% endif %}
+      </a>
+      {% endwith %}
+      {% empty %}
+      <div class="no-convs">
+        <i class="fa-solid fa-comment-slash"></i>
+        <p>No conversations yet</p>
+        <small>Start a conversation from a job listing or candidate profile</small>
+      </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- ── CHAT PANEL ──────────────────────────────────────────────── -->
+  <main class="msg-main" id="msgMain">
+
+    {% if active_conv %}
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <button class="btn-back-sidebar" onclick="closeChatMobile()">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <div class="chat-header-avatar">
+        {% if other.seeker.photo %}
+          <img src="{{ other.seeker.photo.url }}" alt="">
+        {% else %}
+          <span class="av-letter av-lg">{{ other.get_full_name|first|upper|default:other.username|first|upper }}</span>
+        {% endif %}
+        <span class="online-dot"></span>
+      </div>
+      <div class="chat-header-info">
+        <strong>{{ other.get_full_name|default:other.username }}</strong>
+        <span class="user-type-tag">{{ other.user_type|title }}</span>
+        {% if active_conv.job %}
+        <a href="{% url 'job_detail' active_conv.job.pk %}" class="job-context-tag">
+          <i class="fa-solid fa-briefcase"></i> {{ active_conv.job.title }}
+        </a>
+        {% endif %}
+      </div>
+      <div class="chat-header-actions">
+        <button class="ch-btn" title="Attach file" onclick="triggerAttach('file')"><i class="fa-solid fa-paperclip"></i></button>
+        {% if request.user.is_employer %}
+        <button class="ch-btn" title="Send Interview Invite" onclick="showInviteModal()"><i class="fa-solid fa-calendar-plus"></i></button>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Messages Area -->
+    <div class="chat-area" id="chatArea">
+      <div class="messages-container" id="msgsContainer">
+        {% for msg in msgs %}
+          {% include 'partials/msg_bubble.html' with msg=msg me=request.user %}
+        {% empty %}
+          <div class="chat-empty">
+            <i class="fa-solid fa-comment-dots"></i>
+            <p>Say hello! Start the conversation.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="chat-input-bar" id="chatInputBar">
+      <div class="attach-preview" id="attachPreview" style="display:none">
+        <div class="preview-inner" id="previewInner"></div>
+        <button type="button" class="preview-clear" onclick="clearAttach()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="msgForm" onsubmit="sendMsg(event)">
+        {% csrf_token %}
+        <input type="hidden" name="conv_id" value="{{ active_conv.pk }}">
+        <input type="hidden" name="msg_type" id="msgTypeInput" value="text">
+        <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(this)">
+
+        <button type="button" class="inp-btn" onclick="toggleEmojiOrAttach()" title="Attach">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+
+        <div class="inp-text-wrap">
+          <textarea id="msgText" name="content" rows="1" placeholder="Type a message…"
+            onkeydown="handleEnter(event)" oninput="autoResize(this)"></textarea>
+        </div>
+
+        <button type="submit" class="btn-send" id="btnSend">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+
+      <!-- Attach popup -->
+      <div class="attach-popup" id="attachPopup" style="display:none">
+        <button onclick="triggerAttach('image')"><i class="fa-solid fa-image"></i> Image</button>
+        <button onclick="triggerAttach('file')"><i class="fa-solid fa-file-pdf"></i> PDF / File</button>
+        <button onclick="triggerAttach('resume')"><i class="fa-solid fa-file-user"></i> Resume</button>
+        {% if request.user.is_employer %}
+        <button onclick="showInviteModal()"><i class="fa-solid fa-calendar-plus"></i> Interview Invite</button>
+        {% endif %}
+      </div>
+    </div>
+
+    {% else %}
+    <!-- No active conversation -->
+    <div class="chat-placeholder">
+      <div class="placeholder-inner">
+        <i class="fa-solid fa-comments"></i>
+        <h2>Your Messages</h2>
+        <p>Select a conversation to start chatting, or start a new one from a job listing or candidate profile.</p>
+      </div>
+    </div>
+    {% endif %}
+  </main>
+</div>
+
+<!-- ── INTERVIEW INVITE MODAL ──────────────────────────────────────── -->
+{% if active_conv %}
+<div class="modal-overlay" id="inviteModal" style="display:none" onclick="closeInviteModal(event)">
+  <div class="invite-modal">
+    <div class="modal-head">
+      <i class="fa-solid fa-calendar-check"></i>
+      <h3>Send Interview Invitation</h3>
+      <button onclick="closeInviteModal()" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="inviteForm" onsubmit="sendInvite(event)">
+      {% csrf_token %}
+      <input type="hidden" name="conv_id" value="{{ active_conv.pk }}">
+      <input type="hidden" name="msg_type" value="interview_invite">
+
+      <div class="inv-grid">
+        <div class="inv-field">
+          <label>Date *</label>
+          <input type="date" name="invite_date" required>
+        </div>
+        <div class="inv-field">
+          <label>Time *</label>
+          <input type="time" name="invite_time" required>
+        </div>
+        <div class="inv-field">
+          <label>Mode *</label>
+          <select name="invite_mode" required>
+            <option value="in_person">In Person</option>
+            <option value="phone">Phone Call</option>
+            <option value="video">Video Call</option>
+          </select>
+        </div>
+        <div class="inv-field">
+          <label>Location / Address</label>
+          <input type="text" name="invite_location" placeholder="Office address or city">
+        </div>
+        <div class="inv-field full">
+          <label>Meeting Link (for video/phone)</label>
+          <input type="url" name="invite_link" placeholder="https://meet.google.com/…">
+        </div>
+        <div class="inv-field full">
+          <label>Message to Candidate</label>
+          <textarea name="content" rows="3" placeholder="Please bring your original certificates…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="closeInviteModal()" class="btn-cancel">Cancel</button>
+        <button type="submit" class="btn-send-invite">
+          <i class="fa-solid fa-paper-plane"></i> Send Invitation
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script>
+const CONV_ID   = {{ active_conv.pk|default:'null' }};
+const ME_ID     = {{ request.user.pk }};
+const SEND_URL  = "{% url 'send_message' %}";
+const POLL_URL  = CONV_ID ? `/messages/poll/${CONV_ID}/` : null;
+const RESP_URL  = (id) => `/messages/invite/${id}/respond/`;
+const CSRF      = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+let lastMsgId   = 0;
+let pollTimer   = null;
+let pendingFile = null;
+let pendingType = 'file';
+
+// ── Init ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  scrollBottom();
+  // Find last message id from DOM
+  const bubbles = document.querySelectorAll('.bubble-wrap[data-id]');
+  if (bubbles.length) lastMsgId = parseInt(bubbles[bubbles.length-1].dataset.id);
+  if (CONV_ID) startPolling();
+});
+
+function scrollBottom(smooth) {
+  const area = document.getElementById('chatArea');
+  if (area) area.scrollTop = area.scrollHeight;
+}
+
+// ── Send text / file ─────────────────────────────────────────────────
+function sendMsg(e) {
+  e.preventDefault();
+  const form    = e.target;
+  const content = document.getElementById('msgText').value.trim();
+  if (!content && !pendingFile) return;
+
+  const data = new FormData(form);
+  if (pendingFile) {
+    data.append('file', pendingFile);
+    data.set('msg_type', pendingType);
+  }
+
+  fetch(SEND_URL, { method: 'POST', headers: {'X-CSRFToken': CSRF}, body: data })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        appendBubble(res.html);
+        lastMsgId = res.msg_id;
+        document.getElementById('msgText').value = '';
+        clearAttach();
+        scrollBottom(true);
+      }
+    });
+}
+
+function appendBubble(html) {
+  const container = document.getElementById('msgsContainer');
+  if (!container) return;
+  const empty = container.querySelector('.chat-empty');
+  if (empty) empty.remove();
+  container.insertAdjacentHTML('beforeend', html);
+}
+
+// ── Polling ──────────────────────────────────────────────────────────
+function startPolling() {
+  pollTimer = setInterval(doPoll, 3000);
+}
+
+function doPoll() {
+  if (!CONV_ID) return;
+  fetch(`${POLL_URL}?after=${lastMsgId}`)
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok && res.messages.length) {
+        res.messages.forEach(m => {
+          appendBubble(m.html);
+          lastMsgId = Math.max(lastMsgId, m.id);
+        });
+        scrollBottom(true);
+        updateSidebarBadge(0);
+      }
+    })
+    .catch(() => {});
+}
+
+function updateSidebarBadge(n) {
+  const badge = document.querySelector(`.conv-item.active .conv-unread`);
+  if (badge) badge.textContent = n || '';
+}
+
+// ── File attach ──────────────────────────────────────────────────────
+function triggerAttach(type) {
+  pendingType = type;
+  const fi = document.getElementById('fileInput');
+  if (type === 'image') fi.accept = 'image/*';
+  else if (type === 'resume') fi.accept = '.pdf,.doc,.docx';
+  else fi.accept = '.pdf,.doc,.docx,.xls,.xlsx,.zip,.txt';
+  fi.click();
+  closeAttachPopup();
+}
+
+function handleFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  pendingFile = input.files[0];
+  const preview = document.getElementById('attachPreview');
+  const inner   = document.getElementById('previewInner');
+  preview.style.display = 'flex';
+  if (pendingType === 'image') {
+    const url = URL.createObjectURL(pendingFile);
+    inner.innerHTML = `<img src="${url}" class="preview-img" alt="">`;
+  } else {
+    inner.innerHTML = `<i class="fa-solid fa-paperclip"></i><span>${pendingFile.name}</span>`;
+  }
+  document.getElementById('msgTypeInput').value = pendingType;
+}
+
+function clearAttach() {
+  pendingFile = null;
+  pendingType = 'file';
+  document.getElementById('attachPreview').style.display = 'none';
+  document.getElementById('previewInner').innerHTML = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('msgTypeInput').value = 'text';
+}
+
+function toggleEmojiOrAttach() {
+  const pop = document.getElementById('attachPopup');
+  pop.style.display = pop.style.display === 'none' ? 'flex' : 'none';
+}
+function closeAttachPopup() {
+  const pop = document.getElementById('attachPopup');
+  if (pop) pop.style.display = 'none';
+}
+document.addEventListener('click', e => {
+  const pop = document.getElementById('attachPopup');
+  if (pop && !pop.contains(e.target) && !e.target.closest('.inp-btn')) {
+    pop.style.display = 'none';
+  }
+});
+
+// ── Interview Invite ─────────────────────────────────────────────────
+function showInviteModal() {
+  document.getElementById('inviteModal').style.display = 'flex';
+  closeAttachPopup();
+}
+function closeInviteModal(e) {
+  if (!e || e.target.id === 'inviteModal' || !e.target.closest('.invite-modal')) {
+    document.getElementById('inviteModal').style.display = 'none';
+  }
+}
+function sendInvite(e) {
+  e.preventDefault();
+  const data = new FormData(e.target);
+  data.set('msg_type', 'interview_invite');
+  fetch(SEND_URL, { method: 'POST', headers: {'X-CSRFToken': CSRF}, body: data })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        appendBubble(res.html);
+        lastMsgId = res.msg_id;
+        scrollBottom(true);
+        closeInviteModal();
+        e.target.reset();
+      }
+    });
+}
+
+function respondInvite(msgId, action, btn) {
+  fetch(RESP_URL(msgId), {
+    method: 'POST',
+    headers: {'X-CSRFToken': CSRF, 'Content-Type': 'application/x-www-form-urlencoded'},
+    body: `action=${action}`
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.ok) {
+      const wrap  = btn.closest('.bubble-invite');
+      const badge = wrap.querySelector('.invite-badge');
+      badge.className   = `invite-badge ${res.status}`;
+      badge.textContent = res.status === 'accepted' ? 'Accepted' : 'Declined';
+      wrap.classList.toggle('invite-accepted', res.status === 'accepted');
+      wrap.classList.toggle('invite-rejected', res.status === 'rejected');
+      btn.closest('.invite-actions').remove();
+    }
+  });
+}
+
+// ── Textarea auto-resize ─────────────────────────────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleEnter(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById('msgForm').dispatchEvent(new Event('submit', {cancelable: true}));
+  }
+}
+
+// ── Mobile: show/hide sidebar ─────────────────────────────────────────
+function closeChatMobile() {
+  document.querySelector('.msg-shell').classList.remove('has-active');
+  history.pushState(null, '', '/messages/');
+}
+
+// ── Conversation filter ───────────────────────────────────────────────
+function filterConvs(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.conv-item').forEach(el => {
+    el.style.display = el.dataset.name.includes(q) ? '' : 'none';
+  });
+}
+
+// ── Auto-open invite modal (from shortlist "Invite" button) ───────────
+if (window.location.hash === '#invite' || sessionStorage.getItem('openInvite') === '1') {
+  sessionStorage.removeItem('openInvite');
+  if (CONV_ID) setTimeout(showInviteModal, 500);
+}
+</script>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="/employer/dashboard/" class="bn-item"><i class="fas fa-home"></i>Home</a>
+  <a href="/employer/dashboard/#notifications" class="bn-item"><i class="fas fa-bell"></i>Alerts</a>
+  <a href="/post-job/" class="bn-item bn-post"><div class="bn-post-circle"><i class="fas fa-plus"></i></div><span>Post</span></a>
+  <a href="/messages/" class="bn-item active"><i class="fas fa-comment-dots"></i>Messages</a>
+  <a href="/employer/dashboard/#my-jobs" class="bn-item"><i class="fas fa-briefcase"></i>My Jobs</a>
+</nav>
+
+</body>
+</html>
+
+

@@ -1,0 +1,150 @@
+﻿{% extends "admin_base.html" %}
+{% block title %}District Reports{% endblock %}
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb"><i class="fas fa-chart-bar"></i> District Admin / Reports</div>
+<div class="ap-page-title"><i class="fas fa-chart-bar" style="color:#2e7d32"></i> {{ district.name|default:"District" }} Reports</div>
+<div class="ap-page-subtitle">Local activity metrics for your district</div>
+
+<!-- KPI Stats -->
+<div class="ap-stats">
+  <div class="ap-stat blue">
+    <div class="ap-stat-icon"><i class="fas fa-briefcase"></i></div>
+    <h3>{{ total_jobs }}</h3>
+    <p>Total Jobs</p>
+  </div>
+  <div class="ap-stat green">
+    <div class="ap-stat-icon"><i class="fas fa-file-alt"></i></div>
+    <h3>{{ total_applications }}</h3>
+    <p>Applications</p>
+  </div>
+  <div class="ap-stat orange">
+    <div class="ap-stat-icon"><i class="fas fa-building"></i></div>
+    <h3>{{ total_employers }}</h3>
+    <p>Employers</p>
+  </div>
+  <div class="ap-stat red">
+    <div class="ap-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+    <h3>{{ total_complaints }}</h3>
+    <p>Total Complaints</p>
+  </div>
+</div>
+
+<div class="ap-two-col">
+
+  <!-- Jobs by Collar -->
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-briefcase" style="color:#0a66c2"></i> Jobs by Type</h3></div>
+    <canvas id="collarChart" height="230"></canvas>
+  </div>
+
+  <!-- Complaints by Type -->
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-exclamation-circle" style="color:#c62828"></i> Complaints Summary</h3></div>
+    <canvas id="complaintChart" height="230"></canvas>
+  </div>
+
+</div>
+
+<!-- Recent Jobs -->
+<div class="ap-card">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-briefcase" style="color:#e65100"></i> Jobs Posted This Month</h3>
+    <a href="/district-admin/jobs/" class="ap-btn ap-btn-gray">Moderate</a>
+  </div>
+  {% if recent_jobs %}
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Job Title</th><th>Type</th><th>Employer</th><th>Applications</th><th>Posted</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for job in recent_jobs %}
+        <tr>
+          <td>
+            <a href="/jobs/{{ job.pk }}/" style="color:#0a66c2;font-weight:600">{{ job.title }}</a>
+            <div style="font-size:11px;color:#888">{{ job.category }}</div>
+          </td>
+          <td>
+            <span style="font-size:11px;font-weight:600;{% if job.collar_type == 'white' %}color:#0a66c2{% else %}color:#e65100{% endif %}">
+              {{ job.get_collar_type_display }}
+            </span>
+          </td>
+          <td style="font-size:12px">{{ job.posted_by.get_full_name|default:job.posted_by.username }}</td>
+          <td>
+            <span style="background:#e8f0fe;color:#0a66c2;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700">
+              {{ job.applications.count }}
+            </span>
+          </td>
+          <td style="font-size:12px;color:#888">{{ job.created_at|date:"d M Y" }}</td>
+          <td><span class="status-pill pill-{% if job.status == 'active' %}active{% else %}inactive{% endif %}">
+            {{ job.get_status_display }}
+          </span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="ap-empty"><i class="fas fa-briefcase"></i><p>No jobs posted this month.</p></div>
+  {% endif %}
+</div>
+
+<!-- Complaints Table -->
+<div class="ap-card">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-exclamation-circle" style="color:#c62828"></i> Recent Complaints</h3>
+    <a href="/district-admin/complaints/" class="ap-btn ap-btn-gray">Manage</a>
+  </div>
+  {% if complaints %}
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Subject</th><th>Type</th><th>By</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for c in complaints %}
+        <tr>
+          <td><strong>{{ c.subject|truncatechars:45 }}</strong></td>
+          <td><span style="font-size:11px;color:#6a1b9a;font-weight:600">{{ c.get_complaint_type_display }}</span></td>
+          <td style="font-size:12px">{{ c.submitted_by.username }}</td>
+          <td><span class="status-pill pill-{{ c.status }}">{{ c.get_status_display }}</span></td>
+          <td style="font-size:12px;color:#888">{{ c.created_at|date:"d M" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="ap-empty"><i class="fas fa-exclamation-circle"></i><p>No complaints in your district.</p></div>
+  {% endif %}
+</div>
+
+<script>
+new Chart(document.getElementById('collarChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['White Collar', 'Blue Collar'],
+    datasets: [{
+      data: [{{ white_jobs }}, {{ blue_jobs }}],
+      backgroundColor: ['#0a66c2', '#e65100'],
+      borderWidth: 0,
+    }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+});
+
+new Chart(document.getElementById('complaintChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Open', 'In Progress', 'Resolved', 'Closed'],
+    datasets: [{
+      label: 'Complaints',
+      data: [{{ comp_open }}, {{ comp_in_progress }}, {{ comp_resolved }}, {{ comp_closed }}],
+      backgroundColor: ['#c62828','#f57f17','#2e7d32','#888'],
+      borderRadius: 6,
+    }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% load tz %}{% with mine=msg.sender_id|stringformat:"d" %}
+<div class="bubble-wrap {% if msg.sender == me %}mine{% else %}theirs{% endif %}" data-id="{{ msg.pk }}">
+  {% if msg.msg_type == 'text' %}
+    <div class="bubble">{{ msg.content }}</div>
+
+  {% elif msg.msg_type == 'image' %}
+    <div class="bubble bubble-img">
+      <a href="{{ msg.file.url }}" target="_blank">
+        <img src="{{ msg.file.url }}" alt="Image" class="chat-img">
+      </a>
+      {% if msg.content %}<p class="img-caption">{{ msg.content }}</p>{% endif %}
+    </div>
+
+  {% elif msg.msg_type == 'resume' %}
+    <div class="bubble bubble-file resume-file">
+      <i class="fa-solid fa-file-user"></i>
+      <div>
+        <span class="file-label">Resume</span>
+        <a href="{{ msg.file.url }}" target="_blank" download class="file-dl">
+          {{ msg.file_name|default:"Download Resume" }} <i class="fa-solid fa-download"></i>
+        </a>
+      </div>
+    </div>
+
+  {% elif msg.msg_type == 'file' %}
+    <div class="bubble bubble-file">
+      <i class="fa-solid fa-file-pdf"></i>
+      <div>
+        <span class="file-label">{{ msg.file_name|default:"Attachment" }}</span>
+        <a href="{{ msg.file.url }}" target="_blank" download class="file-dl">
+          Download <i class="fa-solid fa-download"></i>
+        </a>
+      </div>
+    </div>
+
+  {% elif msg.msg_type == 'interview_invite' %}
+    <div class="bubble bubble-invite {% if msg.invite_status == 'accepted' %}invite-accepted{% elif msg.invite_status == 'rejected' %}invite-rejected{% endif %}">
+      <div class="invite-header">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Interview Invitation</span>
+        {% if msg.invite_status == 'accepted' %}
+          <span class="invite-badge accepted">Accepted</span>
+        {% elif msg.invite_status == 'rejected' %}
+          <span class="invite-badge rejected">Declined</span>
+        {% else %}
+          <span class="invite-badge pending">Pending</span>
+        {% endif %}
+      </div>
+      <div class="invite-details">
+        {% if msg.invite_date %}
+        <div class="invite-row"><i class="fa-solid fa-calendar"></i> {{ msg.invite_date }}</div>
+        {% endif %}
+        {% if msg.invite_time %}
+        <div class="invite-row"><i class="fa-solid fa-clock"></i> {{ msg.invite_time }}</div>
+        {% endif %}
+        {% if msg.invite_mode %}
+        <div class="invite-row"><i class="fa-solid fa-video"></i> {{ msg.get_invite_mode_display|default:msg.invite_mode }}</div>
+        {% endif %}
+        {% if msg.invite_location %}
+        <div class="invite-row"><i class="fa-solid fa-location-dot"></i> {{ msg.invite_location }}</div>
+        {% endif %}
+        {% if msg.invite_link %}
+        <div class="invite-row"><i class="fa-solid fa-link"></i> <a href="{{ msg.invite_link }}" target="_blank">Join Link</a></div>
+        {% endif %}
+        {% if msg.invite_notes %}
+        <div class="invite-notes">{{ msg.invite_notes }}</div>
+        {% endif %}
+      </div>
+      {% if msg.receiver == me and msg.invite_status == 'pending' %}
+      <div class="invite-actions">
+        <button class="btn-accept" onclick="respondInvite({{ msg.pk }},'accepted',this)">
+          <i class="fa-solid fa-check"></i> Accept
+        </button>
+        <button class="btn-decline" onclick="respondInvite({{ msg.pk }},'rejected',this)">
+          <i class="fa-solid fa-xmark"></i> Decline
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="bubble-meta">
+    <span class="btime">{{ msg.sent_at|date:"g:i A" }}</span>
+    {% if msg.sender == me %}
+      {% if msg.is_read %}
+        <span class="read-tick read"><i class="fa-solid fa-check-double"></i></span>
+      {% else %}
+        <span class="read-tick sent"><i class="fa-solid fa-check"></i></span>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endwith %}

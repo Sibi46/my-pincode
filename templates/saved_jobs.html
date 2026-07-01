@@ -1,0 +1,67 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Saved Jobs - Pincode{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/jobs.css' %}">{% endblock %}
+
+{% block content %}
+<div class="jobs-page">
+  <div style="margin-bottom:24px">
+    <h2 style="font-size:24px;font-weight:800"><i class="fas fa-bookmark" style="color:#0a66c2"></i> Saved Jobs</h2>
+    <p style="color:#666;margin-top:4px">{{ saves.count }} saved job{{ saves.count|pluralize }}</p>
+  </div>
+
+  {% if saves %}
+  <div class="job-cards-list">
+    {% for s in saves %}
+    <div class="job-list-card">
+      <div class="jlc-top">
+        <div class="jlc-logo {% if s.job.collar_type == 'blue' %}blue-logo{% endif %}">
+          {% if s.job.collar_type == 'white' %}<i class="fas fa-user-tie"></i>{% else %}<i class="fas fa-wrench"></i>{% endif %}
+        </div>
+        <div class="jlc-info">
+          <a href="/jobs/{{ s.job.pk }}/" class="jlc-title">{{ s.job.title }}</a>
+          <p class="jlc-company"><i class="fas fa-calendar"></i> Saved on {{ s.saved_at|date:"d M Y" }}</p>
+        </div>
+        <span class="jlc-badge {% if s.job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %}">
+          {{ s.job.get_collar_type_display }}
+        </span>
+      </div>
+      <div class="jlc-meta">
+        <span><i class="fas fa-map-marker-alt"></i> {{ s.job.location }}</span>
+        <span><i class="fas fa-rupee-sign"></i> {{ s.job.salary_display }}</span>
+        <span><i class="fas fa-clock"></i> {{ s.job.get_job_type_display }}</span>
+      </div>
+      <div class="jlc-footer">
+        <div class="jlc-tags"><span>{{ s.job.category }}</span></div>
+        <div class="jlc-actions">
+          <button onclick="unsaveJob({{ s.job.pk }}, this)" class="unsave-btn">
+            <i class="fas fa-bookmark"></i> Saved
+          </button>
+          <a href="/jobs/{{ s.job.pk }}/" class="jlc-apply-btn">Apply Now</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="no-jobs">
+    <i class="fas fa-bookmark"></i>
+    <h3>No saved jobs</h3>
+    <p>Browse jobs and click the bookmark icon to save them</p>
+    <a href="/jobs/" class="filter-btn" style="display:inline-flex;width:auto;padding:10px 24px">Browse Jobs</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function unsaveJob(pk, btn) {
+  fetch(`/jobs/${pk}/save/`, {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}})
+    .then(r => r.json()).then(d => { if (!d.saved) btn.closest('.job-list-card').remove(); });
+}
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
+</script>
+{% endblock %}
+

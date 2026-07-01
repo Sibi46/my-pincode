@@ -1,0 +1,665 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Pincode - Register</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/register.css' %}?v=4">
+    <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body class="auth-body">
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-map-pin"></i>
+                <span>Pincode</span>
+            </a>
+            <div class="nav-links">
+                <a href="/login/" class="btn-signin">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="register-wrapper">
+
+        <!-- ───────── STEP 1: Choose Type ───────── -->
+        <div class="reg-step" id="step1">
+          <div style="max-width:700px;margin:0 auto;padding:28px 16px">
+
+            <div style="text-align:center;margin-bottom:28px">
+              <h2 style="font-size:24px;font-weight:900;color:#111;margin-bottom:6px">Join Pincode</h2>
+              <p style="font-size:14px;color:#666">Select how you want to use the platform</p>
+            </div>
+
+            <!-- CARD 1: POST JOBS -->
+            <div class="role-card" id="roleHire" onclick="toggleRole('hire')">
+              <div class="role-card-header">
+                <div class="role-icon-wrap" style="background:#e3f2fd">
+                  <i class="fas fa-briefcase" style="color:#0a66c2"></i>
+                </div>
+                <div class="role-card-text">
+                  <h3>Post Jobs / Hire</h3>
+                  <p>I want to find workers &amp; employees for my business</p>
+                </div>
+                <i class="fas fa-chevron-down role-chevron" id="chevHire"></i>
+              </div>
+              <div class="role-subtypes" id="subHire">
+                <div class="subtype-grid">
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('company')"><i class="fas fa-building"></i><span>Company</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('shop')"><i class="fas fa-store"></i><span>Shop</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('recruiter')"><i class="fas fa-user-tie"></i><span>Recruiter</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('factory')"><i class="fas fa-industry"></i><span>Factory</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('startup')"><i class="fas fa-rocket"></i><span>Startup</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('institution')"><i class="fas fa-university"></i><span>Institution</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('ngo')"><i class="fas fa-hands-helping"></i><span>NGO</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('hospital')"><i class="fas fa-hospital"></i><span>Hospital</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('hotel')"><i class="fas fa-hotel"></i><span>Hotel</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('farm')"><i class="fas fa-leaf"></i><span>Farm</span></button>
+                  <button class="stype-btn" onclick="event.stopPropagation();selectType('individual_employer')"><i class="fas fa-user-plus"></i><span>Individual</span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD 2: FIND JOBS -->
+            <div class="role-card" id="roleSeek" onclick="toggleRole('seek')" style="margin-top:14px">
+              <div class="role-card-header">
+                <div class="role-icon-wrap" style="background:#e8f5e9">
+                  <i class="fas fa-search" style="color:#2e7d32"></i>
+                </div>
+                <div class="role-card-text">
+                  <h3>Find a Job</h3>
+                  <p>I am looking for employment opportunities near me</p>
+                </div>
+                <i class="fas fa-chevron-down role-chevron" id="chevSeek"></i>
+              </div>
+              <div class="role-subtypes" id="subSeek">
+                <div class="subtype-grid">
+                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('employee')"><i class="fas fa-user-tie"></i><span>Employee</span></button>
+                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('individual')"><i class="fas fa-user"></i><span>Individual</span></button>
+                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('freelancer')"><i class="fas fa-laptop"></i><span>Freelancer</span></button>
+                </div>
+              </div>
+            </div>
+
+            <p style="text-align:center;margin-top:20px;font-size:13px;color:#888">
+              Already have an account? <a href="/login/" style="color:#0a66c2;font-weight:600">Sign in</a>
+            </p>
+          </div>
+        </div>
+
+        <style>
+        .role-card{background:#fff;border:2px solid #e5e7eb;border-radius:16px;overflow:hidden;cursor:pointer;transition:.2s;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+        .role-card:hover{border-color:#0a66c2;box-shadow:0 4px 20px rgba(10,102,194,.12)}
+        .role-card.open{border-color:#0a66c2}
+        .role-card-header{display:flex;align-items:center;gap:16px;padding:20px 22px}
+        .role-icon-wrap{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+        .role-card-text{flex:1}
+        .role-card-text h3{font-size:17px;font-weight:800;color:#111;margin-bottom:3px}
+        .role-card-text p{font-size:13px;color:#666;margin:0}
+        .role-chevron{color:#bbb;font-size:15px;transition:transform .25s;flex-shrink:0}
+        .role-card.open .role-chevron{transform:rotate(180deg);color:#0a66c2}
+        .role-subtypes{display:none;padding:0 18px 18px}
+        .role-card.open .role-subtypes{display:block}
+        .subtype-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+        .stype-btn{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;background:#f0f7ff;border:1.5px solid #c8ddf8;border-radius:12px;cursor:pointer;transition:.2s;font-size:12px;font-weight:700;color:#0a47a1}
+        .stype-btn i{font-size:20px;color:#0a66c2}
+        .stype-btn:hover{background:#0a66c2;color:#fff;border-color:#0a66c2}
+        .stype-btn:hover i{color:#fff}
+        .stype-green{background:#f0faf1;border-color:#a5d6a7;color:#1b5e20}
+        .stype-green i{color:#2e7d32}
+        .stype-green:hover{background:#2e7d32;border-color:#2e7d32;color:#fff}
+        .stype-green:hover i{color:#fff}
+        @media(max-width:500px){.subtype-grid{grid-template-columns:repeat(3,1fr)}}
+        </style>
+
+        <script>
+        // Populate year-established dropdown (current year down to 1950)
+        (function(){
+          var sel = document.getElementById('emp-started-year');
+          if (!sel) return;
+          var cur = new Date().getFullYear();
+          for (var y = cur; y >= 1950; y--) {
+            var o = document.createElement('option');
+            o.value = y; o.textContent = y;
+            sel.appendChild(o);
+          }
+        })();
+
+        function toggleRole(which){
+          var hire = document.getElementById('roleHire');
+          var seek = document.getElementById('roleSeek');
+          if(which==='hire'){
+            hire.classList.toggle('open');
+            seek.classList.remove('open');
+          } else {
+            seek.classList.toggle('open');
+            hire.classList.remove('open');
+          }
+        }
+        </script>
+
+
+        <!-- ───────── STEP 2: Generic Employer Form (all 10 types) ───────── -->
+        <div class="reg-step hidden" id="step-employer">
+            <div class="reg-card">
+                <button class="back-btn" onclick="goBack()" style="margin-bottom:16px"><i class="fas fa-arrow-left"></i> Back</button>
+
+                <!-- Type switcher dropdown -->
+                <div class="emp-type-switcher">
+                    <label class="ets-label"><i class="fas fa-layer-group"></i> Register As</label>
+                    <select class="ets-select" id="empTypeSwitcher" onchange="switchEmployerType(this.value)">
+                        <option value="company">🏢 Company</option>
+                        <option value="shop">🏪 Shop</option>
+                        <option value="recruiter">🤝 Recruiter / Placement Agency</option>
+                        <option value="factory">🏭 Factory</option>
+                        <option value="startup">🚀 Startup</option>
+                        <option value="institution">🏫 Institution</option>
+                        <option value="ngo">🤝 NGO</option>
+                        <option value="hospital">🏥 Hospital</option>
+                        <option value="hotel">🏨 Hotel / Restaurant</option>
+                        <option value="farm">🌿 Farm</option>
+                        <option value="individual_employer">👤 Individual Employer</option>
+                    </select>
+                </div>
+
+                <!-- Selected type banner -->
+                <div class="emp-type-banner" id="empTypeBanner">
+                    <div class="etb-icon" id="etbIcon">
+                        <i class="fas fa-building" id="emp-type-icon"></i>
+                    </div>
+                    <div class="etb-text">
+                        <div class="etb-label" id="emp-type-badge">
+                            <span id="emp-type-label">Company</span> Registration
+                        </div>
+                        <p class="etb-desc" id="emp-type-desc">Register your company and start hiring talent</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="/register/process/" id="employerForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label id="emp-org-label"><i class="fas fa-building"></i> Organization Name *</label>
+                            <input type="text" name="org_name" id="emp-org-input" placeholder="Enter organization name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Contact Person *</label>
+                            <input type="text" name="first_name" placeholder="Owner / Manager name" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" name="email" placeholder="contact@organization.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                            <input type="tel" name="phone" placeholder="10-digit mobile" maxlength="10" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group"></i> Industry / Sector</label>
+                            <select name="industry">
+                                <option value="">Select industry</option>
+                                <option>IT & Technology</option>
+                                <option>Manufacturing</option>
+                                <option>Healthcare & Medical</option>
+                                <option>Education & Training</option>
+                                <option>Retail & Commerce</option>
+                                <option>Construction & Real Estate</option>
+                                <option>Transport & Logistics</option>
+                                <option>Food & Hospitality</option>
+                                <option>Agriculture & Farming</option>
+                                <option>Finance & Banking</option>
+                                <option>NGO / Social Work</option>
+                                <option>Government / Public Sector</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Year Established</label>
+                            <select name="started_year" id="emp-started-year">
+                                <option value="">Select year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-users"></i> Organization Size</label>
+                            <select name="company_size">
+                                <option value="">Select size</option>
+                                <option>1 (Just me)</option>
+                                <option>2–10 employees</option>
+                                <option>11–50 employees</option>
+                                <option>51–200 employees</option>
+                                <option>201–500 employees</option>
+                                <option>500+ employees</option>
+                            </select>
+                        </div>
+                        <div class="form-group"></div>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-globe"></i> Website <span style="font-weight:400;color:#888">(optional)</span></label>
+                        <input type="url" name="website" placeholder="https://yourorganization.com">
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-map-marker-alt"></i> Address *</label>
+                        <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-city"></i> City *</label>
+                            <input type="text" name="city" placeholder="City" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                            <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" pattern="[0-9]{6}" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" name="password" id="emp-pwd" placeholder="Create password (min 8 chars)" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                            <input type="password" name="confirm_password" id="emp-pwd2" placeholder="Repeat password" required>
+                        </div>
+                    </div>
+
+                    <div id="emp-pwd-error" style="color:#c62828;font-size:13px;margin-bottom:12px;display:none">
+                        <i class="fas fa-exclamation-circle"></i> Passwords do not match.
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="emp-submit-btn">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="emp-submit-label">Create Employer Account</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- ───────── STEP 2A2: Individual Employer Form ───────── -->
+        <div class="reg-step hidden" id="step-individual_employer">
+            <div class="reg-card">
+                <div class="reg-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="type-badge orange"><i class="fas fa-user-plus"></i> Individual Employer</div>
+                    <h2>Individual Employer Registration</h2>
+                    <p>Hire domestic, personal or household staff near you</p>
+                </div>
+
+                <!-- Substep 1: Name + Mobile + OTP -->
+                <div id="indEmp-substep1">
+                    <div class="form-group full">
+                        <label><i class="fas fa-user"></i> Your Full Name *</label>
+                        <input type="text" id="indEmpName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                        <div class="otp-input-row">
+                            <span class="country-code">+91</span>
+                            <input type="tel" id="indEmpPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
+                            <button type="button" class="otp-btn" onclick="sendOTP('indEmp')">Send OTP</button>
+                        </div>
+                    </div>
+                    <div class="otp-box hidden" id="indEmpOtpBox">
+                        <label><i class="fas fa-shield-alt"></i> Enter 6-digit OTP</label>
+                        <div class="otp-digits">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                        </div>
+                        <p class="resend-otp">Didn't receive? <a href="#" onclick="sendOTP('indEmp')">Resend OTP</a></p>
+                        <button type="button" class="submit-btn" onclick="verifyOTP('indEmp')">
+                            <i class="fas fa-check"></i> Verify OTP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Substep 2: Address + PIN + optionals + password -->
+                <div id="indEmp-substep2" class="hidden">
+                    <form method="POST" action="/register/process/"
+                          onsubmit="injectField(this,'user_type','individual_employer');
+                                    injectField(this,'first_name',document.getElementById('indEmpName').value);
+                                    injectField(this,'phone',document.getElementById('indEmpPhone').value)">
+                        {% csrf_token %}
+                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
+                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                            <input type="text" name="pincode" placeholder="6-digit PIN code" maxlength="6" pattern="[0-9]{6}" required>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-store"></i> Business Name <span style="font-weight:400;color:#888">(optional)</span></label>
+                            <input type="text" name="org_name" placeholder="e.g. My Home, Krishnamurthy Household">
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-globe"></i> Website <span style="font-weight:400;color:#888">(optional)</span></label>
+                            <input type="url" name="website" placeholder="https://yourwebsite.com">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Password *</label>
+                                <input type="password" name="password" id="indEmp-pwd" placeholder="Create password (min 8 chars)" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                                <input type="password" name="confirm_password" id="indEmp-pwd2" placeholder="Repeat password" required>
+                            </div>
+                        </div>
+                        <div id="indEmp-pwd-error" style="color:#c62828;font-size:13px;margin-bottom:12px;display:none">
+                            <i class="fas fa-exclamation-circle"></i> Passwords do not match.
+                        </div>
+                        <button type="submit" class="submit-btn" id="indEmp-submit-btn"
+                                onclick="if(document.getElementById('indEmp-pwd').value !== document.getElementById('indEmp-pwd2').value){document.getElementById('indEmp-pwd-error').style.display='block';event.preventDefault();}else{document.getElementById('indEmp-pwd-error').style.display='none';}">
+                            <i class="fas fa-check-circle"></i> Create Individual Employer Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ───────── STEP 2B: Employee Form ───────── -->
+        <div class="reg-step hidden" id="step-employee">
+            <div class="reg-card">
+                <div class="reg-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="type-badge green"><i class="fas fa-user-tie"></i> Employee</div>
+                    <h2>Employee Registration</h2>
+                    <p>Create your job seeker profile</p>
+                </div>
+                <div id="emp-substep1">
+                    <div class="form-group full">
+                        <label><i class="fas fa-user"></i> Full Name *</label>
+                        <input type="text" id="empName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                        <div class="otp-input-row">
+                            <span class="country-code">+91</span>
+                            <input type="tel" id="empPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
+                            <button type="button" class="otp-btn" onclick="sendOTP('emp')">Send OTP</button>
+                        </div>
+                    </div>
+                    <div class="otp-box hidden" id="empOtpBox">
+                        <label><i class="fas fa-shield-alt"></i> Enter OTP</label>
+                        <div class="otp-digits">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                        </div>
+                        <p class="resend-otp">Didn't receive? <a href="#" onclick="sendOTP('emp')">Resend OTP</a></p>
+                        <button type="button" class="submit-btn" onclick="verifyOTP('emp')">
+                            <i class="fas fa-check"></i> Verify OTP
+                        </button>
+                    </div>
+                </div>
+                <div id="emp-substep2" class="hidden">
+                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','employee');injectField(this,'first_name',document.getElementById('empName').value);injectField(this,'phone',document.getElementById('empPhone').value)">
+                        {% csrf_token %}
+                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-briefcase"></i> Job Category *</label>
+                                <select name="job_category" required>
+                                    <option value="">Select category</option>
+                                    <option value="white">White Collar</option>
+                                    <option value="blue">Blue Collar</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-tools"></i> Primary Skill *</label>
+                                <input type="text" name="primary_skill" placeholder="e.g. Software Developer, Driver" required>
+                            </div>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
+                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-city"></i> City *</label>
+                                <input type="text" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Password *</label>
+                                <input type="password" name="password" placeholder="Create password" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-check-circle"></i> Create Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ───────── STEP 2C: Individual Form ───────── -->
+        <div class="reg-step hidden" id="step-individual">
+            <div class="reg-card">
+                <div class="reg-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="type-badge orange"><i class="fas fa-user"></i> Individual</div>
+                    <h2>Individual Registration</h2>
+                    <p>Find local job opportunities</p>
+                </div>
+                <div id="ind-substep1">
+                    <div class="form-group full">
+                        <label><i class="fas fa-user"></i> Full Name *</label>
+                        <input type="text" id="indName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                        <div class="otp-input-row">
+                            <span class="country-code">+91</span>
+                            <input type="tel" id="indPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
+                            <button type="button" class="otp-btn" onclick="sendOTP('ind')">Send OTP</button>
+                        </div>
+                    </div>
+                    <div class="otp-box hidden" id="indOtpBox">
+                        <label><i class="fas fa-shield-alt"></i> Enter OTP</label>
+                        <div class="otp-digits">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                        </div>
+                        <p class="resend-otp">Didn't receive? <a href="#" onclick="sendOTP('ind')">Resend OTP</a></p>
+                        <button type="button" class="submit-btn" onclick="verifyOTP('ind')">
+                            <i class="fas fa-check"></i> Verify OTP
+                        </button>
+                    </div>
+                </div>
+                <div id="ind-substep2" class="hidden">
+                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','individual');injectField(this,'first_name',document.getElementById('indName').value);injectField(this,'phone',document.getElementById('indPhone').value)">
+                        {% csrf_token %}
+                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
+                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-city"></i> City *</label>
+                                <input type="text" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Password *</label>
+                                <input type="password" name="password" placeholder="Create password" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-check-circle"></i> Create Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ───────── STEP 2D: Freelancer Form ───────── -->
+        <div class="reg-step hidden" id="step-freelancer">
+            <div class="reg-card">
+                <div class="reg-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="type-badge red"><i class="fas fa-laptop"></i> Freelancer</div>
+                    <h2>Freelancer Registration</h2>
+                    <p>Offer your skills to local clients</p>
+                </div>
+                <div id="free-substep1">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" id="freeName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                            <div class="otp-input-row">
+                                <span class="country-code">+91</span>
+                                <input type="tel" id="freePhone" placeholder="10-digit number" maxlength="10">
+                                <button type="button" class="otp-btn" onclick="sendOTP('free')">Send OTP</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="otp-box hidden" id="freeOtpBox">
+                        <label><i class="fas fa-shield-alt"></i> Enter OTP</label>
+                        <div class="otp-digits">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                        </div>
+                        <p class="resend-otp">Didn't receive? <a href="#" onclick="sendOTP('free')">Resend OTP</a></p>
+                        <button type="button" class="submit-btn" onclick="verifyOTP('free')">
+                            <i class="fas fa-check"></i> Verify OTP
+                        </button>
+                    </div>
+                </div>
+                <div id="free-substep2" class="hidden">
+                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','freelancer');injectField(this,'first_name',document.getElementById('freeName').value);injectField(this,'phone',document.getElementById('freePhone').value)">
+                        {% csrf_token %}
+                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-tools"></i> Primary Skill *</label>
+                                <input type="text" name="primary_skill" placeholder="e.g. Web Developer, Photographer" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-rupee-sign"></i> Expected Rate</label>
+                                <input type="text" name="rate" placeholder="e.g. ₹500/hr or ₹10000/project">
+                            </div>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
+                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-city"></i> City *</label>
+                                <input type="text" name="city" placeholder="City" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Password *</label>
+                                <input type="password" name="password" placeholder="Create password" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-check-circle"></i> Create Freelancer Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /register-wrapper -->
+
+    <!-- APP-STYLE BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav">
+      <div class="bottom-nav-inner">
+        <a href="/" class="bn-item">
+          <i class="fas fa-home"></i><span>Home</span>
+        </a>
+        <a href="/jobs/" class="bn-item">
+          <i class="fas fa-briefcase"></i><span>Jobs</span>
+        </a>
+        <a href="/register/" class="bn-item bn-fab active">
+          <div class="bn-fab-icon"><i class="fas fa-user-plus"></i></div><span>Join</span>
+        </a>
+        <a href="/advertise/" class="bn-item">
+          <i class="fas fa-bullhorn"></i><span>Advertise</span>
+        </a>
+        <a href="/login/" class="bn-item">
+          <i class="fas fa-sign-in-alt"></i><span>Sign In</span>
+        </a>
+      </div>
+    </nav>
+    <style>
+    .bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+    .bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:520px;margin:0 auto}
+    .bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+    .bn-item i{font-size:19px}
+    .bn-item.active{color:#0a66c2}
+    .bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
+    .bn-fab{margin-top:-22px}
+    .bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
+    .bn-fab span{color:#0a66c2;font-weight:700}
+    body{padding-bottom:62px}
+    </style>
+
+    <script src="{% static 'js/register.js' %}?v=4"></script>
+</body>
+</html>
+
+

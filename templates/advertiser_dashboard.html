@@ -1,0 +1,286 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Ads — Pincode{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/advertiser.css' %}?v=4">
+<style>
+/* ── Dashboard wrapper ── */
+.adv-dash-wrapper{max-width:960px;margin:0 auto;padding:28px 16px 80px}
+
+/* ── Top bar ── */
+.adv-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.adv-topbar h1{font-size:20px;font-weight:900;color:#111}
+.adv-topbar p{font-size:13px;color:#666;margin-top:2px}
+.adv-create-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none;transition:.2s}
+.adv-create-btn:hover{background:#004182}
+
+/* ── Status banner ── */
+.adv-pending-banner{display:flex;align-items:flex-start;gap:12px;background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#7c5700}
+.adv-rejected-banner{background:#fce4ec;border-color:#f48fb1;color:#880e4f}
+
+/* ── Stats row ── */
+.adv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.adv-stat{background:#fff;border-radius:14px;padding:18px 16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1.5px solid #f0f0f0}
+.adv-stat i{font-size:22px;margin-bottom:8px;display:block}
+.adv-stat h3{font-size:26px;font-weight:900;margin-bottom:2px}
+.adv-stat p{font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.adv-stat.blue i,.adv-stat.blue h3{color:#0a66c2}
+.adv-stat.green i,.adv-stat.green h3{color:#2e7d32}
+.adv-stat.purple i,.adv-stat.purple h3{color:#6a1b9a}
+.adv-stat.orange i,.adv-stat.orange h3{color:#e65100}
+
+/* ── Section title ── */
+.adv-sec-title{font-size:16px;font-weight:800;color:#111;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+/* ── Ad cards ── */
+.adv-ad-cards{display:flex;flex-direction:column;gap:14px}
+.adv-ad-card{background:#fff;border-radius:16px;box-shadow:0 2px 14px rgba(0,0,0,.08);border:1.5px solid #f0f2f5;overflow:hidden}
+.adv-ac-top{display:flex;gap:0;align-items:stretch}
+.adv-ac-img{width:130px;flex-shrink:0;object-fit:cover;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:28px}
+.adv-ac-img img{width:130px;height:100%;object-fit:cover}
+.adv-ac-body{flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.adv-ac-title{font-size:15px;font-weight:800;color:#111}
+.adv-ac-type{font-size:11px;font-weight:700;color:#0a66c2;background:#e8f0fe;padding:3px 10px;border-radius:20px;display:inline-block}
+.adv-ac-meta{font-size:12px;color:#888;display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:4px}
+.adv-ac-meta span{display:flex;align-items:center;gap:4px}
+
+/* ── Status pill ── */
+.adv-ac-status{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.st-active{background:#e8f5e9;color:#2e7d32}
+.st-pending_review{background:#fff8e1;color:#f57f17}
+.st-pending_payment{background:#fff3e0;color:#e65100}
+.st-expired{background:#fce4ec;color:#c62828}
+.st-rejected{background:#fce4ec;color:#c62828}
+.st-draft{background:#f5f5f5;color:#666}
+.st-paused{background:#e3f2fd;color:#1565c0}
+
+/* ── Reach strip ── */
+.adv-reach-strip{display:flex;align-items:center;gap:0;border-top:1px solid #f0f2f5;background:#fafbfc}
+.adv-reach-cell{flex:1;text-align:center;padding:12px 8px;border-right:1px solid #f0f2f5}
+.adv-reach-cell:last-child{border-right:none}
+.adv-reach-cell .num{font-size:20px;font-weight:900;color:#111}
+.adv-reach-cell .lbl{font-size:10px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.adv-reach-cell .num.blue{color:#0a66c2}
+.adv-reach-cell .num.green{color:#2e7d32}
+
+/* ── Action strip ── */
+.adv-action-strip{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid #f0f2f5;flex-wrap:wrap}
+.adv-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s;cursor:pointer;border:none}
+.adv-btn-renew{background:#e8f5e9;color:#2e7d32}
+.adv-btn-renew:hover{background:#c8e6c9}
+.adv-btn-stats{background:#e8f0fe;color:#0a66c2}
+.adv-btn-stats:hover{background:#c5d9f5}
+.adv-btn-pay{background:#fff3e0;color:#e65100}
+.adv-btn-pay:hover{background:#ffe0b2}
+.adv-expire-warn{font-size:12px;color:#e65100;font-weight:700;display:flex;align-items:center;gap:5px;margin-left:auto}
+
+/* ── Empty state ── */
+.adv-empty{text-align:center;padding:60px 20px;color:#888}
+.adv-empty i{font-size:48px;color:#ddd;display:block;margin-bottom:14px}
+.adv-empty h4{font-size:16px;font-weight:700;color:#444;margin-bottom:8px}
+.adv-empty p{font-size:13px;margin-bottom:20px}
+
+/* ── Business card ── */
+.adv-biz-card{background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.07);padding:20px 22px;margin-top:24px;border:1.5px solid #f0f0f0}
+.adv-biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.adv-biz-grid>div label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px}
+.adv-biz-grid>div p{font-size:13px;font-weight:600;color:#222}
+
+@media(max-width:700px){
+  .adv-stats{grid-template-columns:repeat(2,1fr)}
+  .adv-ac-img{width:90px}
+  .adv-biz-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .adv-ac-img{display:none}
+  .adv-stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="adv-dash-wrapper">
+
+  <!-- Top bar -->
+  <div class="adv-topbar">
+    <div>
+      <h1><i class="fas fa-bullhorn" style="color:#f3a000"></i> My Ads</h1>
+      <p>{{ adv.business_name }} &nbsp;·&nbsp;
+        <span class="adv-ac-status st-{{ adv.status }}">{{ adv.get_status_display }}</span>
+      </p>
+    </div>
+    {% if adv.status == 'approved' %}
+    <a href="{% url 'create_advertisement' %}" class="adv-create-btn">
+      <i class="fas fa-plus"></i> Create New Ad
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- Account status banners -->
+  {% if adv.status == 'pending' %}
+  <div class="adv-pending-banner">
+    <i class="fas fa-clock" style="font-size:20px;flex-shrink:0;margin-top:1px"></i>
+    <div>
+      <strong>Account under review.</strong> Admin will approve your advertiser account within 24 hours. Once approved you can post ads.
+    </div>
+  </div>
+  {% elif adv.status == 'rejected' %}
+  <div class="adv-pending-banner adv-rejected-banner">
+    <i class="fas fa-times-circle" style="font-size:20px;flex-shrink:0"></i>
+    <div>
+      <strong>Registration rejected.</strong>
+      {% if adv.rejection_note %} Reason: {{ adv.rejection_note }}{% endif %}
+      <a href="{% url 'advertiser_register' %}" style="color:#880e4f;font-weight:700"> Re-apply →</a>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if expiring %}
+  <div class="adv-pending-banner" style="background:#fff3e0;border-color:#ffcc80;color:#7c4700">
+    <i class="fas fa-exclamation-triangle" style="font-size:18px;flex-shrink:0"></i>
+    <div>
+      <strong>{{ expiring|length }} ad(s) expiring soon!</strong>
+      {% for a in expiring %} <a href="{% url 'renew_ad' a.pk %}" style="color:#e65100;font-weight:700">{{ a.title }}</a> ({{ a.days_remaining }} days){% if not forloop.last %}, {% endif %}{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Stats -->
+  <div class="adv-stats">
+    <div class="adv-stat blue">
+      <i class="fas fa-ad"></i>
+      <h3>{{ ads.count }}</h3>
+      <p>Total Ads</p>
+    </div>
+    <div class="adv-stat green">
+      <i class="fas fa-rocket"></i>
+      <h3>{{ active_count }}</h3>
+      <p>Active Ads</p>
+    </div>
+    <div class="adv-stat purple">
+      <i class="fas fa-eye"></i>
+      <h3>{{ total_views }}</h3>
+      <p>Members Reached</p>
+    </div>
+    <div class="adv-stat orange">
+      <i class="fas fa-mouse-pointer"></i>
+      <h3>{{ total_clicks }}</h3>
+      <p>Total Clicks</p>
+    </div>
+  </div>
+
+  <!-- My Advertisements -->
+  <div class="adv-sec-title"><i class="fas fa-list" style="color:#0a66c2"></i> My Advertisements</div>
+
+  {% if ads %}
+  <div class="adv-ad-cards">
+    {% for ad in ads %}
+    <div class="adv-ad-card">
+
+      <!-- Top: image + details -->
+      <div class="adv-ac-top">
+        <div class="adv-ac-img">
+          {% if ad.image %}<img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+          {% else %}<i class="fas fa-image"></i>{% endif %}
+        </div>
+        <div class="adv-ac-body">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="adv-ac-status st-{{ ad.status }}">
+              <i class="fas {% if ad.status == 'active' %}fa-circle{% elif ad.status == 'pending_review' %}fa-hourglass-half{% elif ad.status == 'rejected' %}fa-times-circle{% elif ad.status == 'expired' %}fa-clock{% else %}fa-circle{% endif %}" style="font-size:9px"></i>
+              {{ ad.get_status_display }}
+            </span>
+            <span class="adv-ac-type">{{ ad.package.get_ad_type_display }}</span>
+          </div>
+          <div class="adv-ac-title">{{ ad.title }}</div>
+          <div class="adv-ac-meta">
+            {% if ad.start_date %}
+            <span><i class="fas fa-calendar-alt"></i> {{ ad.start_date|date:"d M Y" }} – {{ ad.end_date|date:"d M Y" }}</span>
+            {% endif %}
+            {% if ad.status == 'active' %}
+            <span style="color:{% if ad.is_expiring_soon %}#e65100{% else %}#2e7d32{% endif %}">
+              <i class="fas fa-clock"></i> {{ ad.days_remaining }} days left
+            </span>
+            {% endif %}
+          </div>
+          {% if ad.status == 'pending_review' %}
+          <p style="font-size:12px;color:#f57f17;margin-top:4px"><i class="fas fa-info-circle"></i> Admin is reviewing your ad. It will go live once approved.</p>
+          {% elif ad.status == 'rejected' and ad.rejection_note %}
+          <p style="font-size:12px;color:#c62828;margin-top:4px"><i class="fas fa-times-circle"></i> Rejected: {{ ad.rejection_note }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Reach stats strip -->
+      <div class="adv-reach-strip">
+        <div class="adv-reach-cell">
+          <div class="num blue">{{ ad.views }}</div>
+          <div class="lbl"><i class="fas fa-eye"></i> Members Saw</div>
+        </div>
+        <div class="adv-reach-cell">
+          <div class="num green">{{ ad.clicks }}</div>
+          <div class="lbl"><i class="fas fa-mouse-pointer"></i> Clicks</div>
+        </div>
+        <div class="adv-reach-cell">
+          <div class="num">{{ ad.ctr }}%</div>
+          <div class="lbl">CTR</div>
+        </div>
+        <div class="adv-reach-cell">
+          <div class="num">{{ ad.package.duration_days }}d</div>
+          <div class="lbl">Duration</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="adv-action-strip">
+        <a href="{% url 'ad_performance' ad.pk %}" class="adv-btn adv-btn-stats">
+          <i class="fas fa-chart-bar"></i> View Report
+        </a>
+        {% if ad.status == 'pending_payment' %}
+        <a href="{% url 'ad_payment' ad.pk %}" class="adv-btn adv-btn-pay">
+          <i class="fas fa-credit-card"></i> Complete Payment
+        </a>
+        {% endif %}
+        {% if ad.status == 'expired' or ad.days_remaining <= 3 %}
+        <a href="{% url 'renew_ad' ad.pk %}" class="adv-btn adv-btn-renew">
+          <i class="fas fa-sync-alt"></i> Renew Ad
+        </a>
+        {% endif %}
+        {% if ad.status == 'active' and ad.is_expiring_soon %}
+        <span class="adv-expire-warn"><i class="fas fa-exclamation-triangle"></i> Expiring in {{ ad.days_remaining }} days</span>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="adv-empty">
+    <i class="fas fa-bullhorn"></i>
+    <h4>No advertisements yet</h4>
+    <p>Create your first ad to start reaching thousands of members in your area</p>
+    {% if adv.status == 'approved' %}
+    <a href="{% url 'create_advertisement' %}" class="adv-create-btn">
+      <i class="fas fa-plus"></i> Create First Ad
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Business info -->
+  <div class="adv-biz-card">
+    <div class="adv-sec-title" style="margin-bottom:0"><i class="fas fa-building" style="color:#0a66c2"></i> Business Details</div>
+    <div class="adv-biz-grid">
+      <div><label>Business Name</label><p>{{ adv.business_name }}</p></div>
+      <div><label>Contact Person</label><p>{{ adv.contact_person }}</p></div>
+      <div><label>Phone</label><p>{{ adv.phone }}</p></div>
+      <div><label>Email</label><p>{{ adv.email|default:"—" }}</p></div>
+      <div><label>GST</label><p>{{ adv.gst|default:"—" }}</p></div>
+      <div><label>Website</label><p>{% if adv.website %}<a href="{{ adv.website }}" target="_blank" style="color:#0a66c2">{{ adv.website|truncatechars:30 }}</a>{% else %}—{% endif %}</p></div>
+      <div style="grid-column:1/-1"><label>Address</label><p>{{ adv.address }}</p></div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+

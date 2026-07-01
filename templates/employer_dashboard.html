@@ -1,0 +1,624 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employer Dashboard — Pincode</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/employer_dashboard.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body class="dash-body">
+
+<!-- ══ TOPBAR ══════════════════════════════════════════════════════ -->
+<header class="dash-topbar">
+  <a href="/" class="dash-logo"><i class="fas fa-map-pin"></i> Pincode</a>
+  <div class="dash-topbar-right">
+    <a href="/post-job/" class="dash-post-btn"><i class="fas fa-plus"></i> Post Job</a>
+    <div class="dash-icon-btn" onclick="showSection('notifications')">
+      <i class="fas fa-bell"></i>
+      {% if unread_notif_count %}<span class="dash-badge">{{ unread_notif_count }}</span>{% endif %}
+    </div>
+    <div class="dash-icon-btn" onclick="showSection('messages')">
+      <i class="fas fa-comment-dots"></i>
+      {% if unread_msg_count %}<span class="dash-badge">{{ unread_msg_count }}</span>{% endif %}
+    </div>
+    <div class="dash-avatar-wrap">
+      <div class="dash-avatar">{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}</div>
+      <div class="dash-avatar-menu">
+        <a href="/profile/"><i class="fas fa-user"></i> My Profile</a>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="dash-layout">
+
+  <!-- ══ SIDEBAR ════════════════════════════════════════════════════ -->
+  <aside class="dash-sidebar">
+    {% if profile %}
+    <div class="sidebar-profile">
+      <div class="sp-avatar">{{ profile.company_name|first|upper }}</div>
+      <div class="sp-info">
+        <strong>{{ profile.company_name|truncatechars:22 }}</strong>
+        <span>{{ request.user.user_type|title }}</span>
+      </div>
+    </div>
+    {% else %}
+    <div class="sidebar-profile">
+      <div class="sp-avatar">{{ request.user.get_full_name|first|upper|default:"E" }}</div>
+      <div class="sp-info">
+        <strong>{{ request.user.get_full_name|default:request.user.username|truncatechars:22 }}</strong>
+        <span>Employer</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <nav class="sidebar-nav">
+      <a class="snav-item active" onclick="showSection('active-jobs',this)" data-sec="active-jobs">
+        <i class="fas fa-briefcase"></i> Active Jobs
+        <span class="snav-count">{{ active_jobs.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('pending-jobs',this)" data-sec="pending-jobs">
+        <i class="fas fa-clock"></i> Pending Jobs
+        <span class="snav-count">{{ pending_jobs.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('closed-jobs',this)" data-sec="closed-jobs">
+        <i class="fas fa-archive"></i> Closed Jobs
+        <span class="snav-count">{{ closed_jobs.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('applications',this)" data-sec="applications">
+        <i class="fas fa-file-alt"></i> Applications
+        <span class="snav-count">{{ all_apps.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('shortlisted',this)" data-sec="shortlisted">
+        <i class="fas fa-star"></i> Shortlisted
+        <span class="snav-count">{{ shortlisted.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('saved-candidates',this)" data-sec="saved-candidates">
+        <i class="fas fa-bookmark"></i> Saved Candidates
+        <span class="snav-count">{{ saved_candidates.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('messages',this)" data-sec="messages">
+        <i class="fas fa-comment-dots"></i> Messages
+        {% if unread_msg_count %}<span class="snav-count unread">{{ unread_msg_count }}</span>{% endif %}
+      </a>
+      <a class="snav-item" onclick="showSection('notifications',this)" data-sec="notifications">
+        <i class="fas fa-bell"></i> Notifications
+        {% if unread_notif_count %}<span class="snav-count unread">{{ unread_notif_count }}</span>{% endif %}
+      </a>
+      <a class="snav-item" onclick="showSection('wallet',this)" data-sec="wallet">
+        <i class="fas fa-wallet"></i> Wallet
+      </a>
+      <a class="snav-item" onclick="showSection('subscription',this)" data-sec="subscription">
+        <i class="fas fa-crown"></i> Subscription
+      </a>
+      <a class="snav-item" onclick="showSection('billing',this)" data-sec="billing">
+        <i class="fas fa-receipt"></i> Billing History
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN CONTENT ════════════════════════════════════════════════ -->
+  <main class="dash-main">
+
+    <!-- STATS STRIP -->
+    <div class="stats-strip">
+      <div class="stat-chip blue"   onclick="showSection('active-jobs')">
+        <i class="fas fa-briefcase"></i><span>{{ active_jobs.count }}</span><label>Active</label>
+      </div>
+      <div class="stat-chip yellow" onclick="showSection('pending-jobs')">
+        <i class="fas fa-clock"></i><span>{{ pending_jobs.count }}</span><label>Pending</label>
+      </div>
+      <div class="stat-chip grey"   onclick="showSection('closed-jobs')">
+        <i class="fas fa-archive"></i><span>{{ closed_jobs.count }}</span><label>Closed</label>
+      </div>
+      <div class="stat-chip green"  onclick="showSection('applications')">
+        <i class="fas fa-file-alt"></i><span>{{ all_apps.count }}</span><label>Applications</label>
+      </div>
+      <div class="stat-chip orange" onclick="showSection('shortlisted')">
+        <i class="fas fa-star"></i><span>{{ shortlisted.count }}</span><label>Shortlisted</label>
+      </div>
+      <div class="stat-chip purple" onclick="showSection('saved-candidates')">
+        <i class="fas fa-bookmark"></i><span>{{ saved_candidates.count }}</span><label>Saved</label>
+      </div>
+      <div class="stat-chip teal"   onclick="showSection('messages')">
+        <i class="fas fa-comment-dots"></i><span>{{ unread_msg_count }}</span><label>Messages</label>
+      </div>
+      <div class="stat-chip red"    onclick="showSection('wallet')">
+        <i class="fas fa-wallet"></i><span>₹{{ wallet.balance|floatformat:0 }}</span><label>Wallet</label>
+      </div>
+    </div>
+
+    <!-- ═══ ACTIVE JOBS ═══ -->
+    <section class="dsec" id="sec-active-jobs">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-briefcase"></i> Active Jobs</h2><p>Live jobs accepting applications</p></div>
+        <a href="/post-job/" class="dsec-btn"><i class="fas fa-plus"></i> Post New Job</a>
+      </div>
+      {% if active_jobs %}
+      <div class="job-list">
+        {% for job in active_jobs %}
+        <div class="jl-row">
+          <div class="jl-icon {% if job.collar_type == 'blue' %}blue{% endif %}">
+            <i class="fas {% if job.collar_type == 'blue' %}fa-hard-hat{% else %}fa-briefcase{% endif %}"></i>
+          </div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"—" }}{% if job.pincode %} · {{ job.pincode }}{% endif %}</span>
+              <span><i class="fas fa-users"></i> {{ job.applications.count }} applicant{{ job.applications.count|pluralize }}</span>
+              <span><i class="fas fa-calendar-alt"></i> {{ job.created_at|date:"d M Y" }}</span>
+              {% if job.is_urgent %}<span class="urgent-tag"><i class="fas fa-bolt"></i> Urgent</span>{% endif %}
+            </div>
+          </div>
+          <div class="jl-salary">{{ job.salary_display }}</div>
+          <div class="jl-actions">
+            <a href="/jobs/{{ job.pk }}/" class="jl-btn view" title="View"><i class="fas fa-eye"></i></a>
+            <a href="/jobs/{{ job.pk }}/edit/" class="jl-btn edit" title="Edit"><i class="fas fa-pen"></i></a>
+            <a href="/jobs/{{ job.pk }}/close/" class="jl-btn close" title="Close" onclick="return confirm('Close this job?')"><i class="fas fa-times-circle"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-briefcase"></i>
+        <h3>No active jobs</h3>
+        <p>Post your first job to start receiving applications</p>
+        <a href="/post-job/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-plus"></i> Post a Job</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ PENDING JOBS ═══ -->
+    <section class="dsec hidden" id="sec-pending-jobs">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-clock"></i> Pending Jobs</h2><p>Drafts not yet published</p></div>
+        <a href="/post-job/" class="dsec-btn"><i class="fas fa-plus"></i> New Draft</a>
+      </div>
+      {% if pending_jobs %}
+      <div class="job-list">
+        {% for job in pending_jobs %}
+        <div class="jl-row">
+          <div class="jl-icon yellow"><i class="fas fa-clock"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"Location not set" }}</span>
+              <span><i class="fas fa-calendar-alt"></i> Saved {{ job.created_at|date:"d M Y" }}</span>
+            </div>
+          </div>
+          <span class="status-pill draft">Draft</span>
+          <div class="jl-actions">
+            <a href="/jobs/{{ job.pk }}/edit/" class="jl-btn edit" title="Edit"><i class="fas fa-pen"></i></a>
+            <a href="/jobs/{{ job.pk }}/publish/" class="jl-btn view" title="Publish"><i class="fas fa-paper-plane"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-clock"></i><h3>No drafts</h3><p>All your jobs are live or closed</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ CLOSED JOBS ═══ -->
+    <section class="dsec hidden" id="sec-closed-jobs">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-archive"></i> Closed Jobs</h2><p>Jobs no longer accepting applications</p></div>
+      </div>
+      {% if closed_jobs %}
+      <div class="job-list">
+        {% for job in closed_jobs %}
+        <div class="jl-row">
+          <div class="jl-icon grey"><i class="fas fa-archive"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+              <span><i class="fas fa-users"></i> {{ job.applications.count }} total applicant{{ job.applications.count|pluralize }}</span>
+              <span><i class="fas fa-calendar-alt"></i> {{ job.created_at|date:"d M Y" }}</span>
+            </div>
+          </div>
+          <span class="status-pill closed">Closed</span>
+          <div class="jl-actions">
+            <a href="/jobs/{{ job.pk }}/" class="jl-btn view" title="View"><i class="fas fa-eye"></i></a>
+            <a href="/jobs/{{ job.pk }}/reopen/" class="jl-btn edit" title="Reopen"><i class="fas fa-redo"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-archive"></i><h3>No closed jobs</h3><p>Closed jobs will appear here</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ APPLICATIONS ═══ -->
+    <section class="dsec hidden" id="sec-applications">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-file-alt"></i> Applications</h2><p>All candidates who applied to your jobs</p></div>
+        <select class="dsec-filter" onchange="filterApps(this.value)">
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="shortlisted">Shortlisted</option>
+          <option value="interview_scheduled">Interview Scheduled</option>
+          <option value="offer_sent">Offer Sent</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      {% if all_apps %}
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>#</th><th>Candidate</th><th>Job</th><th>Applied</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in all_apps %}
+            <tr data-status="{{ app.status }}">
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <div class="cand-cell">
+                  <div class="cand-avatar-sm">{{ app.applicant.get_full_name|first|upper|default:"?" }}</div>
+                  <div>
+                    <strong>{{ app.applicant.get_full_name|default:app.applicant.username }}</strong>
+                    <div class="cand-sub">{{ app.applicant.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ app.job.title|truncatechars:28 }}</td>
+              <td>{{ app.applied_at|date:"d M Y" }}</td>
+              <td><span class="status-pill {{ app.status }}">{{ app.get_status_display }}</span></td>
+              <td>
+                <div class="jl-actions">
+                  <a href="/applications/{{ app.pk }}/" class="jl-btn view" title="View Profile"><i class="fas fa-eye"></i></a>
+                  <a href="/messages/start/{{ app.applicant.pk }}/{{ app.job.pk }}/" class="jl-btn msg" title="Message"><i class="fas fa-comment"></i></a>
+                  <a href="/applications/{{ app.pk }}/shortlist/" class="jl-btn edit" title="Shortlist"><i class="fas fa-star"></i></a>
+                  <a href="/applications/{{ app.pk }}/reject/" class="jl-btn close" title="Reject"><i class="fas fa-times"></i></a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-file-alt"></i><h3>No applications yet</h3><p>Applications appear here once candidates apply</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ SHORTLISTED ═══ -->
+    <section class="dsec hidden" id="sec-shortlisted">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-star"></i> Shortlisted Candidates</h2><p>Candidates moved to shortlist</p></div>
+      </div>
+      {% if shortlisted %}
+      <div class="cand-grid">
+        {% for app in shortlisted %}
+        <div class="cand-card">
+          <div class="cand-card-avatar">{{ app.applicant.get_full_name|first|upper|default:"?" }}</div>
+          <h4>{{ app.applicant.get_full_name|default:app.applicant.username }}</h4>
+          <p class="cand-for">For: <strong>{{ app.job.title }}</strong></p>
+          <p class="cand-date"><i class="fas fa-calendar-alt"></i> Applied {{ app.applied_at|date:"d M Y" }}</p>
+          <div class="cand-card-actions">
+            <a href="/messages/start/{{ app.applicant.pk }}/{{ app.job.pk }}/" class="cand-btn primary"><i class="fas fa-comment"></i> Message</a>
+            <a href="/messages/start/{{ app.applicant.pk }}/{{ app.job.pk }}/#invite" class="cand-btn primary" style="background:#7c3aed" onclick="sessionStorage.setItem('openInvite','1')"><i class="fas fa-calendar-check"></i> Invite</a>
+            <a href="/applications/{{ app.pk }}/" class="cand-btn ghost"><i class="fas fa-eye"></i> View</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-star"></i><h3>No shortlisted candidates</h3><p>Shortlist candidates from the Applications section</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ SAVED CANDIDATES ═══ -->
+    <section class="dsec hidden" id="sec-saved-candidates">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-bookmark"></i> Saved Candidates</h2><p>Profiles bookmarked for future roles</p></div>
+        <a href="/candidates/" class="dsec-btn"><i class="fas fa-search"></i> Browse Candidates</a>
+      </div>
+      {% if saved_candidates %}
+      <div class="cand-grid">
+        {% for sc in saved_candidates %}
+        <div class="cand-card">
+          <div class="cand-card-avatar">{{ sc.candidate.get_full_name|first|upper|default:"?" }}</div>
+          <h4>{{ sc.candidate.get_full_name|default:sc.candidate.username }}</h4>
+          {% if sc.note %}<p class="cand-note"><i class="fas fa-sticky-note"></i> {{ sc.note }}</p>{% endif %}
+          <p class="cand-date">Saved {{ sc.saved_at|date:"d M Y" }}</p>
+          <div class="cand-card-actions">
+            <a href="/candidates/{{ sc.candidate.pk }}/" class="cand-btn ghost"><i class="fas fa-eye"></i> View Profile</a>
+            <a href="/messages/start/{{ sc.candidate.pk }}/" class="cand-btn primary"><i class="fas fa-comment"></i> Message</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-bookmark"></i><h3>No saved candidates</h3>
+        <p>Browse candidates and bookmark them for future openings</p>
+        <a href="/candidates/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-search"></i> Browse Candidates</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ MESSAGES ═══ -->
+    <section class="dsec hidden" id="sec-messages">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-comment-dots"></i> Messages</h2><p>Conversations with candidates &amp; admins</p></div>
+        <a href="/messages/" class="dsec-btn"><i class="fas fa-external-link-alt"></i> Open Inbox</a>
+      </div>
+      {% if recent_messages %}
+      <div class="msg-list">
+        {% for row in recent_messages %}
+        {% with conv=row.conv other=row.other last=row.last unread=row.unread %}
+        <div class="msg-row {% if unread %}unread{% endif %}">
+          <div class="msg-avatar">
+            {% if other.seeker.photo %}<img src="{{ other.seeker.photo.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" alt="">
+            {% else %}{{ other.get_full_name|first|upper|default:"?" }}{% endif %}
+          </div>
+          <div class="msg-body">
+            <div class="msg-top">
+              <strong>{{ other.get_full_name|default:other.username }}</strong>
+              {% if last %}<span class="msg-time">{{ last.sent_at|timesince }} ago</span>{% endif %}
+              {% if unread %}<span class="unread-dot"></span>{% endif %}
+            </div>
+            {% if conv.job %}<div class="msg-job-tag"><i class="fas fa-briefcase"></i> {{ conv.job.title }}</div>{% endif %}
+            {% if last %}
+            <p class="msg-preview">
+              {% if last.msg_type == 'image' %}<i class="fas fa-image"></i> Photo
+              {% elif last.msg_type == 'interview_invite' %}<i class="fas fa-calendar-check"></i> Interview Invitation
+              {% elif last.msg_type in 'file,resume' %}<i class="fas fa-paperclip"></i> File
+              {% else %}{{ last.content|truncatechars:80 }}
+              {% endif %}
+            </p>
+            {% endif %}
+          </div>
+          <a href="/messages/{{ conv.pk }}/" class="jl-btn view"><i class="fas fa-reply"></i> Reply</a>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-comment-dots"></i><h3>No messages yet</h3><p>Your conversations with candidates will appear here</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ NOTIFICATIONS ═══ -->
+    <section class="dsec hidden" id="sec-notifications">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-bell"></i> Notifications</h2><p>Updates and alerts</p></div>
+        {% if notifs %}<a href="/notifications/mark-all-read/" class="dsec-btn-ghost"><i class="fas fa-check-double"></i> Mark all read</a>{% endif %}
+      </div>
+      {% if notifs %}
+      <div class="notif-list">
+        {% for n in notifs %}
+        <div class="notif-row {{ n.notif_type }} {% if not n.is_read %}unread{% endif %}">
+          <div class="notif-icon {{ n.notif_type }}">
+            <i class="fas {% if n.notif_type == 'success' %}fa-check-circle{% elif n.notif_type == 'warning' %}fa-exclamation-triangle{% elif n.notif_type == 'alert' %}fa-bell{% else %}fa-info-circle{% endif %}"></i>
+          </div>
+          <div class="notif-body">
+            <strong>{{ n.title }}</strong>
+            <p>{{ n.message }}</p>
+            <span class="notif-time">{{ n.created_at|timesince }} ago</span>
+          </div>
+          {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-bell"></i><h3>No notifications</h3><p>You're all caught up!</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ WALLET ═══ -->
+    <section class="dsec hidden" id="sec-wallet">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-wallet"></i> Wallet</h2><p>Your account balance</p></div>
+        <a href="/wallet/add-money/" class="dsec-btn"><i class="fas fa-plus"></i> Add Money</a>
+      </div>
+
+      <div class="wallet-card">
+        <div class="wallet-balance-block">
+          <div class="wallet-icon"><i class="fas fa-wallet"></i></div>
+          <div>
+            <div class="wallet-label">Available Balance</div>
+            <div class="wallet-amount">₹{{ wallet.balance|floatformat:2 }}</div>
+          </div>
+        </div>
+        <div class="wallet-btn-row">
+          <a href="/wallet/add-money/" class="w-btn add"><i class="fas fa-plus-circle"></i> Add Money</a>
+          <a href="/wallet/withdraw/" class="w-btn withdraw"><i class="fas fa-arrow-circle-down"></i> Withdraw</a>
+        </div>
+      </div>
+
+      <h3 class="sub-heading">Transaction History</h3>
+      {% if wallet_txns %}
+      <div class="txn-list">
+        {% for txn in wallet_txns %}
+        <div class="txn-row">
+          <div class="txn-icon {{ txn.txn_type }}">
+            <i class="fas {% if txn.txn_type == 'credit' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+          </div>
+          <div class="txn-info">
+            <strong>{{ txn.description }}</strong>
+            <span>{{ txn.created_at|date:"d M Y, h:i A" }}</span>
+          </div>
+          <div class="txn-amount {{ txn.txn_type }}">
+            {% if txn.txn_type == 'credit' %}+{% else %}-{% endif %}₹{{ txn.amount|floatformat:2 }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state" style="padding:28px"><i class="fas fa-exchange-alt"></i><h3>No transactions yet</h3><p>Wallet activity will appear here</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ SUBSCRIPTION ═══ -->
+    <section class="dsec hidden" id="sec-subscription">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-crown"></i> Subscription</h2><p>Current plan and upgrades</p></div>
+      </div>
+
+      {% if current_sub %}
+      <div class="current-plan-card">
+        <div class="cp-top">
+          <span class="cp-badge active"><i class="fas fa-crown"></i> Active Plan</span>
+          <span class="cp-days">{{ current_sub.days_remaining }} day{{ current_sub.days_remaining|pluralize }} left</span>
+        </div>
+        <div class="cp-name">{{ current_sub.plan.name }}</div>
+        <div class="cp-meta-row">
+          <span><i class="fas fa-calendar-alt"></i> Expires {{ current_sub.end_date|date:"d M Y" }}</span>
+          <span><i class="fas fa-briefcase"></i>
+            {% if current_sub.plan.job_posts == 0 %}Unlimited posts
+            {% else %}{{ current_sub.jobs_remaining }} / {{ current_sub.plan.job_posts }} posts used{% endif %}
+          </span>
+          <span><i class="fas fa-rupee-sign"></i> Paid ₹{{ current_sub.amount_paid|floatformat:0 }}</span>
+        </div>
+        {% if current_sub.plan.feature_list %}
+        <div class="cp-features">
+          {% for feat in current_sub.plan.feature_list %}
+          <span class="cp-feat"><i class="fas fa-check"></i> {{ feat }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <a href="/subscription/renew/" class="dsec-btn" style="margin-top:16px">Renew Plan</a>
+      </div>
+      {% else %}
+      <div class="no-plan-banner">
+        <i class="fas fa-crown"></i>
+        <div>
+          <h3>No active subscription</h3>
+          <p>Subscribe to a plan to post more jobs and unlock premium features</p>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if available_plans %}
+      <h3 class="sub-heading" style="margin-top:36px">Available Plans</h3>
+      <div class="plans-grid">
+        {% for plan in available_plans %}
+        <div class="plan-card {% if plan.is_featured %}featured{% endif %}">
+          {% if plan.is_featured %}<div class="plan-badge">Most Popular</div>{% endif %}
+          <h4>{{ plan.name }}</h4>
+          <div class="plan-price">₹{{ plan.price|floatformat:0 }}<span>/{{ plan.duration_days }}d</span></div>
+          <div class="plan-posts">
+            <i class="fas fa-briefcase"></i>
+            {% if plan.job_posts == 0 %}Unlimited job posts{% else %}{{ plan.job_posts }} job posts{% endif %}
+          </div>
+          {% if plan.feature_list %}
+          <ul class="plan-feats">
+            {% for feat in plan.feature_list %}<li><i class="fas fa-check"></i> {{ feat }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          <a href="/subscription/buy/{{ plan.pk }}/" class="plan-btn {% if plan.is_featured %}featured{% endif %}">
+            {% if current_sub and current_sub.plan.pk == plan.pk %}Current Plan{% else %}Subscribe{% endif %}
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ BILLING ═══ -->
+    <section class="dsec hidden" id="sec-billing">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-receipt"></i> Billing History</h2><p>Invoices and payment records</p></div>
+      </div>
+      {% if billing_records %}
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr><th>#</th><th>Invoice</th><th>Description</th><th>Amount</th><th>Date</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for bill in billing_records %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td><code>{{ bill.invoice_number|default:"—" }}</code></td>
+              <td>{{ bill.description }}</td>
+              <td><strong>₹{{ bill.amount|floatformat:2 }}</strong></td>
+              <td>{{ bill.created_at|date:"d M Y" }}</td>
+              <td><span class="status-pill {{ bill.status }}">{{ bill.get_status_display }}</span></td>
+              <td><a href="/billing/{{ bill.pk }}/invoice/" class="jl-btn view" title="Download"><i class="fas fa-download"></i></a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-receipt"></i><h3>No billing records</h3><p>Payment history will appear here after your first transaction</p></div>
+      {% endif %}
+    </section>
+
+  </main>
+</div>
+
+<script>
+function showSection(id, navEl) {
+  document.querySelectorAll('.dsec').forEach(s => s.classList.add('hidden'));
+  document.querySelectorAll('.snav-item').forEach(a => a.classList.remove('active'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) sec.classList.remove('hidden');
+  if (navEl) {
+    navEl.classList.add('active');
+  } else {
+    const m = document.querySelector('.snav-item[data-sec="' + id + '"]');
+    if (m) m.classList.add('active');
+  }
+  history.replaceState(null, '', '#' + id);
+}
+
+function filterApps(status) {
+  document.querySelectorAll('.dash-table tbody tr').forEach(row => {
+    row.style.display = (!status || row.dataset.status === status) ? '' : 'none';
+  });
+}
+
+// Restore section from URL hash on load
+(function() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash) showSection(hash);
+})();
+</script>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="/employer/dashboard/" class="bn-item active" id="bn-home"><i class="fas fa-home"></i>Home</a>
+  <a href="/employer/dashboard/#notifications" class="bn-item" id="bn-alerts" onclick="showSection('notifications');updateBnActive('alerts');return false"><i class="fas fa-bell"></i>Alerts</a>
+  <a href="/post-job/" class="bn-item bn-post"><div class="bn-post-circle"><i class="fas fa-plus"></i></div><span>Post</span></a>
+  <a href="/employer/dashboard/#messages" class="bn-item" id="bn-messages" onclick="showSection('messages');updateBnActive('messages');return false"><i class="fas fa-comment-dots"></i>Messages</a>
+  <a href="/employer/dashboard/#my-jobs" class="bn-item" id="bn-jobs" onclick="showSection('my-jobs');updateBnActive('jobs');return false"><i class="fas fa-briefcase"></i>My Jobs</a>
+</nav>
+<script>
+function updateBnActive(key){
+  document.querySelectorAll('.bn-item:not(.bn-post)').forEach(function(el){el.classList.remove('active')});
+  var el = document.getElementById('bn-'+key);
+  if(el) el.classList.add('active');
+}
+// sync on load from hash
+(function(){
+  var h = window.location.hash.replace('#','');
+  if(h==='notifications') updateBnActive('alerts');
+  else if(h==='messages') updateBnActive('messages');
+  else if(h==='my-jobs') updateBnActive('jobs');
+})();
+</script>
+
+</body>
+</html>
+
+
+

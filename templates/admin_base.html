@@ -1,0 +1,168 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Admin Panel{% endblock %} — Pincode</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Top Navbar -->
+<nav class="navbar" style="position:sticky;top:0;z-index:999">
+  <div class="nav-container">
+    <a href="/" class="nav-logo"><i class="fas fa-map-pin"></i><span>Pincode</span></a>
+    <div style="flex:1"></div>
+    <div class="nav-links">
+      <a href="/" style="font-size:13px;color:#888"><i class="fas fa-home"></i> Homepage</a>
+      {% if request.user.admin_role == 'super_admin' %}
+        <a href="/super-admin/" style="font-size:13px;color:#ffd700"><i class="fas fa-crown"></i> Super Admin</a>
+      {% elif request.user.admin_role == 'state_admin' %}
+        <a href="/state-admin/" style="font-size:13px;color:#0a66c2"><i class="fas fa-map"></i> State Admin</a>
+      {% elif request.user.admin_role == 'district_admin' %}
+        <a href="/district-admin/" style="font-size:13px;color:#2e7d32"><i class="fas fa-map-marker-alt"></i> District Admin</a>
+      {% endif %}
+      <a href="/logout/" class="btn-signin">Logout</a>
+    </div>
+  </div>
+</nav>
+
+{% if messages %}
+<div class="messages-bar">
+  {% for msg in messages %}
+  <div class="msg msg-{{ msg.tags }}">{{ msg }} <span onclick="this.parentElement.remove()">✕</span></div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="ap-layout">
+
+  <!-- Sidebar -->
+  <aside class="ap-sidebar">
+    <div class="ap-sidebar-header">
+      {% if request.user.admin_role == 'super_admin' %}
+        <div class="ap-role-badge badge-super"><i class="fas fa-crown"></i> Super Admin</div>
+      {% elif request.user.admin_role == 'state_admin' %}
+        <div class="ap-role-badge badge-state"><i class="fas fa-map"></i> State Admin</div>
+      {% else %}
+        <div class="ap-role-badge badge-district"><i class="fas fa-map-marker-alt"></i> District Admin</div>
+      {% endif %}
+      <p>
+        {% if request.user.admin_role == 'state_admin' and request.user.admin_profile.state %}
+          {{ request.user.admin_profile.state.name }}
+        {% elif request.user.admin_role == 'district_admin' and request.user.admin_profile.district %}
+          {{ request.user.admin_profile.district.name }}
+        {% else %}National Level{% endif %}
+      </p>
+    </div>
+
+    <nav class="ap-nav">
+      {% if request.user.admin_role == 'super_admin' %}
+      <div class="ap-nav-section">Overview</div>
+      <a href="/super-admin/" class="ap-nav-link {% if request.path == '/super-admin/' %}active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="/super-admin/analytics/" class="ap-nav-link">
+        <i class="fas fa-chart-bar"></i> Analytics
+      </a>
+
+      <div class="ap-nav-section">Geography</div>
+      <a href="/super-admin/states/" class="ap-nav-link">
+        <i class="fas fa-flag"></i> States
+      </a>
+      <a href="/super-admin/pincodes/" class="ap-nav-link">
+        <i class="fas fa-map-pin"></i> PIN Codes
+      </a>
+
+      <div class="ap-nav-section">Admins</div>
+      <a href="/super-admin/state-admins/" class="ap-nav-link">
+        <i class="fas fa-user-shield"></i> State Admins
+      </a>
+
+      <div class="ap-nav-section">Configuration</div>
+      <a href="/super-admin/industries/" class="ap-nav-link">
+        <i class="fas fa-industry"></i> Industries
+      </a>
+      <a href="/super-admin/job-roles/" class="ap-nav-link">
+        <i class="fas fa-briefcase"></i> Job Roles
+      </a>
+      <a href="/super-admin/payment-plans/" class="ap-nav-link">
+        <i class="fas fa-credit-card"></i> Payment Plans
+      </a>
+      <a href="/super-admin/discounts/" class="ap-nav-link">
+        <i class="fas fa-tag"></i> Discounts
+      </a>
+
+      <div class="ap-nav-section">Content</div>
+      <a href="/admin-panel/advertisers/" class="ap-nav-link">
+        <i class="fas fa-bullhorn"></i> Advertisers
+      </a>
+      <a href="/admin-panel/ads/" class="ap-nav-link">
+        <i class="fas fa-ad"></i> Advertisements
+      </a>
+      <a href="/super-admin/notifications/" class="ap-nav-link">
+        <i class="fas fa-bell"></i> Notifications
+      </a>
+      <a href="/admin/" class="ap-nav-link">
+        <i class="fas fa-cog"></i> Django Admin
+      </a>
+
+      {% elif request.user.admin_role == 'state_admin' %}
+      <div class="ap-nav-section">Overview</div>
+      <a href="/state-admin/" class="ap-nav-link {% if request.path == '/state-admin/' %}active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="/state-admin/reports/" class="ap-nav-link">
+        <i class="fas fa-chart-bar"></i> Reports
+      </a>
+
+      <div class="ap-nav-section">Management</div>
+      <a href="/state-admin/district-admins/create/" class="ap-nav-link">
+        <i class="fas fa-user-plus"></i> Create District Admin
+      </a>
+      <a href="/state-admin/employers/" class="ap-nav-link">
+        <i class="fas fa-building"></i> Verify Employers
+      </a>
+
+      {% else %}
+      <div class="ap-nav-section">Overview</div>
+      <a href="/district-admin/" class="ap-nav-link {% if request.path == '/district-admin/' %}active{% endif %}">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="/district-admin/reports/" class="ap-nav-link">
+        <i class="fas fa-chart-bar"></i> Reports
+      </a>
+
+      <div class="ap-nav-section">Actions</div>
+      <a href="/district-admin/employers/" class="ap-nav-link">
+        <i class="fas fa-building"></i> Approve Employers
+      </a>
+      <a href="/admin-panel/advertisers/" class="ap-nav-link">
+        <i class="fas fa-bullhorn"></i> Approve Advertisers
+      </a>
+      <a href="/district-admin/jobs/" class="ap-nav-link">
+        <i class="fas fa-briefcase"></i> Moderate Jobs
+      </a>
+      <a href="/district-admin/complaints/" class="ap-nav-link">
+        <i class="fas fa-exclamation-circle"></i> Complaints
+      </a>
+      {% endif %}
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="ap-main">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
+
+

@@ -1,0 +1,66 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign In - Pincode{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/register.css' %}">{% endblock %}
+
+{% block content %}
+<div class="register-wrapper">
+  <div class="reg-card" style="max-width:440px;margin:40px auto">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:36px;color:#0a66c2;margin-bottom:10px"><i class="fas fa-map-pin"></i></div>
+      <h2 style="font-size:26px;font-weight:800;color:#191919">Welcome Back</h2>
+      <p style="color:#666;font-size:14px">Sign in to your Pincode account</p>
+    </div>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div style="background:#fce4ec;color:#c62828;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px">
+        <i class="fas fa-exclamation-circle"></i> {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="/login/">
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <div class="form-group full" style="margin-bottom:16px">
+        <label><i class="fas fa-phone"></i> Phone Number or Email</label>
+        <input type="text" name="username" placeholder="Enter phone or email" required autofocus>
+      </div>
+      <div class="form-group full" style="margin-bottom:8px">
+        <label><i class="fas fa-lock"></i> Password</label>
+        <div style="position:relative">
+          <input type="password" name="password" id="pwdField" placeholder="Enter password" required>
+          <span onclick="togglePwd()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#888">
+            <i class="fas fa-eye" id="eyeIcon"></i>
+          </span>
+        </div>
+      </div>
+      <div style="text-align:right;margin-bottom:20px">
+        <a href="#" style="font-size:13px;color:#0a66c2;text-decoration:none">Forgot password?</a>
+      </div>
+      <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    </form>
+
+    <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #eee">
+      <p style="font-size:14px;color:#666">New to Pincode?
+        <a href="/register/" style="color:#0a66c2;font-weight:700;text-decoration:none">Join now</a>
+      </p>
+    </div>
+
+    <div style="margin-top:20px;padding:14px;background:#f8f9ff;border-radius:10px;font-size:13px;color:#666;text-align:center">
+      <strong>Test login:</strong> Register first, then login with phone + password
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePwd() {
+  const f = document.getElementById('pwdField');
+  const i = document.getElementById('eyeIcon');
+  if (f.type === 'password') { f.type = 'text'; i.className = 'fas fa-eye-slash'; }
+  else { f.type = 'password'; i.className = 'fas fa-eye'; }
+}
+</script>
+{% endblock %}
+

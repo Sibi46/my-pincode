@@ -1,0 +1,193 @@
+﻿{% extends 'admin_base.html' %}
+{% block title %}Super Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="ap-breadcrumb"><i class="fas fa-home"></i> Super Admin Dashboard</div>
+<div class="ap-page-title"><i class="fas fa-crown" style="color:#ffd700"></i> National Dashboard</div>
+<div class="ap-page-subtitle">Complete control over the entire Pincode platform</div>
+
+<!-- Stats -->
+<div class="ap-stats">
+  <div class="ap-stat blue">
+    <div class="ap-stat-icon"><i class="fas fa-users"></i></div>
+    <h3>{{ total_users }}</h3>
+    <p>Total Users</p>
+  </div>
+  <div class="ap-stat green">
+    <div class="ap-stat-icon"><i class="fas fa-briefcase"></i></div>
+    <h3>{{ active_jobs }}</h3>
+    <p>Active Jobs</p>
+  </div>
+  <div class="ap-stat orange">
+    <div class="ap-stat-icon"><i class="fas fa-file-alt"></i></div>
+    <h3>{{ total_apps }}</h3>
+    <p>Applications</p>
+  </div>
+  <div class="ap-stat purple">
+    <div class="ap-stat-icon"><i class="fas fa-flag"></i></div>
+    <h3>{{ total_states }}</h3>
+    <p>States</p>
+  </div>
+  <div class="ap-stat gold">
+    <div class="ap-stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+    <h3>{{ total_districts }}</h3>
+    <p>Districts</p>
+  </div>
+  <div class="ap-stat red">
+    <div class="ap-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+    <h3>{{ open_complaints }}</h3>
+    <p>Open Complaints</p>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="ap-card">
+  <div class="ap-card-header"><h3><i class="fas fa-bolt" style="color:#f3a000"></i> Quick Actions</h3></div>
+  <div class="ap-quick-grid">
+    <a href="/super-admin/states/" class="ap-quick-card">
+      <i class="fas fa-flag" style="color:#0a66c2"></i>
+      <span>Manage States</span>
+    </a>
+    <a href="/super-admin/state-admins/create/" class="ap-quick-card">
+      <i class="fas fa-user-plus" style="color:#2e7d32"></i>
+      <span>Add State Admin</span>
+    </a>
+    <a href="/super-admin/industries/" class="ap-quick-card">
+      <i class="fas fa-industry" style="color:#e65100"></i>
+      <span>Industries</span>
+    </a>
+    <a href="/super-admin/payment-plans/" class="ap-quick-card">
+      <i class="fas fa-credit-card" style="color:#6a1b9a"></i>
+      <span>Payment Plans</span>
+    </a>
+    <a href="/super-admin/discounts/" class="ap-quick-card">
+      <i class="fas fa-tag" style="color:#c62828"></i>
+      <span>Discounts</span>
+    </a>
+    <a href="/super-admin/analytics/" class="ap-quick-card">
+      <i class="fas fa-chart-line" style="color:#f3a000"></i>
+      <span>Analytics</span>
+    </a>
+    <a href="/admin-panel/advertisers/" class="ap-quick-card">
+      <i class="fas fa-bullhorn" style="color:#0a66c2"></i>
+      <span>Advertisers
+        {% if pending_adverts %}<br><small style="color:#e65100">{{ pending_adverts }} pending</small>{% endif %}
+      </span>
+    </a>
+    <a href="/super-admin/notifications/" class="ap-quick-card">
+      <i class="fas fa-bell" style="color:#2e7d32"></i>
+      <span>Notifications</span>
+    </a>
+  </div>
+</div>
+
+<div class="ap-two-col">
+
+  <!-- States Overview -->
+  <div class="ap-card">
+    <div class="ap-card-header">
+      <h3><i class="fas fa-flag" style="color:#0a66c2"></i> States ({{ total_states }})</h3>
+      <a href="/super-admin/states/" class="ap-btn ap-btn-primary"><i class="fas fa-plus"></i> Add</a>
+    </div>
+    {% if state_list %}
+    <table class="ap-table">
+      <thead><tr><th>State</th><th>Code</th><th>Districts</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for s in state_list %}
+        <tr>
+          <td><strong>{{ s.name }}</strong></td>
+          <td><code style="background:#f0f0f0;padding:2px 7px;border-radius:5px;font-size:12px">{{ s.code }}</code></td>
+          <td>{{ s.d_count }}</td>
+          <td><span class="status-pill {% if s.is_active %}pill-active{% else %}pill-inactive{% endif %}">
+            {{ s.is_active|yesno:"Active,Inactive" }}
+          </span></td>
+          <td>
+            <a href="/super-admin/states/{{ s.pk }}/districts/" class="ap-btn ap-btn-gray" style="font-size:11px">Districts</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="ap-empty"><i class="fas fa-flag"></i><p>No states yet. <a href="/super-admin/states/">Add one</a>.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Users -->
+  <div class="ap-card">
+    <div class="ap-card-header">
+      <h3><i class="fas fa-users" style="color:#2e7d32"></i> Recent Users</h3>
+    </div>
+    {% for u in recent_users %}
+    <div class="ap-user-row" style="padding:10px 0;border-bottom:1px solid #f5f5f5">
+      <div class="ap-avatar">{{ u.get_full_name|default:u.username|first|upper }}</div>
+      <div>
+        <div class="ap-user-name">{{ u.get_full_name|default:u.username }}</div>
+        <div class="ap-user-meta">{{ u.get_user_type_display }} · {{ u.date_joined|date:"d M Y" }}</div>
+      </div>
+      <span class="status-pill {% if u.is_active %}pill-active{% else %}pill-suspended{% endif %}" style="margin-left:auto">
+        {{ u.is_active|yesno:"Active,Blocked" }}
+      </span>
+    </div>
+    {% empty %}
+    <div class="ap-empty"><i class="fas fa-users"></i><p>No users yet.</p></div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Recent Jobs -->
+<div class="ap-card">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-briefcase" style="color:#e65100"></i> Recent Job Postings</h3>
+    <a href="/jobs/" class="ap-btn ap-btn-gray">View All</a>
+  </div>
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Job Title</th><th>Type</th><th>Location</th><th>Posted By</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        {% for job in recent_jobs %}
+        <tr>
+          <td><a href="/jobs/{{ job.pk }}/" style="color:#0a66c2;font-weight:600">{{ job.title }}</a></td>
+          <td><span style="font-size:11px;{% if job.collar_type == 'white' %}color:#0a66c2{% else %}color:#e65100{% endif %}">
+            {{ job.get_collar_type_display }}
+          </span></td>
+          <td>{{ job.location }} {{ job.pincode }}</td>
+          <td>{{ job.posted_by.get_full_name|default:job.posted_by.username }}</td>
+          <td><span class="status-pill pill-{% if job.status == 'active' %}active{% else %}inactive{% endif %}">{{ job.get_status_display }}</span></td>
+          <td style="color:#888;font-size:12px">{{ job.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Active System Notifications -->
+{% if notifications %}
+<div class="ap-card">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-bell" style="color:#f3a000"></i> Active Notifications</h3>
+    <a href="/super-admin/notifications/" class="ap-btn ap-btn-primary">Manage</a>
+  </div>
+  {% for n in notifications %}
+  <div style="padding:10px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:12px;align-items:flex-start">
+    <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:8px;
+      {% if n.notif_type == 'info' %}background:#e3f2fd;color:#0277bd
+      {% elif n.notif_type == 'warning' %}background:#fff8e1;color:#f57f17
+      {% elif n.notif_type == 'success' %}background:#e8f5e9;color:#2e7d32
+      {% else %}background:#fce4ec;color:#c62828{% endif %}">
+      {{ n.get_notif_type_display }}
+    </span>
+    <div>
+      <div style="font-weight:700;font-size:13px">{{ n.title }}</div>
+      <div style="font-size:12px;color:#888">{{ n.message|truncatechars:80 }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+

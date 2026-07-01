@@ -1,0 +1,608 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pincode — Find Jobs Near You</title>
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/static/fonts/poppins/poppins.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;color:#111;background:#fff;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.nav,.hero,.qa-card,.job-card,.step,.footer{border-radius:0}
+.qa-card,.job-card{border-radius:16px}
+
+/* NAV */
+.nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 20px;position:sticky;top:0;z-index:100}
+.nav-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px;height:60px}
+.nav-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;color:#0a66c2;white-space:nowrap}
+.nav-logo i{font-size:18px}
+.nav-search{flex:1;max-width:380px}
+.nav-search form{display:flex;border:1.5px solid #dde1ea;border-radius:8px;overflow:hidden}
+.nav-search input{flex:1;border:none;padding:8px 12px;font-size:14px;outline:none}
+.nav-search button{background:#0a66c2;color:#fff;border:none;padding:0 14px;cursor:pointer;font-size:14px}
+.nav-links{display:flex;align-items:center;gap:6px;margin-left:auto}
+.nav-links a{font-size:14px;color:#444;padding:6px 10px;border-radius:7px;transition:.2s}
+.nav-links a:hover{background:#f0f4ff;color:#0a66c2}
+.btn-signin{border:1.5px solid #0a66c2!important;color:#0a66c2!important;font-weight:600}
+.btn-join{background:#0a66c2!important;color:#fff!important;font-weight:600}
+.hamburger{display:none;font-size:20px;cursor:pointer;color:#444;margin-left:auto}
+.mob-menu{display:none;background:#fff;border-bottom:1px solid #eee;padding:12px 20px}
+.mob-menu a{display:block;padding:10px 0;font-size:14px;color:#444;border-bottom:1px solid #f3f4f6}
+.mob-menu a:last-child{border:none}
+.mob-menu.open{display:block}
+@media(max-width:700px){.nav-search,.nav-links{display:none}.hamburger{display:block}}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:56px 20px;text-align:center}
+.hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;margin-bottom:10px}
+.hero p{font-size:15px;opacity:.85;margin-bottom:28px}
+.hero-search{display:flex;max-width:600px;margin:0 auto 20px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.hero-search input{flex:1;border:none;padding:14px 16px;font-size:15px;outline:none;color:#111}
+.hero-search button{background:#f3a000;color:#fff;border:none;padding:0 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
+.hero-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.hero-links a{background:rgba(255,255,255,.15);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;transition:.2s}
+.hero-links a:hover{background:rgba(255,255,255,.28)}
+
+/* STATS */
+.stats{display:flex;justify-content:center;gap:0;background:#fff;border-bottom:1px solid #e5e7eb}
+.stat{flex:1;max-width:200px;text-align:center;padding:20px 10px;border-right:1px solid #e5e7eb}
+.stat:last-child{border:none}
+.stat strong{display:block;font-size:24px;font-weight:900;color:#0a66c2}
+.stat span{font-size:12px;color:#888}
+@media(max-width:500px){.stat strong{font-size:18px}}
+
+/* SPONSORED / ADS */
+.ad-banners{display:flex;flex-direction:column;gap:12px;max-width:1100px;margin:24px auto 0;padding:0 20px}
+.ad-banner{display:block;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.ad-banner img{width:100%;display:block;max-height:180px;object-fit:cover}
+.ad-banner-text{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:20px;text-align:center}
+.ad-banner-text h4{font-size:16px;font-weight:700;margin-bottom:4px}
+.ad-banner-text p{font-size:13px;opacity:.85}
+.ad-tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.4px}
+.ad-employers{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 8px}
+.ad-employer-card{flex:0 0 auto;width:160px;background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px;text-align:center;transition:.2s;position:relative}
+.ad-employer-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1)}
+.ad-employer-card img{width:44px;height:44px;border-radius:10px;object-fit:cover;margin-bottom:8px}
+.ad-employer-card h5{font-size:13px;font-weight:700;color:#111;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ad-employer-card p{font-size:11px;color:#888}
+
+/* QUICK ACTIONS */
+.section{padding:48px 20px}
+.section-alt{background:#f7f8fa}
+.wrap{max-width:1100px;margin:0 auto}
+.sec-title{text-align:center;margin-bottom:32px}
+.sec-title h2{font-size:22px;font-weight:800;color:#111;margin-bottom:6px}
+.sec-title p{font-size:14px;color:#666}
+
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.qa-card{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:18px;transition:.2s;cursor:pointer}
+.qa-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1);transform:translateY(-1px)}
+.qa-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.qa-icon.blue{background:#e3f2fd;color:#0277bd}
+.qa-icon.green{background:#e8f5e9;color:#2e7d32}
+.qa-icon.orange{background:#fff3e0;color:#e65100}
+.qa-icon.gray{background:#f3f4f6;color:#374151}
+.qa-text h4{font-size:14px;font-weight:700;color:#111;margin-bottom:3px}
+.qa-text p{font-size:12px;color:#666}
+.qa-arrow{margin-left:auto;color:#bbb;font-size:14px}
+
+/* JOBS */
+.jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.job-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:18px;transition:.2s}
+.job-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1)}
+.job-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
+.badge-white{background:#e3f2fd;color:#0277bd}
+.badge-blue{background:#fff3e0;color:#e65100}
+.job-card h3{font-size:15px;font-weight:700;color:#111;margin-bottom:6px}
+.job-card h3 a:hover{color:#0a66c2}
+.job-meta{font-size:12px;color:#666;margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.job-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.job-tags span{background:#f3f4f6;color:#444;padding:3px 9px;border-radius:20px;font-size:11px}
+.apply-btn{display:inline-block;background:#0a66c2;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;margin-top:8px;transition:.2s}
+.apply-btn:hover{background:#004182}
+.empty-state{grid-column:1/-1;text-align:center;padding:48px 20px;color:#aaa}
+.empty-state i{font-size:36px;color:#ddd;display:block;margin-bottom:12px}
+.empty-state a{color:#0a66c2}
+
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px}
+.step{text-align:center}
+.step-num{width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.step h4{font-size:14px;font-weight:700;color:#111;margin-bottom:6px}
+.step p{font-size:13px;color:#666;line-height:1.6}
+
+/* ADVERTISER SLIDER */
+.adv-slider-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
+.adv-slider-box{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,.15);background:#111}
+.adv-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.adv-slide{flex:0 0 100%;position:relative;height:360px}
+.adv-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.adv-slide-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 55%,transparent 100%);padding:28px 28px 20px;color:#fff}
+.adv-slide-tag{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.adv-slide-name{font-size:21px;font-weight:800;margin:0 0 10px;line-height:1.25;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.adv-slide-details{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:13px;color:rgba(255,255,255,.92)}
+.adv-slide-details span{display:flex;align-items:center;gap:7px}
+.adv-slide-details i{font-size:12px;opacity:.75;flex-shrink:0}
+.adv-slide-details a{color:#fff;font-weight:600;text-decoration:none}
+.adv-slide-details a:hover{text-decoration:underline}
+.adv-slide-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
+.adv-sld-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s}
+.adv-sld-btn-blue{background:#0a66c2;color:#fff}.adv-sld-btn-blue:hover{background:#004182;color:#fff}
+.adv-sld-btn-wa{background:#25d366;color:#fff}.adv-sld-btn-wa:hover{background:#1da850;color:#fff}
+.adv-arrow{position:absolute;top:42%;transform:translateY(-50%);background:rgba(0,0,0,.38);border:1.5px solid rgba(255,255,255,.25);color:#fff;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:4}
+.adv-arrow:hover{background:#0a66c2;border-color:#0a66c2}
+.adv-prev{left:12px}.adv-next{right:12px}
+.adv-counter{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;z-index:4;letter-spacing:.3px}
+.adv-dots{display:flex;justify-content:center;gap:7px;margin-top:12px}
+.adv-dot{width:8px;height:8px;border-radius:50%;background:#c8d8f0;cursor:pointer;transition:.35s}
+.adv-dot.active{background:#0a66c2;width:26px;border-radius:4px}
+.adv-progress{position:absolute;bottom:0;left:0;height:3px;background:#0a66c2;z-index:5;transition:width 0s linear}
+@media(max-width:600px){
+  .adv-slide{height:260px}
+  .adv-slide-name{font-size:15px}
+  .adv-slide-overlay{padding:16px 14px 14px}
+  .adv-slide-details{gap:7px 12px;font-size:12px}
+}
+
+/* FOOTER */
+.footer{background:#1a1a2e;color:#aaa;padding:40px 20px 0}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:32px;max-width:1100px;margin:0 auto;padding-bottom:32px}
+.footer-brand h3{color:#fff;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.footer-brand p{font-size:13px;line-height:1.7}
+.footer-links h4{color:#fff;font-size:13px;font-weight:700;margin-bottom:12px}
+.footer-links a{display:block;font-size:13px;color:#aaa;margin-bottom:8px;transition:.2s}
+.footer-links a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom p{font-size:12px}
+.admin-footer-btn{background:rgba(255,255,255,.08);color:#aaa;border:1px solid rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:.2s}
+.admin-footer-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+@media(max-width:768px){
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .stats{flex-wrap:wrap}
+}
+@media(max-width:480px){
+  .footer-grid{grid-template-columns:1fr}
+  .hero-search{flex-direction:column;border-radius:10px}
+  .hero-search button{padding:12px;border-radius:0 0 10px 10px}
+}
+
+/* ADMIN MODAL */
+.admin-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px}
+.admin-modal-overlay.open{display:flex}
+.admin-modal-box{background:#fff;border-radius:16px;width:100%;max-width:860px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+.admin-modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:22px 24px 16px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:16px 16px 0 0;color:#fff}
+.admin-modal-header h2{font-size:18px;margin-bottom:3px}
+.admin-modal-header p{font-size:12px;opacity:.8;margin:0}
+.admin-modal-close{background:rgba(255,255,255,.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer}
+.admin-role-info{display:flex;align-items:center;gap:10px;padding:12px 24px;background:#f8faff;border-bottom:1px solid #eef0f6;font-size:13px;color:#555}
+.admin-role-badge{padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.admin-role-badge.super{background:#fff8e1;color:#f57f17;border:1px solid #ffe082}
+.admin-role-badge.state{background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9}
+.admin-role-badge.district{background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7}
+.admin-logout-link{margin-left:auto;color:#ef4444;font-size:12px}
+.admin-features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;padding:18px 24px 22px}
+.admin-feature-group{background:#f9fafb;border:1px solid #eef0f4;border-radius:10px;padding:12px}
+.afg-title{font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.afc{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;color:#374151;font-size:12px;font-weight:500;transition:.15s;margin-bottom:2px}
+.afc:hover{background:#e8f0fe;color:#0a66c2}
+.afc i{width:14px;text-align:center;color:#0a66c2;flex-shrink:0}
+.admin-login-prompt{padding:48px 24px;text-align:center}
+.admin-login-prompt h3{font-size:20px;color:#111;margin-bottom:8px}
+.admin-login-prompt p{color:#555;font-size:14px}
+.admin-go-btn{display:inline-block;background:#0a66c2;color:#fff;padding:11px 26px;border-radius:8px;font-weight:600;font-size:14px;margin-top:16px}
+.admin-go-btn:hover{background:#004182}
+@media(max-width:600px){.admin-features-grid{grid-template-columns:1fr 1fr;padding:12px}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-in">
+    <a href="/" class="nav-logo"><i class="fas fa-map-pin"></i> Pincode</a>
+    <div class="nav-search">
+      <form action="/jobs/" method="get">
+        <input type="text" name="q" placeholder="Search jobs, skills…">
+        <button type="submit"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+    <div class="nav-links">
+      <a href="{% if request.user.is_authenticated and request.user.is_employer %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
+      <a href="/jobs/" class="btn-signin"><i class="fas fa-search"></i> Find a Job</a>
+      {% if request.user.is_authenticated %}
+        <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" style="color:#444;font-size:13px"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/logout/" style="color:#888;font-size:13px">Logout</a>
+      {% endif %}
+    </div>
+    <div class="hamburger" onclick="document.getElementById('mobMenu').classList.toggle('open')">
+      <i class="fas fa-bars"></i>
+    </div>
+  </div>
+  <div class="mob-menu" id="mobMenu">
+    <a href="{% if request.user.is_authenticated and request.user.is_employer %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
+    <a href="/jobs/"><i class="fas fa-search"></i> Find a Job</a>
+    {% if request.user.is_authenticated %}
+      <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/">Dashboard</a>
+      <a href="/logout/">Logout</a>
+    {% else %}
+      <a href="/login/">Sign In</a>
+      <a href="/register/">Join Free</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><i class="fas fa-map-pin"></i> India's PIN-code based local job portal</div>
+    <h1>Find Jobs Near You.<br><span>Hire People Near You.</span></h1>
+
+    <form class="hero-search" action="/jobs/" method="get">
+      <div class="hs-wrap">
+        <div class="hs-field">
+          <i class="fas fa-briefcase"></i>
+          <input type="text" name="q" placeholder="Job title, skill or keyword…" autocomplete="off">
+        </div>
+        <div class="hs-sep"></div>
+        <div class="hs-field hs-pin">
+          <i class="fas fa-map-pin"></i>
+          <input type="text" name="pincode" placeholder="PIN code" maxlength="6" autocomplete="off">
+        </div>
+        <button type="submit"><i class="fas fa-search"></i><span> Search</span></button>
+      </div>
+    </form>
+
+  </div>
+</section>
+
+<style>
+.hero{background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#0a66c2 100%);padding:52px 20px 48px;text-align:center}
+.hero-inner{max-width:680px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:18px;letter-spacing:.3px}
+.hero h1{font-size:clamp(26px,5vw,42px);font-weight:900;color:#fff;line-height:1.18;margin-bottom:10px}
+.hero h1 span{color:#ffd54f}
+.hero-desc{font-size:15px;color:rgba(255,255,255,.78);margin-bottom:28px}
+/* Search bar */
+.hero-search{margin-bottom:18px}
+.hs-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:4px}
+.hs-field{display:flex;align-items:center;gap:8px;flex:1;padding:4px 10px}
+.hs-field i{color:#0a66c2;font-size:14px;flex-shrink:0}
+.hs-field input{width:100%;border:none;outline:none;font-size:14px;color:#111;background:transparent}
+.hs-field input::placeholder{color:#bbb}
+.hs-pin{flex:0 0 110px;border-left:1px solid #e5e7eb}
+.hs-sep{width:1px;height:24px;background:#e5e7eb;flex-shrink:0}
+.hero-search button{background:#f3a000;color:#fff;border:none;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;border-radius:8px;white-space:nowrap;flex-shrink:0;transition:.2s;display:flex;align-items:center;gap:5px}
+.hero-search button:hover{background:#e09000}
+.hero-search button span{display:inline}
+/* Chips */
+.hero-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.hero-chips a{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 15px;border-radius:30px;font-size:13px;font-weight:600;transition:.2s;display:flex;align-items:center;gap:6px}
+.hero-chips a:hover{background:rgba(255,255,255,.25)}
+/* Action buttons */
+.hero-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.ha-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:10px;font-size:14px;font-weight:700;transition:.2s}
+.ha-primary{background:#fff;color:#0a66c2}
+.ha-primary:hover{background:#e3f2fd}
+.ha-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
+.ha-outline:hover{background:rgba(255,255,255,.12);border-color:#fff}
+@media(max-width:580px){
+  .hero{padding:28px 14px 26px}
+  .hero h1{font-size:20px}
+  .hero-badge{font-size:11px;padding:4px 10px}
+  /* keep search bar in ONE horizontal row on mobile */
+  .hs-wrap{padding:3px;border-radius:10px}
+  .hs-field{padding:3px 8px;gap:5px}
+  .hs-field i{font-size:12px}
+  .hs-field input{font-size:13px}
+  .hs-pin{flex:0 0 80px}
+  .hero-search button{padding:9px 11px;font-size:13px;border-radius:7px}
+  .hero-search button span{display:none}
+}
+</style>
+
+<!-- ADVERTISER BANNERS CAROUSEL -->
+{% if advertiser_banners %}
+<div class="adv-slider-wrap">
+  <div class="adv-slider-box">
+    {% if advertiser_banners|length > 1 %}
+    <div class="adv-counter" id="advCounter">1 / {{ advertiser_banners|length }}</div>
+    <button class="adv-arrow adv-prev" onclick="advMove(-1)"><i class="fas fa-chevron-left"></i></button>
+    <button class="adv-arrow adv-next" onclick="advMove(1)"><i class="fas fa-chevron-right"></i></button>
+    <div class="adv-progress" id="advProgress"></div>
+    {% endif %}
+    <div class="adv-track" id="advTrack">
+      {% for adv in advertiser_banners %}
+      <div class="adv-slide">
+        <img src="{{ adv.banner_image.url }}" alt="{{ adv.business_name }}">
+        <div class="adv-slide-overlay">
+          <div class="adv-slide-tag">Advertisement</div>
+          <h3 class="adv-slide-name">{{ adv.business_name }}</h3>
+          <div class="adv-slide-details">
+            {% if adv.contact_person %}<span><i class="fas fa-user"></i> {{ adv.contact_person }}</span>{% endif %}
+            {% if adv.phone %}<span><i class="fas fa-phone"></i> <a href="tel:{{ adv.phone }}">{{ adv.phone }}</a></span>{% endif %}
+            {% if adv.email %}<span><i class="fas fa-envelope"></i> <a href="mailto:{{ adv.email }}">{{ adv.email }}</a></span>{% endif %}
+            {% if adv.address %}<span><i class="fas fa-map-marker-alt"></i> {{ adv.address|truncatechars:50 }}</span>{% endif %}
+          </div>
+          <div class="adv-slide-actions">
+            {% if adv.website %}<a href="{{ adv.website }}" target="_blank" rel="noopener" class="adv-sld-btn adv-sld-btn-blue"><i class="fas fa-globe"></i> Visit Website</a>{% endif %}
+            {% if adv.phone %}<a href="https://wa.me/91{{ adv.phone }}" target="_blank" class="adv-sld-btn adv-sld-btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% if advertiser_banners|length > 1 %}
+  <div class="adv-dots" id="advDots">
+    {% for adv in advertiser_banners %}
+    <span class="adv-dot {% if forloop.first %}active{% endif %}" onclick="advGo({{ forloop.counter0 }})"></span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3><i class="fas fa-map-pin"></i> Pincode</h3>
+      <p>Find Jobs Near You. Hire People Near You.<br>India's PIN-code based hyperlocal job portal.</p>
+    </div>
+    <div class="footer-links">
+      <h4>For Job Seekers</h4>
+      <a href="/jobs/">Browse Jobs</a>
+      <a href="/register/?type=employee">Create Profile</a>
+      <a href="/jobs/?urgent=1">Urgent Jobs</a>
+    </div>
+    <div class="footer-links">
+      <h4>For Employers</h4>
+      <a href="/register/?type=company">Post a Job</a>
+      <a href="/candidates/">Search Candidates</a>
+      <a href="/advertise/">Advertise With Us</a>
+    </div>
+    <div class="footer-links">
+      <h4>Company</h4>
+      <a href="#">About Us</a>
+      <a href="/complaint/submit/">Submit Complaint</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 Pincode. All rights reserved.</p>
+    <button class="admin-footer-btn" onclick="openAdminPanel()">
+      <i class="fas fa-shield-alt"></i> Admin Panel
+    </button>
+  </div>
+</footer>
+
+<!-- ADMIN MODAL -->
+<div class="admin-modal-overlay" id="adminModal" onclick="if(event.target===this)closeAdminPanel()">
+  <div class="admin-modal-box">
+    <div class="admin-modal-header">
+      <div><h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2><p>Pincode — Platform Management</p></div>
+      <button class="admin-modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
+    </div>
+
+    {% if request.user.is_authenticated and request.user.admin_role %}
+      <div class="admin-role-info">
+        {% if request.user.admin_role == 'super_admin' %}
+          <span class="admin-role-badge super"><i class="fas fa-crown"></i> Super Admin</span>
+          <span>National Level</span>
+        {% elif request.user.admin_role == 'state_admin' %}
+          <span class="admin-role-badge state"><i class="fas fa-map"></i> State Admin</span>
+        {% else %}
+          <span class="admin-role-badge district"><i class="fas fa-map-marker-alt"></i> District Admin</span>
+        {% endif %}
+        <a href="/logout/" class="admin-logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+
+      {% if request.user.admin_role == 'super_admin' %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/super-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+          <a href="/super-admin/analytics/" class="afc"><i class="fas fa-chart-line"></i><span>Analytics</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-users"></i> Users</div>
+          <a href="/super-admin/state-admins/" class="afc"><i class="fas fa-user-shield"></i><span>State Admins</span></a>
+          <a href="/super-admin/state-admins/create/" class="afc"><i class="fas fa-user-plus"></i><span>Create Admin</span></a>
+          <a href="/admin/" class="afc"><i class="fas fa-cog"></i><span>Django Admin</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-map"></i> Geography</div>
+          <a href="/super-admin/states/" class="afc"><i class="fas fa-flag"></i><span>States</span></a>
+          <a href="/super-admin/pincodes/" class="afc"><i class="fas fa-map-pin"></i><span>PIN Codes</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-briefcase"></i> Jobs</div>
+          <a href="/super-admin/industries/" class="afc"><i class="fas fa-industry"></i><span>Industries</span></a>
+          <a href="/super-admin/job-roles/" class="afc"><i class="fas fa-briefcase"></i><span>Job Roles</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-credit-card"></i> Payments</div>
+          <a href="/super-admin/payment-plans/" class="afc"><i class="fas fa-file-invoice-dollar"></i><span>Plans</span></a>
+          <a href="/super-admin/discounts/" class="afc"><i class="fas fa-tag"></i><span>Discounts</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-bullhorn"></i> Ads</div>
+          <a href="/admin-panel/advertisers/" class="afc"><i class="fas fa-user-tie"></i><span>Advertisers</span></a>
+          <a href="/admin-panel/ads/" class="afc"><i class="fas fa-ad"></i><span>Ads</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tools"></i> Support</div>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-triangle"></i><span>Complaints</span></a>
+          <a href="/super-admin/notifications/" class="afc"><i class="fas fa-bell"></i><span>Notifications</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-building"></i> Employers</div>
+          <a href="/state-admin/employers/" class="afc"><i class="fas fa-check-circle"></i><span>Verify</span></a>
+          <a href="/district-admin/employers/" class="afc"><i class="fas fa-clipboard-check"></i><span>Approve</span></a>
+        </div>
+      </div>
+
+      {% elif request.user.admin_role == 'state_admin' %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/state-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+          <a href="/state-admin/reports/" class="afc"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-users"></i> Management</div>
+          <a href="/state-admin/district-admins/create/" class="afc"><i class="fas fa-user-plus"></i><span>Create District Admin</span></a>
+          <a href="/state-admin/employers/" class="afc"><i class="fas fa-building"></i><span>Verify Employers</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tools"></i> Support</div>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-triangle"></i><span>Complaints</span></a>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="admin-features-grid">
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tachometer-alt"></i> Overview</div>
+          <a href="/district-admin/" class="afc"><i class="fas fa-home"></i><span>Dashboard</span></a>
+        </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-tasks"></i> Actions</div>
+          <a href="/district-admin/employers/" class="afc"><i class="fas fa-building"></i><span>Approve Employers</span></a>
+          <a href="/district-admin/jobs/" class="afc"><i class="fas fa-briefcase"></i><span>Moderate Jobs</span></a>
+          <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-circle"></i><span>Complaints</span></a>
+        </div>
+      </div>
+      {% endif %}
+
+    {% elif request.user.is_authenticated %}
+      <div class="admin-login-prompt">
+        <i class="fas fa-lock" style="font-size:44px;color:#ddd;margin-bottom:14px;display:block"></i>
+        <h3>Admin Access Required</h3>
+        <p>You don't have admin privileges. Contact a Super Admin.</p>
+        <a href="/dashboard/" class="admin-go-btn">Go to Dashboard</a>
+      </div>
+    {% else %}
+      <div class="admin-login-prompt">
+        <i class="fas fa-shield-alt" style="font-size:44px;color:#0a66c2;margin-bottom:12px;display:block"></i>
+        <h3>Admin Login</h3>
+        <p style="margin-bottom:20px">Enter your phone number and password</p>
+        <form method="POST" action="/admin-panel/login/" style="text-align:left">
+          {% csrf_token %}
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-phone"></i> Phone Number</label>
+            <input type="tel" name="phone" placeholder="10-digit mobile number" maxlength="10"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-lock"></i> Password</label>
+            <input type="password" name="password" placeholder="Enter your password"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <button type="submit" style="width:100%;padding:12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+            <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+          </button>
+        </form>
+        <p style="margin-top:14px;font-size:12px;color:#aaa;text-align:center">Admin accounts are created by the Super Admin only.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- APP-STYLE BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="/" class="bn-item active"><i class="fas fa-home"></i><span>Home</span></a>
+    {% if request.user.is_authenticated and request.user.is_employer %}
+      <a href="/candidates/" class="bn-item"><i class="fas fa-users"></i><span>Candidates</span></a>
+      <a href="/post-job/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-plus"></i></div><span>Post</span></a>
+      <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
+      <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    {% elif request.user.is_authenticated %}
+      <a href="/jobs/" class="bn-item"><i class="fas fa-briefcase"></i><span>Jobs</span></a>
+      <a href="/jobseeker/dashboard/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-th-large"></i></div><span>Dashboard</span></a>
+      <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
+      <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
+    {% else %}
+      <a href="/jobs/" class="bn-item"><i class="fas fa-briefcase"></i><span>Jobs</span></a>
+      <a href="/register/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-user-plus"></i></div><span>Join</span></a>
+      <a href="/advertise/" class="bn-item"><i class="fas fa-bullhorn"></i><span>Advertise</span></a>
+      <a href="/login/" class="bn-item"><i class="fas fa-sign-in-alt"></i><span>Sign In</span></a>
+    {% endif %}
+  </div>
+</nav>
+
+<style>
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.bn-item i{font-size:19px}
+.bn-item.active{color:#0a66c2}
+.bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
+.bn-fab{margin-top:-22px}
+.bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
+.bn-fab span{color:#0a66c2;font-weight:700}
+body{padding-bottom:62px}
+</style>
+
+<script src="{% static 'js/main.js' %}?v=2"></script>
+<script>
+function openAdminPanel(){document.getElementById('adminModal').classList.add('open')}
+function closeAdminPanel(){document.getElementById('adminModal').classList.remove('open')}
+if(document.addEventListener)document.addEventListener('keydown',function(e){if(e.key==='Escape'&&typeof closeAdminPanel==='function')closeAdminPanel()});
+else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e||window.event).key==='Escape'&&typeof closeAdminPanel==='function')closeAdminPanel()})
+
+// Advertiser banner slider
+(function(){
+  var track   = document.getElementById('advTrack');
+  var dots    = document.querySelectorAll('.adv-dot');
+  var counter = document.getElementById('advCounter');
+  var progress= document.getElementById('advProgress');
+  if(!track) return;
+  var slides = track.querySelectorAll('.adv-slide');
+  var total  = slides.length;
+  if(total < 2) return;
+  var cur = 0, timer, DELAY = 4000;
+
+  function goTo(n){
+    cur = (n + total) % total;
+    track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+    dots.forEach(function(d,i){ d.classList.toggle('active', i===cur); });
+    if(counter) counter.textContent = (cur+1) + ' / ' + total;
+    startProgress();
+  }
+
+  function startProgress(){
+    if(!progress) return;
+    progress.style.transition = 'none';
+    progress.style.width = '0%';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        progress.style.transition = 'width ' + DELAY + 'ms linear';
+        progress.style.width = '100%';
+      });
+    });
+  }
+
+  function startAuto(){ timer = setInterval(function(){ goTo(cur+1); }, DELAY); }
+  function stopAuto(){ clearInterval(timer); if(progress){ progress.style.transition='none'; progress.style.width='0%'; } }
+
+  window.advMove = function(d){ stopAuto(); goTo(cur+d); startAuto(); };
+  window.advGo   = function(n){ stopAuto(); goTo(n);     startAuto(); };
+
+  var wrap = document.querySelector('.adv-slider-wrap');
+  if(wrap){
+    wrap.addEventListener('mouseenter', stopAuto);
+    wrap.addEventListener('mouseleave', function(){ startAuto(); startProgress(); });
+  }
+  startProgress();
+  startAuto();
+})();
+</script>
+</body>
+</html>
+

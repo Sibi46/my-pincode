@@ -1,0 +1,54 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Send Offer Letter - Pincode{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/register.css' %}">{% endblock %}
+
+{% block content %}
+<div class="register-wrapper">
+  <div class="reg-card" style="max-width:620px;margin:40px auto">
+    <div class="reg-header">
+      <a href="/employer/dashboard/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+      <div class="type-badge green"><i class="fas fa-file-contract"></i> Offer Letter</div>
+      <h2>Send Offer Letter</h2>
+      <p>To: <strong>{{ app.applicant.get_full_name|default:app.applicant.username }}</strong> — {{ app.job.title }}</p>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label><i class="fas fa-briefcase"></i> Offered Position *</label>
+          <input type="text" name="position" value="{{ app.job.title }}" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fas fa-rupee-sign"></i> Offered Salary *</label>
+          <input type="text" name="salary" placeholder="e.g. ₹25,000 per month" required>
+        </div>
+      </div>
+      <div class="form-group full" style="margin-bottom:16px">
+        <label><i class="fas fa-calendar"></i> Joining Date *</label>
+        <input type="date" name="joining_date" required>
+      </div>
+      <div class="form-group full" style="margin-bottom:16px">
+        <label><i class="fas fa-file-alt"></i> Offer Letter Content *</label>
+        <textarea name="content" rows="10" required placeholder="Dear [Candidate Name],
+
+We are pleased to offer you the position of [Role] at [Company Name].
+
+Your compensation will be [Salary] per month.
+
+Your joining date is [Date].
+
+Please confirm your acceptance by replying to this message.
+
+Regards,
+[Company Name]"></textarea>
+      </div>
+      <button type="submit" class="submit-btn" style="background:#2e7d32">
+        <i class="fas fa-paper-plane"></i> Send Offer Letter
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

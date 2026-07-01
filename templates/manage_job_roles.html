@@ -1,0 +1,62 @@
+﻿{% extends "admin_base.html" %}
+{% block title %}Manage Job Roles{% endblock %}
+{% block content %}
+<div class="ap-page-title"><i class="fas fa-briefcase" style="color:#6a1b9a"></i> Manage Job Roles</div>
+
+<div class="ap-two-col">
+  <!-- Industry selector + add role -->
+  <div class="ap-card">
+    <div class="ap-card-header"><h3>Select Industry</h3></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      {% for ind in industries %}
+      <a href="/super-admin/job-roles/{{ ind.pk }}/"
+        style="padding:10px 14px;border-radius:9px;text-decoration:none;font-size:13px;font-weight:600;
+          {% if selected and selected.pk == ind.pk %}background:#e8f0fe;color:#0a66c2;border:1.5px solid #0a66c2{% else %}background:#f5f5f5;color:#444;border:1.5px solid transparent{% endif %}">
+        <i class="{{ ind.icon }}" style="margin-right:6px"></i>{{ ind.name }}
+        <span style="float:right;font-size:11px;color:#aaa">{{ ind.roles.count }}</span>
+      </a>
+      {% empty %}
+      <p style="color:#bbb">No industries. <a href="/super-admin/industries/">Add one first.</a></p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="ap-card">
+    {% if selected %}
+    <div class="ap-card-header"><h3>{{ selected.name }} — Job Roles</h3></div>
+    <div class="ap-inline-form">
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <div style="display:flex;gap:10px">
+          <input type="text" name="name" placeholder="Role name e.g. Software Engineer" class="ap-field" style="flex:1;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;outline:none">
+          <button type="submit" class="ap-btn ap-btn-primary"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </form>
+    </div>
+    <table class="ap-table">
+      <thead><tr><th>Role Name</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for role in roles %}
+        <tr>
+          <td>{{ role.name }}</td>
+          <td><span class="status-pill {% if role.is_active %}pill-active{% else %}pill-inactive{% endif %}">{{ role.is_active|yesno:"Active,Hidden" }}</span></td>
+          <td>
+            <form method="POST" style="display:inline">{% csrf_token %}
+              <input type="hidden" name="action" value="toggle">
+              <input type="hidden" name="pk" value="{{ role.pk }}">
+              <button type="submit" class="ap-btn {% if role.is_active %}ap-btn-danger{% else %}ap-btn-success{% endif %}" style="font-size:11px">{{ role.is_active|yesno:"Hide,Show" }}</button>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" style="text-align:center;color:#bbb;padding:20px">No roles yet for {{ selected.name }}.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="ap-empty"><i class="fas fa-briefcase"></i><p>Select an industry to manage its roles.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

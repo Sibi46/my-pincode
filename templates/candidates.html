@@ -1,0 +1,180 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Find Candidates — Pincode{% endblock %}
+
+{% block extra_css %}
+<style>
+.cd-page{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
+
+/* Search bar */
+.cd-search-bar{background:#0a66c2;margin:0 -20px 24px;padding:22px 20px}
+.cd-search-form{max-width:1000px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap}
+.cd-field{flex:1;min-width:160px;position:relative}
+.cd-field i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#aaa;font-size:13px}
+.cd-field input,.cd-field select{width:100%;padding:12px 14px 12px 36px;border:none;border-radius:8px;font-size:14px;outline:none}
+.cd-field select{padding-left:14px}
+.cd-search-btn{background:#f3a000;color:#fff;border:none;padding:0 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.cd-search-btn:hover{background:#d98e00}
+
+/* Header */
+.cd-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.cd-header h2{font-size:19px;font-weight:700;color:#191919;display:flex;align-items:center;gap:8px}
+.cd-header h2 span{font-size:13px;font-weight:400;color:#888}
+.cd-login-hint{font-size:13px;color:#666}
+.cd-login-hint a{color:#0a66c2;font-weight:600}
+
+/* Grid */
+.cd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.cd-card{background:#fff;border:1.5px solid #eee;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.06);transition:.2s}
+.cd-card:hover{border-color:#0a66c2;box-shadow:0 6px 20px rgba(10,102,194,.1)}
+
+.cd-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.cd-avatar{width:50px;height:50px;border-radius:50%;background:#e8f0fe;color:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.cd-avatar.blue{background:#fff3e0;color:#e65100}
+.cd-avatar img{width:100%;height:100%;object-fit:cover}
+.cd-name-wrap{flex:1;min-width:0}
+.cd-name{font-size:15px;font-weight:700;color:#191919;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cd-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.cd-badge.white{background:#e8f0fe;color:#0a66c2}
+.cd-badge.blue{background:#fff3e0;color:#e65100}
+
+.cd-meta{font-size:13px;color:#555;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.cd-meta i{color:#0a66c2;width:14px;flex-shrink:0}
+
+.cd-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.cd-tags span{background:#f3f2ee;padding:3px 10px;border-radius:10px;font-size:11px;color:#555}
+
+.cd-skills{font-size:12px;color:#555;margin-bottom:10px;line-height:1.5}
+.cd-skills i{color:#0a66c2;margin-right:4px}
+
+.cd-actions{display:flex;gap:8px;margin-top:12px}
+.cd-msg-btn{flex:1;text-align:center;background:#0a66c2;color:#fff;padding:10px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.cd-msg-btn:hover{background:#004182}
+.cd-save-btn{flex:0 0 auto;background:#e8f5e9;color:#2e7d32;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-size:14px}
+.cd-save-btn:hover{background:#c8e6c9}
+
+/* Empty state */
+.cd-empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:#888}
+.cd-empty i{font-size:48px;color:#ddd;display:block;margin-bottom:16px}
+.cd-empty h3{color:#aaa;font-size:18px;margin-bottom:8px}
+.cd-empty p{font-size:14px;margin-bottom:16px}
+.cd-empty-btn{display:inline-block;background:#0a66c2;color:#fff;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none}
+.cd-empty-btn:hover{background:#004182}
+
+@media(max-width:600px){
+  .cd-search-form{flex-direction:column}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cd-page">
+
+  <!-- Search Bar -->
+  <div class="cd-search-bar">
+    <form method="get" action="/candidates/" class="cd-search-form">
+      <div class="cd-field">
+        <i class="fas fa-tools"></i>
+        <input type="text" name="skill" value="{{ skill }}" placeholder="Skill or role (e.g. Electrician, Developer)">
+      </div>
+      <div class="cd-field">
+        <i class="fas fa-map-marker-alt"></i>
+        <input type="text" name="city" value="{{ city }}" placeholder="City or area">
+      </div>
+      <div class="cd-field">
+        <i class="fas fa-map-pin"></i>
+        <input type="text" name="pincode" value="{{ pincode }}" placeholder="PIN code" maxlength="6">
+      </div>
+      <div class="cd-field" style="max-width:160px">
+        <select name="collar">
+          <option value="">All Types</option>
+          <option value="white" {% if collar == 'white' %}selected{% endif %}>White Collar</option>
+          <option value="blue" {% if collar == 'blue' %}selected{% endif %}>Blue Collar</option>
+        </select>
+      </div>
+      <button type="submit" class="cd-search-btn"><i class="fas fa-search"></i> Search</button>
+    </form>
+  </div>
+
+  <!-- Header -->
+  <div class="cd-header">
+    <h2><i class="fas fa-users" style="color:#0a66c2"></i> Candidates <span>({{ total }} found)</span></h2>
+    {% if not request.user.is_authenticated %}
+    <p class="cd-login-hint"><a href="/login/?next=/candidates/">Login</a> to contact candidates directly.</p>
+    {% endif %}
+  </div>
+
+  <!-- Candidates Grid -->
+  <div class="cd-grid">
+    {% for p in profiles %}
+    <div class="cd-card">
+      <div class="cd-top">
+        <div class="cd-avatar {% if p.job_category == 'blue' %}blue{% endif %}">
+          {% if p.photo %}
+            <img src="{{ p.photo.url }}" alt="">
+          {% else %}
+            <i class="fas fa-user"></i>
+          {% endif %}
+        </div>
+        <div class="cd-name-wrap">
+          <div class="cd-name">{{ p.user.get_full_name|default:p.user.username }}</div>
+          <span class="cd-badge {% if p.job_category == 'blue' %}blue{% else %}white{% endif %}">
+            {{ p.job_category|capfirst|default:"—" }} Collar
+          </span>
+        </div>
+      </div>
+
+      <p class="cd-meta"><i class="fas fa-tools"></i> {{ p.primary_skill|default:"No skill listed" }}</p>
+      <p class="cd-meta"><i class="fas fa-map-marker-alt"></i> {{ p.user.city|default:"—" }}{% if p.user.pincode %} — {{ p.user.pincode }}{% endif %}</p>
+
+      <div class="cd-tags">
+        {% if p.experience %}<span>{{ p.experience }}</span>{% endif %}
+        {% if p.availability %}<span>{{ p.get_availability_display }}</span>{% endif %}
+        {% if p.salary_min %}<span>₹{{ p.salary_min|floatformat:0 }}+</span>{% endif %}
+      </div>
+
+      {% if p.skills %}
+      <div class="cd-skills"><i class="fas fa-tags"></i>{{ p.skills|truncatechars:60 }}</div>
+      {% endif %}
+
+      <div class="cd-actions">
+        {% if request.user.is_authenticated %}
+          <a href="/messages/start/{{ p.user.pk }}/" class="cd-msg-btn"><i class="fas fa-comment-dots"></i> Message</a>
+          {% if request.user.is_employer %}
+          <button onclick="saveCandidate({{ p.user.pk }}, this)" class="cd-save-btn"><i class="far fa-bookmark"></i></button>
+          {% endif %}
+        {% else %}
+          <a href="/login/?next=/candidates/" class="cd-msg-btn"><i class="fas fa-sign-in-alt"></i> Login to Contact</a>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="cd-empty">
+      <i class="fas fa-users"></i>
+      <h3>No candidates found</h3>
+      <p>Try different skills, city, or PIN code to find candidates.</p>
+      {% if not request.user.is_authenticated %}
+      <a href="/register/?type=employee" class="cd-empty-btn"><i class="fas fa-user-plus"></i> Register as Job Seeker</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+function saveCandidate(userId, btn) {
+  fetch('/candidates/save/' + userId + '/', {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')}
+  }).then(r => r.json()).then(d => {
+    btn.innerHTML = d.saved ? '<i class="fas fa-bookmark"></i>' : '<i class="far fa-bookmark"></i>';
+  });
+}
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
+</script>
+{% endblock %}
+

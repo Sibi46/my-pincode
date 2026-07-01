@@ -1,0 +1,193 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Advertisement - Pincode{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/advertiser.css' %}?v=2">{% endblock %}
+
+{% block content %}
+<div class="adv-container" style="max-width:860px;padding-top:40px">
+
+  <div class="adv-form-card">
+    <div class="adv-form-header">
+      <h2><i class="fas fa-ad"></i> Create New Advertisement</h2>
+      <p>Choose your package, upload creative, and proceed to payment.</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" id="createAdForm">
+      {% csrf_token %}
+
+      <!-- Step 1: Choose Package -->
+      <div class="adv-form-section-title"><i class="fas fa-box-open"></i> Step 1 — Choose Package</div>
+
+      {% regroup packages by get_ad_type_display as grouped_packages %}
+      <div class="pkg-grid" id="pkgGrid">
+        {% for pkg in packages %}
+        <label class="pkg-card" data-type="{{ pkg.ad_type }}">
+          <input type="radio" name="package" value="{{ pkg.pk }}" required>
+          <div class="pkg-card-inner">
+            <div class="pkg-icon">
+              {% if pkg.ad_type == 'homepage_banner' %}<i class="fas fa-image"></i>
+              {% elif pkg.ad_type == 'district_banner' %}<i class="fas fa-map-marker-alt"></i>
+              {% elif pkg.ad_type == 'state_banner' %}<i class="fas fa-flag"></i>
+              {% elif pkg.ad_type == 'featured_employer' %}<i class="fas fa-building"></i>
+              {% elif pkg.ad_type == 'featured_job' %}<i class="fas fa-star"></i>
+              {% elif pkg.ad_type == 'sidebar' %}<i class="fas fa-columns"></i>
+              {% elif pkg.ad_type == 'dashboard_banner' %}<i class="fas fa-tachometer-alt"></i>
+              {% elif pkg.ad_type == 'popup' %}<i class="fas fa-bell"></i>
+              {% elif pkg.ad_type == 'sponsored_job' %}<i class="fas fa-briefcase"></i>
+              {% elif pkg.ad_type == 'sponsored_employer' %}<i class="fas fa-user-tie"></i>
+              {% else %}<i class="fas fa-ad"></i>{% endif %}
+            </div>
+            <h4>{{ pkg.name }}</h4>
+            <p class="pkg-type">{{ pkg.get_ad_type_display }}</p>
+            <div class="pkg-price">₹{{ pkg.price }}</div>
+            <div class="pkg-duration"><i class="fas fa-calendar"></i> {{ pkg.duration_days }} days</div>
+            {% if pkg.size_specs %}<div class="pkg-size"><i class="fas fa-expand"></i> {{ pkg.size_specs }}</div>{% endif %}
+            {% if pkg.description %}<p class="pkg-desc">{{ pkg.description }}</p>{% endif %}
+            <div class="pkg-check"><i class="fas fa-check-circle"></i></div>
+          </div>
+        </label>
+        {% empty %}
+        <div class="adv-alert adv-alert-warning" style="grid-column:1/-1">
+          <i class="fas fa-exclamation-triangle"></i>
+          No packages available. Please contact admin to set up ad packages.
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Step 2: Ad Details -->
+      <div class="adv-form-section-title" style="margin-top:32px"><i class="fas fa-pencil-alt"></i> Step 2 — Ad Details</div>
+      <div class="adv-field full">
+        <label>Ad Title / Headline <span class="req">*</span></label>
+        <input type="text" name="title" required maxlength="200" placeholder="Catchy headline for your ad">
+      </div>
+
+      <div class="adv-form-row">
+        <div class="adv-field">
+          <label>Destination URL</label>
+          <input type="url" name="link_url" placeholder="https://yourwebsite.com/offer">
+          <small>Where users go when they click your ad</small>
+        </div>
+        <div class="adv-field" id="districtField" style="display:none">
+          <label>Target District</label>
+          <input type="text" name="district" placeholder="e.g. Chennai, Coimbatore">
+          <small>Required for District Banner</small>
+        </div>
+        <div class="adv-field" id="stateField" style="display:none">
+          <label>Target State</label>
+          <input type="text" name="state" placeholder="e.g. Tamil Nadu">
+          <small>Required for State Banner</small>
+        </div>
+      </div>
+
+      <div class="adv-field full">
+        <label>Ad Description / Content</label>
+        <textarea name="content" rows="3" maxlength="500" placeholder="Optional: short text to display with your ad"></textarea>
+      </div>
+
+      <!-- Step 3: Upload Creative -->
+      <div class="adv-form-section-title" style="margin-top:24px"><i class="fas fa-upload"></i> Step 3 — Upload Your Ad Image <span class="req">*</span></div>
+      <div class="adv-field full">
+        <label>Ad Image / Banner <span class="req">*</span></label>
+        <div class="adv-upload-area" id="uploadArea" onclick="document.getElementById('adImage').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to upload your ad image</p>
+          <small id="uploadFileName">JPG, PNG, GIF — Max 2MB. Required before submission.</small>
+        </div>
+        <input type="file" name="image" id="adImage" accept="image/*" style="display:none" required onchange="previewImage(this)">
+        <img id="imagePreview" style="display:none;max-width:100%;max-height:200px;margin-top:12px;border-radius:10px;object-fit:cover">
+        <div id="imageError" style="display:none;color:#c62828;font-size:12px;margin-top:6px"><i class="fas fa-exclamation-circle"></i> Please upload an image before submitting.</div>
+      </div>
+
+      <!-- Price Summary -->
+      <div id="priceSummary" style="display:none;background:#f8f9ff;border-radius:14px;padding:20px;margin:24px 0;border:1.5px solid #c9d9f0">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:14px"><i class="fas fa-receipt"></i> Order Summary</h4>
+        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+          <span id="sumName">—</span><span id="sumBase">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-bottom:8px">
+          <span>GST (18%)</span><span id="sumGst">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;border-top:1.5px solid #ddd;padding-top:10px">
+          <span>Total</span><span id="sumTotal" style="color:#0a66c2">—</span>
+        </div>
+      </div>
+
+      <div class="adv-form-note">
+        <i class="fas fa-info-circle"></i>
+        After submission you will be redirected to the payment page. Your ad goes live after payment is confirmed.
+      </div>
+
+      <button type="submit" class="adv-submit-btn" id="submitBtn" disabled>
+        <i class="fas fa-arrow-right"></i> Proceed to Payment
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+const pkgData = {
+  {% for pkg in packages %}
+  "{{ pkg.pk }}": {
+    name: "{{ pkg.name }}",
+    type: "{{ pkg.ad_type }}",
+    price: {{ pkg.price }},
+    days:  {{ pkg.duration_days }}
+  },
+  {% endfor %}
+};
+
+let pkgSelected = false;
+let imgSelected  = false;
+
+function updateSubmit() {
+  document.getElementById('submitBtn').disabled = !(pkgSelected && imgSelected);
+}
+
+document.querySelectorAll('.pkg-card input[type=radio]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+    r.closest('.pkg-card').classList.add('selected');
+    pkgSelected = true;
+
+    const d  = pkgData[r.value];
+    const gst  = +(d.price * 0.18).toFixed(2);
+    const total = +(d.price + gst).toFixed(2);
+    document.getElementById('priceSummary').style.display = 'block';
+    document.getElementById('sumName').textContent  = `${d.name} (${d.days} days)`;
+    document.getElementById('sumBase').textContent  = `₹${d.price}`;
+    document.getElementById('sumGst').textContent   = `₹${gst}`;
+    document.getElementById('sumTotal').textContent = `₹${total}`;
+
+    document.getElementById('districtField').style.display = d.type === 'district_banner' ? 'block' : 'none';
+    document.getElementById('stateField').style.display    = d.type === 'state_banner'    ? 'block' : 'none';
+    updateSubmit();
+  });
+});
+
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  imgSelected = true;
+  document.getElementById('imageError').style.display = 'none';
+  document.getElementById('uploadFileName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('imagePreview');
+    img.src   = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('uploadArea').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+  updateSubmit();
+}
+
+document.getElementById('createAdForm').addEventListener('submit', function(e) {
+  if (!imgSelected) {
+    e.preventDefault();
+    document.getElementById('imageError').style.display = 'block';
+    document.getElementById('uploadArea').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+});
+</script>
+{% endblock %}
+

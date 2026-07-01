@@ -1,0 +1,221 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ job.title }} - Pincode{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/jobs.css' %}">{% endblock %}
+
+{% block content %}
+<div class="job-detail-page">
+  <div class="jd-layout">
+
+    <!-- LEFT: Main Job Info -->
+    <div class="jd-main">
+
+      <!-- Header -->
+      <div class="jd-header-card">
+        {% if job.is_urgent %}
+        <div class="urgent-tag" style="margin-bottom:12px"><i class="fas fa-fire"></i> Urgent Hiring</div>
+        {% endif %}
+
+        <div class="jd-title-row">
+          <div class="jd-logo {% if job.collar_type == 'blue' %}blue-logo{% endif %}">
+            {% if job.collar_type == 'white' %}<i class="fas fa-user-tie"></i>
+            {% else %}<i class="fas fa-wrench"></i>{% endif %}
+          </div>
+          <div>
+            <h1 class="jd-title">{{ job.title }}</h1>
+            <p class="jd-company">
+              <i class="fas fa-building"></i>
+              {% if job.posted_by.user_type == 'company' and job.posted_by.company %}
+                {{ job.posted_by.company.company_name }}
+              {% elif job.posted_by.user_type == 'shop' and job.posted_by.shop %}
+                {{ job.posted_by.shop.shop_name }}
+              {% else %}
+                {{ job.posted_by.get_full_name|default:job.posted_by.username }}
+              {% endif %}
+            </p>
+          </div>
+          <span class="jd-collar-badge {% if job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %}">
+            {{ job.get_collar_type_display }}
+          </span>
+        </div>
+
+        <div class="jd-quick-info">
+          <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+          <span><i class="fas fa-map-pin"></i> {{ job.pincode }}</span>
+          <span><i class="fas fa-clock"></i> {{ job.get_job_type_display }}</span>
+          <span><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</span>
+          {% if job.experience %}<span><i class="fas fa-graduation-cap"></i> {{ job.experience }}</span>{% endif %}
+          <span><i class="fas fa-users"></i> {{ job.vacancies }} Vacanc{{ job.vacancies|pluralize:"y,ies" }}</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="jd-apply-bar">
+          {% if request.user.is_authenticated %}
+            {% if already_applied %}
+              <button class="apply-done-btn" disabled><i class="fas fa-check-circle"></i> Applied</button>
+            {% else %}
+              <button onclick="document.getElementById('applyModal').style.display='flex'" class="apply-now-btn">
+                <i class="fas fa-paper-plane"></i> Apply Now
+              </button>
+            {% endif %}
+
+            <!-- Save Job -->
+            <button onclick="toggleSave({{ job.pk }}, this)" class="jd-action-btn save-btn" id="saveBtn">
+              <i class="{% if is_saved %}fas{% else %}far{% endif %} fa-bookmark"></i>
+              <span>{% if is_saved %}Saved{% else %}Save{% endif %}</span>
+            </button>
+
+            <!-- Share Job -->
+            <button onclick="shareJob()" class="jd-action-btn share-btn">
+              <i class="fas fa-share-alt"></i> <span>Share</span>
+            </button>
+
+            <!-- Message Employer -->
+            <a href="/messages/start/{{ job.posted_by.id }}/{{ job.pk }}/" class="jd-action-btn chat-btn">
+              <i class="fas fa-comment-dots"></i> <span>Message</span>
+            </a>
+
+          {% else %}
+            <a href="/login/?next=/jobs/{{ job.pk }}/" class="apply-now-btn">
+              <i class="fas fa-sign-in-alt"></i> Login to Apply
+            </a>
+          {% endif %}
+          <span class="jd-posted"><i class="fas fa-calendar"></i> {{ job.created_at|date:"d M Y" }}</span>
+        </div>
+
+        <!-- Share Panel -->
+        <div id="sharePanel" style="display:none;margin-top:14px;padding:16px;background:#f8f9ff;border-radius:12px;border:1.5px solid #ddd">
+          <p style="font-size:13px;font-weight:700;margin-bottom:10px"><i class="fas fa-share-alt"></i> Share this job</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <input type="text" id="shareUrl" value="{{ request.build_absolute_uri }}" readonly
+              style="flex:1;padding:8px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;min-width:200px">
+            <button onclick="copyLink()" style="padding:8px 14px;background:#0a66c2;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <a href="https://wa.me/?text={{ job.title }} - Apply Now: {{ request.build_absolute_uri }}" target="_blank"
+              style="padding:8px 14px;background:#25D366;color:white;border-radius:8px;font-size:13px;text-decoration:none">
+              <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"
+              style="padding:8px 14px;background:#1877F2;color:white;border-radius:8px;font-size:13px;text-decoration:none">
+              <i class="fab fa-facebook"></i> Facebook
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="jd-section-card">
+        <h3><i class="fas fa-align-left"></i> Job Description</h3>
+        <div class="jd-description">{{ job.description|linebreaks }}</div>
+      </div>
+
+      <!-- Skills -->
+      {% if job.skills %}
+      <div class="jd-section-card">
+        <h3><i class="fas fa-tools"></i> Skills Required</h3>
+        <div class="jd-skills">
+          {% for skill in job.skills.split %}
+          <span>{{ skill|cut:"," }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT: Sidebar -->
+    <div class="jd-sidebar">
+
+      <div class="jd-info-card">
+        <h3>Job Overview</h3>
+        <ul class="jd-overview">
+          <li><i class="fas fa-tag"></i><span>Category</span><strong>{{ job.category }}</strong></li>
+          <li><i class="fas fa-clock"></i><span>Job Type</span><strong>{{ job.get_job_type_display }}</strong></li>
+          <li><i class="fas fa-rupee-sign"></i><span>Salary</span><strong>{{ job.salary_display }}</strong></li>
+          <li><i class="fas fa-users"></i><span>Vacancies</span><strong>{{ job.vacancies }}</strong></li>
+          <li><i class="fas fa-graduation-cap"></i><span>Experience</span><strong>{{ job.experience|default:"Any" }}</strong></li>
+          <li><i class="fas fa-language"></i><span>Language</span><strong>{{ job.language }}</strong></li>
+          {% if job.last_date %}
+          <li><i class="fas fa-calendar-times"></i><span>Last Date</span><strong>{{ job.last_date|date:"d M Y" }}</strong></li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="jd-info-card">
+        <h3><i class="fas fa-phone"></i> Contact</h3>
+        {% if request.user.is_authenticated %}
+          <a href="tel:{{ job.contact_phone }}" class="contact-phone-btn">
+            <i class="fas fa-phone"></i> {{ job.contact_phone }}
+          </a>
+        {% else %}
+          <p style="font-size:13px;color:#666">Login to see contact number</p>
+          <a href="/login/" style="color:#0a66c2;font-weight:600;font-size:14px">Sign In</a>
+        {% endif %}
+      </div>
+
+      <!-- Related Jobs -->
+      {% if related %}
+      <div class="jd-info-card">
+        <h3>Similar Jobs</h3>
+        {% for rj in related %}
+        <a href="/jobs/{{ rj.pk }}/" class="related-job-link">
+          <div class="rj-title">{{ rj.title }}</div>
+          <div class="rj-meta"><i class="fas fa-map-marker-alt"></i> {{ rj.location }}</div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('applyModal');
+    if (modal && e.target === modal) modal.style.display = 'none';
+});
+function toggleSave(pk, btn) {
+    fetch(`/jobs/${pk}/save/`, {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}})
+        .then(r => r.json()).then(d => {
+            const icon = btn.querySelector('i');
+            const label = btn.querySelector('span');
+            if (d.saved) { icon.className = 'fas fa-bookmark'; label.textContent = 'Saved'; }
+            else         { icon.className = 'far fa-bookmark'; label.textContent = 'Save'; }
+        });
+}
+function shareJob() {
+    const panel = document.getElementById('sharePanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function copyLink() {
+    const el = document.getElementById('shareUrl');
+    el.select(); document.execCommand('copy'); alert('Link copied!');
+}
+function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : null;
+}
+</script>
+
+<!-- APPLY MODAL -->
+<div id="applyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:32px;max-width:480px;width:90%;position:relative">
+    <button onclick="document.getElementById('applyModal').style.display='none'"
+      style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:#888">&times;</button>
+    <h3 style="margin-bottom:6px;font-size:20px">Apply for {{ job.title }}</h3>
+    <p style="color:#666;font-size:13px;margin-bottom:20px">Add a short note (optional)</p>
+    <form method="POST" action="/jobs/{{ job.pk }}/apply/">
+      {% csrf_token %}
+      <textarea name="cover_note" rows="4" placeholder="Why are you a good fit? (optional)"
+        style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none;resize:none"></textarea>
+      <button type="submit"
+        style="width:100%;margin-top:14px;padding:14px;background:#0a66c2;color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer">
+        <i class="fas fa-paper-plane"></i> Submit Application
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,56 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+{% block title %}Renew Ad — {{ ad.title }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/advertiser.css' %}?v=2">{% endblock %}
+
+{% block content %}
+<div class="payment-page">
+  <a href="/advertiser/dashboard/" style="display:inline-flex;align-items:center;gap:6px;color:#0a66c2;font-size:13px;text-decoration:none;margin-bottom:20px">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
+
+  <div class="payment-card">
+    <div class="payment-header">
+      <i class="fas fa-redo" style="color:#2e7d32"></i>
+      <h2>Renew Advertisement</h2>
+      <p style="color:#888;font-size:13px;margin-top:4px">Extend your ad for another {{ ad.package.duration_days }} days</p>
+    </div>
+
+    <div class="order-summary">
+      <p style="font-size:13px;font-weight:700;color:#444;margin-bottom:12px"><i class="fas fa-ad"></i> Ad Being Renewed</p>
+      <div class="order-row">
+        <span class="order-label">Title</span>
+        <span style="font-weight:600">{{ ad.title }}</span>
+      </div>
+      <div class="order-row">
+        <span class="order-label">Type</span>
+        <span>{{ ad.package.get_ad_type_display }}</span>
+      </div>
+      <div class="order-row">
+        <span class="order-label">Current Status</span>
+        <span class="ad-status-pill pill-{{ ad.status }}">{{ ad.get_status_display }}</span>
+      </div>
+      <div class="order-row">
+        <span class="order-label">Renewal Period</span>
+        <span>{{ ad.package.duration_days }} days</span>
+      </div>
+      <div class="order-row total">
+        <span>Renewal Amount</span>
+        <span style="color:#0a66c2">₹{{ ad.package.price }}</span>
+      </div>
+    </div>
+
+    <div style="background:#e8f5e9;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:#2e7d32;display:flex;gap:8px">
+      <i class="fas fa-info-circle" style="margin-top:1px"></i>
+      <span>Your ad creative (image, title, link) will be carried forward. You can edit it after renewal from your dashboard.</span>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <button type="submit" class="pay-now-btn" style="background:#2e7d32">
+        <i class="fas fa-redo"></i> Renew & Pay ₹{{ ad.package.price }}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+﻿{% extends "admin_base.html" %}
+{% block title %}State Reports{% endblock %}
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb"><i class="fas fa-chart-bar"></i> State Admin / Reports</div>
+<div class="ap-page-title"><i class="fas fa-chart-bar" style="color:#e65100"></i> {{ state.name|default:"State" }} Reports</div>
+<div class="ap-page-subtitle">Performance and activity overview for your state</div>
+
+<!-- KPI Stats -->
+<div class="ap-stats">
+  <div class="ap-stat blue">
+    <div class="ap-stat-icon"><i class="fas fa-briefcase"></i></div>
+    <h3>{{ total_jobs }}</h3>
+    <p>Total Jobs</p>
+  </div>
+  <div class="ap-stat green">
+    <div class="ap-stat-icon"><i class="fas fa-file-alt"></i></div>
+    <h3>{{ total_applications }}</h3>
+    <p>Applications</p>
+  </div>
+  <div class="ap-stat orange">
+    <div class="ap-stat-icon"><i class="fas fa-building"></i></div>
+    <h3>{{ total_employers }}</h3>
+    <p>Employers</p>
+  </div>
+  <div class="ap-stat red">
+    <div class="ap-stat-icon"><i class="fas fa-exclamation-circle"></i></div>
+    <h3>{{ open_complaints }}</h3>
+    <p>Open Complaints</p>
+  </div>
+</div>
+
+<div class="ap-two-col">
+
+  <!-- Jobs by Collar -->
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-briefcase" style="color:#0a66c2"></i> Jobs by Type</h3></div>
+    <canvas id="collarChart" height="220"></canvas>
+  </div>
+
+  <!-- Applications by Status -->
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-file-alt" style="color:#2e7d32"></i> Applications by Status</h3></div>
+    <canvas id="appChart" height="220"></canvas>
+  </div>
+
+</div>
+
+<!-- District Breakdown -->
+<div class="ap-card">
+  <div class="ap-card-header"><h3><i class="fas fa-map-marker-alt" style="color:#6a1b9a"></i> Districts Breakdown</h3></div>
+  {% if district_stats %}
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead>
+        <tr><th>District</th><th>Jobs</th><th>Applications</th><th>Admin</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for d in district_stats %}
+        <tr>
+          <td><strong>{{ d.name }}</strong></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="background:#e8f0fe;border-radius:4px;height:6px;width:{{ d.job_count }}0px;max-width:80px"></div>
+              <strong>{{ d.job_count }}</strong>
+            </div>
+          </td>
+          <td><strong>{{ d.app_count }}</strong></td>
+          <td>
+            {% if d.district_admin_profiles.exists %}
+              <span style="font-size:12px;color:#2e7d32"><i class="fas fa-check-circle"></i> Assigned</span>
+            {% else %}
+              <span style="font-size:12px;color:#f57f17"><i class="fas fa-exclamation-triangle"></i> No Admin</span>
+            {% endif %}
+          </td>
+          <td><span class="status-pill {% if d.is_active %}pill-active{% else %}pill-inactive{% endif %}">
+            {{ d.is_active|yesno:"Active,Inactive" }}
+          </span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="ap-empty"><i class="fas fa-map-marker-alt"></i><p>No districts data available.</p></div>
+  {% endif %}
+</div>
+
+<!-- Recent Employers -->
+<div class="ap-card">
+  <div class="ap-card-header"><h3><i class="fas fa-building" style="color:#e65100"></i> Recent Employers in State</h3></div>
+  {% if recent_employers %}
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Business</th><th>Type</th><th>City/PIN</th><th>Joined</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for emp in recent_employers %}
+        <tr>
+          <td>
+            <strong>{{ emp.get_full_name|default:emp.username }}</strong>
+            <div style="font-size:11px;color:#888">{{ emp.email }}</div>
+          </td>
+          <td><span style="font-size:11px;font-weight:600;color:#0a66c2">{{ emp.get_user_type_display }}</span></td>
+          <td style="font-size:12px">{{ emp.city }} {{ emp.pincode }}</td>
+          <td style="font-size:12px;color:#888">{{ emp.date_joined|date:"d M Y" }}</td>
+          <td><span class="status-pill {% if emp.is_active %}pill-active{% else %}pill-suspended{% endif %}">
+            {{ emp.is_active|yesno:"Active,Suspended" }}
+          </span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="ap-empty"><i class="fas fa-building"></i><p>No employer data available.</p></div>
+  {% endif %}
+</div>
+
+<script>
+new Chart(document.getElementById('collarChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['White Collar', 'Blue Collar'],
+    datasets: [{
+      data: [{{ white_jobs }}, {{ blue_jobs }}],
+      backgroundColor: ['#0a66c2', '#e65100'],
+      borderWidth: 0,
+    }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+});
+
+new Chart(document.getElementById('appChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Applied', 'Shortlisted', 'Interviewed', 'Offered', 'Rejected'],
+    datasets: [{
+      label: 'Applications',
+      data: [
+        {{ apps_applied }}, {{ apps_shortlisted }},
+        {{ apps_interviewed }}, {{ apps_offered }}, {{ apps_rejected }}
+      ],
+      backgroundColor: ['#0a66c2','#2e7d32','#f57f17','#6a1b9a','#c62828'],
+      borderRadius: 6,
+    }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1048 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post a Job — Pincode</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/post_job.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+</head>
+<body class="pj-body">
+
+<!-- NAV -->
+<nav class="pj-nav">
+  <a href="/" class="pj-logo"><i class="fas fa-map-pin"></i> Pincode</a>
+  <div style="display:flex;align-items:center;gap:14px">
+    <a href="/employer/dashboard/" class="pj-back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  </div>
+</nav>
+
+<div class="pj-wrapper">
+
+  <!-- STEP INDICATOR -->
+  <div class="pj-steps">
+    <div class="pj-step active" id="step-ind-1"><span>1</span><div class="pj-step-label">Job Type</div></div>
+    <div class="pj-step-line"></div>
+    <div class="pj-step" id="step-ind-2"><span>2</span><div class="pj-step-label">Details</div></div>
+    <div class="pj-step-line"></div>
+    <div class="pj-step" id="step-ind-3"><span>3</span><div class="pj-step-label">Requirements</div></div>
+    <div class="pj-step-line"></div>
+    <div class="pj-step" id="step-ind-4"><span>4</span><div class="pj-step-label">Location</div></div>
+    <div class="pj-step-line"></div>
+    <div class="pj-step" id="step-ind-5"><span>5</span><div class="pj-step-label">Review</div></div>
+  </div>
+
+  <form method="POST" action="/post-job/" id="jobForm">
+    {% csrf_token %}
+    <input type="hidden" name="collar_type" id="collar_type_input" value="">
+    <input type="hidden" name="latitude"    id="lat_input"   value="">
+    <input type="hidden" name="longitude"   id="lng_input"   value="">
+    <input type="hidden" name="action"      id="action_input" value="publish">
+
+    <!-- ══ STEP 1: JOB TYPE ══════════════════════════════════════ -->
+    <div class="pj-step-panel" id="panel-1">
+      <div class="pj-card">
+        <div class="pj-card-header">
+          <h2>Select Job Type</h2>
+          <p>Choose the type of job you are posting</p>
+        </div>
+        <div class="collar-btn-grid">
+          <button type="button" class="collar-btn white-collar-btn" id="choice-white" onclick="selectCollar('white')">
+            💼<span>White Collar</span><small>Office / Professional</small>
+          </button>
+          <button type="button" class="collar-btn blue-collar-btn" id="choice-blue" onclick="selectCollar('blue')">
+            🔧<span>Blue Collar</span><small>Labour / Trades</small>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 2: JOB DETAILS ════════════════════════════════════ -->
+    <div class="pj-step-panel hidden" id="panel-2">
+      <div class="pj-card">
+        <div class="pj-card-header">
+          <div class="collar-badge-display" id="collar-badge-display"></div>
+          <h2>Job Details</h2>
+          <p>Basic information about the position</p>
+        </div>
+        <div class="pj-card-body">
+        <div class="pj-grid-2">
+
+          <!-- Salary FIRST -->
+          <div class="salary-box">
+            <div class="salary-box-title"><i class="fas fa-rupee-sign"></i> Salary Details</div>
+            <div class="salary-box-grid">
+              <div class="pj-field">
+                <label><i class="fas fa-calendar-week"></i> Period</label>
+                <select name="salary_type">
+                  <option value="month">Per Month</option>
+                  <option value="day">Per Day</option>
+                  <option value="hour">Per Hour</option>
+                </select>
+              </div>
+              <div class="pj-field">
+                <label><i class="fas fa-rupee-sign"></i> Minimum (₹)</label>
+                <input type="number" name="salary_min" placeholder="e.g. 15000" min="0">
+              </div>
+              <div class="pj-field">
+                <label><i class="fas fa-rupee-sign"></i> Maximum (₹)</label>
+                <input type="number" name="salary_max" placeholder="e.g. 25000" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="pj-field full" style="position:relative">
+            <label><i class="fas fa-briefcase"></i> Job Title *</label>
+            <input type="text" name="title" id="f-title" placeholder="e.g. Senior Software Developer, Electrician ITI" required autocomplete="off">
+            <div class="ac-dropdown" id="titleAC"></div>
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-layer-group"></i> Industry <span style="font-size:12px;color:#0a66c2;font-weight:600">(Select up to 3)</span></label>
+            <!-- hidden input carries the comma-separated selected values -->
+            <input type="hidden" name="industry" id="f-industry" required>
+            <div class="ind-counter" id="indCounter">0 / 3 selected</div>
+            <div class="ind-chip-grid" id="indChipGrid">
+              {% for ind in industries %}
+              <button type="button" class="ind-chip"
+                data-val="{{ ind.name }}"
+                data-collar="{{ ind.collar }}"
+                data-roles='[{% for r in ind.roles.all %}"{{ r.name }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+                onclick="toggleIndustry(this)">{{ ind.name }}</button>
+              {% empty %}
+              <!-- White Collar -->
+              <button type="button" class="ind-chip" data-val="IT &amp; Technology" data-collar="white" data-roles='["Software Developer","Web Designer","Data Analyst","Network Engineer","IT Support","Cybersecurity"]' onclick="toggleIndustry(this)">IT &amp; Technology</button>
+              <button type="button" class="ind-chip" data-val="Healthcare &amp; Medical" data-collar="white" data-roles='["Doctor","Nurse","Pharmacist","Lab Technician","Physiotherapist","Medical Officer"]' onclick="toggleIndustry(this)">Healthcare &amp; Medical</button>
+              <button type="button" class="ind-chip" data-val="Education &amp; Training" data-collar="white" data-roles='["Teacher","Lecturer","Tutor","Principal","Librarian","Counsellor"]' onclick="toggleIndustry(this)">Education &amp; Training</button>
+              <button type="button" class="ind-chip" data-val="Finance &amp; Banking" data-collar="white" data-roles='["Accountant","Auditor","Bank Officer","Financial Analyst","Insurance Agent","Tax Consultant"]' onclick="toggleIndustry(this)">Finance &amp; Banking</button>
+              <button type="button" class="ind-chip" data-val="Marketing &amp; Sales" data-collar="white" data-roles='["Sales Executive","Marketing Manager","Brand Manager","Digital Marketer","Customer Support"]' onclick="toggleIndustry(this)">Marketing &amp; Sales</button>
+              <button type="button" class="ind-chip" data-val="Administration" data-collar="white" data-roles='["Office Manager","HR Executive","Data Entry Operator","Receptionist","Secretary","BPO Agent"]' onclick="toggleIndustry(this)">Administration</button>
+              <button type="button" class="ind-chip" data-val="Engineering" data-collar="white" data-roles='["Civil Engineer","Mechanical Engineer","Electrical Engineer","Project Manager","Site Engineer"]' onclick="toggleIndustry(this)">Engineering</button>
+              <button type="button" class="ind-chip" data-val="Legal &amp; Compliance" data-collar="white" data-roles='["Lawyer","Legal Advisor","Compliance Officer","Court Clerk"]' onclick="toggleIndustry(this)">Legal &amp; Compliance</button>
+              <button type="button" class="ind-chip" data-val="Media &amp; Design" data-collar="white" data-roles='["Graphic Designer","Video Editor","Content Writer","Journalist","Photographer"]' onclick="toggleIndustry(this)">Media &amp; Design</button>
+              <button type="button" class="ind-chip" data-val="Retail &amp; Commerce" data-collar="white" data-roles='["Store Manager","Purchase Manager","Supply Chain","Inventory Manager","E-commerce Executive"]' onclick="toggleIndustry(this)">Retail &amp; Commerce</button>
+              <!-- Blue Collar -->
+              <button type="button" class="ind-chip" data-val="Construction" data-collar="blue" data-roles='["Mason","Carpenter","Painter","Welder","Plumber","Civil Labourer","Tile Fitter","False Ceiling"]' onclick="toggleIndustry(this)">Construction</button>
+              <button type="button" class="ind-chip" data-val="Electrical &amp; Electronics" data-collar="blue" data-roles='["Electrician","Wireman","Electronics Technician","AC Technician","Solar Installer"]' onclick="toggleIndustry(this)">Electrical &amp; Electronics</button>
+              <button type="button" class="ind-chip" data-val="Plumbing &amp; Sanitation" data-collar="blue" data-roles='["Plumber","Pipe Fitter","Drainage Technician","Sanitation Worker"]' onclick="toggleIndustry(this)">Plumbing &amp; Sanitation</button>
+              <button type="button" class="ind-chip" data-val="Transport &amp; Driving" data-collar="blue" data-roles='["Car Driver","Truck Driver","Auto Driver","Delivery Boy","Cab Driver","Heavy Vehicle Driver"]' onclick="toggleIndustry(this)">Transport &amp; Driving</button>
+              <button type="button" class="ind-chip" data-val="Food &amp; Hospitality" data-collar="blue" data-roles='["Cook","Helper","Waiter","Hotel Housekeeping","Dishwasher","Catering Staff","Baker"]' onclick="toggleIndustry(this)">Food &amp; Hospitality</button>
+              <button type="button" class="ind-chip" data-val="Factory &amp; Manufacturing" data-collar="blue" data-roles='["Machine Operator","Packing Worker","Assembly Line Worker","Quality Checker","Supervisor","Forklift Operator"]' onclick="toggleIndustry(this)">Factory &amp; Manufacturing</button>
+              <button type="button" class="ind-chip" data-val="Agriculture" data-collar="blue" data-roles='["Farm Worker","Tractor Operator","Irrigation Worker","Horticulture","Dairy Worker"]' onclick="toggleIndustry(this)">Agriculture</button>
+              <button type="button" class="ind-chip" data-val="Security &amp; Safety" data-collar="blue" data-roles='["Security Guard","Watchman","Safety Officer","Bouncer","CCTV Operator"]' onclick="toggleIndustry(this)">Security &amp; Safety</button>
+              <button type="button" class="ind-chip" data-val="Domestic &amp; Household" data-collar="blue" data-roles='["Housemaid","Cook at Home","Driver","Babysitter","Elder Care","Gardener","Sweeper"]' onclick="toggleIndustry(this)">Domestic &amp; Household</button>
+              <button type="button" class="ind-chip" data-val="Repair &amp; Maintenance" data-collar="blue" data-roles='["Mobile Repair","TV Technician","AC Service","Washing Machine Repair","Auto Mechanic"]' onclick="toggleIndustry(this)">Repair &amp; Maintenance</button>
+              {% endfor %}
+            </div>
+            <p class="ind-maxwarn" id="indMaxWarn" style="display:none">
+              <i class="fas fa-exclamation-circle"></i> Maximum 3 industries allowed. Deselect one to choose another.
+            </p>
+          </div>
+
+          <!-- Hidden inputs — always submitted, written by both modes -->
+          <input type="hidden" name="category"   id="f-role-val">
+          <input type="hidden" name="job_type"   id="f-jobtype-val" value="full_time">
+          <input type="hidden" name="experience" id="f-exp-val"     value="Fresher">
+          <input type="hidden" name="education"  id="f-edu-val"     value="">
+
+          <!-- ── WHITE COLLAR: dropdowns ── -->
+          <div class="pj-field wc-only">
+            <label><i class="fas fa-tag"></i> Job Role *</label>
+            <select id="f-role" onchange="document.getElementById('f-role-val').value=this.value">
+              <option value="">Select Industry first</option>
+            </select>
+          </div>
+
+          <div class="pj-field wc-only">
+            <label><i class="fas fa-clock"></i> Employment Type *</label>
+            <select onchange="document.getElementById('f-jobtype-val').value=this.value">
+              <option value="full_time">Full Time</option>
+              <option value="part_time">Part Time</option>
+              <option value="contract">Contract</option>
+              <option value="daily_wage">Daily Wage</option>
+              <option value="internship">Internship</option>
+            </select>
+          </div>
+
+          <div class="pj-field wc-only">
+            <label><i class="fas fa-user-clock"></i> Experience Required</label>
+            <select onchange="document.getElementById('f-exp-val').value=this.value">
+              <option value="Fresher">Fresher (0 years)</option>
+              <option value="0-1 year">0 – 1 year</option>
+              <option value="1-2 years">1 – 2 years</option>
+              <option value="2-3 years">2 – 3 years</option>
+              <option value="3-5 years">3 – 5 years</option>
+              <option value="5-8 years">5 – 8 years</option>
+              <option value="8-10 years">8 – 10 years</option>
+              <option value="10+ years">10+ years</option>
+            </select>
+          </div>
+
+          <div class="pj-field wc-only">
+            <label><i class="fas fa-graduation-cap"></i> Education Required</label>
+            <select onchange="document.getElementById('f-edu-val').value=this.value">
+              <option value="">Any / Not Required</option>
+              <option value="No formal education">No formal education</option>
+              <option value="Primary (up to 8th)">Primary (up to 8th)</option>
+              <option value="Secondary (10th pass)">Secondary (10th pass)</option>
+              <option value="HSC / 12th pass">HSC / 12th pass</option>
+              <option value="ITI Certificate">ITI Certificate</option>
+              <option value="Diploma">Diploma</option>
+              <option value="Graduate (Any)">Graduate (Any)</option>
+              <option value="B.E / B.Tech">B.E / B.Tech</option>
+              <option value="MBA">MBA</option>
+              <option value="Post Graduate">Post Graduate</option>
+            </select>
+          </div>
+
+          <!-- ── BLUE COLLAR: emoji tile grids ── -->
+          <div class="pj-field full bc-only" style="display:none">
+            <label style="font-size:15px;font-weight:800;margin-bottom:12px">👷 Who are you hiring? <span style="font-size:12px;font-weight:600;color:#888">(tap to select)</span></label>
+            <div class="bc-role-grid" id="bcRoleGrid">
+              <button type="button" class="bc-tile" data-val="Mason"              onclick="bcSelect('role',this)">🧱<span>Mason</span></button>
+              <button type="button" class="bc-tile" data-val="Carpenter"          onclick="bcSelect('role',this)">🪚<span>Carpenter</span></button>
+              <button type="button" class="bc-tile" data-val="Painter"            onclick="bcSelect('role',this)">🎨<span>Painter</span></button>
+              <button type="button" class="bc-tile" data-val="Welder"             onclick="bcSelect('role',this)">🔥<span>Welder</span></button>
+              <button type="button" class="bc-tile" data-val="Plumber"            onclick="bcSelect('role',this)">🔧<span>Plumber</span></button>
+              <button type="button" class="bc-tile" data-val="Electrician"        onclick="bcSelect('role',this)">⚡<span>Electrician</span></button>
+              <button type="button" class="bc-tile" data-val="AC Technician"      onclick="bcSelect('role',this)">❄️<span>AC Tech</span></button>
+              <button type="button" class="bc-tile" data-val="Car Driver"         onclick="bcSelect('role',this)">🚗<span>Driver</span></button>
+              <button type="button" class="bc-tile" data-val="Truck Driver"       onclick="bcSelect('role',this)">🚛<span>Truck Driver</span></button>
+              <button type="button" class="bc-tile" data-val="Delivery Boy"       onclick="bcSelect('role',this)">📦<span>Delivery</span></button>
+              <button type="button" class="bc-tile" data-val="Cook"               onclick="bcSelect('role',this)">🍳<span>Cook</span></button>
+              <button type="button" class="bc-tile" data-val="Waiter"             onclick="bcSelect('role',this)">🍽️<span>Waiter</span></button>
+              <button type="button" class="bc-tile" data-val="Hotel Housekeeping" onclick="bcSelect('role',this)">🏨<span>Hotel Staff</span></button>
+              <button type="button" class="bc-tile" data-val="Machine Operator"   onclick="bcSelect('role',this)">🏭<span>Factory Worker</span></button>
+              <button type="button" class="bc-tile" data-val="Packing Worker"     onclick="bcSelect('role',this)">📦<span>Packing</span></button>
+              <button type="button" class="bc-tile" data-val="Security Guard"     onclick="bcSelect('role',this)">👮<span>Security</span></button>
+              <button type="button" class="bc-tile" data-val="Farm Worker"        onclick="bcSelect('role',this)">🌾<span>Farm Worker</span></button>
+              <button type="button" class="bc-tile" data-val="Housemaid"          onclick="bcSelect('role',this)">🏠<span>Housemaid</span></button>
+              <button type="button" class="bc-tile" data-val="Auto Mechanic"      onclick="bcSelect('role',this)">🔩<span>Mechanic</span></button>
+              <button type="button" class="bc-tile" data-val="Helper"             onclick="bcSelect('role',this)">🙋<span>Helper</span></button>
+            </div>
+          </div>
+
+          <div class="pj-field full bc-only" style="display:none">
+            <label style="font-size:15px;font-weight:800;margin-bottom:12px">⏰ Work Type</label>
+            <div class="bc-type-grid">
+              <button type="button" class="bc-type-tile selected" data-val="full_time"  onclick="bcSelect('type',this)">⏰<span>Full Time</span><small>Regular job</small></button>
+              <button type="button" class="bc-type-tile"          data-val="part_time"  onclick="bcSelect('type',this)">🕐<span>Part Time</span><small>Half day</small></button>
+              <button type="button" class="bc-type-tile"          data-val="daily_wage" onclick="bcSelect('type',this)">📅<span>Daily Wage</span><small>Paid per day</small></button>
+              <button type="button" class="bc-type-tile"          data-val="contract"   onclick="bcSelect('type',this)">📝<span>Contract</span><small>Fixed period</small></button>
+            </div>
+          </div>
+
+          <div class="pj-field full bc-only" style="display:none">
+            <label style="font-size:15px;font-weight:800;margin-bottom:12px">🌱 Experience Needed</label>
+            <div class="bc-exp-grid">
+              <button type="button" class="bc-exp-tile selected" data-val="Fresher"    onclick="bcSelect('exp',this)">🌱<span>Fresher</span><small>No experience</small></button>
+              <button type="button" class="bc-exp-tile"          data-val="0-1 year"   onclick="bcSelect('exp',this)">⭐<span>0–1 Year</span><small>Some experience</small></button>
+              <button type="button" class="bc-exp-tile"          data-val="1-2 years"  onclick="bcSelect('exp',this)">⭐⭐<span>1–2 Years</span></button>
+              <button type="button" class="bc-exp-tile"          data-val="3-5 years"  onclick="bcSelect('exp',this)">⭐⭐⭐<span>3–5 Years</span></button>
+            </div>
+          </div>
+
+          <div class="pj-field full bc-only" style="display:none">
+            <label style="font-size:15px;font-weight:800;margin-bottom:12px">🎓 Education Needed</label>
+            <div class="bc-edu-grid">
+              <button type="button" class="bc-edu-tile selected" data-val=""                         onclick="bcSelect('edu',this)">✅<span>Any / Not required</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="Primary (up to 8th)"      onclick="bcSelect('edu',this)">📚<span>8th Pass</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="Secondary (10th pass)"    onclick="bcSelect('edu',this)">📗<span>10th Pass</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="HSC / 12th pass"          onclick="bcSelect('edu',this)">📘<span>12th Pass</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="ITI Certificate"          onclick="bcSelect('edu',this)">🔧<span>ITI</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="Diploma"                  onclick="bcSelect('edu',this)">📜<span>Diploma</span></button>
+            </div>
+          </div>
+
+          <div class="pj-field full">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <label style="margin:0"><i class="fas fa-align-left"></i> Job Description *</label>
+              <button type="button" id="aiDescBtn" onclick="generateAIDescription()"
+                style="display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:linear-gradient(135deg,#6c3de8,#0a66c2);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.2s">
+                <i class="fas fa-magic"></i> Generate with AI
+              </button>
+            </div>
+            <div id="aiDescStatus" style="display:none;font-size:12px;color:#6c3de8;margin-bottom:6px;display:flex;align-items:center;gap:7px">
+              <i class="fas fa-spinner fa-spin"></i> AI is writing your job description…
+            </div>
+            <textarea name="description" id="f-desc" rows="6" placeholder="Describe the role, responsibilities, and what a typical day looks like… or click 'Generate with AI' above." required></textarea>
+            <div class="char-count"><span id="desc-count">0</span> characters</div>
+          </div>
+
+        </div>
+        </div><!-- /pj-card-body -->
+
+        <div class="pj-nav-btns">
+          <button type="button" class="pj-btn-ghost" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button type="button" class="pj-btn-primary" onclick="nextStep(2, 3)">Next: Requirements <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 3: REQUIREMENTS ═══════════════════════════════════ -->
+    <div class="pj-step-panel hidden" id="panel-3">
+      <div class="pj-card">
+        <div class="pj-card-header">
+          <h2>Candidate Requirements</h2>
+          <p>Specify the profile you're looking for</p>
+        </div>
+        <div class="pj-card-body">
+        <div class="pj-grid-2">
+
+          <div class="pj-field">
+            <label><i class="fas fa-venus-mars"></i> Gender Preference</label>
+            <div class="radio-group">
+              <label class="radio-opt"><input type="radio" name="gender_preference" value="any" checked> <span>Any</span></label>
+              <label class="radio-opt"><input type="radio" name="gender_preference" value="male"> <span>Male Only</span></label>
+              <label class="radio-opt"><input type="radio" name="gender_preference" value="female"> <span>Female Only</span></label>
+            </div>
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-birthday-cake"></i> Age Range</label>
+            <div class="range-row">
+              <input type="number" name="age_min" placeholder="Min age" min="14" max="80">
+              <span>to</span>
+              <input type="number" name="age_max" placeholder="Max age" min="14" max="80">
+              <span>years</span>
+            </div>
+          </div>
+
+          <div class="pj-field full">
+            <label><i class="fas fa-tools"></i> Skills Required</label>
+            <input type="text" name="skills" id="f-skills" placeholder="e.g. Python, Excel, Welding, MS Word (comma-separated)">
+            <div class="skill-tags-row" id="skill-tags"></div>
+            <small style="color:#888">Press comma or Enter to add a skill tag</small>
+          </div>
+
+          <div class="pj-field full">
+            <label><i class="fas fa-language"></i> Languages Required</label>
+            <div class="checkbox-group">
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Tamil"> <span>Tamil</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Telugu"> <span>Telugu</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Kannada"> <span>Kannada</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Malayalam"> <span>Malayalam</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Hindi"> <span>Hindi</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="English"> <span>English</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Urdu"> <span>Urdu</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Marathi"> <span>Marathi</span></label>
+              <label class="check-opt"><input type="checkbox" name="language_opts" value="Bengali"> <span>Bengali</span></label>
+            </div>
+            <input type="hidden" name="language" id="language-hidden" value="Any">
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-users"></i> Number of Vacancies *</label>
+            <input type="number" name="vacancies" value="1" min="1" max="9999" required>
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-sun"></i> Shift</label>
+            <select name="shift">
+              <option value="day">Day Shift</option>
+              <option value="night">Night Shift</option>
+              <option value="rotational">Rotational</option>
+              <option value="flexible">Flexible</option>
+            </select>
+          </div>
+
+          <div class="pj-field full">
+            <label><i class="fas fa-calendar-alt"></i> Working Days</label>
+            <div class="checkbox-group">
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Monday" checked> <span>Mon</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Tuesday" checked> <span>Tue</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Wednesday" checked> <span>Wed</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Thursday" checked> <span>Thu</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Friday" checked> <span>Fri</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Saturday" checked> <span>Sat</span></label>
+              <label class="check-opt"><input type="checkbox" name="working_day_opts" value="Sunday"> <span>Sun</span></label>
+            </div>
+            <input type="hidden" name="working_days" id="working-days-hidden" value="">
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-calendar-times"></i> Application Deadline</label>
+            <input type="date" name="last_date" id="f-deadline">
+          </div>
+
+          <div class="pj-field">
+            <label><i class="fas fa-phone"></i> Contact Phone</label>
+            <input type="tel" name="contact_phone" placeholder="10-digit number" maxlength="10">
+          </div>
+
+          <!-- Urgent toggle -->
+          <div class="pj-field full">
+            <div class="urgent-toggle" onclick="toggleUrgent(this)">
+              <input type="checkbox" name="is_urgent" id="urgent-check" style="display:none">
+              <div class="urgent-toggle-inner">
+                <i class="fas fa-bolt"></i>
+                <div>
+                  <strong>Mark as Urgent Hiring</strong>
+                  <span>Job will be highlighted with an "Urgent" badge to attract faster responses</span>
+                </div>
+                <div class="ut-switch" id="ut-switch"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        </div><!-- /pj-card-body -->
+
+        <div class="pj-nav-btns">
+          <button type="button" class="pj-btn-ghost" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button type="button" class="pj-btn-primary" onclick="nextStep(3, 4)">Next: Perks &amp; Location <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 4: PERKS & LOCATION ═══════════════════════════════ -->
+    <div class="pj-step-panel hidden" id="panel-4">
+      <div class="pj-card">
+        <div class="pj-card-header">
+          <h2>Perks &amp; Location</h2>
+          <p>What do you offer? Where is the job?</p>
+        </div>
+        <div class="pj-card-body">
+
+        <!-- Location FIRST -->
+        <h3 class="pj-sub-heading"><i class="fas fa-map-marker-alt"></i> Job Location</h3>
+        <div class="pj-grid-2" style="margin-bottom:8px">
+          <div class="pj-field">
+            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+            <input type="text" name="pincode" id="f-pincode" placeholder="6-digit PIN code"
+                   maxlength="6" pattern="[0-9]{6}" required
+                   oninput="onPincodeInput(this.value)">
+            <div class="pin-area-preview" id="pin-area-preview"></div>
+          </div>
+          <div class="pj-field">
+            <label><i class="fas fa-city"></i> Location / Area Name</label>
+            <input type="text" name="location" id="f-location" placeholder="e.g. Anna Nagar, Coimbatore">
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-section" style="margin-bottom:28px">
+          <div class="map-label"><i class="fas fa-map-marked-alt"></i> Pin Location on Map <span style="font-weight:400;color:#888;font-size:13px">(optional)</span></div>
+          <div class="map-search-row">
+            <input type="text" id="map-search-input" placeholder="Search address or place name…" class="map-search-input">
+            <button type="button" class="map-search-btn" onclick="searchMapAddress()"><i class="fas fa-search"></i> Search</button>
+            <button type="button" class="map-my-loc-btn" onclick="getMyLocation()"><i class="fas fa-crosshairs"></i> My Location</button>
+          </div>
+          <div id="job-map" class="job-map-box"></div>
+          <div class="map-coords-row" id="map-coords-row" style="display:none">
+            <i class="fas fa-check-circle" style="color:#2e7d32"></i>
+            <span id="map-coords-label">Location pinned</span>
+          </div>
+        </div>
+
+        <!-- Perks -->
+        <h3 class="pj-sub-heading"><i class="fas fa-gift"></i> Perks &amp; Benefits Provided</h3>
+        <div class="perks-grid">
+          <label class="perk-card" id="perk-acc">
+            <input type="checkbox" name="accommodation" value="on" onchange="togglePerk('perk-acc',this)">
+            <div class="perk-icon"><i class="fas fa-home"></i></div>
+            <div class="perk-label">Accommodation</div>
+            <div class="perk-sub">Free stay provided</div>
+          </label>
+          <label class="perk-card" id="perk-food">
+            <input type="checkbox" name="food_provided" value="on" onchange="togglePerk('perk-food',this)">
+            <div class="perk-icon"><i class="fas fa-utensils"></i></div>
+            <div class="perk-label">Food</div>
+            <div class="perk-sub">Meals provided</div>
+          </label>
+          <label class="perk-card" id="perk-trans">
+            <input type="checkbox" name="transport" value="on" onchange="togglePerk('perk-trans',this)">
+            <div class="perk-icon"><i class="fas fa-bus"></i></div>
+            <div class="perk-label">Transportation</div>
+            <div class="perk-sub">Pick-up / drop</div>
+          </label>
+        </div>
+
+        <div class="pj-field" style="margin-top:20px">
+          <label><i class="fas fa-star"></i> Additional Benefits <span style="font-weight:400;color:#888">(optional)</span></label>
+          <textarea name="benefits" rows="3" placeholder="e.g. Health insurance, Bonus, PF, ESI, Paid leave, Uniform provided…"></textarea>
+        </div>
+
+        </div><!-- /pj-card-body -->
+
+        <div class="pj-nav-btns">
+          <button type="button" class="pj-btn-ghost" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button type="button" class="pj-btn-primary" onclick="nextStep(4, 5)">Review &amp; Post <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STEP 5: REVIEW & POST ═══════════════════════════════════ -->
+    <div class="pj-step-panel hidden" id="panel-5">
+      <div class="pj-card">
+        <div class="pj-card-header">
+          <h2><i class="fas fa-check-circle" style="color:#2e7d32"></i> Review &amp; Post</h2>
+          <p>Check your job details before publishing</p>
+        </div>
+
+        <div class="pj-card-body">
+        <div class="review-grid" id="review-grid">
+          <!-- Filled by JS -->
+        </div>
+        </div><!-- /pj-card-body -->
+
+        <div class="pj-nav-btns">
+          <button type="button" class="pj-btn-ghost" onclick="goStep(4)"><i class="fas fa-arrow-left"></i> Back</button>
+          <div class="post-actions">
+            <button type="button" class="pj-btn-draft" onclick="submitForm('draft')"><i class="fas fa-save"></i> Save as Draft</button>
+            <button type="submit" class="pj-btn-post" onclick="submitForm('publish')"><i class="fas fa-paper-plane"></i> Post Job Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- Google Maps API (no key needed for basic embed — replace YOUR_KEY) -->
+<script>
+/* ── State ── */
+let currentStep   = 1;
+let selectedCollar = '';
+let mapInstance   = null;
+let mapMarker     = null;
+
+/* ── Collar selection ── */
+function selectCollar(collar) {
+  selectedCollar = collar;
+  document.getElementById('collar_type_input').value = collar;
+
+  document.querySelectorAll('.collar-btn').forEach(el => el.classList.remove('selected'));
+  document.getElementById('choice-' + collar).classList.add('selected');
+
+  // Show/hide white vs blue collar UI
+  document.querySelectorAll('.wc-only').forEach(el => el.style.display = collar === 'white' ? '' : 'none');
+  document.querySelectorAll('.bc-only').forEach(el => el.style.display = collar === 'blue'  ? '' : 'none');
+
+  // Filter industry chips by collar
+  document.querySelectorAll('.ind-chip').forEach(chip => {
+    const dc = chip.dataset.collar || '';
+    if (dc === collar || dc === 'both' || dc === '') {
+      chip.classList.remove('hidden-collar');
+    } else {
+      chip.classList.add('hidden-collar');
+      chip.classList.remove('selected');
+    }
+  });
+  // Reset selections when collar changes
+  document.querySelectorAll('.ind-chip.selected').forEach(c => c.classList.remove('selected'));
+  document.getElementById('f-industry').value = '';
+  document.getElementById('indCounter').textContent = '0 / 3 selected';
+  document.getElementById('indMaxWarn').style.display = 'none';
+  document.getElementById('f-role').innerHTML = '<option value="">Select Industry first</option>';
+
+  // Update badge
+  const badge = document.getElementById('collar-badge-display');
+  if (collar === 'white') {
+    badge.innerHTML = '<span class="collar-badge white-badge"><i class="fas fa-user-tie"></i> White Collar</span>';
+  } else {
+    badge.innerHTML = '<span class="collar-badge blue-badge"><i class="fas fa-hard-hat"></i> Blue Collar</span>';
+  }
+
+  goStep(2);
+}
+
+/* ── Blue collar tile selector ── */
+function bcSelect(group, tile) {
+  var grids = { role:'bcRoleGrid', type:'bc-type-grid', exp:'bc-exp-grid', edu:'bc-edu-grid' };
+  var hiddenIds = { role:'f-role-val', type:'f-jobtype-val', exp:'f-exp-val', edu:'f-edu-val' };
+  var singleClass = { role:'bc-tile', type:'bc-type-tile', exp:'bc-exp-tile', edu:'bc-edu-tile' };
+
+  // Deselect others in same group
+  tile.closest('.' + (grids[group] === 'bcRoleGrid' ? 'bc-role-grid' :
+    group === 'type' ? 'bc-type-grid' : group === 'exp' ? 'bc-exp-grid' : 'bc-edu-grid'))
+    .querySelectorAll('.' + singleClass[group])
+    .forEach(function(t){ t.classList.remove('selected'); });
+
+  tile.classList.add('selected');
+  var val = tile.dataset.val;
+  document.getElementById(hiddenIds[group]).value = val;
+
+  // Auto-fill title from role
+  if (group === 'role') {
+    var titleEl = document.getElementById('f-title');
+    if (titleEl && !titleEl.value) titleEl.value = val;
+  }
+}
+
+/* ── Industry chip toggle (max 3) ── */
+function toggleIndustry(chip) {
+  const isSelected = chip.classList.contains('selected');
+  const selected   = document.querySelectorAll('.ind-chip.selected');
+
+  if (!isSelected && selected.length >= 3) {
+    document.getElementById('indMaxWarn').style.display = 'flex';
+    return;
+  }
+  document.getElementById('indMaxWarn').style.display = 'none';
+
+  chip.classList.toggle('selected');
+
+  const nowSelected = document.querySelectorAll('.ind-chip.selected');
+  const vals = Array.from(nowSelected).map(c => c.dataset.val);
+  document.getElementById('f-industry').value = vals.join(',');
+  document.getElementById('indCounter').textContent = vals.length + ' / 3 selected';
+
+  // Combine roles from all selected industries
+  const roleSet = new Set();
+  nowSelected.forEach(c => {
+    try { JSON.parse(c.dataset.roles || '[]').forEach(r => roleSet.add(r)); } catch(e) {}
+  });
+  const roleEl = document.getElementById('f-role');
+  roleEl.innerHTML = '<option value="">' + (roleSet.size ? 'Select Role' : 'Select Industry first') + '</option>';
+  roleSet.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r; o.textContent = r;
+    roleEl.appendChild(o);
+  });
+  if (roleSet.size === 1) roleEl.value = [...roleSet][0];
+}
+
+/* ── Job Title Autocomplete ── */
+const AC_ROLES = [
+  // White collar
+  "Software Developer","Web Designer","Data Analyst","Network Engineer","IT Support","Cybersecurity",
+  "Doctor","Nurse","Pharmacist","Lab Technician","Physiotherapist","Medical Officer",
+  "Teacher","Lecturer","Tutor","Principal","Librarian","Counsellor",
+  "Accountant","Auditor","Bank Officer","Financial Analyst","Insurance Agent","Tax Consultant",
+  "Sales Executive","Marketing Manager","Brand Manager","Digital Marketer","Customer Support",
+  "Office Manager","HR Executive","Data Entry Operator","Receptionist","Secretary","BPO Agent",
+  "Civil Engineer","Mechanical Engineer","Electrical Engineer","Project Manager","Site Engineer",
+  "Lawyer","Legal Advisor","Compliance Officer","Court Clerk",
+  "Graphic Designer","Video Editor","Content Writer","Journalist","Photographer",
+  "Store Manager","Purchase Manager","Supply Chain","Inventory Manager","E-commerce Executive",
+  // Blue collar
+  "Mason","Carpenter","Painter","Welder","Plumber","Civil Labourer","Tile Fitter",
+  "Electrician","Wireman","Electronics Technician","AC Technician","Solar Installer",
+  "Pipe Fitter","Drainage Technician","Sanitation Worker",
+  "Car Driver","Truck Driver","Auto Driver","Delivery Boy","Cab Driver","Heavy Vehicle Driver",
+  "Cook","Helper","Waiter","Hotel Housekeeping","Dishwasher","Catering Staff","Baker",
+  "Machine Operator","Packing Worker","Assembly Line Worker","Quality Checker","Supervisor","Forklift Operator",
+  "Farm Worker","Tractor Operator","Irrigation Worker","Horticulture","Dairy Worker",
+  "Security Guard","Watchman","Safety Officer","Bouncer","CCTV Operator",
+  "Housemaid","Cook at Home","Babysitter","Elder Care","Gardener","Sweeper",
+  "Mobile Repair","TV Technician","AC Service","Washing Machine Repair","Auto Mechanic"
+];
+
+(function() {
+  var acActiveIdx = -1;
+
+  function highlightMatch(text, query) {
+    var re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    return text.replace(re, '<mark>$1</mark>');
+  }
+
+  function showAC(input, dropdown) {
+    var q = input.value.trim();
+    dropdown.innerHTML = '';
+    acActiveIdx = -1;
+    if (q.length < 1) { dropdown.style.display = 'none'; return; }
+
+    // Also pull roles from selected industry chips
+    var extra = new Set();
+    document.querySelectorAll('.ind-chip.selected').forEach(function(c) {
+      try { JSON.parse(c.dataset.roles || '[]').forEach(function(r){ extra.add(r); }); } catch(e){}
+    });
+    var pool = Array.from(new Set(AC_ROLES.concat(Array.from(extra))));
+
+    var matches = pool.filter(function(r){ return r.toLowerCase().indexOf(q.toLowerCase()) !== -1; });
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+
+    matches.slice(0, 8).forEach(function(r, i) {
+      var item = document.createElement('div');
+      item.className = 'ac-item';
+      item.innerHTML = '<i class="fas fa-search"></i>' + highlightMatch(r, q);
+      item.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        input.value = r;
+        dropdown.style.display = 'none';
+      });
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = 'block';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var inp  = document.getElementById('f-title');
+    var drop = document.getElementById('titleAC');
+    if (!inp || !drop) return;
+
+    inp.addEventListener('input', function() { showAC(inp, drop); });
+    inp.addEventListener('focus', function() { showAC(inp, drop); });
+    inp.addEventListener('blur',  function() { setTimeout(function(){ drop.style.display='none'; }, 150); });
+
+    inp.addEventListener('keydown', function(e) {
+      var items = drop.querySelectorAll('.ac-item');
+      if (!items.length || drop.style.display === 'none') return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        acActiveIdx = Math.min(acActiveIdx + 1, items.length - 1);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        acActiveIdx = Math.max(acActiveIdx - 1, 0);
+      } else if (e.key === 'Enter' && acActiveIdx >= 0) {
+        e.preventDefault();
+        inp.value = items[acActiveIdx].textContent.trim();
+        drop.style.display = 'none';
+        return;
+      } else if (e.key === 'Escape') {
+        drop.style.display = 'none'; return;
+      } else { return; }
+      items.forEach(function(it, i){ it.classList.toggle('ac-active', i === acActiveIdx); });
+    });
+  });
+})();
+
+/* ── Step navigation ── */
+function goStep(n) {
+  document.querySelectorAll('.pj-step-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('panel-' + n).classList.remove('hidden');
+  document.querySelectorAll('.pj-step').forEach((s, i) => {
+    s.classList.toggle('active',    i + 1 === n);
+    s.classList.toggle('completed', i + 1 < n);
+  });
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep(from, to) {
+  if (from === 2) {
+    const title = document.getElementById('f-title');
+    const ind   = document.getElementById('f-industry');
+    const role  = document.getElementById('f-role');
+    const desc  = document.getElementById('f-desc');
+    if (!title.value.trim()) { title.focus(); alert('Please enter a job title.'); return; }
+    if (!ind.value)          { document.getElementById('indChipGrid').scrollIntoView({behavior:'smooth'}); alert('Please select at least 1 industry.'); return; }
+    var roleVal = selectedCollar === 'blue'
+      ? document.getElementById('f-role-val').value
+      : (role ? role.value : '');
+    if (!roleVal) { alert(selectedCollar === 'blue' ? 'Please tap to select who you are hiring.' : 'Please select a job role.'); return; }
+    if (selectedCollar !== 'blue') document.getElementById('f-role-val').value = roleVal;
+    if (!desc.value.trim())  { desc.focus();  alert('Please enter a job description.'); return; }
+  }
+  if (from === 4) {
+    const pin = document.getElementById('f-pincode');
+    if (!pin.value || pin.value.length !== 6) { pin.focus(); alert('Please enter a valid 6-digit PIN code.'); return; }
+    buildReview();
+  }
+  goStep(to);
+}
+
+/* ── Skills tag input ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const skillInput = document.getElementById('f-skills');
+  const tagsRow    = document.getElementById('skill-tags');
+  const skills     = [];
+
+  function addSkill(val) {
+    val = val.trim().replace(/,/g, '');
+    if (!val || skills.includes(val)) return;
+    skills.push(val);
+    const tag = document.createElement('span');
+    tag.className = 'skill-tag';
+    tag.innerHTML = val + ' <i class="fas fa-times" onclick="removeSkill(\'' + val + '\', this.parentElement)"></i>';
+    tagsRow.appendChild(tag);
+    skillInput.value = '';
+    syncSkillsInput();
+  }
+
+  skillInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addSkill(this.value);
+    }
+  });
+
+  skillInput.addEventListener('blur', function() {
+    if (this.value.trim()) addSkill(this.value);
+  });
+
+  window.removeSkill = function(val, el) {
+    const idx = skills.indexOf(val);
+    if (idx > -1) skills.splice(idx, 1);
+    el.remove();
+    syncSkillsInput();
+  };
+
+  function syncSkillsInput() {
+    skillInput.name = '_skills_display';
+    let hidden = document.getElementById('skills-hidden');
+    if (!hidden) {
+      hidden = document.createElement('input');
+      hidden.type = 'hidden';
+      hidden.id   = 'skills-hidden';
+      hidden.name = 'skills';
+      skillInput.parentElement.appendChild(hidden);
+    }
+    hidden.value = skills.join(', ');
+  }
+
+  /* ── Description character count ── */
+  const descEl  = document.getElementById('f-desc');
+  const countEl = document.getElementById('desc-count');
+  if (descEl) {
+    descEl.addEventListener('input', function() { countEl.textContent = this.value.length; });
+  }
+
+  /* ── Language checkboxes → hidden ── */
+  document.querySelectorAll('[name="language_opts"]').forEach(cb => {
+    cb.addEventListener('change', syncLanguages);
+  });
+
+  /* ── Working day checkboxes → hidden ── */
+  document.querySelectorAll('[name="working_day_opts"]').forEach(cb => {
+    cb.addEventListener('change', syncWorkingDays);
+  });
+  syncWorkingDays();
+
+  /* ── Set min deadline to today ── */
+  const dl = document.getElementById('f-deadline');
+  if (dl) dl.min = new Date().toISOString().split('T')[0];
+});
+
+function syncLanguages() {
+  const checked = [...document.querySelectorAll('[name="language_opts"]:checked')].map(c => c.value);
+  document.getElementById('language-hidden').value = checked.length ? checked.join(', ') : 'Any';
+}
+
+function syncWorkingDays() {
+  const checked = [...document.querySelectorAll('[name="working_day_opts"]:checked')].map(c => c.value);
+  document.getElementById('working-days-hidden').value = checked.join(', ');
+}
+
+/* ── Urgent toggle ── */
+function toggleUrgent(wrapper) {
+  const cb  = document.getElementById('urgent-check');
+  cb.checked = !cb.checked;
+  document.getElementById('ut-switch').classList.toggle('on', cb.checked);
+  wrapper.classList.toggle('active', cb.checked);
+}
+
+/* ── Perk card toggle ── */
+function togglePerk(id, cb) {
+  document.getElementById(id).classList.toggle('selected', cb.checked);
+}
+
+/* ── PIN code area preview ── */
+function onPincodeInput(val) {
+  const preview = document.getElementById('pin-area-preview');
+  if (val.length === 6) {
+    preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Looking up area…';
+    // Would call API — show placeholder
+    setTimeout(() => {
+      preview.innerHTML = '<i class="fas fa-check-circle" style="color:#2e7d32"></i> PIN code entered';
+    }, 500);
+  } else {
+    preview.innerHTML = '';
+  }
+}
+
+/* ── Map functions ── */
+function initMap() {
+  if (typeof google === 'undefined') return;
+  mapInstance = new google.maps.Map(document.getElementById('job-map'), {
+    center: { lat: 11.0168, lng: 76.9558 },
+    zoom: 12,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+  });
+  mapInstance.addListener('click', function(e) {
+    placeMarker(e.latLng.lat(), e.latLng.lng());
+  });
+}
+
+function placeMarker(lat, lng) {
+  if (mapMarker) mapMarker.setMap(null);
+  mapMarker = new google.maps.Marker({
+    position: { lat, lng },
+    map: mapInstance,
+    draggable: true,
+  });
+  mapMarker.addListener('dragend', function() {
+    const pos = mapMarker.getPosition();
+    setLatLng(pos.lat(), pos.lng());
+  });
+  setLatLng(lat, lng);
+}
+
+function setLatLng(lat, lng) {
+  document.getElementById('lat_input').value = lat.toFixed(6);
+  document.getElementById('lng_input').value  = lng.toFixed(6);
+  const row = document.getElementById('map-coords-row');
+  row.style.display = 'flex';
+  document.getElementById('map-coords-label').textContent =
+    'Pinned at ' + lat.toFixed(5) + ', ' + lng.toFixed(5);
+}
+
+function searchMapAddress() {
+  if (!mapInstance) { alert('Map not loaded.'); return; }
+  const q = document.getElementById('map-search-input').value.trim();
+  if (!q) return;
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: q }, function(results, status) {
+    if (status === 'OK') {
+      const loc = results[0].geometry.location;
+      mapInstance.setCenter(loc);
+      mapInstance.setZoom(15);
+      placeMarker(loc.lat(), loc.lng());
+    } else {
+      alert('Location not found. Try a different address.');
+    }
+  });
+}
+
+function getMyLocation() {
+  if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    if (mapInstance) {
+      mapInstance.setCenter({ lat, lng });
+      mapInstance.setZoom(15);
+    }
+    placeMarker(lat, lng);
+  }, function() {
+    alert('Could not get your location. Please enable location permission.');
+  });
+}
+
+/* ── Build review panel ── */
+function buildReview() {
+  const get   = id => (document.getElementById(id) || {}).value || '';
+  const fget  = name => {
+    const el = document.querySelector('[name="' + name + '"]');
+    return el ? el.value : '';
+  };
+  const collar = document.getElementById('collar_type_input').value;
+
+  const rows = [
+    { label: 'Job Type',        value: collar === 'white' ? '🤵 White Collar' : '👷 Blue Collar' },
+    { label: 'Job Title',       value: get('f-title') || fget('title') },
+    { label: 'Industry',        value: fget('industry') },
+    { label: 'Job Role',        value: fget('category') },
+    { label: 'Employment Type', value: fget('job_type') },
+    { label: 'Experience',      value: fget('experience') },
+    { label: 'Salary',          value: buildSalaryText() },
+    { label: 'Education',       value: fget('education') || 'Any' },
+    { label: 'Skills',          value: fget('skills') || '—' },
+    { label: 'Languages',       value: document.getElementById('language-hidden').value || 'Any' },
+    { label: 'Vacancies',       value: fget('vacancies') },
+    { label: 'Shift',           value: fget('shift') },
+    { label: 'Working Days',    value: document.getElementById('working-days-hidden').value || '—' },
+    { label: 'Deadline',        value: fget('last_date') || 'No deadline' },
+    { label: 'PIN Code',        value: get('f-pincode') || fget('pincode') },
+    { label: 'Location',        value: get('f-location') || fget('location') || '—' },
+    { label: 'Accommodation',   value: document.querySelector('[name="accommodation"]').checked ? '✅ Yes' : '✗ No' },
+    { label: 'Food',            value: document.querySelector('[name="food_provided"]').checked ? '✅ Yes' : '✗ No' },
+    { label: 'Transport',       value: document.querySelector('[name="transport"]').checked ? '✅ Yes' : '✗ No' },
+    { label: 'Urgent Hiring',   value: document.getElementById('urgent-check').checked ? '⚡ Yes' : 'No' },
+  ];
+
+  const grid = document.getElementById('review-grid');
+  grid.innerHTML = rows.map(r =>
+    '<div class="review-row"><div class="rv-label">' + r.label + '</div><div class="rv-value">' + (r.value || '—') + '</div></div>'
+  ).join('');
+
+  const desc = fget('description');
+  if (desc) {
+    grid.innerHTML += '<div class="review-row full"><div class="rv-label">Job Description</div><div class="rv-value rv-desc">' + desc.replace(/\n/g,'<br>') + '</div></div>';
+  }
+  const benefits = fget('benefits');
+  if (benefits) {
+    grid.innerHTML += '<div class="review-row full"><div class="rv-label">Benefits</div><div class="rv-value">' + benefits + '</div></div>';
+  }
+}
+
+function buildSalaryText() {
+  const min  = document.querySelector('[name="salary_min"]').value;
+  const max  = document.querySelector('[name="salary_max"]').value;
+  const type = document.querySelector('[name="salary_type"]').value;
+  const unit = { month: '/month', day: '/day', hour: '/hour' }[type] || '';
+  if (min && max) return '₹' + min + ' – ₹' + max + unit;
+  if (min)        return '₹' + min + '+' + unit;
+  return 'Negotiable';
+}
+
+/* ── Submit with action ── */
+function submitForm(action) {
+  document.getElementById('action_input').value = action;
+  syncLanguages();
+  syncWorkingDays();
+}
+
+/* ── AI Description Generator ── */
+function generateAIDescription() {
+  const title    = document.getElementById('f-title').value.trim();
+  const industry = document.getElementById('f-industry').value;
+  const role     = document.getElementById('f-role').value;
+  if (!title && !role) {
+    alert('Please enter a Job Title or select an Industry and Role first.');
+    return;
+  }
+
+  const btn    = document.getElementById('aiDescBtn');
+  const status = document.getElementById('aiDescStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating…';
+  status.style.display = 'flex';
+
+  const form = new FormData();
+  form.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+  form.append('title',       title);
+  form.append('industry',    industry);
+  form.append('category',    role);
+  form.append('job_type',    document.querySelector('[name=job_type]').value);
+  form.append('experience',  document.querySelector('[name=experience]').value);
+  form.append('salary_min',  document.querySelector('[name=salary_min]').value || '');
+  form.append('salary_max',  document.querySelector('[name=salary_max]').value || '');
+  form.append('salary_type', document.querySelector('[name=salary_type]').value);
+  form.append('collar_type', document.getElementById('collar_type_input').value);
+
+  fetch('/api/ai-job-description/', { method: 'POST', body: form })
+    .then(r => r.json())
+    .then(data => {
+      if (data.description) {
+        const desc = document.getElementById('f-desc');
+        desc.value = data.description;
+        document.getElementById('desc-count').textContent = data.description.length;
+      } else {
+        alert('AI Error: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(() => alert('Network error — please try again.'))
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-magic"></i> Generate with AI';
+      status.style.display = 'none';
+    });
+}
+</script>
+
+<!-- Load Google Maps (replace YOUR_API_KEY or remove if not using) -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer
+        onerror="document.getElementById('job-map').innerHTML='<div style=\'padding:32px;text-align:center;color:#888;font-size:14px\'><i class=\'fas fa-map-marked-alt\' style=\'font-size:32px;color:#ddd;display:block;margin-bottom:10px\'></i>Map unavailable — enter PIN code and area name above</div>'">
+</script>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <a href="/employer/dashboard/" class="bn-item"><i class="fas fa-home"></i>Home</a>
+  <a href="/employer/dashboard/#notifications" class="bn-item"><i class="fas fa-bell"></i>Alerts</a>
+  <a href="/post-job/" class="bn-item bn-post active"><div class="bn-post-circle"><i class="fas fa-plus"></i></div><span>Post</span></a>
+  <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i>Messages</a>
+  <a href="/employer/dashboard/#my-jobs" class="bn-item"><i class="fas fa-briefcase"></i>My Jobs</a>
+</nav>
+
+</body>
+</html>
+
+
+

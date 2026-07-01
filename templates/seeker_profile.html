@@ -1,0 +1,625 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile — Pincode Jobs</title>
+<link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+<link rel="stylesheet" href="/static/css/seeker_profile.css?v=2">
+</head>
+<body>
+
+<!-- ── TOP BAR ─────────────────────────────────────────────────────── -->
+<header class="sp-topbar">
+  <a href="/" class="sp-logo">
+    <i class="fa-solid fa-location-dot"></i>
+    <span>Pincode<strong>Jobs</strong></span>
+  </a>
+  <nav class="sp-topnav">
+    <a href="{% url 'jobseeker_dashboard' %}"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a href="{% url 'job_list' %}"><i class="fa-solid fa-briefcase"></i> Browse Jobs</a>
+    <a href="{% url 'chat_list' %}"><i class="fa-solid fa-comment-dots"></i> Messages</a>
+    <a href="{% url 'seeker_profile' %}" class="active"><i class="fa-solid fa-user"></i> My Profile</a>
+  </nav>
+  <div class="sp-user">
+    <span>{{ user.get_full_name|default:user.username }}</span>
+    <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+  </div>
+</header>
+
+<!-- ── PROFILE HEADER CARD ──────────────────────────────────────────── -->
+<div class="sp-wrap">
+  <div class="sp-hero">
+    <div class="sp-avatar-block">
+      {% if profile.photo %}
+        <img src="{{ profile.photo.url }}" class="sp-avatar" alt="Profile photo">
+      {% else %}
+        <div class="sp-avatar sp-avatar-placeholder">
+          <i class="fa-solid fa-user"></i>
+        </div>
+      {% endif %}
+      <label class="sp-photo-btn" for="photoUploadTrigger">
+        <i class="fa-solid fa-camera"></i> Change Photo
+      </label>
+    </div>
+    <div class="sp-hero-info">
+      <h1>{{ user.get_full_name|default:user.username }}</h1>
+      <p class="sp-subtitle">
+        {% if profile.industry %}{{ profile.industry }}{% else %}Job Seeker{% endif %}
+        {% if user.city %} &bull; {{ user.city }}{% endif %}
+      </p>
+      <div class="sp-chips">
+        {% if profile.experience %}<span class="chip"><i class="fa-solid fa-clock"></i> {{ profile.experience }}</span>{% endif %}
+        {% if profile.education %}<span class="chip"><i class="fa-solid fa-graduation-cap"></i> {{ profile.education }}</span>{% endif %}
+        {% if profile.get_availability_display %}<span class="chip avail"><i class="fa-solid fa-circle-check"></i> {{ profile.get_availability_display }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="sp-completion">
+      <div class="sp-completion-ring">
+        <svg viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#e5e7eb" stroke-width="4"/>
+          <circle cx="20" cy="20" r="17" fill="none" stroke="#2563eb" stroke-width="4"
+            stroke-dasharray="{{ completion_pct }} {{ completion_remaining }}"
+            stroke-dashoffset="25" stroke-linecap="round"/>
+        </svg>
+        <span>{{ completion_pct }}%</span>
+      </div>
+      <p>Profile<br>Complete</p>
+    </div>
+  </div>
+
+  <!-- ── TABS ──────────────────────────────────────────────────────── -->
+  <div class="sp-tabs">
+    <button class="sp-tab active" onclick="showTab('personal',this)">
+      <i class="fa-solid fa-user"></i> Personal
+    </button>
+    <button class="sp-tab" onclick="showTab('career',this)">
+      <i class="fa-solid fa-briefcase"></i> Career
+    </button>
+    <button class="sp-tab" onclick="showTab('qualifications',this)">
+      <i class="fa-solid fa-graduation-cap"></i> Qualifications
+    </button>
+    <button class="sp-tab" onclick="showTab('documents',this)">
+      <i class="fa-solid fa-folder"></i> Documents
+    </button>
+  </div>
+
+  <!-- ── FORM ──────────────────────────────────────────────────────── -->
+  <form method="post" enctype="multipart/form-data" id="profileForm">
+    {% csrf_token %}
+    <!-- hidden photo field triggered by label above -->
+    <input type="file" id="photoUploadTrigger" name="photo" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+
+    <!-- ══ TAB: PERSONAL ═════════════════════════════════════════════ -->
+    <section id="tab-personal" class="sp-section active">
+      <h2 class="sec-title"><i class="fa-solid fa-user-circle"></i> Personal Information</h2>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>First Name *</label>
+          <input type="text" name="first_name" value="{{ user.first_name }}" required>
+        </div>
+        <div class="sp-field">
+          <label>Last Name</label>
+          <input type="text" name="last_name" value="{{ user.last_name }}">
+        </div>
+      </div>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>Date of Birth</label>
+          <input type="date" name="dob" value="{{ profile.dob|date:'Y-m-d'|default:'' }}">
+        </div>
+        <div class="sp-field">
+          <label>Gender</label>
+          <select name="gender">
+            <option value="">-- Select --</option>
+            {% for val, label in profile.GENDER %}
+            <option value="{{ val }}" {% if profile.gender == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="sp-field">
+        <label>Address</label>
+        <textarea name="address" rows="2">{{ user.address }}</textarea>
+      </div>
+
+      <div class="sp-grid3">
+        <div class="sp-field">
+          <label>PIN Code *</label>
+          <input type="text" name="pincode" value="{{ user.pincode }}" maxlength="6" pattern="\d{6}" placeholder="6-digit PIN">
+        </div>
+        <div class="sp-field">
+          <label>City / Town</label>
+          <input type="text" name="city" value="{{ user.city }}" placeholder="e.g. Chennai">
+        </div>
+        <div class="sp-field">
+          <label>District</label>
+          <select name="district">
+            <option value="">-- Select --</option>
+            {% for d in districts %}
+            <option value="{{ d.pk }}" {% if profile.district_id == d.pk %}selected{% endif %}>{{ d.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>State</label>
+          <select name="state">
+            <option value="">-- Select --</option>
+            {% for s in states %}
+            <option value="{{ s.pk }}" {% if profile.state_id == s.pk %}selected{% endif %}>{{ s.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sp-field">
+          <label>Phone</label>
+          <input type="text" value="{{ user.phone }}" disabled class="disabled-field">
+          <small>Phone cannot be changed after registration</small>
+        </div>
+      </div>
+
+      <div class="sp-section-footer">
+        <button type="button" class="btn-next" onclick="showTab('career',null)">
+          Next: Career Preferences <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══ TAB: CAREER ═══════════════════════════════════════════════ -->
+    <section id="tab-career" class="sp-section">
+      <h2 class="sec-title"><i class="fa-solid fa-briefcase"></i> Career Preferences</h2>
+
+      <!-- Collar type -->
+      <div class="sp-field">
+        <label>Job Type</label>
+        <div class="collar-row">
+          <label class="collar-opt {% if profile.job_category == 'white' %}selected{% endif %}">
+            <input type="radio" name="job_category" value="white" {% if profile.job_category == 'white' %}checked{% endif %}
+              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
+            <i class="fa-solid fa-briefcase"></i> White Collar
+          </label>
+          <label class="collar-opt {% if profile.job_category == 'blue' %}selected{% endif %}">
+            <input type="radio" name="job_category" value="blue" {% if profile.job_category == 'blue' %}checked{% endif %}
+              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
+            <i class="fa-solid fa-hard-hat"></i> Blue Collar
+          </label>
+          <label class="collar-opt {% if profile.job_category == 'any' or not profile.job_category %}selected{% endif %}">
+            <input type="radio" name="job_category" value="any" {% if profile.job_category == 'any' or not profile.job_category %}checked{% endif %}
+              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
+            <i class="fa-solid fa-layer-group"></i> Any
+          </label>
+        </div>
+      </div>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>Preferred Industry</label>
+          <select name="industry" onchange="loadPrefRoles(this)">
+            <option value="">-- Select Industry --</option>
+            {% for ind in industries %}
+            <option value="{{ ind.name }}"
+              data-roles='[{% for r in ind.roles.all %}"{{ r.title }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+              {% if profile.industry == ind.name %}selected{% endif %}>
+              {{ ind.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sp-field">
+          <label>Preferred Role(s)</label>
+          <div class="tag-input-wrap">
+            <div class="tag-list" id="rolesTagList">
+              {% for r in roles_list %}
+              <span class="tag">{{ r }}<button type="button" onclick="removeTag(this,'roles')">×</button></span>
+              {% endfor %}
+            </div>
+            <input type="text" id="rolesInput" placeholder="Type role and press Enter"
+              onkeydown="handleTagKey(event,'roles')">
+            <datalist id="roleOptions"></datalist>
+          </div>
+          <input type="hidden" name="preferred_roles" id="rolesHidden" value="{{ profile.preferred_roles }}">
+        </div>
+      </div>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>Availability</label>
+          <select name="availability">
+            {% for val, label in profile.AVAILABILITY %}
+            <option value="{{ val }}" {% if profile.availability == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="sp-field">
+          <label>Open to Relocate?</label>
+          <label class="sp-toggle">
+            <input type="checkbox" name="open_to_relocate" {% if profile.open_to_relocate %}checked{% endif %}>
+            <span class="toggle-track"><span class="toggle-knob"></span></span>
+            <span class="toggle-label">Yes, I can relocate</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="sp-field">
+        <label>Preferred Work Location (areas / PIN codes)</label>
+        <input type="text" name="preferred_location" value="{{ profile.preferred_location }}"
+          placeholder="e.g. Chennai, 600001, Velachery">
+        <small>Separate multiple locations with commas</small>
+      </div>
+
+      <div class="sp-field">
+        <label>Preferred PIN Code Area</label>
+        <input type="text" name="preferred_pincode" value="{{ profile.preferred_pincode }}"
+          placeholder="e.g. 600001, 600002">
+      </div>
+
+      <!-- Salary -->
+      <h3 class="sub-title">Expected Salary</h3>
+      <div class="sp-grid3">
+        <div class="sp-field">
+          <label>Minimum (₹)</label>
+          <input type="number" name="salary_min" value="{{ profile.salary_min|default:'' }}" placeholder="e.g. 15000">
+        </div>
+        <div class="sp-field">
+          <label>Maximum (₹)</label>
+          <input type="number" name="salary_max" value="{{ profile.salary_max|default:'' }}" placeholder="e.g. 30000">
+        </div>
+        <div class="sp-field">
+          <label>Pay Period</label>
+          <select name="salary_type">
+            {% for val, label in profile.SALARY_TYPE %}
+            <option value="{{ val }}" {% if profile.salary_type == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="sp-field">
+        <label>Freelance Rate (if applicable)</label>
+        <input type="text" name="rate" value="{{ profile.rate }}" placeholder="e.g. ₹500/hr or ₹5000/project">
+      </div>
+
+      <div class="sp-section-footer">
+        <button type="button" class="btn-back" onclick="showTab('personal',null)">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="btn-next" onclick="showTab('qualifications',null)">
+          Next: Qualifications <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══ TAB: QUALIFICATIONS ═══════════════════════════════════════ -->
+    <section id="tab-qualifications" class="sp-section">
+      <h2 class="sec-title"><i class="fa-solid fa-graduation-cap"></i> Qualifications</h2>
+
+      <div class="sp-grid2">
+        <div class="sp-field">
+          <label>Highest Education</label>
+          <select name="education">
+            <option value="">-- Select --</option>
+            <option value="10th Pass" {% if profile.education == '10th Pass' %}selected{% endif %}>10th Pass</option>
+            <option value="12th Pass" {% if profile.education == '12th Pass' %}selected{% endif %}>12th Pass</option>
+            <option value="ITI" {% if profile.education == 'ITI' %}selected{% endif %}>ITI</option>
+            <option value="Diploma" {% if profile.education == 'Diploma' %}selected{% endif %}>Diploma</option>
+            <option value="Graduate" {% if profile.education == 'Graduate' %}selected{% endif %}>Graduate / B.E / B.Tech / B.Com etc.</option>
+            <option value="Post Graduate" {% if profile.education == 'Post Graduate' %}selected{% endif %}>Post Graduate / M.E / MBA etc.</option>
+            <option value="PhD" {% if profile.education == 'PhD' %}selected{% endif %}>PhD / Doctorate</option>
+            <option value="Other" {% if profile.education == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+        <div class="sp-field">
+          <label>Total Experience</label>
+          <select name="experience">
+            <option value="">-- Select --</option>
+            <option value="Fresher" {% if profile.experience == 'Fresher' %}selected{% endif %}>Fresher (0 years)</option>
+            <option value="Less than 1 year" {% if profile.experience == 'Less than 1 year' %}selected{% endif %}>Less than 1 year</option>
+            <option value="1-2 years" {% if profile.experience == '1-2 years' %}selected{% endif %}>1–2 years</option>
+            <option value="3-5 years" {% if profile.experience == '3-5 years' %}selected{% endif %}>3–5 years</option>
+            <option value="6-10 years" {% if profile.experience == '6-10 years' %}selected{% endif %}>6–10 years</option>
+            <option value="10+ years" {% if profile.experience == '10+ years' %}selected{% endif %}>10+ years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sp-field">
+        <label>Education Details</label>
+        <textarea name="education_details" rows="2" placeholder="College name, year of passing, percentage / CGPA...">{{ profile.education_details }}</textarea>
+      </div>
+
+      <div class="sp-field">
+        <label>Primary / Key Skill</label>
+        <input type="text" name="primary_skill" value="{{ profile.primary_skill }}"
+          placeholder="e.g. Welding, Data Entry, Python, Plumbing">
+      </div>
+
+      <!-- Skills tag input -->
+      <div class="sp-field">
+        <label>All Skills</label>
+        <div class="tag-input-wrap">
+          <div class="tag-list" id="skillsTagList">
+            {% for sk in skills_list %}
+            <span class="tag">{{ sk }}<button type="button" onclick="removeTag(this,'skills')">×</button></span>
+            {% endfor %}
+          </div>
+          <input type="text" id="skillsInput" placeholder="Type skill and press Enter or ,"
+            onkeydown="handleTagKey(event,'skills')">
+        </div>
+        <input type="hidden" name="skills" id="skillsHidden" value="{{ profile.skills }}">
+      </div>
+
+      <!-- Languages -->
+      <div class="sp-field">
+        <label>Languages Known</label>
+        <div class="lang-chips">
+          <!-- Language chips -->
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Tamil" {% if "Tamil" in langs_list %}checked{% endif %}> Tamil</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Telugu" {% if "Telugu" in langs_list %}checked{% endif %}> Telugu</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Kannada" {% if "Kannada" in langs_list %}checked{% endif %}> Kannada</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Malayalam" {% if "Malayalam" in langs_list %}checked{% endif %}> Malayalam</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Hindi" {% if "Hindi" in langs_list %}checked{% endif %}> Hindi</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="English" {% if "English" in langs_list %}checked{% endif %}> English</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Marathi" {% if "Marathi" in langs_list %}checked{% endif %}> Marathi</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Bengali" {% if "Bengali" in langs_list %}checked{% endif %}> Bengali</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Gujarati" {% if "Gujarati" in langs_list %}checked{% endif %}> Gujarati</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Punjabi" {% if "Punjabi" in langs_list %}checked{% endif %}> Punjabi</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Urdu" {% if "Urdu" in langs_list %}checked{% endif %}> Urdu</label>
+          <label class="lang-chip"><input type="checkbox" name="lang_check" value="Other" {% if "Other" in langs_list %}checked{% endif %}> Other</label>
+        </div>
+        <input type="hidden" name="languages" id="langsHidden" value="{{ profile.languages }}">
+      </div>
+
+      <div class="sp-section-footer">
+        <button type="button" class="btn-back" onclick="showTab('career',null)">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="button" class="btn-next" onclick="showTab('documents',null)">
+          Next: Documents <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══ TAB: DOCUMENTS ════════════════════════════════════════════ -->
+    <section id="tab-documents" class="sp-section">
+      <h2 class="sec-title"><i class="fa-solid fa-folder-open"></i> Documents & Portfolio</h2>
+
+      <!-- Resume -->
+      <div class="doc-card">
+        <div class="doc-icon"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="doc-body">
+          <h4>Resume / CV</h4>
+          {% if profile.resume %}
+            <p class="doc-existing">
+              <a href="{{ profile.resume.url }}" target="_blank"><i class="fa-solid fa-eye"></i> View Current</a>
+            </p>
+          {% endif %}
+          <input type="file" name="resume" accept=".pdf,.doc,.docx" class="doc-file-input">
+          <small>PDF, DOC or DOCX — max 5MB</small>
+        </div>
+      </div>
+
+      <!-- Driving License -->
+      <div class="doc-card">
+        <div class="doc-icon"><i class="fa-solid fa-id-card"></i></div>
+        <div class="doc-body">
+          <h4>Driving License <span class="badge-opt">Optional</span></h4>
+          {% if profile.driving_license %}
+            <p class="doc-existing">
+              <a href="{{ profile.driving_license.url }}" target="_blank"><i class="fa-solid fa-eye"></i> View Current</a>
+            </p>
+          {% endif %}
+          <input type="file" name="driving_license" accept=".pdf,.jpg,.jpeg,.png" class="doc-file-input">
+          <small>PDF or image — max 2MB</small>
+        </div>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="doc-card">
+        <div class="doc-icon"><i class="fa-solid fa-globe"></i></div>
+        <div class="doc-body">
+          <h4>Portfolio <span class="badge-opt">Optional</span></h4>
+          <input type="url" name="portfolio_url" value="{{ profile.portfolio_url }}"
+            placeholder="https://yourportfolio.com" class="sp-url-field">
+          <div class="sp-divider-text">— or upload a file —</div>
+          {% if profile.portfolio_file %}
+            <p class="doc-existing">
+              <a href="{{ profile.portfolio_file.url }}" target="_blank"><i class="fa-solid fa-eye"></i> View Current</a>
+            </p>
+          {% endif %}
+          <input type="file" name="portfolio_file" class="doc-file-input">
+          <small>PDF, ZIP, images — max 10MB</small>
+        </div>
+      </div>
+
+      <!-- Certificates -->
+      <div class="cert-section">
+        <h3 class="sub-title"><i class="fa-solid fa-certificate"></i> Certificates</h3>
+
+        {% for cert in certificates %}
+        <div class="cert-row">
+          <div class="cert-icon"><i class="fa-solid fa-award"></i></div>
+          <div class="cert-info">
+            <strong>{{ cert.title }}</strong>
+            {% if cert.issued_by %}<span> &bull; {{ cert.issued_by }}</span>{% endif %}
+            {% if cert.issued_year %}<span class="cert-year"> ({{ cert.issued_year }})</span>{% endif %}
+            {% if cert.file %}<a href="{{ cert.file.url }}" target="_blank" class="cert-view"><i class="fa-solid fa-eye"></i></a>{% endif %}
+          </div>
+          <a href="{% url 'seeker_cert_delete' cert.pk %}" class="cert-del"
+            onclick="return confirm('Delete this certificate?')">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+        </div>
+        {% empty %}
+        <p class="empty-note">No certificates added yet.</p>
+        {% endfor %}
+
+        <!-- Add new certificates -->
+        <div id="newCertsContainer"></div>
+        <button type="button" class="btn-add-cert" onclick="addCertRow()">
+          <i class="fa-solid fa-plus"></i> Add Certificate
+        </button>
+      </div>
+
+      <div class="sp-section-footer">
+        <button type="button" class="btn-back" onclick="showTab('qualifications',null)">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <button type="submit" class="btn-save">
+          <i class="fa-solid fa-floppy-disk"></i> Save Profile
+        </button>
+      </div>
+    </section>
+
+    <!-- ── Global Save (sticky) ─────────────────────────────────────── -->
+    <div class="sp-sticky-save">
+      <span class="completion-bar-wrap">
+        <span class="completion-bar" style="width: {{ completion_pct }}%"></span>
+      </span>
+      <span class="completion-label">{{ completion_pct }}% complete</span>
+      <button type="submit" class="btn-save-sm"><i class="fa-solid fa-floppy-disk"></i> Save All</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+// ── Tab switching ────────────────────────────────────────────────────
+const TAB_ORDER = ['personal', 'career', 'qualifications', 'documents'];
+
+function showTab(name, btnEl) {
+  document.querySelectorAll('.sp-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sp-tab').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById('tab-' + name);
+  if (sec) sec.classList.add('active');
+  if (btnEl) {
+    btnEl.classList.add('active');
+  } else {
+    const idx = TAB_ORDER.indexOf(name);
+    document.querySelectorAll('.sp-tab')[idx]?.classList.add('active');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Photo preview ────────────────────────────────────────────────────
+function previewPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const el = document.querySelector('.sp-avatar');
+    if (el.tagName === 'IMG') {
+      el.src = e.target.result;
+    } else {
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.className = 'sp-avatar';
+      img.alt = 'Profile photo';
+      el.replaceWith(img);
+    }
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ── Tag input (Skills / Roles) ───────────────────────────────────────
+function handleTagKey(e, field) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.replace(/,/g, '').trim();
+    if (val) addTag(val, field);
+    e.target.value = '';
+  }
+}
+
+function addTag(val, field) {
+  const list = document.getElementById(field + 'TagList');
+  const span = document.createElement('span');
+  span.className = 'tag';
+  span.innerHTML = val + '<button type="button" onclick="removeTag(this,\'' + field + '\')">×</button>';
+  list.appendChild(span);
+  syncTags(field);
+}
+
+function removeTag(btn, field) {
+  btn.parentElement.remove();
+  syncTags(field);
+}
+
+function syncTags(field) {
+  const tags = Array.from(document.querySelectorAll('#' + field + 'TagList .tag'))
+    .map(el => el.childNodes[0].textContent.trim());
+  document.getElementById(field + 'Hidden').value = tags.join(',');
+}
+
+// ── Role suggestions from industry dropdown ──────────────────────────
+function loadPrefRoles(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const roles = JSON.parse(opt.dataset.roles || '[]');
+  const dl = document.getElementById('roleOptions');
+  if (dl) {
+    dl.innerHTML = roles.map(r => `<option value="${r}">`).join('');
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const indSel = document.querySelector('select[name="industry"]');
+  if (indSel && indSel.value) loadPrefRoles(indSel);
+});
+
+// ── Language checkboxes → hidden field ──────────────────────────────
+function syncLanguages() {
+  const checked = Array.from(document.querySelectorAll('input[name="lang_check"]:checked'))
+    .map(cb => cb.value);
+  document.getElementById('langsHidden').value = checked.join(',');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[name="lang_check"]').forEach(cb => {
+    cb.addEventListener('change', syncLanguages);
+  });
+  syncLanguages();
+});
+
+// ── Certificate rows ─────────────────────────────────────────────────
+let certCount = 0;
+function addCertRow() {
+  certCount++;
+  const c = certCount;
+  const container = document.getElementById('newCertsContainer');
+  const div = document.createElement('div');
+  div.className = 'new-cert-row';
+  div.id = 'newCert_' + c;
+  div.innerHTML = `
+    <div class="new-cert-grid">
+      <div class="sp-field">
+        <label>Certificate Title *</label>
+        <input type="text" name="cert_title" placeholder="e.g. First Aid Certificate" required>
+      </div>
+      <div class="sp-field">
+        <label>Issued By</label>
+        <input type="text" name="cert_issuer" placeholder="Issuing organisation">
+      </div>
+      <div class="sp-field">
+        <label>Year</label>
+        <input type="text" name="cert_year" placeholder="e.g. 2023" maxlength="4">
+      </div>
+      <div class="sp-field">
+        <label>Upload (optional)</label>
+        <input type="file" name="cert_file" accept=".pdf,.jpg,.jpeg,.png">
+      </div>
+    </div>
+    <button type="button" class="cert-del-row" onclick="document.getElementById('newCert_${c}').remove()">
+      <i class="fa-solid fa-trash"></i> Remove
+    </button>
+  `;
+  container.appendChild(div);
+}
+
+// ── Hash-based tab restore ────────────────────────────────────────────
+const hash = window.location.hash.replace('#', '');
+if (TAB_ORDER.includes(hash)) showTab(hash, null);
+</script>
+</body>
+</html>
+

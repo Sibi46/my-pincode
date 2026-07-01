@@ -1,0 +1,101 @@
+﻿{% extends "admin_base.html" %}
+{% block title %}National Analytics{% endblock %}
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="ap-breadcrumb"><i class="fas fa-chart-line"></i> Super Admin / Analytics</div>
+<div class="ap-page-title"><i class="fas fa-chart-line" style="color:#f3a000"></i> National Analytics</div>
+<div class="ap-page-subtitle">Platform-wide performance across all states and districts</div>
+
+<div class="ap-stats">
+  <div class="ap-stat blue">
+    <div class="ap-stat-icon"><i class="fas fa-user-tie"></i></div>
+    <h3>{{ jobs_by_collar.white }}</h3>
+    <p>White Collar Jobs</p>
+  </div>
+  <div class="ap-stat orange">
+    <div class="ap-stat-icon"><i class="fas fa-wrench"></i></div>
+    <h3>{{ jobs_by_collar.blue }}</h3>
+    <p>Blue Collar Jobs</p>
+  </div>
+  <div class="ap-stat gold">
+    <div class="ap-stat-icon"><i class="fas fa-rupee-sign"></i></div>
+    <h3>{{ total_revenue }}</h3>
+    <p>Paid Ad Payments</p>
+  </div>
+  <div class="ap-stat green">
+    <div class="ap-stat-icon"><i class="fas fa-flag"></i></div>
+    <h3>{{ top_states|length }}</h3>
+    <p>Active States</p>
+  </div>
+</div>
+
+<div class="ap-two-col">
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-briefcase" style="color:#0a66c2"></i> Jobs by Collar Type</h3></div>
+    <canvas id="collarChart" height="200"></canvas>
+  </div>
+  <div class="ap-card">
+    <div class="ap-card-header"><h3><i class="fas fa-bullhorn" style="color:#e65100"></i> Advertisers by Status</h3></div>
+    <canvas id="advChart" height="200"></canvas>
+  </div>
+</div>
+
+<div class="ap-card">
+  <div class="ap-card-header"><h3><i class="fas fa-file-alt" style="color:#6a1b9a"></i> Applications by Status</h3></div>
+  <canvas id="appChart" height="80"></canvas>
+</div>
+
+<div class="ap-card">
+  <div class="ap-card-header"><h3><i class="fas fa-flag" style="color:#0a66c2"></i> States by Districts</h3></div>
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>#</th><th>State</th><th>Code</th><th>Districts</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for s in top_states %}
+        <tr>
+          <td style="color:#888;font-size:12px">{{ forloop.counter }}</td>
+          <td><strong>{{ s.name }}</strong></td>
+          <td><code style="background:#f0f0f0;padding:2px 8px;border-radius:5px">{{ s.code }}</code></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="background:#e8f0fe;border-radius:4px;height:8px;width:{{ s.d_count }}0px;max-width:120px"></div>
+              <strong>{{ s.d_count }}</strong>
+            </div>
+          </td>
+          <td><span class="status-pill {% if s.is_active %}pill-active{% else %}pill-inactive{% endif %}">{{ s.is_active|yesno:"Active,Inactive" }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+new Chart(document.getElementById('collarChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['White Collar', 'Blue Collar'],
+    datasets: [{ data: [{{ jobs_by_collar.white }}, {{ jobs_by_collar.blue }}], backgroundColor: ['#0a66c2','#e65100'], borderWidth: 0 }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+});
+new Chart(document.getElementById('advChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Pending','Approved','Rejected','Suspended'],
+    datasets: [{ data: [{{ advertisers_by_status.pending|default:0 }},{{ advertisers_by_status.approved|default:0 }},{{ advertisers_by_status.rejected|default:0 }},{{ advertisers_by_status.suspended|default:0 }}], backgroundColor: ['#f57f17','#2e7d32','#c62828','#6a1b9a'], borderWidth: 0 }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, cutout: '65%' }
+});
+const appLabels = [{% for s in apps_by_status.keys %}'{{ s }}',{% endfor %}];
+const appData   = [{% for c in apps_by_status.values %}{{ c }},{% endfor %}];
+new Chart(document.getElementById('appChart'), {
+  type: 'bar',
+  data: { labels: appLabels, datasets: [{ label: 'Applications', data: appData, backgroundColor: '#0a66c2', borderRadius: 6 }] },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+});
+</script>
+{% endblock %}
