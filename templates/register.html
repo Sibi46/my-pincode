@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join Pincode - Register</title>
+    <title>Join MY PINCOD - Register</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
     <link rel="stylesheet" href="{% static 'css/register.css' %}?v=4">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
@@ -15,7 +15,7 @@
         <div class="nav-container">
             <a href="/" class="nav-logo">
                 <i class="fas fa-map-pin"></i>
-                <span>Pincode</span>
+                <span>MY PINCOD</span>
             </a>
             <div class="nav-links">
                 <a href="/login/" class="btn-signin">Sign In</a>
@@ -30,7 +30,7 @@
           <div style="max-width:700px;margin:0 auto;padding:28px 16px">
 
             <div style="text-align:center;margin-bottom:28px">
-              <h2 style="font-size:24px;font-weight:900;color:#111;margin-bottom:6px">Join Pincode</h2>
+              <h2 style="font-size:24px;font-weight:900;color:#111;margin-bottom:6px">Join MY PINCOD</h2>
               <p style="font-size:14px;color:#666">Select how you want to use the platform</p>
             </div>
 
@@ -116,17 +116,6 @@
         </style>
 
         <script>
-        // Populate year-established dropdown (current year down to 1950)
-        (function(){
-          var sel = document.getElementById('emp-started-year');
-          if (!sel) return;
-          var cur = new Date().getFullYear();
-          for (var y = cur; y >= 1950; y--) {
-            var o = document.createElement('option');
-            o.value = y; o.textContent = y;
-            sel.appendChild(o);
-          }
-        })();
 
         function toggleRole(which){
           var hire = document.getElementById('roleHire');
@@ -224,9 +213,7 @@
                         </div>
                         <div class="form-group">
                             <label><i class="fas fa-calendar-alt"></i> Year Established</label>
-                            <select name="started_year" id="emp-started-year">
-                                <option value="">Select year</option>
-                            </select>
+                            <input type="number" name="started_year" id="emp-started-year" placeholder="e.g. 2010" min="1900" max="2099">
                         </div>
                     </div>
                     <div class="form-row">
@@ -258,7 +245,7 @@
                             <input type="text" name="city" placeholder="City" required>
                         </div>
                         <div class="form-group">
-                            <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
                             <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" pattern="[0-9]{6}" required>
                         </div>
                     </div>
@@ -441,7 +428,7 @@
                                 <input type="text" name="city" placeholder="City" required>
                             </div>
                             <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
                                 <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
                             </div>
                         </div>
@@ -515,7 +502,7 @@
                                 <input type="text" name="city" placeholder="City" required>
                             </div>
                             <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
                                 <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
                             </div>
                         </div>
@@ -601,7 +588,7 @@
                                 <input type="text" name="city" placeholder="City" required>
                             </div>
                             <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> Pincode *</label>
+                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
                                 <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
                             </div>
                         </div>

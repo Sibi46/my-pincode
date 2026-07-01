@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Job — Pincode</title>
+  <title>Edit Job — MY PINCOD</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
   <link rel="stylesheet" href="{% static 'css/post_job.css' %}?v=5">
   <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
@@ -14,7 +14,7 @@
 
 <!-- NAV -->
 <nav class="pj-nav">
-  <a href="/" class="pj-logo"><i class="fas fa-map-pin"></i> Pincode</a>
+  <a href="/" class="pj-logo"><i class="fas fa-map-pin"></i> MY PINCOD</a>
   <div style="display:flex;align-items:center;gap:14px">
     <a href="/employer/dashboard/" class="pj-back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
   </div>
@@ -1042,10 +1042,10 @@ function generateAIDescription() {
 </nav>
 
 <!-- PRE-FILL FIELDS FROM EXISTING JOB -->
+{{ job.title|json_script:"_t" }}
+{{ job.description|json_script:"_d" }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  {{ job.title|json_script:"_t" }}
-  {{ job.description|json_script:"_d" }}
   var JOB = {
     collar:       '{{ job.collar_type }}',
     title:        '',

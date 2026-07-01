@@ -15,7 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SITE_NAME    = 'Pincode Job Portal'
+SITE_NAME    = 'MY PINCOD'
 SITE_TAGLINE = 'Find Jobs Near You. Hire People Near You.'
 
 

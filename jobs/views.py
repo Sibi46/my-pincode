@@ -220,26 +220,52 @@ def dashboard(request):
 def job_list(request):
     jobs = Job.objects.filter(status='active')
 
-    collar   = request.GET.get('collar', '')
-    category = request.GET.get('category', '')
-    pincode  = request.GET.get('pincode', '')
-    q        = request.GET.get('q', '')
+    collar    = request.GET.get('collar', '')
+    category  = request.GET.get('category', '')
+    pincode   = request.GET.get('pincode', '')
+    q         = request.GET.get('q', '')
+    radius_km = request.GET.get('radius', '')
 
     if collar:
         jobs = jobs.filter(collar_type=collar)
     if category:
         jobs = jobs.filter(category__icontains=category)
-    if pincode:
-        jobs = jobs.filter(pincode=pincode)
     if q:
         jobs = jobs.filter(Q(title__icontains=q) | Q(category__icontains=q) | Q(location__icontains=q))
 
+    nearby_pairs = None
+    radius_error = None
+
+    if pincode and radius_km:
+        # Nearby radius search
+        try:
+            from .utils import geocode_pincode, jobs_within_radius
+            radius_km = float(radius_km)
+            lat, lng = geocode_pincode(pincode)
+            if lat:
+                nearby_pairs = jobs_within_radius(lat, lng, radius_km, queryset=jobs)
+                # nearby_pairs is [(job, dist_km), ...]
+                jobs = [pair[0] for pair in nearby_pairs]
+            else:
+                radius_error = f"Could not locate pincode {pincode}. Showing all results."
+                jobs = jobs.filter(pincode=pincode) if pincode else jobs
+        except (ValueError, TypeError):
+            radius_error = "Invalid radius value."
+            jobs = jobs.filter(pincode=pincode) if pincode else jobs
+    elif pincode:
+        jobs = jobs.filter(pincode=pincode)
+
+    total = len(jobs) if isinstance(jobs, list) else jobs.count()
+
     return render(request, 'job_list.html', {
-        'jobs': jobs,
-        'collar': collar,
-        'q': q,
-        'pincode': pincode,
-        'total': jobs.count(),
+        'jobs':         jobs,
+        'nearby_pairs': nearby_pairs,
+        'collar':       collar,
+        'q':            q,
+        'pincode':      pincode,
+        'radius':       radius_km,
+        'radius_error': radius_error,
+        'total':        total,
     })
 
 
@@ -1147,6 +1173,59 @@ def admin_panel_login(request):
             return redirect('/district-admin/')
     messages.error(request, 'Invalid phone number / password, or not an admin account.')
     return redirect('home')
+
+
+# ── NEARBY JOBS API ──────────────────────────────────────────────────────────
+def nearby_jobs_api(request):
+    """
+    GET /api/nearby-jobs/?pincode=600001&radius=5&collar=blue&q=driver
+    Returns JSON list of jobs within radius_km, sorted by distance.
+    """
+    pincode   = request.GET.get('pincode', '').strip()
+    radius_km = float(request.GET.get('radius', 5))
+    collar    = request.GET.get('collar', '')
+    q         = request.GET.get('q', '')
+
+    if not pincode:
+        return JsonResponse({'error': 'pincode is required'}, status=400)
+
+    from .utils import geocode_pincode, jobs_within_radius
+
+    lat, lng = geocode_pincode(pincode)
+    if lat is None:
+        return JsonResponse({'error': f'Could not geocode pincode {pincode}'}, status=404)
+
+    base_qs = Job.objects.filter(status='active')
+    if collar:
+        base_qs = base_qs.filter(collar_type=collar)
+    if q:
+        base_qs = base_qs.filter(Q(title__icontains=q) | Q(category__icontains=q))
+
+    pairs = jobs_within_radius(lat, lng, radius_km, queryset=base_qs)
+
+    results = []
+    for job, dist in pairs:
+        results.append({
+            'id':          job.pk,
+            'title':       job.title,
+            'category':    job.category,
+            'industry':    job.industry,
+            'collar':      job.collar_type,
+            'location':    job.location,
+            'pincode':     job.pincode,
+            'distance_km': dist,
+            'salary':      job.salary_display(),
+            'job_type':    job.job_type,
+            'is_urgent':   job.is_urgent,
+            'url':         f'/jobs/{job.pk}/',
+        })
+
+    return JsonResponse({
+        'center':    {'lat': lat, 'lng': lng, 'pincode': pincode},
+        'radius_km': radius_km,
+        'count':     len(results),
+        'jobs':      results,
+    })
 
 
 # ── AI JOB DESCRIPTION ───────────────────────────────────────────────────────

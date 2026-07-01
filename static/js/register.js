@@ -108,6 +108,42 @@ function injectField(form, name, value) {
 }
 
 // ── OTP flow ──────────────────────────────────────────────────────────────────
+function showDemoOtpPopup() {
+    var existing = document.getElementById('demoOtpPopup');
+    if (existing) existing.remove();
+
+    var popup = document.createElement('div');
+    popup.id = 'demoOtpPopup';
+    popup.innerHTML = `
+        <div style="
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            background:#fff;border-radius:20px;padding:32px 36px;
+            box-shadow:0 20px 60px rgba(0,0,0,.25);z-index:99999;
+            text-align:center;min-width:280px;animation:otpPopIn .3s cubic-bezier(.22,.68,0,1.4)
+        ">
+            <div style="font-size:48px;margin-bottom:10px">📱</div>
+            <div style="font-size:13px;font-weight:700;color:#888;letter-spacing:.5px;margin-bottom:6px">DEMO OTP</div>
+            <div style="font-size:42px;font-weight:900;color:#0a66c2;letter-spacing:12px;margin-bottom:14px">123456</div>
+            <div style="font-size:13px;color:#aaa">Use this code to verify</div>
+            <button onclick="document.getElementById('demoOtpPopup').remove()" style="
+                margin-top:20px;background:#0a66c2;color:#fff;border:none;
+                padding:10px 32px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer
+            ">Got it!</button>
+        </div>
+        <div onclick="document.getElementById('demoOtpPopup').remove()" style="
+            position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998
+        "></div>
+        <style>
+        @keyframes otpPopIn{
+            0%{transform:translate(-50%,-50%) scale(.7);opacity:0}
+            100%{transform:translate(-50%,-50%) scale(1);opacity:1}
+        }
+        </style>
+    `;
+    document.body.appendChild(popup);
+    setTimeout(function(){ if(document.getElementById('demoOtpPopup')) document.getElementById('demoOtpPopup').remove(); }, 8000);
+}
+
 function sendOTP(prefix) {
     const phoneInput = document.getElementById(prefix + 'Phone');
     if (!phoneInput) return;
@@ -128,6 +164,8 @@ function sendOTP(prefix) {
         const first = document.getElementById(prefix + 'OtpBox').querySelector('.otp-digit');
         if (first) first.focus();
     }, 100);
+
+    showDemoOtpPopup();
 
     setTimeout(() => {
         btn.textContent = 'Resend';

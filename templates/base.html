@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Pincode — Find Jobs Near You. Hire People Near You. India's PIN-code based local job portal for white collar and blue collar jobs.">
-    <title>{% block title %}Pincode{% endblock %}</title>
+    <meta name="description" content="MY PINCOD — Find Jobs Near You. Hire People Near You. India's PIN-code based local job portal for white collar and blue collar jobs.">
+    <title>{% block title %}MY PINCOD{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
     {% block extra_css %}{% endblock %}
@@ -14,7 +14,7 @@
 
 <nav class="navbar">
     <div class="nav-container">
-        <a href="/" class="nav-logo"><i class="fas fa-map-pin"></i><span>Pincode</span></a>
+        <a href="/" class="nav-logo"><i class="fas fa-map-pin"></i><span>MY PINCOD</span></a>
         <div class="nav-search">
             <form action="/jobs/" method="get" style="display:flex;width:100%">
                 <input type="text" name="q" placeholder="Search jobs, skills..." value="{{ request.GET.q }}">
@@ -86,7 +86,7 @@
 <footer class="footer">
     <div class="footer-grid">
         <div class="footer-brand">
-            <h3><i class="fas fa-map-pin"></i> Pincode</h3>
+            <h3><i class="fas fa-map-pin"></i> MY PINCOD</h3>
             <p>Find Jobs Near You. Hire People Near You.</p>
             <div class="social-links">
                 <a href="#"><i class="fab fa-facebook"></i></a>
@@ -114,7 +114,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>&copy; 2026 Pincode. All rights reserved.</p>
+        <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
         <button class="admin-footer-btn" onclick="openAdminPanel()">
           <i class="fas fa-shield-alt"></i> Admin Panel
         </button>
@@ -127,7 +127,7 @@
     <div class="admin-modal-header">
       <div>
         <h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2>
-        <p>Pincode — Platform Management</p>
+        <p>MY PINCOD — Platform Management</p>
       </div>
       <button class="admin-modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
     </div>

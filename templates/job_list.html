@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}Browse Jobs - Pincode{% endblock %}
+{% block title %}Browse Jobs - MY PINCOD{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/jobs.css' %}">{% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
   <div class="jobs-search-bar">
     <form action="/jobs/" method="get" class="jobs-search-form">
       <input type="text" name="q" value="{{ q }}" placeholder="Job title, skill, keyword...">
-      <input type="text" name="pincode" value="{{ pincode }}" placeholder="Pincode" maxlength="6" style="max-width:130px">
+      <input type="text" name="pincode" value="{{ pincode }}" placeholder="MY PINCOD" maxlength="6" style="max-width:130px">
       <button type="submit"><i class="fas fa-search"></i> Search</button>
     </form>
   </div>
@@ -58,9 +58,24 @@
         </div>
 
         <div class="filter-group">
-          <h4>Pincode</h4>
+          <h4><i class="fas fa-map-pin"></i> Location</h4>
           <input type="text" name="pincode" value="{{ pincode }}" placeholder="Enter pincode" maxlength="6" class="filter-input">
+          <label style="font-size:12px;color:#666;margin-top:8px;display:block">Search radius</label>
+          <select name="radius" class="filter-input" style="margin-top:4px">
+            <option value="">Exact pincode only</option>
+            <option value="2"  {% if radius == '2'  or radius == 2.0 %}selected{% endif %}>Within 2 km</option>
+            <option value="5"  {% if radius == '5'  or radius == 5.0 %}selected{% endif %}>Within 5 km</option>
+            <option value="10" {% if radius == '10' or radius == 10.0 %}selected{% endif %}>Within 10 km</option>
+            <option value="20" {% if radius == '20' or radius == 20.0 %}selected{% endif %}>Within 20 km</option>
+            <option value="50" {% if radius == '50' or radius == 50.0 %}selected{% endif %}>Within 50 km</option>
+          </select>
         </div>
+
+        {% if radius_error %}
+        <p style="color:#dc2626;font-size:12px;background:#fef2f2;padding:8px;border-radius:6px">
+          <i class="fas fa-exclamation-circle"></i> {{ radius_error }}
+        </p>
+        {% endif %}
 
         <button type="submit" class="filter-btn"><i class="fas fa-check"></i> Apply Filters</button>
         <a href="/jobs/" class="clear-filter">Clear all</a>
@@ -84,6 +99,13 @@
       {% if jobs %}
       <div class="job-cards-list">
         {% for job in jobs %}
+        {% if nearby_pairs %}
+          {% for pair_job, dist in nearby_pairs %}
+            {% if pair_job.pk == job.pk %}
+              {% with job_dist=dist %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
         <div class="job-list-card {% if job.is_urgent %}urgent-card{% endif %}">
           {% if job.is_urgent %}<div class="urgent-tag"><i class="fas fa-fire"></i> Urgent Hiring</div>{% endif %}
 
@@ -112,6 +134,9 @@
           <div class="jlc-meta">
             <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
             <span><i class="fas fa-map-pin"></i> {{ job.pincode }}</span>
+            {% if nearby_pairs %}
+              {% for pair_job, dist in nearby_pairs %}{% if pair_job.pk == job.pk %}<span style="color:#0a66c2;font-weight:600"><i class="fas fa-location-arrow"></i> {{ dist }} km away</span>{% endif %}{% endfor %}
+            {% endif %}
             <span><i class="fas fa-clock"></i> {{ job.get_job_type_display }}</span>
             <span><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</span>
             {% if job.experience %}<span><i class="fas fa-graduation-cap"></i> {{ job.experience }}</span>{% endif %}

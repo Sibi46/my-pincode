@@ -243,6 +243,19 @@ class Job(models.Model):
             return f"₹{self.salary_min:,}+{unit}"
         return "Negotiable"
 
+    def save(self, *args, **kwargs):
+        # Auto-geocode when pincode is present and coordinates are missing
+        if self.pincode and (self.latitude is None or self.longitude is None):
+            try:
+                from .utils import geocode_pincode
+                lat, lng = geocode_pincode(self.pincode)
+                if lat is not None:
+                    self.latitude = lat
+                    self.longitude = lng
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
 
 class JobApplication(models.Model):
     STATUS = [
