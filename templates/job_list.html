@@ -99,13 +99,6 @@
       {% if jobs %}
       <div class="job-cards-list">
         {% for job in jobs %}
-        {% if nearby_pairs %}
-          {% for pair_job, dist in nearby_pairs %}
-            {% if pair_job.pk == job.pk %}
-              {% with job_dist=dist %}
-            {% endif %}
-          {% endfor %}
-        {% endif %}
         <div class="job-list-card {% if job.is_urgent %}urgent-card{% endif %}">
           {% if job.is_urgent %}<div class="urgent-tag"><i class="fas fa-fire"></i> Urgent Hiring</div>{% endif %}
 
