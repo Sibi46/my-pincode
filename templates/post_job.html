@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Post a Job — MY PINCOD</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
-  <link rel="stylesheet" href="{% static 'css/post_job.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'css/post_job.css' %}?v=6">
   <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
   <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
@@ -74,22 +74,31 @@
           <!-- Salary FIRST -->
           <div class="salary-box">
             <div class="salary-box-title"><i class="fas fa-rupee-sign"></i> Salary Details</div>
-            <div class="salary-box-grid">
-              <div class="pj-field">
-                <label><i class="fas fa-calendar-week"></i> Period</label>
-                <select name="salary_type">
-                  <option value="month">Per Month</option>
-                  <option value="day">Per Day</option>
-                  <option value="hour">Per Hour</option>
-                </select>
-              </div>
-              <div class="pj-field">
-                <label><i class="fas fa-rupee-sign"></i> Minimum (₹)</label>
-                <input type="number" name="salary_min" placeholder="e.g. 15000" min="0">
-              </div>
-              <div class="pj-field">
-                <label><i class="fas fa-rupee-sign"></i> Maximum (₹)</label>
-                <input type="number" name="salary_max" placeholder="e.g. 25000" min="0">
+            <div class="sal-type-label">Step 1 — How is this job paid?</div>
+            <div class="sal-pills">
+              <button type="button" class="sal-pill" data-val="month" onclick="salPickType('month',this)">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Monthly</span>
+                <small>Per month salary</small>
+              </button>
+              <button type="button" class="sal-pill" data-val="day" onclick="salPickType('day',this)">
+                <i class="fas fa-sun"></i>
+                <span>Per Day</span>
+                <small>Daily wage</small>
+              </button>
+            </div>
+            <input type="hidden" name="salary_type" id="sal_type_input" value="">
+            <div class="sal-amount-row" id="salAmountRow" style="display:none">
+              <div class="sal-amount-label"><i class="fas fa-rupee-sign"></i> Step 2 — Enter Salary Amount</div>
+              <div class="sal-amount-grid">
+                <div class="pj-field">
+                  <label>Minimum (₹)</label>
+                  <input type="number" name="salary_min" placeholder="e.g. 15000" min="0">
+                </div>
+                <div class="pj-field">
+                  <label>Maximum (₹)</label>
+                  <input type="number" name="salary_max" placeholder="e.g. 25000" min="0">
+                </div>
               </div>
             </div>
           </div>
@@ -509,6 +518,14 @@ let currentStep   = 1;
 let selectedCollar = '';
 let mapInstance   = null;
 let mapMarker     = null;
+
+/* ── Salary type picker ── */
+function salPickType(val, btn) {
+  document.querySelectorAll('.sal-pill').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('sal_type_input').value = val;
+  document.getElementById('salAmountRow').style.display = 'block';
+}
 
 /* ── Collar selection ── */
 function selectCollar(collar) {
