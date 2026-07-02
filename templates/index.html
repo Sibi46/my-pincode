@@ -1067,7 +1067,20 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 })();
 </script>
 {% endif %}
-
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('input[type="tel"]').forEach(function(inp){
+    inp.setAttribute('inputmode','numeric');
+    if(!inp.getAttribute('maxlength')) inp.setAttribute('maxlength','10');
+    inp.addEventListener('keypress',function(e){ if(!/[0-9]/.test(e.key)) e.preventDefault(); });
+    inp.addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); });
+    inp.addEventListener('blur',function(){
+      if(this.value && this.value.length!==10){ this.setCustomValidity('Enter a valid 10-digit mobile number'); this.reportValidity(); }
+      else { this.setCustomValidity(''); }
+    });
+  });
+});
+</script>
 </body>
 </html>
 
