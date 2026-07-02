@@ -192,8 +192,16 @@ function verifyOTP(prefix) {
         return;
     }
 
-    document.getElementById(prefix + '-substep1').classList.add('hidden');
-    document.getElementById(prefix + '-substep2').classList.remove('hidden');
+    var sub1 = document.getElementById(prefix + '-substep1');
+    var sub2 = document.getElementById(prefix + '-substep2');
+    if (sub1 && sub2) {
+        sub1.classList.add('hidden');
+        sub2.classList.remove('hidden');
+    } else {
+        document.getElementById(prefix + 'OtpBox').style.display = 'none';
+        var badge = document.getElementById(prefix + 'Verified');
+        if (badge) badge.classList.remove('hidden');
+    }
 }
 
 // ── Password match check ──────────────────────────────────────────────────────

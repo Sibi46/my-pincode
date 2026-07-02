@@ -383,7 +383,8 @@
                     <h2>Employee Registration</h2>
                     <p>Create your job seeker profile</p>
                 </div>
-                <div id="emp-substep1">
+                <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','employee');injectField(this,'first_name',document.getElementById('empName').value);injectField(this,'phone',document.getElementById('empPhone').value);injectField(this,'pincode',document.getElementById('empPincode').value)">
+                    {% csrf_token %}
                     <div class="form-group full">
                         <label><i class="fas fa-user"></i> Full Name *</label>
                         <input type="text" id="empName" placeholder="Enter your full name" required>
@@ -411,54 +412,29 @@
                             <i class="fas fa-check"></i> Verify OTP
                         </button>
                     </div>
-                </div>
-                <div id="emp-substep2" class="hidden">
-                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','employee');injectField(this,'first_name',document.getElementById('empName').value);injectField(this,'phone',document.getElementById('empPhone').value)">
-                        {% csrf_token %}
-                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-briefcase"></i> Job Category *</label>
-                                <select name="job_category" required>
-                                    <option value="">Select category</option>
-                                    <option value="white">White Collar</option>
-                                    <option value="blue">Blue Collar</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-tools"></i> Primary Skill *</label>
-                                <input type="text" name="primary_skill" placeholder="e.g. Software Developer, Driver" required>
-                            </div>
+                    <div class="verified-badge hidden" id="empVerified"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                        <input type="text" id="empPincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-briefcase"></i> Your Job *</label>
+                        <input type="text" name="primary_skill" placeholder="e.g. Software Developer, Driver, Nurse, Teacher" required autocomplete="off">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" name="password" placeholder="Create password" required>
                         </div>
-                        <div class="form-group full">
-                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
-                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                            <input type="password" name="confirm_password" placeholder="Confirm password" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-city"></i> City *</label>
-                                <input type="text" name="city" placeholder="City" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
-                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Password *</label>
-                                <input type="password" name="password" placeholder="Create password" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
-                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-check-circle"></i> Create Profile
-                        </button>
-                    </form>
-                </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check-circle"></i> Create Profile
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -471,7 +447,8 @@
                     <h2>Individual Registration</h2>
                     <p>Find local job opportunities</p>
                 </div>
-                <div id="ind-substep1">
+                <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','individual');injectField(this,'first_name',document.getElementById('indName').value);injectField(this,'phone',document.getElementById('indPhone').value);injectField(this,'pincode',document.getElementById('indPincode').value)">
+                    {% csrf_token %}
                     <div class="form-group full">
                         <label><i class="fas fa-user"></i> Full Name *</label>
                         <input type="text" id="indName" placeholder="Enter your full name" required>
@@ -499,40 +476,29 @@
                             <i class="fas fa-check"></i> Verify OTP
                         </button>
                     </div>
-                </div>
-                <div id="ind-substep2" class="hidden">
-                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','individual');injectField(this,'first_name',document.getElementById('indName').value);injectField(this,'phone',document.getElementById('indPhone').value)">
-                        {% csrf_token %}
-                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
-                        <div class="form-group full">
-                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
-                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                    <div class="verified-badge hidden" id="indVerified"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                        <input type="text" id="indPincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-briefcase"></i> Your Job *</label>
+                        <input type="text" name="primary_skill" placeholder="e.g. Helper, Cook, Labourer, Electrician" required autocomplete="off">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" name="password" placeholder="Create password" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-city"></i> City *</label>
-                                <input type="text" name="city" placeholder="City" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
-                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
-                            </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                            <input type="password" name="confirm_password" placeholder="Confirm password" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Password *</label>
-                                <input type="password" name="password" placeholder="Create password" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
-                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-check-circle"></i> Create Account
-                        </button>
-                    </form>
-                </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check-circle"></i> Create Account
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -545,19 +511,18 @@
                     <h2>Freelancer Registration</h2>
                     <p>Offer your skills to local clients</p>
                 </div>
-                <div id="free-substep1">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Full Name *</label>
-                            <input type="text" id="freeName" placeholder="Enter your full name" required>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-phone"></i> Mobile Number *</label>
-                            <div class="otp-input-row">
-                                <span class="country-code">+91</span>
-                                <input type="tel" id="freePhone" placeholder="10-digit number" maxlength="10">
-                                <button type="button" class="otp-btn" onclick="sendOTP('free')">Send OTP</button>
-                            </div>
+                <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','freelancer');injectField(this,'first_name',document.getElementById('freeName').value);injectField(this,'phone',document.getElementById('freePhone').value);injectField(this,'pincode',document.getElementById('freePincode').value)">
+                    {% csrf_token %}
+                    <div class="form-group full">
+                        <label><i class="fas fa-user"></i> Full Name *</label>
+                        <input type="text" id="freeName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                        <div class="otp-input-row">
+                            <span class="country-code">+91</span>
+                            <input type="tel" id="freePhone" placeholder="10-digit number" maxlength="10">
+                            <button type="button" class="otp-btn" onclick="sendOTP('free')">Send OTP</button>
                         </div>
                     </div>
                     <div class="otp-box hidden" id="freeOtpBox">
@@ -575,50 +540,29 @@
                             <i class="fas fa-check"></i> Verify OTP
                         </button>
                     </div>
-                </div>
-                <div id="free-substep2" class="hidden">
-                    <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','freelancer');injectField(this,'first_name',document.getElementById('freeName').value);injectField(this,'phone',document.getElementById('freePhone').value)">
-                        {% csrf_token %}
-                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-tools"></i> Primary Skill *</label>
-                                <input type="text" name="primary_skill" placeholder="e.g. Web Developer, Photographer" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-rupee-sign"></i> Expected Rate</label>
-                                <input type="text" name="rate" placeholder="e.g. ₹500/hr or ₹10000/project">
-                            </div>
+                    <div class="verified-badge hidden" id="freeVerified"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                        <input type="text" id="freePincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
+                    </div>
+                    <div class="form-group full">
+                        <label><i class="fas fa-briefcase"></i> Your Job *</label>
+                        <input type="text" name="primary_skill" placeholder="e.g. Web Developer, Photographer, Designer" required autocomplete="off">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" name="password" placeholder="Create password" required>
                         </div>
-                        <div class="form-group full">
-                            <label><i class="fas fa-map-marker-alt"></i> Address *</label>
-                            <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                            <input type="password" name="confirm_password" placeholder="Confirm password" required>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-city"></i> City *</label>
-                                <input type="text" name="city" placeholder="City" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-map-pin"></i> PIN Code *</label>
-                                <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Password *</label>
-                                <input type="password" name="password" placeholder="Create password" required>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
-                                <input type="password" name="confirm_password" placeholder="Confirm password" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="submit-btn">
-                            <i class="fas fa-check-circle"></i> Create Freelancer Profile
-                        </button>
-                    </form>
-                </div>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-check-circle"></i> Create Freelancer Profile
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -657,7 +601,7 @@
     body{padding-bottom:62px}
     </style>
 
-    <script src="{% static 'js/register.js' %}?v=5"></script>
+    <script src="{% static 'js/register.js' %}?v=6"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('input[type="tel"]').forEach(function(inp){

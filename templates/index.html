@@ -699,34 +699,26 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         </div>
       </div>
 
-      <!-- Step 2: Collar type -->
+      <!-- Step 2: All fields on one screen -->
       <div class="ob-step" id="obStep2">
-        <p class="ob-title" id="obCollarTitle">What type of job?</p>
-        <div class="ob-collar-row">
-          <button class="ob-collar-btn white-c" onclick="obCollar('white')">
-            <i class="fas fa-user-tie"></i><span>White Collar</span>
-            <small>Office / Professional / IT / Admin</small>
-          </button>
-          <button class="ob-collar-btn blue-c" onclick="obCollar('blue')">
-            <i class="fas fa-wrench"></i><span>Blue Collar</span>
-            <small>Labour / Trade / Field / Local work</small>
-          </button>
-        </div>
-        <button class="ob-back" onclick="obGoStep(1)">← Back</button>
-      </div>
+        <p class="ob-title" id="obStep2Title">Your details</p>
 
-      <!-- Step 3: Name + Phone (+ Pincode for Post) -->
-      <div class="ob-step" id="obStep3">
-        <p class="ob-title">Your details</p>
         <div class="ob-field">
           <label>Full Name</label>
           <input type="text" id="obName" placeholder="Enter your full name" autocomplete="name">
         </div>
-        <!-- Pincode shown here only for POST flow -->
-        <div class="ob-field" id="obPincodeFieldPost" style="display:none">
-          <label>Pincode</label>
-          <input type="text" id="obPincodePost" placeholder="6-digit pincode" maxlength="6" inputmode="numeric">
+
+        <div class="ob-field">
+          <label>PIN Code</label>
+          <input type="text" id="obPincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric">
+          <p style="font-size:11px;color:#999;margin-top:4px">We show jobs near your area</p>
         </div>
+
+        <div class="ob-field" id="obJobField" style="display:none">
+          <label id="obJobLabel">What kind of job?</label>
+          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off">
+        </div>
+
         <div class="ob-field">
           <label>Mobile Number</label>
           <div class="ob-phone-row">
@@ -734,45 +726,37 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
             <button class="ob-send-btn" id="obSendBtn" onclick="obSendOtp()">Send OTP</button>
           </div>
         </div>
-        <div class="ob-err" id="obStep3Err"></div>
-        <button class="ob-back" onclick="obGoStep(2)">← Back</button>
-      </div>
 
-      <!-- Step 4: OTP -->
-      <div class="ob-step" id="obStep4">
-        <p class="ob-title">Verify your mobile</p>
-        <p style="font-size:13px;color:#666;text-align:center;margin-bottom:10px">OTP sent to <strong id="obPhoneShow"></strong></p>
-        <div class="ob-hint" id="obOtpHint"></div>
-        <input type="text" id="obOtp" class="ob-otp-input" placeholder="— — — — — —" maxlength="6" inputmode="numeric">
-        <div class="ob-err" id="obOtpErr"></div>
-        <div class="ob-timer" id="obTimer"></div>
-        <button class="ob-btn" id="obVerifyBtn" style="margin-top:14px" onclick="obVerify()">
-          <i class="fas fa-shield-alt"></i> Verify OTP
-        </button>
-        <button class="ob-back" onclick="obGoStep(3)">← Change Number</button>
-      </div>
-
-      <!-- Step 5: Pincode (Find only) + Password -->
-      <div class="ob-step" id="obStep5">
-        <p class="ob-title">Almost done!</p>
-        <!-- Pincode shown here only for FIND flow -->
-        <div class="ob-field" id="obPincodeFieldFind" style="display:none">
-          <label>Your Pincode</label>
-          <input type="text" id="obPincodeFind" placeholder="6-digit pincode" maxlength="6" inputmode="numeric">
-          <p style="font-size:11px;color:#999;margin-top:4px">We show jobs near your pincode</p>
+        <!-- OTP box — appears inline after Send OTP -->
+        <div id="obOtpSection" style="display:none;margin-top:8px">
+          <div class="ob-hint" id="obOtpHint"></div>
+          <input type="text" id="obOtp" class="ob-otp-input" placeholder="— — — — — —" maxlength="6" inputmode="numeric">
+          <div class="ob-err" id="obOtpErr"></div>
+          <div class="ob-timer" id="obTimer"></div>
+          <button class="ob-btn" id="obVerifyBtn" style="margin-top:10px" onclick="obVerify()">
+            <i class="fas fa-shield-alt"></i> Verify OTP
+          </button>
         </div>
-        <div class="ob-field">
-          <label>Create Password</label>
-          <div class="ob-pwd-show">
-            <input type="password" id="obPassword" placeholder="Min. 6 characters">
-            <button type="button" class="ob-pwd-eye" onclick="obTogglePwd('obPassword',this)"><i class="fas fa-eye"></i></button>
+
+        <!-- Password + submit — appears after OTP verified -->
+        <div id="obPostVerify" style="display:none">
+          <div style="display:flex;align-items:center;gap:6px;color:#16a34a;font-size:13px;font-weight:600;padding:10px 0 4px">
+            <i class="fas fa-check-circle"></i> Mobile Verified
+          </div>
+          <div class="ob-field">
+            <label>Create Password</label>
+            <div class="ob-pwd-show">
+              <input type="password" id="obPassword" placeholder="Min. 6 characters">
+              <button type="button" class="ob-pwd-eye" onclick="obTogglePwd('obPassword',this)"><i class="fas fa-eye"></i></button>
+            </div>
           </div>
         </div>
-        <div class="ob-err" id="obStep5Err"></div>
-        <button class="ob-btn" id="obRegisterBtn" onclick="obRegister()">
+
+        <div class="ob-err" id="obStep2Err"></div>
+        <button class="ob-btn" id="obRegisterBtn" style="display:none;margin-top:6px" onclick="obRegister()">
           <i class="fas fa-check-circle"></i> Create My Account
         </button>
-        <button class="ob-back" onclick="obGoStep(4)">← Back</button>
+        <button class="ob-back" onclick="obGoStep(1)">← Back</button>
       </div>
 
       <!-- Step L: Returning user — login with password -->
@@ -798,7 +782,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           <i class="fas fa-sign-in-alt"></i> Sign In
         </button>
         <a id="obForgotLink" href="/forgot-password/" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:#888">Forgot password?</a>
-        <button class="ob-back" onclick="obGoStep(3)">← Not you? Go back</button>
+        <button class="ob-back" onclick="obGoStep(2)">← Not you? Go back</button>
       </div>
 
     </div>
@@ -811,7 +795,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
   var obCollarV= '';
   var obTimerInt = null;
   var obSecs   = 0;
-  var TOTAL_STEPS = 5;
+  var TOTAL_STEPS = 2;
 
   function getCsrf(){
     var c = document.cookie.match(/csrftoken=([^;]+)/);
@@ -849,37 +833,37 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 
   window.obChoose = function(type){
     obType = type;
-    document.getElementById('obCollarTitle').textContent =
-      type === 'find' ? 'What type of job are you looking for?' : 'What type of job will you post?';
-    setTimeout(function(){ obGoStep(2); }, 120);
-  };
-
-  window.obCollar = function(collar){
-    obCollarV = collar;
-    // Show/hide pincode fields
-    document.getElementById('obPincodeFieldPost').style.display = obType === 'post' ? 'block' : 'none';
-    document.getElementById('obPincodeFieldFind').style.display = obType === 'find' ? 'block' : 'none';
+    var isFind = type === 'find';
+    document.getElementById('obStep2Title').textContent = isFind ? 'Find your next job' : 'Post a job';
+    document.getElementById('obJobField').style.display  = isFind ? 'block' : 'none';
+    // Reset inline OTP/verify state each time step 2 is entered
+    document.getElementById('obOtpSection').style.display  = 'none';
+    document.getElementById('obPostVerify').style.display  = 'none';
+    document.getElementById('obRegisterBtn').style.display = 'none';
+    document.getElementById('obOtp').value = '';
+    var sb = document.getElementById('obSendBtn');
+    sb.disabled = false; sb.textContent = 'Send OTP';
     setTimeout(function(){
-      obGoStep(3);
+      obGoStep(2);
       document.getElementById('obName').focus();
     }, 120);
   };
 
   window.obSendOtp = function(){
-    var name  = document.getElementById('obName').value.trim();
-    var phone = document.getElementById('obPhone').value.trim();
-    if (!name)                   { obShowErr('obStep3Err','Please enter your name'); return; }
-    if (!/^\d{10}$/.test(phone)) { obShowErr('obStep3Err','Enter valid 10-digit mobile'); return; }
-    if (obType === 'post') {
-      var pp = document.getElementById('obPincodePost').value.trim();
-      if (!/^\d{6}$/.test(pp))   { obShowErr('obStep3Err','Enter valid 6-digit pincode'); return; }
+    var name    = document.getElementById('obName').value.trim();
+    var phone   = document.getElementById('obPhone').value.trim();
+    var pincode = document.getElementById('obPincode').value.trim();
+    if (!name)                      { obShowErr('obStep2Err','Please enter your name'); return; }
+    if (!/^\d{6}$/.test(pincode))   { obShowErr('obStep2Err','Enter valid 6-digit PIN code'); return; }
+    if (obType === 'find' && !document.getElementById('obJob').value.trim()) {
+      obShowErr('obStep2Err','Please enter what kind of job you are looking for'); return;
     }
-    obShowErr('obStep3Err','');
+    if (!/^\d{10}$/.test(phone))    { obShowErr('obStep2Err','Enter valid 10-digit mobile'); return; }
+    obShowErr('obStep2Err','');
 
     var btn = document.getElementById('obSendBtn');
     btn.disabled = true; btn.textContent = 'Checking...';
 
-    // Check if phone already registered
     fetch('/api/check-phone/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
@@ -888,7 +872,6 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.exists) {
-        // Returning user — show login step
         document.getElementById('obLoginPhone').value = phone;
         document.getElementById('obWelcomeName').textContent = d.name || name;
         btn.disabled = false; btn.textContent = 'Send OTP';
@@ -902,21 +885,20 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         .then(function(r){ return r.json(); })
         .then(function(d2){
           if (d2.success) {
-            document.getElementById('obPhoneShow').textContent = phone;
             document.getElementById('obOtpHint').textContent = 'Your OTP: ' + d2.otp;
             document.getElementById('obOtpHint').style.display = 'block';
-            obGoStep(4);
+            document.getElementById('obOtpSection').style.display = 'block';
             document.getElementById('obOtp').focus();
             obStartTimer(60);
           } else {
-            obShowErr('obStep3Err','Could not send OTP. Try again.');
+            obShowErr('obStep2Err','Could not send OTP. Try again.');
             btn.disabled = false; btn.textContent = 'Send OTP';
           }
         });
       }
     })
     .catch(function(){
-      obShowErr('obStep3Err','Network error. Try again.');
+      obShowErr('obStep2Err','Network error. Try again.');
       btn.disabled = false; btn.textContent = 'Send OTP';
     });
   };
@@ -946,7 +928,9 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(d){
       if (d.success) {
         clearInterval(obTimerInt);
-        obGoStep(5);
+        document.getElementById('obOtpSection').style.display  = 'none';
+        document.getElementById('obPostVerify').style.display  = 'block';
+        document.getElementById('obRegisterBtn').style.display = 'block';
         setTimeout(function(){ document.getElementById('obPassword').focus(); }, 100);
       } else {
         btn.disabled = false;
@@ -962,13 +946,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
   };
 
   window.obRegister = function(){
-    var pwd = document.getElementById('obPassword').value;
-    if (pwd.length < 6) { obShowErr('obStep5Err','Password must be at least 6 characters'); return; }
-    var pincode = obType === 'find'
-      ? document.getElementById('obPincodeFind').value.trim()
-      : document.getElementById('obPincodePost').value.trim();
-    if (!/^\d{6}$/.test(pincode)) { obShowErr('obStep5Err','Enter valid 6-digit pincode'); return; }
-    obShowErr('obStep5Err','');
+    var pwd     = document.getElementById('obPassword').value;
+    var pincode = document.getElementById('obPincode').value.trim();
+    if (pwd.length < 6)              { obShowErr('obStep2Err','Password must be at least 6 characters'); return; }
+    if (!/^\d{6}$/.test(pincode))    { obShowErr('obStep2Err','Enter valid 6-digit pincode'); return; }
+    obShowErr('obStep2Err','');
 
     var btn = document.getElementById('obRegisterBtn');
     btn.disabled = true; btn.textContent = 'Creating account...';
@@ -977,12 +959,13 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
       body: JSON.stringify({
-        name:     document.getElementById('obName').value.trim(),
-        phone:    document.getElementById('obPhone').value.trim(),
-        pincode:  pincode,
-        job_type: obType,
-        collar:   obCollarV,
-        password: pwd
+        name:       document.getElementById('obName').value.trim(),
+        phone:      document.getElementById('obPhone').value.trim(),
+        pincode:    pincode,
+        job_type:   obType,
+        collar:     obCollarV,
+        job_search: obType === 'find' ? document.getElementById('obJob').value.trim() : '',
+        password:   pwd
       })
     })
     .then(function(r){ return r.json(); })
@@ -994,13 +977,13 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
       } else {
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-check-circle"></i> Create My Account';
-        obShowErr('obStep5Err', d.error || 'Could not create account. Try again.');
+        obShowErr('obStep2Err', d.error || 'Could not create account. Try again.');
       }
     })
     .catch(function(){
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-check-circle"></i> Create My Account';
-      obShowErr('obStep5Err','Network error. Try again.');
+      obShowErr('obStep2Err','Network error. Try again.');
     });
   };
 
@@ -1044,7 +1027,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     function tick(){
       if (obSecs <= 0) {
         clearInterval(obTimerInt);
-        timerEl.innerHTML = '<a href="#" onclick="obGoStep(3);return false" style="color:#0a66c2">Resend OTP</a>';
+        timerEl.innerHTML = '<a href="#" onclick="obResendOtp();return false" style="color:#0a66c2">Resend OTP</a>';
       } else {
         timerEl.textContent = 'Resend in ' + obSecs + 's';
         obSecs--;
@@ -1060,10 +1043,17 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     this.value = this.value.replace(/\D/g,'');
     if (this.value.length === 6) obVerify();
   });
-  ['obPincodePost','obPincodeFind'].forEach(function(id){
-    var el = document.getElementById(id);
-    if (el) el.addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
-  });
+  document.getElementById('obPincode').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
+
+  window.obResendOtp = function(){
+    clearInterval(obTimerInt);
+    document.getElementById('obOtpSection').style.display = 'none';
+    document.getElementById('obOtp').value = '';
+    document.getElementById('obOtpErr').textContent = '';
+    document.getElementById('obTimer').textContent = '';
+    var sb = document.getElementById('obSendBtn');
+    sb.disabled = false; sb.textContent = 'Send OTP';
+  };
   document.getElementById('obLoginPwd').addEventListener('keydown', function(e){
     if (e.key === 'Enter') obLogin();
   });
