@@ -177,6 +177,38 @@ def register_process(request):
 
 
 # ── AUTH ──────────────────────────────────────────────────────────────────────
+def forgot_password(request):
+    phone = request.GET.get('phone', '')
+    return render(request, 'forgot_password.html', {'prefill_phone': phone})
+
+
+def reset_password(request):
+    """Reset password after OTP verification."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data     = json.loads(request.body)
+    phone    = data.get('phone', '').strip()
+    password = data.get('password', '').strip()
+
+    if not request.session.get('otp_verified'):
+        return JsonResponse({'success': False, 'error': 'OTP not verified'})
+    if not password or len(password) < 6:
+        return JsonResponse({'success': False, 'error': 'Password must be at least 6 characters'})
+
+    User = get_user_model()
+    user = User.objects.filter(phone=phone).first()
+    if not user:
+        return JsonResponse({'success': False, 'error': 'No account found with this mobile number'})
+
+    user.set_password(password)
+    user.save()
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    request.session.pop('otp_verified', None)
+    redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
+    return JsonResponse({'success': True, 'redirect': redirect_url})
+
+
 def login_view(request):
     next_url = request.GET.get('next', '') or request.POST.get('next', '')
 

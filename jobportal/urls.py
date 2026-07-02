@@ -12,6 +12,8 @@ urlpatterns = [
     path('register/',               views.register,           name='register'),
     path('register/process/',       views.register_process,   name='register_process'),
     path('login/',                  views.login_view,         name='login'),
+    path('forgot-password/',        views.forgot_password,    name='forgot_password'),
+    path('api/reset-password/',     views.reset_password,     name='reset_password'),
     path('logout/',                 views.logout_view,        name='logout'),
     path('dashboard/',              views.dashboard,          name='dashboard'),
 
