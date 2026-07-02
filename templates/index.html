@@ -977,7 +977,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.success) {
-        localStorage.setItem('mypincod_onboarded','1');
+        localStorage.setItem('mypincod_ob_v3','1');
         document.getElementById('obOverlay').classList.remove('show');
         window.location.href = d.redirect;
       } else {
@@ -1010,7 +1010,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.success) {
-        localStorage.setItem('mypincod_onboarded','1');
+        localStorage.setItem('mypincod_ob_v3','1');
         document.getElementById('obOverlay').classList.remove('show');
         window.location.href = d.redirect;
       } else {
@@ -1057,7 +1057,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     if (e.key === 'Enter') obLogin();
   });
 
-  if (!localStorage.getItem('mypincod_onboarded')) {
+  if (!localStorage.getItem('mypincod_ob_v3')) {
     obGoStep(1);
     document.getElementById('obOverlay').classList.add('show');
   }
