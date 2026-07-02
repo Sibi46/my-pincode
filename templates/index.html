@@ -669,6 +669,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 .ob-timer{font-size:12px;color:#888;text-align:center;margin-top:7px;min-height:16px}
 .ob-step{display:none}
 .ob-step.active{display:block}
+.ob-or-row{display:flex;align-items:center;gap:10px;margin:16px 0 10px;color:#aaa;font-size:12px}
+.ob-or-row::before,.ob-or-row::after{content:'';flex:1;height:1px;background:#e5e7eb}
+.ob-already-btn{width:100%;background:none;border:1.5px solid #d1d5db;border-radius:10px;padding:11px;font-size:13px;color:#555;cursor:pointer;transition:border-color .2s}
+.ob-already-btn:hover{border-color:#0a66c2;color:#0a66c2}
+.ob-already-btn strong{color:#0a66c2}
 .ob-welcome{text-align:center;padding:8px 0 14px}
 .ob-welcome i{font-size:36px;color:#0a66c2;margin-bottom:8px;display:block}
 .ob-welcome p{font-size:13px;color:#555}
@@ -696,6 +701,31 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           <button class="ob-type-btn post-btn" onclick="obChoose('post')">
             <i class="fas fa-briefcase"></i><span>Post a Job</span>
           </button>
+        </div>
+
+        <!-- Already have account -->
+        <div class="ob-or-row"><span>or</span></div>
+        <div id="obDLToggle">
+          <button class="ob-already-btn" onclick="obShowDL()">Already have an account? <strong>Sign In</strong></button>
+        </div>
+        <div id="obDLForm" style="display:none">
+          <div class="ob-field" style="margin-top:8px">
+            <label>Mobile Number</label>
+            <input type="tel" id="obDLPhone" placeholder="10-digit mobile" maxlength="10" inputmode="numeric">
+          </div>
+          <div class="ob-field">
+            <label>Password</label>
+            <div class="ob-pwd-show">
+              <input type="password" id="obDLPwd" placeholder="Enter password">
+              <button type="button" class="ob-pwd-eye" onclick="obTogglePwd('obDLPwd',this)"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="ob-err" id="obDLErr"></div>
+          <button class="ob-btn" id="obDLBtn" style="margin-top:10px" onclick="obDirectLogin()">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+          <a href="/forgot-password/" style="display:block;text-align:center;margin-top:8px;font-size:12px;color:#888">Forgot password?</a>
+          <button class="ob-back" onclick="obHideDL()">← Back</button>
         </div>
       </div>
 
@@ -971,7 +1001,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.success) {
-        localStorage.setItem('mypincod_ob_v3','1');
+
         document.getElementById('obOverlay').classList.remove('show');
         window.location.href = d.redirect;
       } else {
@@ -1004,7 +1034,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.success) {
-        localStorage.setItem('mypincod_ob_v3','1');
+
         document.getElementById('obOverlay').classList.remove('show');
         window.location.href = d.redirect;
       } else {
@@ -1058,10 +1088,51 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     if (e.key === 'Enter') obLogin();
   });
 
-  if (!localStorage.getItem('mypincod_ob_v3')) {
-    obGoStep(1);
-    document.getElementById('obOverlay').classList.add('show');
-  }
+  window.obShowDL = function(){
+    document.getElementById('obDLToggle').style.display = 'none';
+    document.getElementById('obDLForm').style.display = 'block';
+    document.getElementById('obDLPhone').focus();
+  };
+  window.obHideDL = function(){
+    document.getElementById('obDLForm').style.display = 'none';
+    document.getElementById('obDLToggle').style.display = 'block';
+  };
+  window.obDirectLogin = function(){
+    var phone = document.getElementById('obDLPhone').value.trim();
+    var pwd   = document.getElementById('obDLPwd').value;
+    if (!/^\d{10}$/.test(phone)) { obShowErr('obDLErr','Enter valid 10-digit mobile'); return; }
+    if (!pwd) { obShowErr('obDLErr','Please enter your password'); return; }
+    obShowErr('obDLErr','');
+    var btn = document.getElementById('obDLBtn');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    fetch('/api/phone-login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+      body: JSON.stringify({ phone: phone, password: pwd })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.success) {
+        document.getElementById('obOverlay').classList.remove('show');
+        window.location.href = d.redirect;
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        obShowErr('obDLErr', d.error || 'Wrong password. Try again.');
+      }
+    })
+    .catch(function(){
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+      obShowErr('obDLErr','Network error. Try again.');
+    });
+  };
+  document.getElementById('obDLPhone').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
+  document.getElementById('obDLPwd').addEventListener('keydown', function(e){ if (e.key === 'Enter') obDirectLogin(); });
+
+  // Always show popup for guests on every page load
+  obGoStep(1);
+  document.getElementById('obOverlay').classList.add('show');
 })();
 </script>
 {% endif %}
