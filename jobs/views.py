@@ -660,34 +660,62 @@ def verify_otp(request):
     return JsonResponse({'success': False})
 
 
+def check_phone(request):
+    """Check if a phone number is already registered."""
+    if request.method != 'POST':
+        return JsonResponse({'exists': False})
+    import json
+    data  = json.loads(request.body)
+    phone = data.get('phone', '').strip()
+    User  = get_user_model()
+    user  = User.objects.filter(phone=phone).first()
+    if user:
+        return JsonResponse({'exists': True, 'name': user.first_name or user.username})
+    return JsonResponse({'exists': False})
+
+
+def phone_login(request):
+    """Login with phone number + password (for returning users)."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data     = json.loads(request.body)
+    phone    = data.get('phone', '').strip()
+    password = data.get('password', '')
+    User     = get_user_model()
+    user     = User.objects.filter(phone=phone).first()
+    if user and user.check_password(password):
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
+        return JsonResponse({'success': True, 'redirect': redirect_url})
+    return JsonResponse({'success': False, 'error': 'Wrong password. Try again.'})
+
+
 def quick_register(request):
     """Create basic user profile after OTP verification from onboarding modal."""
     if request.method != 'POST':
         return JsonResponse({'success': False})
 
-    import json, secrets
+    import json
     data     = json.loads(request.body)
     name     = data.get('name', '').strip()
     phone    = data.get('phone', '').strip()
     pincode  = data.get('pincode', '').strip()
-    job_type = data.get('job_type', 'find')   # 'find' or 'post'
+    job_type = data.get('job_type', 'find')
+    collar   = data.get('collar', '')
+    password = data.get('password', '').strip()
 
     if not request.session.get('otp_verified'):
         return JsonResponse({'success': False, 'error': 'OTP not verified'})
-
     if not name or not phone or not pincode:
         return JsonResponse({'success': False, 'error': 'Missing required fields'})
+    if not password or len(password) < 6:
+        return JsonResponse({'success': False, 'error': 'Password must be at least 6 characters'})
 
     User = get_user_model()
 
-    # If phone already registered — log them in
-    existing = User.objects.filter(phone=phone).first()
-    if existing:
-        login(request, existing, backend='django.contrib.auth.backends.ModelBackend')
-        request.session.pop('otp_verified', None)
-        redirect_url = '/employer/dashboard/' if existing.is_employer() else '/jobseeker/dashboard/'
-        return JsonResponse({'success': True, 'redirect': redirect_url, 'existing': True,
-                             'message': f'Welcome back, {existing.first_name or existing.username}!'})
+    if User.objects.filter(phone=phone).exists():
+        return JsonResponse({'success': False, 'error': 'This phone number is already registered. Please sign in.'})
 
     user_type = 'employee' if job_type == 'find' else 'individual_employer'
     username  = phone
@@ -695,7 +723,6 @@ def quick_register(request):
         import random
         username = phone + str(random.randint(10, 99))
 
-    password = secrets.token_urlsafe(10)
     user = User.objects.create_user(
         username   = username,
         first_name = name,
@@ -705,12 +732,18 @@ def quick_register(request):
         password   = password,
     )
 
+    # Store collar preference in seeker profile
+    if job_type == 'find' and collar:
+        from .models import JobSeekerProfile
+        profile, _ = JobSeekerProfile.objects.get_or_create(user=user)
+        profile.job_category = collar
+        profile.save()
+
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
 
     redirect_url = '/employer/dashboard/' if job_type == 'post' else '/jobseeker/dashboard/'
-    return JsonResponse({'success': True, 'redirect': redirect_url,
-                         'message': f'Welcome, {name}! Your profile is created.'})
+    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 # ── SAVE JOB ──────────────────────────────────────────────────────────────────
