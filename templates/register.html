@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Join MY PINCOD - Register</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
-    <link rel="stylesheet" href="{% static 'css/register.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'css/register.css' %}?v=5">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
 </head>
 <body class="auth-body">
@@ -136,23 +136,40 @@
             <div class="reg-card">
                 <button class="back-btn" onclick="goBack()" style="margin-bottom:16px"><i class="fas fa-arrow-left"></i> Back</button>
 
-                <!-- Type switcher dropdown -->
+                <!-- Type switcher — pill cards -->
                 <div class="emp-type-switcher">
                     <label class="ets-label"><i class="fas fa-layer-group"></i> Register As</label>
-                    <select class="ets-select" id="empTypeSwitcher" onchange="switchEmployerType(this.value)">
-                        <option value="company">🏢 Company</option>
-                        <option value="shop">🏪 Shop</option>
-                        <option value="recruiter">🤝 Recruiter / Placement Agency</option>
-                        <option value="factory">🏭 Factory</option>
-                        <option value="startup">🚀 Startup</option>
-                        <option value="institution">🏫 Institution</option>
-                        <option value="ngo">🤝 NGO</option>
-                        <option value="hospital">🏥 Hospital</option>
-                        <option value="hotel">🏨 Hotel / Restaurant</option>
-                        <option value="farm">🌿 Farm</option>
-                        <option value="individual_employer">👤 Individual Employer</option>
-                    </select>
+                    <div class="ets-pills" id="empTypePills">
+                        <button type="button" class="ets-pill" data-type="company"             data-badge="blue"   onclick="switchEmployerType('company')">            <span class="ep-emoji">🏢</span><span class="ep-lbl">Company</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="shop"                data-badge="purple" onclick="switchEmployerType('shop')">               <span class="ep-emoji">🏪</span><span class="ep-lbl">Shop</span>               <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="recruiter"           data-badge="teal"   onclick="switchEmployerType('recruiter')">           <span class="ep-emoji">🤝</span><span class="ep-lbl">Recruiter</span>          <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="factory"             data-badge="orange" onclick="switchEmployerType('factory')">             <span class="ep-emoji">🏭</span><span class="ep-lbl">Factory</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="startup"             data-badge="red"    onclick="switchEmployerType('startup')">             <span class="ep-emoji">🚀</span><span class="ep-lbl">Startup</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="institution"         data-badge="blue"   onclick="switchEmployerType('institution')">         <span class="ep-emoji">🏫</span><span class="ep-lbl">Institution</span>        <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="ngo"                 data-badge="green"  onclick="switchEmployerType('ngo')">                 <span class="ep-emoji">🤲</span><span class="ep-lbl">NGO</span>                <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="hospital"            data-badge="teal"   onclick="switchEmployerType('hospital')">            <span class="ep-emoji">🏥</span><span class="ep-lbl">Hospital</span>           <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="hotel"               data-badge="gold"   onclick="switchEmployerType('hotel')">               <span class="ep-emoji">🏨</span><span class="ep-lbl">Hotel</span>              <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="farm"                data-badge="green"  onclick="switchEmployerType('farm')">                <span class="ep-emoji">🌿</span><span class="ep-lbl">Farm</span>               <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="individual_employer" data-badge="orange" onclick="switchEmployerType('individual_employer')"> <span class="ep-emoji">👤</span><span class="ep-lbl">Individual</span>         <i class="fas fa-check ep-tick"></i></button>
+                    </div>
                 </div>
+                <style>
+                .ets-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+                /* ALL buttons: same neutral look by default */
+                .ets-pill{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 10px;min-width:76px;border:2px solid #dde1ea;border-radius:14px;background:#f3f4f6;cursor:pointer;font-size:12px;font-weight:700;color:#555;transition:.18s;white-space:nowrap;position:relative}
+                .ets-pill.active .ep-tick{display:flex}
+                .ep-tick{display:none;position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:#16a34a;border-radius:50%;align-items:center;justify-content:center;font-size:10px;color:#fff;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+                .ep-emoji{font-size:22px;line-height:1}
+
+                /* ACTIVE: each type gets its own solid color */
+                .ets-pill[data-badge="blue"].active  {background:#0a66c2;border-color:#0a47a1;color:#fff;box-shadow:0 4px 14px rgba(10,102,194,.4)}
+                .ets-pill[data-badge="purple"].active{background:#6a1b9a;border-color:#4a0e6e;color:#fff;box-shadow:0 4px 14px rgba(106,27,154,.4)}
+                .ets-pill[data-badge="teal"].active  {background:#00838f;border-color:#006064;color:#fff;box-shadow:0 4px 14px rgba(0,131,143,.4)}
+                .ets-pill[data-badge="orange"].active{background:#e65100;border-color:#bf360c;color:#fff;box-shadow:0 4px 14px rgba(230,81,0,.4)}
+                .ets-pill[data-badge="red"].active   {background:#c62828;border-color:#b71c1c;color:#fff;box-shadow:0 4px 14px rgba(198,40,40,.4)}
+                .ets-pill[data-badge="green"].active {background:#2e7d32;border-color:#1b5e20;color:#fff;box-shadow:0 4px 14px rgba(46,125,50,.4)}
+                .ets-pill[data-badge="gold"].active  {background:#f9a825;border-color:#e65100;color:#fff;box-shadow:0 4px 14px rgba(249,168,37,.4)}
+                </style>
 
                 <!-- Selected type banner -->
                 <div class="emp-type-banner" id="empTypeBanner">
@@ -645,7 +662,7 @@
     body{padding-bottom:62px}
     </style>
 
-    <script src="{% static 'js/register.js' %}?v=4"></script>
+    <script src="{% static 'js/register.js' %}?v=5"></script>
 </body>
 </html>
 

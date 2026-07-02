@@ -70,9 +70,10 @@ function loadEmployerForm(type) {
     document.getElementById('emp-submit-label').textContent =
         'Create ' + m.label + ' Account';
 
-    // Sync dropdown selection
-    var sel = document.getElementById('empTypeSwitcher');
-    if (sel) sel.value = type;
+    // Highlight active pill
+    document.querySelectorAll('#empTypePills .ets-pill').forEach(function(p){
+        p.classList.toggle('active', p.dataset.type === type);
+    });
 
     // Update banner colours
     var banner = document.getElementById('empTypeBanner');
@@ -86,8 +87,6 @@ function loadEmployerForm(type) {
 function switchEmployerType(type) {
     currentType = type;
     loadEmployerForm(type);
-    var sel = document.getElementById('empTypeSwitcher');
-    if (sel && sel.value !== type) sel.value = type;
 }
 
 function goBack() {
