@@ -242,8 +242,8 @@ a{text-decoration:none;color:inherit}
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <div class="hero-badge"><i class="fas fa-map-pin"></i> India's PIN-code based local job portal</div>
-    <h1>Find Jobs Near You.<br><span>Hire People Near You.</span></h1>
+    <h1>India's PIN-code based local job portal</h1>
+    <p class="hero-sub">Find Jobs Near You. &nbsp;•&nbsp; Hire People Near You.</p>
 
     <form class="hero-search" action="/jobs/" method="get">
       <div class="hs-wrap">
@@ -264,14 +264,11 @@ a{text-decoration:none;color:inherit}
 </section>
 
 <style>
-.hero{background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#0a66c2 100%);padding:52px 20px 48px;text-align:center}
+.hero{background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#0a66c2 100%);padding:36px 20px 32px;text-align:center}
 .hero-inner{max-width:680px;margin:0 auto}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;margin-bottom:18px;letter-spacing:.3px}
-.hero h1{font-size:clamp(26px,5vw,42px);font-weight:900;color:#fff;line-height:1.18;margin-bottom:10px}
-.hero h1 span{color:#ffd54f}
-.hero-desc{font-size:15px;color:rgba(255,255,255,.78);margin-bottom:28px}
-/* Search bar */
-.hero-search{margin-bottom:18px}
+.hero h1{font-size:clamp(16px,3vw,22px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.78);margin-bottom:20px;white-space:nowrap}
+.hero-search{margin-bottom:0}
 .hs-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:4px}
 .hs-field{display:flex;align-items:center;gap:8px;flex:1;padding:4px 10px}
 .hs-field i{color:#0a66c2;font-size:14px;flex-shrink:0}
@@ -282,22 +279,10 @@ a{text-decoration:none;color:inherit}
 .hero-search button{background:#f3a000;color:#fff;border:none;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;border-radius:8px;white-space:nowrap;flex-shrink:0;transition:.2s;display:flex;align-items:center;gap:5px}
 .hero-search button:hover{background:#e09000}
 .hero-search button span{display:inline}
-/* Chips */
-.hero-chips{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.hero-chips a{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 15px;border-radius:30px;font-size:13px;font-weight:600;transition:.2s;display:flex;align-items:center;gap:6px}
-.hero-chips a:hover{background:rgba(255,255,255,.25)}
-/* Action buttons */
-.hero-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.ha-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border-radius:10px;font-size:14px;font-weight:700;transition:.2s}
-.ha-primary{background:#fff;color:#0a66c2}
-.ha-primary:hover{background:#e3f2fd}
-.ha-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5)}
-.ha-outline:hover{background:rgba(255,255,255,.12);border-color:#fff}
 @media(max-width:580px){
-  .hero{padding:28px 14px 26px}
-  .hero h1{font-size:20px}
-  .hero-badge{font-size:11px;padding:4px 10px}
-  /* keep search bar in ONE horizontal row on mobile */
+  .hero{padding:22px 14px 20px}
+  .hero h1{font-size:15px}
+  .hero-sub{font-size:12px;white-space:normal}
   .hs-wrap{padding:3px;border-radius:10px}
   .hs-field{padding:3px 8px;gap:5px}
   .hs-field i{font-size:12px}
@@ -308,47 +293,65 @@ a{text-decoration:none;color:inherit}
 }
 </style>
 
-<!-- ADVERTISER BANNERS CAROUSEL -->
+<!-- OLX-STYLE FULL-WIDTH LEADERBOARD AD BANNER -->
 {% if advertiser_banners %}
-<div class="adv-slider-wrap">
-  <div class="adv-slider-box">
-    {% if advertiser_banners|length > 1 %}
-    <div class="adv-counter" id="advCounter">1 / {{ advertiser_banners|length }}</div>
-    <button class="adv-arrow adv-prev" onclick="advMove(-1)"><i class="fas fa-chevron-left"></i></button>
-    <button class="adv-arrow adv-next" onclick="advMove(1)"><i class="fas fa-chevron-right"></i></button>
-    <div class="adv-progress" id="advProgress"></div>
-    {% endif %}
-    <div class="adv-track" id="advTrack">
-      {% for adv in advertiser_banners %}
-      <div class="adv-slide">
-        <img src="{{ adv.banner_image.url }}" alt="{{ adv.business_name }}">
-        <div class="adv-slide-overlay">
-          <div class="adv-slide-tag">Advertisement</div>
-          <h3 class="adv-slide-name">{{ adv.business_name }}</h3>
-          <div class="adv-slide-details">
-            {% if adv.contact_person %}<span><i class="fas fa-user"></i> {{ adv.contact_person }}</span>{% endif %}
-            {% if adv.phone %}<span><i class="fas fa-phone"></i> <a href="tel:{{ adv.phone }}">{{ adv.phone }}</a></span>{% endif %}
-            {% if adv.email %}<span><i class="fas fa-envelope"></i> <a href="mailto:{{ adv.email }}">{{ adv.email }}</a></span>{% endif %}
-            {% if adv.address %}<span><i class="fas fa-map-marker-alt"></i> {{ adv.address|truncatechars:50 }}</span>{% endif %}
-          </div>
-          <div class="adv-slide-actions">
-            {% if adv.website %}<a href="{{ adv.website }}" target="_blank" rel="noopener" class="adv-sld-btn adv-sld-btn-blue"><i class="fas fa-globe"></i> Visit Website</a>{% endif %}
-            {% if adv.phone %}<a href="https://wa.me/91{{ adv.phone }}" target="_blank" class="adv-sld-btn adv-sld-btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>{% endif %}
-          </div>
-        </div>
+<div class="olx-ad-wrap">
+  <div class="olx-ad-label">Sponsored</div>
+  <div class="olx-ad-track" id="olxAdTrack">
+    {% for adv in advertiser_banners %}
+    <a class="olx-ad-slide {% if forloop.first %}active{% endif %}"
+       href="{% if adv.website %}{{ adv.website }}{% else %}#{% endif %}"
+       target="_blank" rel="noopener">
+      <img src="{{ adv.banner_image.url }}" alt="{{ adv.business_name }}">
+      <div class="olx-ad-info">
+        <span class="olx-ad-name">{{ adv.business_name }}</span>
+        {% if adv.address %}<span class="olx-ad-addr"><i class="fas fa-map-marker-alt"></i> {{ adv.address|truncatechars:60 }}</span>{% endif %}
       </div>
-      {% endfor %}
-    </div>
+    </a>
+    {% endfor %}
   </div>
   {% if advertiser_banners|length > 1 %}
-  <div class="adv-dots" id="advDots">
+  <div class="olx-ad-dots" id="olxAdDots">
     {% for adv in advertiser_banners %}
-    <span class="adv-dot {% if forloop.first %}active{% endif %}" onclick="advGo({{ forloop.counter0 }})"></span>
+    <span class="olx-ad-dot {% if forloop.first %}active{% endif %}" onclick="olxAdGo({{ forloop.counter0 }})"></span>
     {% endfor %}
   </div>
   {% endif %}
 </div>
+<style>
+.olx-ad-wrap{background:#f3f4f6;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:6px 0 4px;position:relative;overflow:hidden}
+.olx-ad-label{text-align:center;font-size:10px;color:#aaa;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
+.olx-ad-track{position:relative;width:100%;height:160px}
+.olx-ad-slide{display:none;width:100%;height:160px;position:relative;text-decoration:none}
+.olx-ad-slide.active{display:block}
+.olx-ad-slide img{width:100%;height:160px;object-fit:cover;display:block}
+.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);padding:12px 16px 10px;color:#fff;display:flex;flex-direction:column;gap:2px}
+.olx-ad-name{font-size:14px;font-weight:800}
+.olx-ad-addr{font-size:11px;opacity:.85}
+.olx-ad-dots{display:flex;justify-content:center;gap:6px;padding:6px 0 2px}
+.olx-ad-dot{width:7px;height:7px;border-radius:50%;background:#ccc;cursor:pointer;transition:.3s}
+.olx-ad-dot.active{background:#0a66c2;width:22px;border-radius:4px}
+@media(max-width:600px){.olx-ad-slide,.olx-ad-slide img,.olx-ad-track{height:120px}}
+</style>
+<script>
+(function(){
+  var slides = document.querySelectorAll('.olx-ad-slide');
+  var dots   = document.querySelectorAll('.olx-ad-dot');
+  if(slides.length < 2) return;
+  var cur = 0;
+  function olxAdGo(n){
+    slides[cur].classList.remove('active');
+    dots[cur] && dots[cur].classList.remove('active');
+    cur = n % slides.length;
+    slides[cur].classList.add('active');
+    dots[cur] && dots[cur].classList.add('active');
+  }
+  window.olxAdGo = olxAdGo;
+  setInterval(function(){ olxAdGo(cur + 1); }, 4000);
+})();
+</script>
 {% endif %}
+
 
 <!-- FOOTER -->
 <footer class="footer">
