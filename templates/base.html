@@ -23,7 +23,6 @@
         </div>
         <div class="nav-links">
             <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
-            <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
@@ -34,6 +33,8 @@
                 {% endif %}
                 {% if request.user.is_employer and request.user.advertiser %}
                     <a href="/advertiser/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
+                {% else %}
+                    <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 {% endif %}
                 {% if request.user.is_staff %}
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
@@ -42,6 +43,7 @@
                 <a href="/profile/" class="btn-signin">My Profile</a>
                 <a href="/logout/">Logout</a>
             {% else %}
+                <a href="/login/?next=/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 <a href="/login/" class="btn-signin">Sign In</a>
                 <a href="/register/" class="btn-join">Join Now</a>
             {% endif %}
@@ -98,7 +100,7 @@
         <div class="footer-links">
             <h4>For Employers</h4>
             <a href="/post-job/">Post a Job</a>
-            <a href="/advertise/"><i class="fas fa-bullhorn"></i> Advertise With Us</a>
+            <a href="/advertise/register/"><i class="fas fa-bullhorn"></i> Advertise With Us</a>
         </div>
         <div class="footer-links">
             <h4>Company</h4>

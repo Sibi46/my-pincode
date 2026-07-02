@@ -637,22 +637,80 @@ def seeker_cert_delete(request, cert_id):
 # ── OTP (mock) ────────────────────────────────────────────────────────────────
 def send_otp(request):
     if request.method == 'POST':
-        # Store OTP in session (mock: always 123456)
-        request.session['otp'] = '123456'
-        return JsonResponse({'success': True, 'message': 'OTP sent (use 123456 for testing)'})
+        import random
+        otp = str(random.randint(100000, 999999))
+        request.session['otp'] = otp
+        request.session['otp_verified'] = False
+        # TODO: integrate SMS gateway (Fast2SMS / MSG91) to send otp to phone
+        return JsonResponse({'success': True, 'otp': otp})
     return JsonResponse({'success': False})
 
 
 def verify_otp(request):
     if request.method == 'POST':
         import json
-        data = json.loads(request.body)
+        data    = json.loads(request.body)
         entered = data.get('otp', '')
         stored  = request.session.get('otp', '')
-        if entered == stored or entered == '123456':
+        if entered and entered == stored:
+            request.session['otp_verified'] = True
+            request.session.pop('otp', None)
             return JsonResponse({'success': True})
-        return JsonResponse({'success': False, 'error': 'Wrong OTP'})
+        return JsonResponse({'success': False, 'error': 'Wrong OTP. Please try again.'})
     return JsonResponse({'success': False})
+
+
+def quick_register(request):
+    """Create basic user profile after OTP verification from onboarding modal."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+
+    import json, secrets
+    data     = json.loads(request.body)
+    name     = data.get('name', '').strip()
+    phone    = data.get('phone', '').strip()
+    pincode  = data.get('pincode', '').strip()
+    job_type = data.get('job_type', 'find')   # 'find' or 'post'
+
+    if not request.session.get('otp_verified'):
+        return JsonResponse({'success': False, 'error': 'OTP not verified'})
+
+    if not name or not phone or not pincode:
+        return JsonResponse({'success': False, 'error': 'Missing required fields'})
+
+    User = get_user_model()
+
+    # If phone already registered — log them in
+    existing = User.objects.filter(phone=phone).first()
+    if existing:
+        login(request, existing, backend='django.contrib.auth.backends.ModelBackend')
+        request.session.pop('otp_verified', None)
+        redirect_url = '/employer/dashboard/' if existing.is_employer() else '/jobseeker/dashboard/'
+        return JsonResponse({'success': True, 'redirect': redirect_url, 'existing': True,
+                             'message': f'Welcome back, {existing.first_name or existing.username}!'})
+
+    user_type = 'employee' if job_type == 'find' else 'individual_employer'
+    username  = phone
+    if User.objects.filter(username=username).exists():
+        import random
+        username = phone + str(random.randint(10, 99))
+
+    password = secrets.token_urlsafe(10)
+    user = User.objects.create_user(
+        username   = username,
+        first_name = name,
+        phone      = phone,
+        pincode    = pincode,
+        user_type  = user_type,
+        password   = password,
+    )
+
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    request.session.pop('otp_verified', None)
+
+    redirect_url = '/employer/dashboard/' if job_type == 'post' else '/jobseeker/dashboard/'
+    return JsonResponse({'success': True, 'redirect': redirect_url,
+                         'message': f'Welcome, {name}! Your profile is created.'})
 
 
 # ── SAVE JOB ──────────────────────────────────────────────────────────────────
@@ -863,6 +921,15 @@ def chat_messages_api(request, user_id, job_id=0):
 # ==============================================================
 
 @login_required
+def ads_gallery(request):
+    """Public page: show active ads as image gallery."""
+    today = timezone.now().date()
+    ads = Advertisement.objects.filter(
+        status='active', start_date__lte=today, end_date__gte=today
+    ).select_related('advertiser', 'package').order_by('-created_at')
+    return render(request, 'ads_gallery.html', {'ads': ads})
+
+
 def advertiser_register(request):
     """Only registered employer accounts can apply to advertise."""
     user = request.user

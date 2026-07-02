@@ -18,6 +18,7 @@ urlpatterns = [
     # OTP
     path('api/send-otp/',           views.send_otp,           name='send_otp'),
     path('api/verify-otp/',         views.verify_otp,         name='verify_otp'),
+    path('api/quick-register/',     views.quick_register,     name='quick_register'),
 
     # Jobs
     path('jobs/',                   views.job_list,           name='job_list'),
@@ -59,7 +60,8 @@ urlpatterns = [
     path('offer/download/<int:app_id>/',     views.download_offer_letter, name='download_offer_letter'),
 
     # Advertiser — Public
-    path('advertise/',                        views.advertiser_register,      name='advertiser_register'),
+    path('advertise/',                        views.ads_gallery,              name='ads_gallery'),
+    path('advertise/register/',               views.advertiser_register,      name='advertiser_register'),
     path('advertise/success/',                views.advertiser_register_success, name='advertiser_register_success'),
 
     # Advertiser — Logged-in
