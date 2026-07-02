@@ -809,7 +809,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     return c ? c[1] : '';
   }
 
-  function obGoStep(n){
+  window.obGoStep = function obGoStep(n){
     document.querySelectorAll('.ob-step').forEach(function(el){ el.classList.remove('active'); });
     var el = document.getElementById('obStep' + n);
     if (el) el.classList.add('active');
