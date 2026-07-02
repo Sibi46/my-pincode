@@ -106,7 +106,7 @@ class JobSeekerProfile(models.Model):
 
     # ── Career Preferences ────────────────────────
     job_category    = models.CharField(max_length=10, choices=COLLAR, default='any')
-    industry        = models.CharField(max_length=100, blank=True)
+    industry        = models.CharField(max_length=300, blank=True)
     preferred_roles = models.CharField(max_length=500, blank=True)
     availability    = models.CharField(max_length=20, choices=AVAILABILITY, default='immediate')
 

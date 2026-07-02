@@ -198,17 +198,25 @@
 
       <div class="sp-grid2">
         <div class="sp-field">
-          <label>Preferred Industry</label>
-          <select name="industry" onchange="loadPrefRoles(this)">
-            <option value="">-- Select Industry --</option>
+          <label>Preferred Industry <span style="font-size:11px;color:#888;font-weight:400">(select up to 3)</span></label>
+          <!-- hidden data source -->
+          <div id="industryData" style="display:none">
             {% for ind in industries %}
-            <option value="{{ ind.name }}"
-              data-roles='[{% for r in ind.roles.all %}"{{ r.title }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-              {% if profile.industry == ind.name %}selected{% endif %}>
-              {{ ind.name }}
-            </option>
+            <span data-name="{{ ind.name }}"
+              data-roles="{% for r in ind.roles.all %}{{ r.name }}{% if not forloop.last %},{% endif %}{% endfor %}"></span>
             {% endfor %}
-          </select>
+          </div>
+          <!-- tag display -->
+          <div class="tag-input-wrap" id="indTagWrap" style="cursor:pointer" onclick="document.getElementById('indSearch').focus()">
+            <div class="tag-list" id="indTagList"></div>
+            <input type="text" id="indSearch" placeholder="Search industry..." autocomplete="off"
+                   oninput="filterIndDropdown()" onfocus="showIndDropdown()" style="flex:1;min-width:120px">
+          </div>
+          <!-- dropdown -->
+          <div id="indDropdown" style="display:none;border:1.5px solid #dde1ea;border-radius:8px;max-height:200px;overflow-y:auto;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.1);margin-top:4px;z-index:100;position:relative">
+          </div>
+          <input type="hidden" name="industry" id="industryHidden" value="{{ profile.industry }}">
+          <p id="indMaxMsg" style="display:none;font-size:11px;color:#dc2626;margin-top:4px">Maximum 3 industries allowed</p>
         </div>
         <div class="sp-field">
           <label>Preferred Role(s)</label>
@@ -554,18 +562,99 @@ function syncTags(field) {
   document.getElementById(field + 'Hidden').value = tags.join(',');
 }
 
-// ── Role suggestions from industry dropdown ──────────────────────────
-function loadPrefRoles(sel) {
-  const opt = sel.options[sel.selectedIndex];
-  const roles = JSON.parse(opt.dataset.roles || '[]');
-  const dl = document.getElementById('roleOptions');
-  if (dl) {
-    dl.innerHTML = roles.map(r => `<option value="${r}">`).join('');
+// ── Preferred Industry — multi-tag picker (max 3) ───────────────────
+var indAllData = [];   // [{name, roles:[]}]
+var indSelected = [];  // array of names (max 3)
+
+function indBuildData() {
+  indAllData = [];
+  document.querySelectorAll('#industryData span[data-name]').forEach(function(el) {
+    var roles = el.dataset.roles ? el.dataset.roles.split(',').filter(Boolean) : [];
+    indAllData.push({ name: el.dataset.name, roles: roles });
+  });
+}
+
+function indRenderTags() {
+  var list = document.getElementById('indTagList');
+  list.innerHTML = '';
+  indSelected.forEach(function(name) {
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.innerHTML = name + ' <button type="button" onclick="indRemoveTag(\'' + name.replace(/'/g,"\\'") + '\')" style="background:none;border:none;cursor:pointer;color:#666;padding:0 2px;font-size:13px;line-height:1">&times;</button>';
+    list.appendChild(tag);
+  });
+  document.getElementById('industryHidden').value = indSelected.join(',');
+  document.getElementById('indMaxMsg').style.display = indSelected.length >= 3 ? 'block' : 'none';
+  indRefreshRoles();
+}
+
+function indRemoveTag(name) {
+  indSelected = indSelected.filter(function(n){ return n !== name; });
+  indRenderTags();
+}
+
+function indRefreshRoles() {
+  var dl = document.getElementById('roleOptions');
+  if (!dl) return;
+  var allRoles = [];
+  indSelected.forEach(function(name) {
+    var found = indAllData.find(function(d){ return d.name === name; });
+    if (found) allRoles = allRoles.concat(found.roles);
+  });
+  var unique = allRoles.filter(function(v,i,a){ return a.indexOf(v) === i; });
+  dl.innerHTML = unique.map(function(r){ return '<option value="' + r + '">'; }).join('');
+}
+
+function showIndDropdown() {
+  filterIndDropdown();
+  document.getElementById('indDropdown').style.display = 'block';
+  document.addEventListener('click', indOutsideClick);
+}
+
+function indOutsideClick(e) {
+  var wrap = document.getElementById('indTagWrap');
+  var drop = document.getElementById('indDropdown');
+  if (!wrap.contains(e.target) && !drop.contains(e.target)) {
+    drop.style.display = 'none';
+    document.removeEventListener('click', indOutsideClick);
   }
 }
-document.addEventListener('DOMContentLoaded', () => {
-  const indSel = document.querySelector('select[name="industry"]');
-  if (indSel && indSel.value) loadPrefRoles(indSel);
+
+function filterIndDropdown() {
+  var q = document.getElementById('indSearch').value.toLowerCase();
+  var drop = document.getElementById('indDropdown');
+  var items = indAllData.filter(function(d){
+    return d.name.toLowerCase().includes(q) && !indSelected.includes(d.name);
+  });
+  if (!items.length) {
+    drop.innerHTML = '<div style="padding:10px 14px;color:#888;font-size:13px">No results</div>';
+    return;
+  }
+  drop.innerHTML = items.map(function(d){
+    return '<div onclick="indSelectItem(\'' + d.name.replace(/'/g,"\\'") + '\')" style="padding:9px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid #f3f4f6" onmouseover="this.style.background=\'#f0f4ff\'" onmouseout="this.style.background=\'\'">'+d.name+'</div>';
+  }).join('');
+}
+
+function indSelectItem(name) {
+  if (indSelected.length >= 3) {
+    document.getElementById('indMaxMsg').style.display = 'block';
+    return;
+  }
+  if (!indSelected.includes(name)) { indSelected.push(name); }
+  document.getElementById('indSearch').value = '';
+  document.getElementById('indDropdown').style.display = 'none';
+  document.removeEventListener('click', indOutsideClick);
+  indRenderTags();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  indBuildData();
+  // pre-fill from saved value
+  var saved = document.getElementById('industryHidden').value;
+  if (saved) {
+    indSelected = saved.split(',').map(function(s){ return s.trim(); }).filter(Boolean).slice(0,3);
+  }
+  indRenderTags();
 });
 
 // ── Language checkboxes → hidden field ──────────────────────────────
