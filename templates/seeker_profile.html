@@ -133,11 +133,11 @@
           <input type="text" name="city" value="{{ user.city }}" placeholder="e.g. Chennai">
         </div>
         <div class="sp-field">
-          <label>District</label>
-          <select name="district">
+          <label>State</label>
+          <select name="state" id="spState" onchange="filterDistricts()">
             <option value="">-- Select --</option>
-            {% for d in districts %}
-            <option value="{{ d.pk }}" {% if profile.district_id == d.pk %}selected{% endif %}>{{ d.name }}</option>
+            {% for s in states %}
+            <option value="{{ s.pk }}" {% if profile.state_id == s.pk %}selected{% endif %}>{{ s.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -145,11 +145,11 @@
 
       <div class="sp-grid2">
         <div class="sp-field">
-          <label>State</label>
-          <select name="state">
-            <option value="">-- Select --</option>
-            {% for s in states %}
-            <option value="{{ s.pk }}" {% if profile.state_id == s.pk %}selected{% endif %}>{{ s.name }}</option>
+          <label>District</label>
+          <select name="district" id="spDistrict">
+            <option value="">-- Select State first --</option>
+            {% for d in districts %}
+            <option value="{{ d.pk }}" data-state="{{ d.state_id }}" {% if profile.district_id == d.pk %}selected{% endif %}>{{ d.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -265,7 +265,17 @@
 
       <!-- Salary -->
       <h3 class="sub-title">Expected Salary</h3>
-      <div class="sp-grid3">
+
+      <div class="sp-field">
+        <label>Pay Period</label>
+        <select name="salary_type">
+          {% for val, label in profile.SALARY_TYPE %}
+          <option value="{{ val }}" {% if profile.salary_type == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="sp-grid2" style="margin-top:10px">
         <div class="sp-field">
           <label>Minimum (₹)</label>
           <input type="number" name="salary_min" value="{{ profile.salary_min|default:'' }}" placeholder="e.g. 15000">
@@ -273,14 +283,6 @@
         <div class="sp-field">
           <label>Maximum (₹)</label>
           <input type="number" name="salary_max" value="{{ profile.salary_max|default:'' }}" placeholder="e.g. 30000">
-        </div>
-        <div class="sp-field">
-          <label>Pay Period</label>
-          <select name="salary_type">
-            {% for val, label in profile.SALARY_TYPE %}
-            <option value="{{ val }}" {% if profile.salary_type == val %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
         </div>
       </div>
 
@@ -493,6 +495,25 @@
 </div>
 
 <script>
+// ── State → District filter ───────────────────────────────────────────
+function filterDistricts() {
+  var stateId = document.getElementById('spState').value;
+  var distSel = document.getElementById('spDistrict');
+  var current = distSel.value;
+  Array.from(distSel.options).forEach(function(opt) {
+    if (!opt.value) { opt.style.display = ''; return; }
+    opt.style.display = (opt.dataset.state === stateId) ? '' : 'none';
+  });
+  // Keep selection if it belongs to new state, else reset
+  var currentOpt = distSel.querySelector('option[value="' + current + '"]');
+  if (!current || !currentOpt || currentOpt.dataset.state !== stateId) {
+    distSel.value = '';
+    distSel.options[0].text = stateId ? '-- Select District --' : '-- Select State first --';
+  }
+}
+// Run on page load to filter for pre-selected state
+document.addEventListener('DOMContentLoaded', filterDistricts);
+
 // ── Tab switching ────────────────────────────────────────────────────
 const TAB_ORDER = ['personal', 'career', 'qualifications', 'documents'];
 

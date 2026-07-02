@@ -580,3 +580,18 @@ input, select, textarea { font: inherit; }
   .sp-section { padding: 1.25rem; }
   .sp-user span { display: none; }
 }
+
+/* ── Salary pay-period pills ─────────────────────────────────────────── */
+.sp-sal-pills { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.sp-sal-pill {
+  flex: 1; min-width: 100px;
+  padding: 12px 10px; border: 2px solid #dde3ee; border-radius: 10px;
+  background: #fff; cursor: pointer; font-size: 13px; font-weight: 600;
+  color: #555; display: flex; align-items: center; justify-content: center;
+  gap: 6px; transition: all .18s;
+}
+.sp-sal-pill:hover { border-color: #0a66c2; color: #0a66c2; }
+.sp-sal-pill.active[data-val="month"] { border-color: #0a66c2; background: #0a66c2; color: #fff; }
+.sp-sal-pill.active[data-val="day"]   { border-color: #e65100; background: #e65100; color: #fff; }
+.sp-sal-pill.active[data-val="hour"]  { border-color: #7c3aed; background: #7c3aed; color: #fff; }
+@media (max-width: 600px) { .sp-sal-pills { flex-direction: column; } }
