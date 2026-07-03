@@ -22,15 +22,15 @@
 .pj-back-btn:hover{border-color:#0a66c2;color:#0a66c2;background:#f0f6ff}
 
 /* ── WRAPPER ── */
-.pj-wrapper{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+.pj-wrapper{max-width:780px;margin:0 auto;padding:14px 16px 60px}
 
 /* ── STEP INDICATOR (pill progress bar) ── */
 .pj-steps{
   display:flex;align-items:center;
-  background:#fff;border-radius:16px;
-  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  background:#fff;border-radius:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
   border:1px solid #e8ecf0;
-  padding:14px 20px;margin-bottom:22px;
+  padding:10px 16px;margin-bottom:14px;
   gap:0;overflow:hidden;
 }
 .pj-step{
@@ -59,25 +59,25 @@
   border:1px solid #e8ecf0;overflow:hidden;
 }
 .pj-card-header{
-  padding:24px 28px 20px;
+  padding:14px 20px 12px;
   border-bottom:1px solid #f0f2f5;
   background:linear-gradient(135deg,#f8faff 0%,#fff 100%);
 }
-.pj-card-header h2{font-size:20px;font-weight:900;color:#111;margin-bottom:4px}
-.pj-card-header p{font-size:13px;color:#888}
-.pj-card-body{padding:24px 28px}
+.pj-card-header h2{font-size:17px;font-weight:900;color:#111;margin-bottom:2px}
+.pj-card-header p{font-size:12px;color:#888}
+.pj-card-body{padding:16px 20px}
 
 /* ── COLLAR BUTTONS (Step 1) ── */
-.collar-btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:28px}
+.collar-btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
 
 .collar-btn{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;padding:36px 20px;border-radius:20px;border:2.5px solid #e8ecf0;
+  gap:7px;padding:22px 16px;border-radius:16px;border:2.5px solid #e8ecf0;
   background:#fafbfc;cursor:pointer;transition:.2s;font-family:inherit;
-  font-size:36px;line-height:1;
+  font-size:30px;line-height:1;
 }
-.collar-btn span{font-size:18px;font-weight:900;color:#111}
-.collar-btn small{font-size:12px;font-weight:600;color:#888}
+.collar-btn span{font-size:16px;font-weight:900;color:#111}
+.collar-btn small{font-size:11px;font-weight:600;color:#888}
 .collar-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.10)}
 .white-collar-btn:hover,.white-collar-btn.selected{border-color:#0a66c2;background:#e8f0fe}
 .white-collar-btn.selected span{color:#0a66c2}
@@ -85,8 +85,8 @@
 .blue-collar-btn.selected span{color:#e65100}
 
 /* ── COLLAR DEFINITIONS ── */
-.collar-defs{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 28px 28px}
-.collar-def-item{padding:16px 18px;border-radius:14px;line-height:1.6}
+.collar-defs{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
+.collar-def-item{padding:12px 14px;border-radius:12px;line-height:1.5}
 .white-def-item{background:#eef3fd;border-left:4px solid #0a66c2}
 .blue-def-item{background:#fff4ec;border-left:4px solid #e65100}
 .collar-def-q{font-size:14px;font-weight:700;margin-bottom:6px;color:#111}
@@ -98,7 +98,6 @@
 .collar-badge.blue-badge{background:#fff3e0;color:#e65100}
 
 /* ── FORM GRID ── */
-.pj-card-body{padding:24px 28px}
 .pj-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
 .pj-field{display:flex;flex-direction:column;gap:7px;position:relative}
@@ -239,7 +238,7 @@
 /* ── BUTTONS ── */
 .pj-nav-btns{
   display:flex;align-items:center;justify-content:space-between;
-  margin-top:24px;padding:20px 28px;
+  margin-top:0;padding:14px 20px;
   border-top:1px solid #f0f2f5;gap:12px;
   background:#fafbfc;
 }
@@ -266,6 +265,9 @@
 .bc-tile:hover{border-color:#0a66c2;background:#e8f0fe}
 .bc-tile.selected{border-color:#0a66c2;background:#0a66c2}
 .bc-tile.selected span{color:#fff}
+.bc-tile-other{border-style:dashed;border-color:#aab;background:#f5f5f5}
+.bc-tile-other.selected{border-color:#0a66c2;background:#e8f0fe;border-style:solid}
+.bc-tile-other.selected span{color:#0a66c2}
 
 .bc-type-grid,.bc-exp-grid,.bc-edu-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .bc-type-tile,.bc-exp-tile,.bc-edu-tile{display:flex;flex-direction:column;align-items:center;gap:5px;padding:18px 10px;background:#fafbfc;border:2px solid #e8ecf0;border-radius:16px;cursor:pointer;font-size:28px;transition:.15s}
@@ -285,20 +287,22 @@
 .ac-item mark{background:none;color:#0a66c2;font-weight:800}
 
 /* ── INDUSTRY CHIPS ── */
-.ind-counter{font-size:12px;font-weight:700;color:#0a66c2;margin-bottom:8px}
-.ind-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
-.ind-chip{padding:7px 15px;border:1.5px solid #dde1ea;border-radius:22px;background:#fafbfc;font-size:13px;font-weight:600;color:#555;cursor:pointer;transition:.15s;line-height:1}
+.ind-counter{font-size:11px;font-weight:700;color:#0a66c2;background:#e8f0fe;padding:2px 8px;border-radius:10px;margin-left:6px}
+.ind-chip-grid{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow-y:auto;border:1.5px solid #e8ecf0;border-radius:10px;padding:10px;background:#fafbfc;scrollbar-width:thin}
+.ind-chip-grid::-webkit-scrollbar{width:4px}
+.ind-chip-grid::-webkit-scrollbar-thumb{background:#cdd5e0;border-radius:4px}
+.ind-chip{padding:5px 11px;border:1.5px solid #dde1ea;border-radius:20px;background:#fff;font-size:12px;font-weight:600;color:#555;cursor:pointer;transition:.15s;line-height:1;white-space:nowrap}
 .ind-chip:hover{border-color:#0a66c2;color:#0a66c2;background:#e8f0fe}
 .ind-chip.selected{background:#0a66c2;color:#fff;border-color:#0a66c2}
 .ind-chip.hidden-collar{display:none}
-.ind-maxwarn{font-size:12px;color:#e65100;margin-top:8px;display:flex;align-items:center;gap:5px}
+.ind-maxwarn{font-size:11px;color:#e65100;margin-top:6px;display:flex;align-items:center;gap:5px}
 
 /* ── RESPONSIVE ── */
 @media(max-width:680px){
-  .pj-card-header,.pj-card-body,.pj-nav-btns{padding-left:16px;padding-right:16px}
-  .pj-card-body{padding-top:18px;padding-bottom:18px}
-  .collar-btn-grid{gap:12px;padding:18px}
-  .collar-btn{padding:28px 16px}
+  .pj-card-header,.pj-card-body,.pj-nav-btns{padding-left:14px;padding-right:14px}
+  .pj-card-body{padding-top:14px;padding-bottom:14px}
+  .collar-btn-grid{gap:10px;padding:14px}
+  .collar-btn{padding:18px 12px}
   .collar-btn span{font-size:16px}
   .pj-grid-2{grid-template-columns:1fr}
   .sal-pills{flex-direction:column}

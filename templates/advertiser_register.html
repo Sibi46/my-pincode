@@ -91,22 +91,6 @@
 
 {% block content %}
 
-<!-- HERO -->
-<section class="ar-hero">
-  <div class="ar-hero-inner">
-    <div class="ar-eyebrow"><i class="fas fa-bullhorn"></i> Advertising</div>
-    <h1>Reach Job Seekers &amp; Employers<br>Right at Their PIN Code</h1>
-    <p>Banner ads, sponsored listings, popups &amp; more — hyper-targeted to your local audience.</p>
-    <div class="ar-stats">
-      <div><strong>10K+</strong><span>Monthly Visitors</span></div>
-      <div><strong>500+</strong><span>Active Jobs</span></div>
-      <div><strong>50+</strong><span>Districts</span></div>
-      <div><strong>6</strong><span>Ad Formats</span></div>
-    </div>
-  </div>
-</section>
-
-
 
 <!-- REGISTRATION FORM -->
 <section class="ar-sec" id="register-form">
@@ -147,11 +131,11 @@
         <div class="ar-row">
           <div class="ar-field">
             <label>Business Name <span class="ar-req">*</span></label>
-            <input type="text" name="business_name" required placeholder="Company / Shop Name">
+            <input type="text" name="business_name" required placeholder="Company / Shop Name" value="{% if user.company %}{{ user.company.company_name }}{% endif %}">
           </div>
           <div class="ar-field">
             <label>Contact Person <span class="ar-req">*</span></label>
-            <input type="text" name="contact_person" required value="{{ user.get_full_name }}" placeholder="Owner / Manager Name">
+            <input type="text" name="contact_person" required value="{{ user.get_full_name|default:user.username }}" placeholder="Owner / Manager Name">
           </div>
         </div>
 
@@ -174,7 +158,7 @@
 
         <div class="ar-field">
           <label>Business Address <span class="ar-req">*</span></label>
-          <textarea name="address" required placeholder="Full address with city and PIN code"></textarea>
+          <textarea name="address" required placeholder="Full address with city and PIN code">{{ user.address }}</textarea>
         </div>
 
         <div class="ar-field">

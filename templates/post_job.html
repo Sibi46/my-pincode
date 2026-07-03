@@ -122,10 +122,8 @@
           </div>
 
           <div class="pj-field">
-            <label><i class="fas fa-layer-group"></i> Industry <span style="font-size:12px;color:#0a66c2;font-weight:600">(Select up to 3)</span></label>
-            <!-- hidden input carries the comma-separated selected values -->
+            <label><i class="fas fa-layer-group"></i> Industry <span class="ind-counter" id="indCounter">0 / 3</span></label>
             <input type="hidden" name="industry" id="f-industry" required>
-            <div class="ind-counter" id="indCounter">0 / 3 selected</div>
             <div class="ind-chip-grid" id="indChipGrid">
               {% for ind in industries %}
               <button type="button" class="ind-chip"
@@ -161,6 +159,10 @@
             <p class="ind-maxwarn" id="indMaxWarn" style="display:none">
               <i class="fas fa-exclamation-circle"></i> Maximum 3 industries allowed. Deselect one to choose another.
             </p>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <input type="text" id="indCustomInput" placeholder="Type your industry & press Enter" maxlength="40" style="flex:1;padding:7px 12px;border:1.5px solid #dde1ea;border-radius:20px;font-size:12px;outline:none;font-family:inherit" onkeydown="indAddCustom(event)">
+              <button type="button" onclick="indAddCustom({key:'Enter'})" style="padding:7px 14px;background:#0a66c2;color:#fff;border:none;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">Add</button>
+            </div>
           </div>
 
           <!-- Hidden inputs — always submitted, written by both modes -->
@@ -243,6 +245,13 @@
               <button type="button" class="bc-tile" data-val="Housemaid"          onclick="bcSelect('role',this)">🏠<span>Housemaid</span></button>
               <button type="button" class="bc-tile" data-val="Auto Mechanic"      onclick="bcSelect('role',this)">🔩<span>Mechanic</span></button>
               <button type="button" class="bc-tile" data-val="Helper"             onclick="bcSelect('role',this)">🙋<span>Helper</span></button>
+              <button type="button" class="bc-tile bc-tile-other" id="bcOtherTile" onclick="bcToggleOther(this)">✏️<span>Other</span></button>
+            </div>
+            <div id="bcOtherRow" style="display:none;margin-top:10px;display:none">
+              <div style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="bcOtherInput" placeholder="Type job role e.g. Tailor, Gardner…" maxlength="50" style="flex:1;padding:9px 14px;border:1.5px solid #0a66c2;border-radius:22px;font-size:13px;outline:none;font-family:inherit" oninput="bcOtherUpdate()">
+                <button type="button" onclick="bcOtherConfirm()" style="padding:9px 18px;background:#0a66c2;color:#fff;border:none;border-radius:22px;font-size:13px;font-weight:700;cursor:pointer">OK</button>
+              </div>
             </div>
           </div>
 
@@ -275,6 +284,7 @@
               <button type="button" class="bc-edu-tile"          data-val="HSC / 12th pass"          onclick="bcSelect('edu',this)">📘<span>12th Pass</span></button>
               <button type="button" class="bc-edu-tile"          data-val="ITI Certificate"          onclick="bcSelect('edu',this)">🔧<span>ITI</span></button>
               <button type="button" class="bc-edu-tile"          data-val="Diploma"                  onclick="bcSelect('edu',this)">📜<span>Diploma</span></button>
+              <button type="button" class="bc-edu-tile"          data-val="Graduate (Any)"            onclick="bcSelect('edu',this)">🎓<span>Degree</span></button>
             </div>
           </div>
 
@@ -564,7 +574,7 @@ function selectCollar(collar) {
   // Reset selections when collar changes
   document.querySelectorAll('.ind-chip.selected').forEach(c => c.classList.remove('selected'));
   document.getElementById('f-industry').value = '';
-  document.getElementById('indCounter').textContent = '0 / 3 selected';
+  document.getElementById('indCounter').textContent = '0 / 3';
   document.getElementById('indMaxWarn').style.display = 'none';
   document.getElementById('f-role').innerHTML = '<option value="">Select Industry first</option>';
 
@@ -580,6 +590,42 @@ function selectCollar(collar) {
 }
 
 /* ── Blue collar tile selector ── */
+/* ── Blue collar "Other" custom role ── */
+function bcToggleOther(tile) {
+  const row = document.getElementById('bcOtherRow');
+  const isOpen = row.style.display === 'flex';
+  if (isOpen) {
+    row.style.display = 'none';
+    tile.classList.remove('selected');
+    // clear custom value only if nothing typed
+    if (!document.getElementById('bcOtherInput').value.trim()) {
+      document.getElementById('f-role-val').value = '';
+    }
+  } else {
+    // deselect all other tiles
+    document.querySelectorAll('#bcRoleGrid .bc-tile:not(.bc-tile-other)').forEach(function(t){ t.classList.remove('selected'); });
+    tile.classList.add('selected');
+    row.style.display = 'flex';
+    document.getElementById('bcOtherInput').focus();
+  }
+}
+function bcOtherUpdate() {
+  const val = document.getElementById('bcOtherInput').value.trim();
+  document.getElementById('f-role-val').value = val;
+  if (val && !document.getElementById('f-title').value) {
+    document.getElementById('f-title').value = val;
+  }
+}
+function bcOtherConfirm() {
+  const val = document.getElementById('bcOtherInput').value.trim();
+  if (!val) return;
+  document.getElementById('f-role-val').value = val;
+  if (!document.getElementById('f-title').value) document.getElementById('f-title').value = val;
+  document.getElementById('bcOtherRow').style.display = 'none';
+  document.getElementById('bcOtherTile').classList.add('selected');
+  document.getElementById('bcOtherTile').querySelector('span').textContent = val;
+}
+
 function bcSelect(group, tile) {
   var grids = { role:'bcRoleGrid', type:'bc-type-grid', exp:'bc-exp-grid', edu:'bc-edu-grid' };
   var hiddenIds = { role:'f-role-val', type:'f-jobtype-val', exp:'f-exp-val', edu:'f-edu-val' };
@@ -599,7 +645,50 @@ function bcSelect(group, tile) {
   if (group === 'role') {
     var titleEl = document.getElementById('f-title');
     if (titleEl && !titleEl.value) titleEl.value = val;
+    // close Other row when a tile is picked
+    var otherRow = document.getElementById('bcOtherRow');
+    if (otherRow) otherRow.style.display = 'none';
+    var otherTile = document.getElementById('bcOtherTile');
+    if (otherTile) { otherTile.classList.remove('selected'); otherTile.querySelector('span').textContent = 'Other'; }
   }
+}
+
+/* ── Industry custom type & add ── */
+function indAddCustom(e) {
+  if (e.key !== 'Enter') return;
+  if (e.preventDefault) e.preventDefault();
+  const inp = document.getElementById('indCustomInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  const selected = document.querySelectorAll('.ind-chip.selected');
+  if (selected.length >= 3) {
+    document.getElementById('indMaxWarn').style.display = 'flex';
+    return;
+  }
+  // Check if already exists as a chip
+  const existing = document.querySelector('.ind-chip[data-val="' + val + '"]');
+  if (existing) {
+    if (!existing.classList.contains('selected')) toggleIndustry(existing);
+    inp.value = '';
+    return;
+  }
+  // Create new chip and select it
+  const chip = document.createElement('button');
+  chip.type = 'button';
+  chip.className = 'ind-chip selected';
+  chip.dataset.val = val;
+  chip.dataset.collar = 'both';
+  chip.dataset.roles = '[]';
+  chip.textContent = val;
+  chip.onclick = function(){ toggleIndustry(this); };
+  document.getElementById('indChipGrid').appendChild(chip);
+  inp.value = '';
+  // Trigger update
+  const nowSelected = document.querySelectorAll('.ind-chip.selected');
+  const vals = Array.from(nowSelected).map(c => c.dataset.val);
+  document.getElementById('f-industry').value = vals.join(',');
+  document.getElementById('indCounter').textContent = vals.length + ' / 3';
+  document.getElementById('indMaxWarn').style.display = vals.length >= 3 ? 'flex' : 'none';
 }
 
 /* ── Industry chip toggle (max 3) ── */
@@ -618,7 +707,7 @@ function toggleIndustry(chip) {
   const nowSelected = document.querySelectorAll('.ind-chip.selected');
   const vals = Array.from(nowSelected).map(c => c.dataset.val);
   document.getElementById('f-industry').value = vals.join(',');
-  document.getElementById('indCounter').textContent = vals.length + ' / 3 selected';
+  document.getElementById('indCounter').textContent = vals.length + ' / 3';
 
   // Combine roles from all selected industries
   const roleSet = new Set();
