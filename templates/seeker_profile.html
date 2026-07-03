@@ -158,6 +158,10 @@
           <input type="text" value="{{ user.phone }}" disabled class="disabled-field">
           <small>Phone cannot be changed after registration</small>
         </div>
+        <div class="sp-field">
+          <label><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp Number <span style="font-weight:400;color:#777;font-weight:400">(optional)</span></label>
+          <input type="tel" name="whatsapp" value="{{ user.whatsapp }}" placeholder="10-digit WhatsApp number" maxlength="10">
+        </div>
       </div>
 
       <div class="sp-section-footer">

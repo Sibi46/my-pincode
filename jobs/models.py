@@ -39,6 +39,7 @@ class User(AbstractUser):
     user_type  = models.CharField(max_length=20, choices=USER_TYPES, default='employee')
     admin_role = models.CharField(max_length=20, choices=ADMIN_ROLES, blank=True, default='')
     phone      = models.CharField(max_length=10, blank=True)
+    whatsapp   = models.CharField(max_length=10, blank=True)
     address    = models.TextField(blank=True)
     city       = models.CharField(max_length=100, blank=True)
     pincode    = models.CharField(max_length=6, blank=True)

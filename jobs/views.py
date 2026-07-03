@@ -109,6 +109,7 @@ def register_process(request):
     address    = request.POST.get('address', '').strip()
     city       = request.POST.get('city', '').strip()
     pincode    = request.POST.get('pincode', '').strip()
+    whatsapp   = request.POST.get('whatsapp', '').strip()
 
     username = phone if phone else email
     if not username:
@@ -127,6 +128,7 @@ def register_process(request):
         last_name=last_name,
         email=email,
         phone=phone,
+        whatsapp=whatsapp,
         user_type=user_type,
         address=address,
         city=city,
@@ -555,9 +557,10 @@ def seeker_profile(request):
             user.first_name = first_name
         if last_name:
             user.last_name = last_name
-        user.address = p.get('address', '').strip()
-        user.city    = p.get('city', '').strip()
-        user.pincode = p.get('pincode', '').strip()
+        user.address  = p.get('address', '').strip()
+        user.city     = p.get('city', '').strip()
+        user.pincode  = p.get('pincode', '').strip()
+        user.whatsapp = p.get('whatsapp', '').strip()
         user.save()
 
         dob_str = p.get('dob', '').strip()
