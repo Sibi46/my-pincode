@@ -84,6 +84,14 @@
 .blue-collar-btn:hover,.blue-collar-btn.selected{border-color:#e65100;background:#fff3e0}
 .blue-collar-btn.selected span{color:#e65100}
 
+/* ── COLLAR DEFINITIONS ── */
+.collar-defs{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 28px 24px}
+.collar-def-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.5}
+.white-def-item{background:#e8f0fe;color:#1a3c6e;border-left:3px solid #0a66c2}
+.blue-def-item{background:#fff3e0;color:#7a3800;border-left:3px solid #e65100}
+.collar-def-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.collar-def-eg{font-size:11px;color:#666;font-style:italic}
+
 .collar-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 13px;border-radius:20px;margin-bottom:8px}
 .collar-badge.white-badge{background:#e8f0fe;color:#0a66c2}
 .collar-badge.blue-badge{background:#fff3e0;color:#e65100}
