@@ -186,21 +186,21 @@
                 </div>
 
                 <form method="POST" action="/register/process/" id="employerForm"
-                      onsubmit="injectField(this,'org_name',document.getElementById('emp-org-input').value);
-                                injectField(this,'first_name',document.getElementById('empContactName').value);
-                                injectField(this,'phone',document.getElementById('empPhone').value)">
+                      onsubmit="injectField(this,'first_name',document.getElementById('empName').value);
+                                injectField(this,'phone',document.getElementById('empPhone').value);
+                                injectField(this,'pincode',document.getElementById('empPincode').value)">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
 
-                    <!-- ── Substep 1: Org + Contact + Mobile OTP ── -->
+                    <!-- ── Substep 1: Name + PIN + Mobile OTP ── -->
                     <div id="emp-substep1">
                         <div class="form-group full">
-                            <label id="emp-org-label"><i class="fas fa-building"></i> Organization Name *</label>
-                            <input type="text" id="emp-org-input" placeholder="Enter organization name" required>
+                            <label><i class="fas fa-user"></i> Your Name *</label>
+                            <input type="text" id="empName" placeholder="Owner / Manager name" required>
                         </div>
                         <div class="form-group full">
-                            <label><i class="fas fa-user"></i> Contact Person Name *</label>
-                            <input type="text" id="empContactName" placeholder="Owner / Manager name" required>
+                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                            <input type="text" id="empPincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" required>
                         </div>
                         <div class="form-group full">
                             <label><i class="fas fa-phone"></i> Mobile Number *</label>
@@ -227,12 +227,12 @@
                         </div>
                     </div>
 
-                    <!-- ── Substep 2: Details + Password (shown after OTP) ── -->
+                    <!-- ── Substep 2: Company details + Password (after OTP) ── -->
                     <div id="emp-substep2" class="hidden">
                         <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
                         <div class="form-group full">
-                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
-                            <input type="text" name="pincode" placeholder="6-digit PIN code" maxlength="6" pattern="[0-9]{6}" required>
+                            <label id="emp-org-label"><i class="fas fa-building"></i> Organization Name *</label>
+                            <input type="text" name="org_name" id="emp-org-input" placeholder="Enter organization name" required>
                         </div>
                         <div class="form-group full">
                             <label><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp Number <span style="font-weight:400;color:#888">(optional)</span></label>
