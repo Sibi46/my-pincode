@@ -283,23 +283,7 @@
 .rec-info h4 { font-size: 14px; font-weight: 700; color: #191919; margin-bottom: 4px; }
 .rec-info p  { font-size: 12px; color: #888; display: flex; align-items: center; gap: 4px; }
 
-/* ===== MESSAGES ===== */
-.messages-bar { position: sticky; top: 64px; z-index: 900; }
-
-.msg {
-    padding: 12px 20px;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.msg-success { background: #e6f4ea; color: #2e7d32; }
-.msg-error   { background: #fce4ec; color: #c62828; }
-.msg-warning { background: #fff3e0; color: #e65100; }
-.msg-info    { background: #e8f0fe; color: #0a66c2; }
-
-.msg span { cursor: pointer; font-size: 18px; }
+/* ===== MESSAGES — handled by toast in base.html ===== */
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
