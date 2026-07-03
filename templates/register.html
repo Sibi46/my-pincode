@@ -185,39 +185,60 @@
                     </div>
                 </div>
 
-                <form method="POST" action="/register/process/" id="employerForm">
+                <form method="POST" action="/register/process/" id="employerForm"
+                      onsubmit="injectField(this,'org_name',document.getElementById('emp-org-input').value);
+                                injectField(this,'first_name',document.getElementById('empContactName').value);
+                                injectField(this,'phone',document.getElementById('empPhone').value)">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
 
-                    <div class="form-row">
-                        <div class="form-group">
+                    <!-- ── Substep 1: Org + Contact + Mobile OTP ── -->
+                    <div id="emp-substep1">
+                        <div class="form-group full">
                             <label id="emp-org-label"><i class="fas fa-building"></i> Organization Name *</label>
-                            <input type="text" name="org_name" id="emp-org-input" placeholder="Enter organization name" required>
+                            <input type="text" id="emp-org-input" placeholder="Enter organization name" required>
                         </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-user"></i> Contact Person *</label>
-                            <input type="text" name="first_name" placeholder="Owner / Manager name" required>
+                        <div class="form-group full">
+                            <label><i class="fas fa-user"></i> Contact Person Name *</label>
+                            <input type="text" id="empContactName" placeholder="Owner / Manager name" required>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-envelope"></i> Email Address *</label>
-                            <input type="email" name="email" placeholder="contact@organization.com" required>
-                        </div>
-                        <div class="form-group">
+                        <div class="form-group full">
                             <label><i class="fas fa-phone"></i> Mobile Number *</label>
-                            <input type="tel" name="phone" placeholder="10-digit mobile" maxlength="10" required>
+                            <div class="otp-input-row">
+                                <span class="country-code">+91</span>
+                                <input type="tel" id="empPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
+                                <button type="button" class="otp-btn" onclick="sendOTP('emp')">Send OTP</button>
+                            </div>
+                        </div>
+                        <div class="otp-box hidden" id="empOtpBox">
+                            <label><i class="fas fa-shield-alt"></i> Enter 6-digit OTP</label>
+                            <div class="otp-digits">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                                <input type="text" maxlength="1" class="otp-digit" oninput="otpNext(this)">
+                            </div>
+                            <p class="resend-otp">Didn't receive? <a href="#" onclick="sendOTP('emp')">Resend OTP</a></p>
+                            <button type="button" class="submit-btn" onclick="verifyOTP('emp')">
+                                <i class="fas fa-check"></i> Verify OTP
+                            </button>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
+
+                    <!-- ── Substep 2: Details + Password (shown after OTP) ── -->
+                    <div id="emp-substep2" class="hidden">
+                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
+                            <input type="text" name="pincode" placeholder="6-digit PIN code" maxlength="6" pattern="[0-9]{6}" required>
+                        </div>
+                        <div class="form-group full">
                             <label><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp Number <span style="font-weight:400;color:#888">(optional)</span></label>
                             <input type="tel" name="whatsapp" placeholder="10-digit WhatsApp number" maxlength="10">
                         </div>
-                        <div class="form-group"></div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group full" style="grid-column:1/-1">
+                        <div class="form-group full">
                             <label><i class="fas fa-layer-group"></i> Industry / Sector <span style="font-weight:400;color:#888">(select up to 3)</span></label>
                             <input type="hidden" name="industry" id="industryHidden">
                             <div class="industry-pills" id="industryPills">
@@ -239,63 +260,25 @@
                             </div>
                             <div style="font-size:12px;color:#888;margin-top:6px"><span id="indCount">0</span>/3 selected</div>
                         </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-calendar-alt"></i> Year Established</label>
-                            <input type="number" name="started_year" id="emp-started-year" placeholder="e.g. 2010" min="1900" max="2099">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Password *</label>
+                                <input type="password" name="password" id="emp-pwd" placeholder="Create password (min 8 chars)" required>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-lock"></i> Confirm Password *</label>
+                                <input type="password" name="confirm_password" id="emp-pwd2" placeholder="Repeat password" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-users"></i> Organization Size</label>
-                            <select name="company_size">
-                                <option value="">Select size</option>
-                                <option>1 (Just me)</option>
-                                <option>2–10 employees</option>
-                                <option>11–50 employees</option>
-                                <option>51–200 employees</option>
-                                <option>201–500 employees</option>
-                                <option>500+ employees</option>
-                            </select>
+                        <div id="emp-pwd-error" style="color:#c62828;font-size:13px;margin-bottom:12px;display:none">
+                            <i class="fas fa-exclamation-circle"></i> Passwords do not match.
                         </div>
-                        <div class="form-group"></div>
+                        <button type="submit" class="submit-btn" id="emp-submit-btn"
+                                onclick="if(document.getElementById('emp-pwd').value!==document.getElementById('emp-pwd2').value){document.getElementById('emp-pwd-error').style.display='block';event.preventDefault();}else{document.getElementById('emp-pwd-error').style.display='none';}">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="emp-submit-label">Create Employer Account</span>
+                        </button>
                     </div>
-                    <div class="form-group full">
-                        <label><i class="fas fa-globe"></i> Website <span style="font-weight:400;color:#888">(optional)</span></label>
-                        <input type="url" name="website" placeholder="https://yourorganization.com">
-                    </div>
-                    <div class="form-group full">
-                        <label><i class="fas fa-map-marker-alt"></i> Address *</label>
-                        <textarea name="address" placeholder="Door no, Street, Area" rows="2" required></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-city"></i> City *</label>
-                            <input type="text" name="city" placeholder="City" required>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-map-pin"></i> PIN Code *</label>
-                            <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" pattern="[0-9]{6}" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label><i class="fas fa-lock"></i> Password *</label>
-                            <input type="password" name="password" id="emp-pwd" placeholder="Create password (min 8 chars)" required>
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-lock"></i> Confirm Password *</label>
-                            <input type="password" name="confirm_password" id="emp-pwd2" placeholder="Repeat password" required>
-                        </div>
-                    </div>
-
-                    <div id="emp-pwd-error" style="color:#c62828;font-size:13px;margin-bottom:12px;display:none">
-                        <i class="fas fa-exclamation-circle"></i> Passwords do not match.
-                    </div>
-
-                    <button type="submit" class="submit-btn" id="emp-submit-btn">
-                        <i class="fas fa-check-circle"></i>
-                        <span id="emp-submit-label">Create Employer Account</span>
-                    </button>
                 </form>
             </div>
         </div>
