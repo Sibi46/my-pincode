@@ -339,6 +339,25 @@ def apply_job(request, pk):
 # ── POST JOB ──────────────────────────────────────────────────────────────────
 @login_required
 def post_job(request):
+    # Block if employer profile is incomplete
+    user = request.user
+    if user.is_employer():
+        try:
+            prof = user.company
+        except Exception:
+            prof = None
+        score = 0
+        if prof and prof.company_name: score += 10
+        if user.pincode:               score += 20
+        if user.city:                  score += 15
+        if user.address:               score += 15
+        if prof and prof.industry:     score += 20
+        if prof and prof.company_size: score += 10
+        if prof and prof.website:      score += 10
+        if score < 70:
+            messages.warning(request, f'Your profile is only {score}% complete. Please fill in your company details before posting a job.')
+            return redirect('employer_dashboard')
+
     if request.method == 'POST':
         import datetime
         p = request.POST
@@ -498,9 +517,24 @@ def employer_dashboard(request):
 
     # ── Profile ──
     try:
-        profile = user.companyprofile
+        profile = user.company
     except Exception:
         profile = None
+
+    # ── Profile completion ──
+    def _pct(u, p):
+        score = 0
+        if p and p.company_name: score += 10
+        if u.pincode:             score += 20
+        if u.city:                score += 15
+        if u.address:             score += 15
+        if p and p.industry:      score += 20
+        if p and p.company_size:  score += 10
+        if p and p.website:       score += 10
+        return score
+
+    profile_pct = _pct(user, profile)
+    profile_incomplete = profile_pct < 70
 
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
@@ -519,7 +553,34 @@ def employer_dashboard(request):
         'available_plans':    available_plans,
         'billing_records':    billing_records,
         'profile':            profile,
+        'profile_pct':        profile_pct,
+        'profile_incomplete': profile_incomplete,
     })
+
+
+@login_required
+def employer_profile_save(request):
+    if request.method != 'POST':
+        return redirect('employer_dashboard')
+    user = request.user
+    p = request.POST
+    user.city    = p.get('city', '').strip()
+    user.address = p.get('address', '').strip()
+    user.pincode = p.get('pincode', '').strip()
+    user.email   = p.get('email', '').strip()
+    user.whatsapp = p.get('whatsapp', '').strip()
+    user.save()
+    try:
+        prof = user.company
+    except Exception:
+        prof = None
+    if prof:
+        prof.industry     = p.get('industry', '').strip()
+        prof.company_size = p.get('company_size', '').strip()
+        prof.website      = p.get('website', '').strip()
+        prof.save()
+    messages.success(request, 'Profile updated successfully!')
+    return redirect('employer_dashboard')
 
 
 @login_required

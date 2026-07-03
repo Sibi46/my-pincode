@@ -16,7 +16,11 @@
 <header class="dash-topbar">
   <a href="/" class="dash-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:48px;width:auto;max-width:160px;object-fit:contain;display:block"></a>
   <div class="dash-topbar-right">
+    {% if profile_incomplete %}
+    <button onclick="showSection('my-profile',null)" class="dash-post-btn" style="background:#e65100;border:none;cursor:pointer" title="Complete profile to post a job"><i class="fas fa-lock"></i> Post Job</button>
+    {% else %}
     <a href="/post-job/" class="dash-post-btn"><i class="fas fa-plus"></i> Post Job</a>
+    {% endif %}
     <div class="dash-icon-btn" onclick="showSection('notifications')">
       <i class="fas fa-bell"></i>
       {% if unread_notif_count %}<span class="dash-badge">{{ unread_notif_count }}</span>{% endif %}
@@ -99,6 +103,10 @@
       <a class="snav-item" onclick="showSection('billing',this)" data-sec="billing">
         <i class="fas fa-receipt"></i> Billing History
       </a>
+      <a class="snav-item" onclick="showSection('my-profile',this)" data-sec="my-profile">
+        <i class="fas fa-id-card"></i> My Profile
+        {% if profile_incomplete %}<span class="snav-count" style="background:#e65100">{{ profile_pct }}%</span>{% endif %}
+      </a>
       <a class="snav-item" href="/advertiser/dashboard/">
         <i class="fas fa-bullhorn"></i> Advertise
       </a>
@@ -141,6 +149,19 @@
       </div>
     </div>
 
+    {% if profile_incomplete %}
+    <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:14px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div style="font-weight:800;font-size:15px;color:#7a4f00;margin-bottom:4px"><i class="fas fa-exclamation-circle" style="color:#e65100"></i> Complete your profile to post a job</div>
+        <div style="font-size:13px;color:#a06000;margin-bottom:8px">Your profile is <strong>{{ profile_pct }}%</strong> complete. Fill in your company details to unlock job posting.</div>
+        <div style="background:#f5e6c0;border-radius:8px;height:8px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,#e65100,#f9a825);width:{{ profile_pct }}%;height:100%;border-radius:8px;transition:.4s"></div>
+        </div>
+      </div>
+      <button onclick="showSection('my-profile',null)" style="background:#e65100;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap"><i class="fas fa-edit"></i> Complete Profile</button>
+    </div>
+    {% endif %}
+
     {% if ads_by_type.dashboard_banner %}
     {% with ad=ads_by_type.dashboard_banner|first %}
     <a href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')"
@@ -159,7 +180,11 @@
     <section class="dsec" id="sec-active-jobs">
       <div class="dsec-header">
         <div><h2><i class="fas fa-briefcase"></i> Active Jobs</h2><p>Live jobs accepting applications</p></div>
+        {% if profile_incomplete %}
+        <button onclick="showSection('my-profile',null)" class="dsec-btn" style="background:#e65100;border:none;cursor:pointer"><i class="fas fa-lock"></i> Complete Profile First</button>
+        {% else %}
         <a href="/post-job/" class="dsec-btn"><i class="fas fa-plus"></i> Post New Job</a>
+        {% endif %}
       </div>
       {% if active_jobs %}
       <div class="job-list">
@@ -578,6 +603,87 @@
       {% else %}
       <div class="empty-state"><i class="fas fa-receipt"></i><h3>No billing records</h3><p>Payment history will appear here after your first transaction</p></div>
       {% endif %}
+    </section>
+
+    <!-- ═══ MY PROFILE ═══ -->
+    <section class="dsec hidden" id="sec-my-profile">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-id-card"></i> My Profile</h2><p>Complete your company details to unlock job posting</p></div>
+      </div>
+
+      {% if profile_pct < 100 %}
+      <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:14px 18px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:6px">Profile Completion — {{ profile_pct }}%</div>
+        <div style="background:#d1fae5;border-radius:6px;height:10px;overflow:hidden">
+          <div style="background:linear-gradient(90deg,#16a34a,#4ade80);width:{{ profile_pct }}%;height:100%;border-radius:6px"></div>
+        </div>
+        <div style="font-size:12px;color:#666;margin-top:6px">
+          {% if not profile.industry %}<span style="color:#e65100">✗ Industry</span> &nbsp;{% endif %}
+          {% if not request.user.pincode %}<span style="color:#e65100">✗ PIN Code</span> &nbsp;{% endif %}
+          {% if not request.user.city %}<span style="color:#e65100">✗ City</span> &nbsp;{% endif %}
+          {% if not request.user.address %}<span style="color:#e65100">✗ Address</span> &nbsp;{% endif %}
+          {% if not profile.company_size %}<span style="color:#e65100">✗ Company Size</span> &nbsp;{% endif %}
+          {% if not profile.website %}<span style="color:#888">✗ Website (optional)</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <form method="POST" action="/employer/profile/save/" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-building"></i> Company Name</label>
+            <input type="text" value="{{ profile.company_name|default:'' }}" disabled style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;background:#f9f9f9;color:#888;box-sizing:border-box">
+            <small style="color:#aaa;font-size:11px">Cannot be changed</small>
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-phone"></i> Mobile</label>
+            <input type="text" value="{{ request.user.phone }}" disabled style="width:100%;padding:10px 14px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;background:#f9f9f9;color:#888;box-sizing:border-box">
+            <small style="color:#aaa;font-size:11px">Cannot be changed</small>
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-map-pin"></i> PIN Code *</label>
+            <input type="text" name="pincode" value="{{ request.user.pincode }}" placeholder="6-digit PIN code" maxlength="6" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-city"></i> City *</label>
+            <input type="text" name="city" value="{{ request.user.city }}" placeholder="Your city" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div style="grid-column:1/-1">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-map-marker-alt"></i> Address *</label>
+            <textarea name="address" placeholder="Door no, Street, Area" rows="2" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box">{{ request.user.address }}</textarea>
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-layer-group"></i> Industry / Sector *</label>
+            <input type="text" name="industry" value="{{ profile.industry|default:'' }}" placeholder="e.g. IT, Retail, Healthcare" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-users"></i> Company Size *</label>
+            <select name="company_size" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;background:#fff;box-sizing:border-box">
+              <option value="">Select size</option>
+              <option {% if profile.company_size == "1 (Just me)" %}selected{% endif %}>1 (Just me)</option>
+              <option {% if profile.company_size == "2–10 employees" %}selected{% endif %}>2–10 employees</option>
+              <option {% if profile.company_size == "11–50 employees" %}selected{% endif %}>11–50 employees</option>
+              <option {% if profile.company_size == "51–200 employees" %}selected{% endif %}>51–200 employees</option>
+              <option {% if profile.company_size == "201–500 employees" %}selected{% endif %}>201–500 employees</option>
+              <option {% if profile.company_size == "500+ employees" %}selected{% endif %}>500+ employees</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-globe"></i> Website <span style="font-weight:400;color:#888">(optional)</span></label>
+            <input type="url" name="website" value="{{ profile.website|default:'' }}" placeholder="https://yourwebsite.com" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-envelope"></i> Email <span style="font-weight:400;color:#888">(optional)</span></label>
+            <input type="email" name="email" value="{{ request.user.email }}" placeholder="contact@company.com" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp <span style="font-weight:400;color:#888">(optional)</span></label>
+            <input type="tel" name="whatsapp" value="{{ request.user.whatsapp }}" placeholder="10-digit WhatsApp number" maxlength="10" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          </div>
+        </div>
+        <button type="submit" style="margin-top:20px;background:#0a66c2;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Profile</button>
+      </form>
     </section>
 
   </main>
