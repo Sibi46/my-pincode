@@ -64,8 +64,8 @@
       <div class="adv-form-row">
         <div class="adv-field">
           <label>Destination URL</label>
-          <input type="url" name="link_url" placeholder="https://yourwebsite.com/offer">
-          <small>Where users go when they click your ad</small>
+          <input type="url" name="link_url" value="{{ prefill_website }}" placeholder="https://yourwebsite.com/offer">
+          <small>Where users go when they click your ad{% if prefill_website %} — pre-filled from your registered website{% endif %}</small>
         </div>
         <div class="adv-field" id="districtField" style="display:none">
           <label>Target District</label>

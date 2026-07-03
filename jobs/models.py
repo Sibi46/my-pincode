@@ -69,6 +69,7 @@ class ShopProfile(models.Model):
     shop_name  = models.CharField(max_length=200)
     shop_type  = models.CharField(max_length=100, blank=True)
     owner_name = models.CharField(max_length=100, blank=True)
+    website    = models.URLField(blank=True)
 
     def __str__(self):
         return self.shop_name

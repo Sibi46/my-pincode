@@ -153,6 +153,7 @@ def register_process(request):
                 shop_name=org_name,
                 shop_type=request.POST.get('shop_type', '').strip(),
                 owner_name=first_name,
+                website=request.POST.get('website', '').strip(),
             )
     elif user_type in ('employee', 'individual', 'freelancer'):
         JobSeekerProfile.objects.create(
@@ -1099,7 +1100,14 @@ def create_advertisement(request):
         )
         return redirect('ad_payment', ad_id=ad.pk)
 
-    return render(request, 'create_ad.html', {'packages': packages})
+    # Pre-fill website from company/shop/advertiser profile
+    user = request.user
+    prefill_website = (
+        adv.website
+        or (user.company.website if hasattr(user, 'company') else '')
+        or (user.shop.website    if hasattr(user, 'shop')    else '')
+    )
+    return render(request, 'create_ad.html', {'packages': packages, 'prefill_website': prefill_website})
 
 
 @login_required
