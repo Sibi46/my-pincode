@@ -23,8 +23,20 @@ let currentType = '';
 
 // ── Auto-select type from URL ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-    const type = new URLSearchParams(window.location.search).get('type');
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
     if (type) selectType(type);
+
+    const name    = params.get('name');
+    const phone   = params.get('phone');
+    const pincode = params.get('pincode');
+    if (name || phone || pincode) {
+        document.querySelectorAll('.reg-step form').forEach(function (form) {
+            if (name)    { var n = form.querySelector('[name="first_name"]'); if (n) n.value = name; }
+            if (phone)   { var p = form.querySelector('[name="phone"]');      if (p) p.value = phone; }
+            if (pincode) { var c = form.querySelector('[name="pincode"]');    if (c) c.value = pincode; }
+        });
+    }
 });
 
 // ── Type selection ─────────────────────────────────────────────────────────────

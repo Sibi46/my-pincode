@@ -1,7 +1,27 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
 {% block title %}Browse Jobs - MY PINCOD{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/jobs.css' %}">{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/jobs.css' %}">
+<style>
+.sp-job-strip{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none;border-bottom:1px solid #eef0f6;margin-bottom:14px}
+.sp-job-strip::-webkit-scrollbar{display:none}
+.sp-job-label{font-size:11px;font-weight:700;color:#f3a000;white-space:nowrap;flex-shrink:0;background:#fff8e1;padding:4px 10px;border-radius:10px;border:1px solid #ffe082}
+.sp-job-item{display:flex;align-items:center;gap:8px;text-decoration:none;color:#111;border:1.5px solid #e5e7eb;border-radius:10px;padding:8px 12px;flex-shrink:0;transition:.2s;font-size:12px}
+.sp-job-item:hover{border-color:#0a66c2;background:#f0f6ff}
+.sp-job-item img{width:32px;height:32px;border-radius:6px;object-fit:cover}
+.sp-job-item div{display:flex;flex-direction:column;gap:1px}
+.sp-job-item strong{font-weight:700;font-size:12px;color:#111}
+.sp-job-item span{font-size:11px;color:#888}
+.job-list-inline-ad{display:flex;align-items:center;gap:12px;text-decoration:none;color:#111;background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:.2s}
+.job-list-inline-ad:hover{border-color:#f3a000;box-shadow:0 4px 14px rgba(243,160,0,.15)}
+.job-list-inline-ad img{width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.jlia-body{display:flex;flex-direction:column;gap:3px}
+.jlia-spon{font-size:10px;font-weight:700;color:#f3a000;text-transform:uppercase;letter-spacing:.4px}
+.jlia-body strong{font-size:14px;font-weight:800;color:#111}
+.jlia-body span{font-size:12px;color:#666}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="jobs-page">
@@ -96,9 +116,33 @@
         </div>
       </div>
 
+      {% if ads_by_type.sponsored_job %}
+      <div class="sp-job-strip">
+        <span class="sp-job-label"><i class="fas fa-star"></i> Sponsored Jobs</span>
+        {% for ad in ads_by_type.sponsored_job %}
+        <a class="sp-job-item" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
+          <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+          <div><strong>{{ ad.title }}</strong><span>{{ ad.advertiser.business_name }}</span></div>
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       {% if jobs %}
       <div class="job-cards-list">
         {% for job in jobs %}
+        {% if forloop.counter == 4 and ads_by_type.district_banner %}
+        {% with ad=ads_by_type.district_banner|first %}
+        <a class="job-list-inline-ad" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
+          <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+          <div class="jlia-body">
+            <span class="jlia-spon">Sponsored</span>
+            <strong>{{ ad.title }}</strong>
+            <span>{{ ad.advertiser.business_name }}</span>
+          </div>
+        </a>
+        {% endwith %}
+        {% endif %}
         <div class="job-list-card {% if job.is_urgent %}urgent-card{% endif %}">
           {% if job.is_urgent %}<div class="urgent-tag"><i class="fas fa-fire"></i> Urgent Hiring</div>{% endif %}
 

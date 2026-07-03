@@ -298,6 +298,55 @@ a{text-decoration:none;color:inherit}
 }
 </style>
 
+<!-- PAID HOMEPAGE BANNER ADS -->
+{% if ads_by_type.homepage_banner %}
+<div class="site-ad-bar" id="siteAdBar">
+  <div class="site-ad-inner">
+    {% for ad in ads_by_type.homepage_banner %}
+    <a class="site-ad-slide {% if forloop.first %}active{% endif %}"
+       href="{{ ad.link_url|default:'#' }}"
+       target="{{ ad.link_url|yesno:'_blank,_self' }}"
+       onclick="fetch('/ads/click/{{ ad.pk }}/')">
+      <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+      <div class="site-ad-info">
+        <span class="site-ad-label">Sponsored</span>
+        <span class="site-ad-title">{{ ad.title }}</span>
+        <span class="site-ad-biz">{{ ad.advertiser.business_name }}</span>
+      </div>
+    </a>
+    {% endfor %}
+    {% if ads_by_type.homepage_banner|length > 1 %}
+    <button class="site-ad-prev" onclick="siteAdNav(-1)"><i class="fas fa-chevron-left"></i></button>
+    <button class="site-ad-next" onclick="siteAdNav(1)"><i class="fas fa-chevron-right"></i></button>
+    {% endif %}
+  </div>
+  <button class="site-ad-close" onclick="document.getElementById('siteAdBar').style.display='none'"><i class="fas fa-times"></i></button>
+</div>
+<style>
+.site-ad-bar{background:#f0f6ff;border-bottom:1px solid #c8ddf8;position:relative;overflow:hidden}
+.site-ad-inner{position:relative;max-width:1100px;margin:0 auto;overflow:hidden}
+.site-ad-slide{display:none;align-items:center;gap:12px;padding:8px 48px 8px 16px;text-decoration:none;color:#111}
+.site-ad-slide.active{display:flex}
+.site-ad-slide img{height:48px;width:80px;object-fit:cover;border-radius:6px;flex-shrink:0}
+.site-ad-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.site-ad-label{background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px}
+.site-ad-title{font-size:13px;font-weight:700;color:#111}
+.site-ad-biz{font-size:11px;color:#666}
+.site-ad-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:16px;cursor:pointer;padding:6px}
+.site-ad-prev,.site-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:1px solid #dde4f0;color:#0a66c2;width:28px;height:28px;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.site-ad-prev{left:4px}.site-ad-next{right:36px}
+</style>
+<script>
+(function(){
+  var slides = document.querySelectorAll('.site-ad-slide');
+  var cur = 0;
+  function show(n){ slides[cur].classList.remove('active'); cur=(n+slides.length)%slides.length; slides[cur].classList.add('active'); }
+  window.siteAdNav = function(d){ show(cur+d); };
+  if(slides.length > 1) setInterval(function(){ show(cur+1); }, 5000);
+})();
+</script>
+{% endif %}
+
 <!-- OLX-STYLE FULL-WIDTH LEADERBOARD AD BANNER -->
 {% if advertiser_banners %}
 <div class="olx-ad-wrap">
@@ -959,6 +1008,15 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
       if (d.success) {
         clearInterval(obTimerInt);
         document.getElementById('obOtpSection').style.display  = 'none';
+
+        if (obType === 'post') {
+          var name    = encodeURIComponent(document.getElementById('obName').value.trim());
+          var phone   = encodeURIComponent(document.getElementById('obPhone').value.trim());
+          var pincode = encodeURIComponent(document.getElementById('obPincode').value.trim());
+          window.location.href = '/register/?type=company&name=' + name + '&phone=' + phone + '&pincode=' + pincode;
+          return;
+        }
+
         document.getElementById('obPostVerify').style.display  = 'block';
         document.getElementById('obRegisterBtn').style.display = 'block';
         setTimeout(function(){ document.getElementById('obPassword').focus(); }, 100);
@@ -1150,6 +1208,48 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
+{% if ads_by_type.popup %}
+{% with ad=ads_by_type.popup|first %}
+<div id="adPopupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="position:relative">
+      <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="width:100%;max-height:220px;object-fit:cover;display:block">
+      <button onclick="closeAdPopup()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#x2715;</button>
+      <span style="position:absolute;top:10px;left:10px;background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px">Sponsored</span>
+    </div>
+    <div style="padding:18px 20px 20px">
+      <h3 style="font-size:16px;font-weight:800;color:#111;margin-bottom:5px">{{ ad.title }}</h3>
+      <p style="font-size:13px;color:#666;margin-bottom:14px">{{ ad.advertiser.business_name }}</p>
+      {% if ad.content %}<p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6">{{ ad.content }}</p>{% endif %}
+      <div style="display:flex;gap:10px">
+        {% if ad.link_url %}
+        <a href="{{ ad.link_url }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')" style="flex:1;text-align:center;padding:10px;background:#0a66c2;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">Visit Now</a>
+        {% endif %}
+        <button onclick="closeAdPopup()" style="padding:10px 18px;background:#f3f4f6;color:#444;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var key = 'adpop_{{ ad.pk }}';
+  if(!sessionStorage.getItem(key)){
+    setTimeout(function(){
+      var el=document.getElementById('adPopupOverlay');
+      if(el){el.style.display='flex';fetch('/ads/click/{{ ad.pk }}/');}
+    }, 4000);
+  }
+  window.closeAdPopup=function(){
+    var el=document.getElementById('adPopupOverlay');
+    if(el)el.style.display='none';
+    sessionStorage.setItem(key,'1');
+  };
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdPopup();});
+})();
+</script>
+{% endwith %}
+{% endif %}
+
 </body>
 </html>
 

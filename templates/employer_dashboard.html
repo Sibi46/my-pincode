@@ -138,6 +138,20 @@
       </div>
     </div>
 
+    {% if ads_by_type.dashboard_banner %}
+    {% with ad=ads_by_type.dashboard_banner|first %}
+    <a href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')"
+       style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:14px;padding:14px 18px;margin-bottom:18px;text-decoration:none;color:#111">
+      <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="width:70px;height:50px;object-fit:cover;border-radius:8px;flex-shrink:0">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#f3a000;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">Sponsored</div>
+        <div style="font-size:14px;font-weight:800;color:#111">{{ ad.title }}</div>
+        <div style="font-size:12px;color:#666">{{ ad.advertiser.business_name }}</div>
+      </div>
+    </a>
+    {% endwith %}
+    {% endif %}
+
     <!-- ═══ ACTIVE JOBS ═══ -->
     <section class="dsec" id="sec-active-jobs">
       <div class="dsec-header">
@@ -616,6 +630,38 @@ function updateBnActive(key){
   else if(h==='my-jobs') updateBnActive('jobs');
 })();
 </script>
+
+{% if ads_by_type.popup %}
+{% with ad=ads_by_type.popup|first %}
+<div id="adPopupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="position:relative">
+      <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="width:100%;max-height:200px;object-fit:cover;display:block">
+      <button onclick="closeAdPopup()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#x2715;</button>
+      <span style="position:absolute;top:10px;left:10px;background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;text-transform:uppercase">Sponsored</span>
+    </div>
+    <div style="padding:16px 20px 18px">
+      <h3 style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">{{ ad.title }}</h3>
+      <p style="font-size:12px;color:#666;margin-bottom:12px">{{ ad.advertiser.business_name }}</p>
+      <div style="display:flex;gap:8px">
+        {% if ad.link_url %}<a href="{{ ad.link_url }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')" style="flex:1;text-align:center;padding:9px;background:#0a66c2;color:#fff;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Visit Now</a>{% endif %}
+        <button onclick="closeAdPopup()" style="padding:9px 16px;background:#f3f4f6;color:#444;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var key='adpop_{{ ad.pk }}';
+  if(!sessionStorage.getItem(key)){
+    setTimeout(function(){ var el=document.getElementById('adPopupOverlay'); if(el)el.style.display='flex'; },4000);
+  }
+  window.closeAdPopup=function(){ var el=document.getElementById('adPopupOverlay'); if(el)el.style.display='none'; sessionStorage.setItem('adpop_{{ ad.pk }}','1'); };
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdPopup();});
+})();
+</script>
+{% endwith %}
+{% endif %}
 
 </body>
 </html>
