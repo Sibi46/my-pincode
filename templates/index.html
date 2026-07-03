@@ -543,10 +543,26 @@ a{text-decoration:none;color:inherit}
 
     {% elif request.user.is_authenticated %}
       <div class="admin-login-prompt">
-        <i class="fas fa-lock" style="font-size:44px;color:#ddd;margin-bottom:14px;display:block"></i>
-        <h3>Admin Access Required</h3>
-        <p>You don't have admin privileges. Contact a Super Admin.</p>
-        <a href="/dashboard/" class="admin-go-btn">Go to Dashboard</a>
+        <i class="fas fa-shield-alt" style="font-size:44px;color:#0a66c2;margin-bottom:12px;display:block"></i>
+        <h3>Admin Login</h3>
+        <p style="margin-bottom:20px">Enter your admin phone number and password</p>
+        <form method="POST" action="/admin-panel/login/" style="text-align:left">
+          {% csrf_token %}
+          <div style="margin-bottom:12px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-phone"></i> Phone Number</label>
+            <input type="tel" name="phone" placeholder="Admin 10-digit mobile number" maxlength="10"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-lock"></i> Password</label>
+            <input type="password" name="password" placeholder="Enter admin password"
+              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+          </div>
+          <button type="submit" style="width:100%;padding:12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+            <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
+          </button>
+        </form>
+        <p style="margin-top:14px;font-size:12px;color:#aaa;text-align:center">Admin accounts are created by the Super Admin only.</p>
       </div>
     {% else %}
       <div class="admin-login-prompt">
@@ -747,9 +763,9 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           <button class="ob-type-btn find-btn" onclick="obChoose('find')">
             <i class="fas fa-search"></i><span>Find a Job</span>
           </button>
-          <button class="ob-type-btn post-btn" onclick="obChoose('post')">
+          <a class="ob-type-btn post-btn" href="/register/?type=company" style="text-decoration:none">
             <i class="fas fa-briefcase"></i><span>Post a Job</span>
-          </button>
+          </a>
         </div>
 
         <!-- Already have account -->
@@ -1187,6 +1203,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
   };
   document.getElementById('obDLPhone').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); });
   document.getElementById('obDLPwd').addEventListener('keydown', function(e){ if (e.key === 'Enter') obDirectLogin(); });
+
+  // Popup is compulsory — block Escape key from closing it
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') e.preventDefault();
+  });
 
   // Always show popup for guests on every page load
   obGoStep(1);

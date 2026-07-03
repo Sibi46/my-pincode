@@ -39,6 +39,16 @@
     <h3>{{ open_complaints }}</h3>
     <p>Open Complaints</p>
   </div>
+  <a href="/admin-panel/users/?type=employer" class="ap-stat" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);text-decoration:none;border:1.5px solid #bfdbfe">
+    <div class="ap-stat-icon"><i class="fas fa-briefcase" style="color:#1d4ed8"></i></div>
+    <h3 style="color:#1d4ed8">{{ employer_count }}</h3>
+    <p style="color:#1d4ed8">Post a Job Users</p>
+  </a>
+  <a href="/admin-panel/users/?type=jobseeker" class="ap-stat" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);text-decoration:none;border:1.5px solid #bbf7d0">
+    <div class="ap-stat-icon"><i class="fas fa-search" style="color:#15803d"></i></div>
+    <h3 style="color:#15803d">{{ jobseeker_count }}</h3>
+    <p style="color:#15803d">Find a Job Users</p>
+  </a>
 </div>
 
 <!-- Quick Actions -->

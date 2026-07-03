@@ -89,6 +89,7 @@ urlpatterns = [
     path('api/nearby-jobs/',                      views.nearby_jobs_api,         name='nearby_jobs_api'),
     path('admin-panel/login/',                    views.admin_panel_login,       name='admin_panel_login'),
     path('admin-panel/ads/<int:ad_id>/image/',    views.admin_set_ad_image,     name='admin_set_ad_image'),
+    path('admin-panel/users/',                    views.admin_users,             name='admin_users'),
 
     # ── SUPER ADMIN ─────────────────────────────────────────
     path('super-admin/',                               views.super_admin_dashboard, name='super_admin_dashboard'),

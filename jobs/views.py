@@ -1295,6 +1295,40 @@ def admin_delete_ad(request, ad_id):
     return redirect(f'/admin-panel/ads/?status={status_filter}')
 
 
+# ── ADMIN USERS LIST ────────────────────────────────────────────────────────
+@admin_required
+def admin_users(request):
+    from django.db.models import Q
+    search   = request.GET.get('q', '').strip()
+    utype    = request.GET.get('type', '')   # 'employer' | 'jobseeker' | ''
+
+    qs = User.objects.filter(admin_role='').exclude(user_type='advertiser').order_by('-date_joined')
+
+    if utype == 'employer':
+        qs = qs.filter(user_type__in=User.EMPLOYER_TYPES)
+    elif utype == 'jobseeker':
+        qs = qs.filter(user_type__in=['employee', 'individual', 'freelancer'])
+
+    if search:
+        qs = qs.filter(
+            Q(first_name__icontains=search) | Q(last_name__icontains=search) |
+            Q(phone__icontains=search) | Q(email__icontains=search) |
+            Q(pincode__icontains=search) | Q(city__icontains=search)
+        )
+
+    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
+    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
+
+    return render(request, 'admin_users.html', {
+        'users': qs,
+        'search': search,
+        'utype': utype,
+        'employer_count': employer_count,
+        'jobseeker_count': jobseeker_count,
+        'total_count': employer_count + jobseeker_count,
+    })
+
+
 # ── ADMIN PANEL LOGIN ────────────────────────────────────────────────────────
 def admin_panel_login(request):
     if request.method != 'POST':
@@ -1544,20 +1578,22 @@ def district_admin_required(view_func):
 
 @super_admin_required
 def super_admin_dashboard(request):
-    total_users    = User.objects.count()
-    total_jobs     = Job.objects.count()
-    active_jobs    = Job.objects.filter(status='active').count()
-    total_apps     = JobApplication.objects.count()
-    total_states   = State.objects.count()
-    total_districts= District.objects.count()
-    total_adverts  = Advertiser.objects.count()
-    pending_adverts= Advertiser.objects.filter(status='pending').count()
-    open_complaints= Complaint.objects.filter(status='open').count()
-    recent_users   = User.objects.order_by('-date_joined')[:8]
-    state_list     = State.objects.annotate(d_count=Count('districts')).order_by('name')
-    recent_jobs    = Job.objects.select_related('posted_by').order_by('-created_at')[:6]
-    industries     = Industry.objects.filter(is_active=True)
-    notifications  = SystemNotification.objects.filter(is_active=True)[:5]
+    total_users     = User.objects.count()
+    total_jobs      = Job.objects.count()
+    active_jobs     = Job.objects.filter(status='active').count()
+    total_apps      = JobApplication.objects.count()
+    total_states    = State.objects.count()
+    total_districts = District.objects.count()
+    total_adverts   = Advertiser.objects.count()
+    pending_adverts = Advertiser.objects.filter(status='pending').count()
+    open_complaints = Complaint.objects.filter(status='open').count()
+    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
+    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
+    recent_users    = User.objects.order_by('-date_joined')[:8]
+    state_list      = State.objects.annotate(d_count=Count('districts')).order_by('name')
+    recent_jobs     = Job.objects.select_related('posted_by').order_by('-created_at')[:6]
+    industries      = Industry.objects.filter(is_active=True)
+    notifications   = SystemNotification.objects.filter(is_active=True)[:5]
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
@@ -1565,6 +1601,7 @@ def super_admin_dashboard(request):
         'open_complaints': open_complaints, 'recent_users': recent_users,
         'state_list': state_list, 'recent_jobs': recent_jobs,
         'industries': industries, 'notifications': notifications,
+        'employer_count': employer_count, 'jobseeker_count': jobseeker_count,
     })
 
 
