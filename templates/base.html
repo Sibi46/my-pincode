@@ -23,7 +23,9 @@
         </div>
         <div class="nav-links">
             <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
-            <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
+            {% if not request.user.is_authenticated or request.user.is_employer %}
+                <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
+            {% endif %}
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
@@ -53,7 +55,9 @@
     </div>
     <div class="mobile-menu" id="mobileMenu">
         <a href="/jobs/">Browse Jobs</a>
-        <a href="/candidates/">Find Candidates</a>
+        {% if not request.user.is_authenticated or request.user.is_employer %}
+            <a href="/candidates/">Find Candidates</a>
+        {% endif %}
         {% if request.user.is_authenticated %}
             {% if request.user.is_employer %}
                 <a href="/post-job/">Post Job</a>

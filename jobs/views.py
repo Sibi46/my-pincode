@@ -2155,6 +2155,9 @@ def profile_redirect(request):
 
 # ── CANDIDATE SEARCH ──────────────────────────────────────────────────────────
 def candidates(request):
+    if request.user.is_authenticated and not request.user.is_employer():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("Only employers can view candidates.")
     profiles = JobSeekerProfile.objects.select_related('user').filter(profile_completed=True)
 
     skill    = request.GET.get('skill', '').strip()
