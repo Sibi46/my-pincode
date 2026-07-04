@@ -19,8 +19,8 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(CompanyProfile)
 class CompanyProfileAdmin(admin.ModelAdmin):
-    list_display  = ('company_name', 'industry', 'website', 'company_size')
-    search_fields = ('company_name', 'industry')
+    list_display  = ('company_id', 'company_name', 'industry', 'website', 'company_size')
+    search_fields = ('company_id', 'company_name', 'industry')
 
 
 @admin.register(ShopProfile)
@@ -31,16 +31,16 @@ class ShopProfileAdmin(admin.ModelAdmin):
 
 @admin.register(JobSeekerProfile)
 class JobSeekerProfileAdmin(admin.ModelAdmin):
-    list_display  = ('user', 'job_category', 'primary_skill', 'experience')
-    search_fields = ('user__username', 'primary_skill')
+    list_display  = ('seeker_id', 'user', 'job_category', 'primary_skill', 'experience')
+    search_fields = ('seeker_id', 'user__username', 'primary_skill')
     list_filter   = ('job_category',)
 
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display  = ('title', 'collar_type', 'category', 'location', 'pincode', 'is_urgent', 'status', 'created_at')
+    list_display  = ('job_id', 'title', 'collar_type', 'category', 'location', 'pincode', 'is_urgent', 'status', 'created_at')
     list_filter   = ('collar_type', 'status', 'is_urgent', 'job_type')
-    search_fields = ('title', 'category', 'location', 'pincode')
+    search_fields = ('job_id', 'title', 'category', 'location', 'pincode')
     date_hierarchy = 'created_at'
 
 

@@ -651,11 +651,11 @@
           </div>
           <div>
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-map-pin"></i> PIN Code *</label>
-            <input type="text" name="pincode" value="{{ request.user.pincode }}" placeholder="6-digit PIN code" maxlength="6" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+            <input type="text" name="pincode" id="profilePincode" value="{{ request.user.pincode }}" placeholder="6-digit PIN code" maxlength="6" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box" data-pinlookup data-fill-city="profileCity">
           </div>
           <div>
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-city"></i> City *</label>
-            <input type="text" name="city" value="{{ request.user.city }}" placeholder="Your city" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+            <input type="text" name="city" id="profileCity" value="{{ request.user.city }}" placeholder="Your city" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
           </div>
           <div style="grid-column:1/-1">
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fas fa-map-marker-alt"></i> Address *</label>
@@ -870,6 +870,7 @@ function updateBnActive(key){
 {% endwith %}
 {% endif %}
 
+<script src="/static/js/pincode_lookup.js?v=1"></script>
 </body>
 </html>
 

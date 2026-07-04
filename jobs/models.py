@@ -60,9 +60,16 @@ class CompanyProfile(models.Model):
     industry     = models.CharField(max_length=100, blank=True)
     website      = models.URLField(blank=True)
     company_size = models.CharField(max_length=50, blank=True)
+    company_id   = models.CharField(max_length=20, unique=True, blank=True, db_index=True)
 
     def __str__(self):
         return self.company_name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.company_id:
+            self.company_id = f'CO-{self.pk:06d}'
+            CompanyProfile.objects.filter(pk=self.pk).update(company_id=self.company_id)
 
 
 class ShopProfile(models.Model):
@@ -92,7 +99,8 @@ class JobSeekerProfile(models.Model):
     ]
     SALARY_TYPE = [('month', 'Per Month'), ('day', 'Per Day'), ('hour', 'Per Hour')]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seeker')
+    user       = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seeker')
+    seeker_id  = models.CharField(max_length=20, unique=True, blank=True, db_index=True)
 
     # ── Personal ──────────────────────────────────
     photo      = models.ImageField(upload_to='seeker_photos/', blank=True, null=True)
@@ -139,6 +147,12 @@ class JobSeekerProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} — {self.primary_skill or self.industry or 'Job Seeker'}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.seeker_id:
+            self.seeker_id = f'JS-{self.pk:06d}'
+            JobSeekerProfile.objects.filter(pk=self.pk).update(seeker_id=self.seeker_id)
 
     def completion_percent(self):
         fields = [
@@ -230,6 +244,7 @@ class Job(models.Model):
     last_date     = models.DateField(null=True, blank=True)
     status        = models.CharField(max_length=10, choices=STATUS, default='active')
     created_at    = models.DateTimeField(auto_now_add=True)
+    job_id        = models.CharField(max_length=20, unique=True, blank=True, db_index=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -257,6 +272,9 @@ class Job(models.Model):
             except Exception:
                 pass
         super().save(*args, **kwargs)
+        if not self.job_id:
+            self.job_id = f'JOB-{self.pk:06d}'
+            Job.objects.filter(pk=self.pk).update(job_id=self.job_id)
 
 
 class JobApplication(models.Model):

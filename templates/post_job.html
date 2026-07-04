@@ -105,13 +105,14 @@
               <div class="sal-amount-grid">
                 <div class="pj-field">
                   <label>Minimum (₹)</label>
-                  <input type="number" name="salary_min" placeholder="e.g. 15000" min="0">
+                  <input type="number" name="salary_min" id="salMin" placeholder="e.g. 15000" min="0" oninput="validateSalRange()">
                 </div>
                 <div class="pj-field">
                   <label>Maximum (₹)</label>
-                  <input type="number" name="salary_max" placeholder="e.g. 25000" min="0">
+                  <input type="number" name="salary_max" id="salMax" placeholder="e.g. 25000" min="0" oninput="validateSalRange()">
                 </div>
               </div>
+              <div id="salRangeErr" style="display:none;color:#c62828;font-size:12px;font-weight:600;margin-top:6px"><i class="fas fa-exclamation-circle"></i> Maximum must be greater than Minimum</div>
             </div>
           </div>
 
@@ -445,7 +446,7 @@
             <label><i class="fas fa-map-pin"></i> PIN Code *</label>
             <input type="text" name="pincode" id="f-pincode" placeholder="6-digit PIN code"
                    maxlength="6" pattern="[0-9]{6}" required
-                   oninput="onPincodeInput(this.value)">
+                   oninput="onPincodeInput(this.value)" data-pinlookup>
             <div class="pin-area-preview" id="pin-area-preview"></div>
           </div>
           <div class="pj-field">
@@ -1090,8 +1091,27 @@ function buildSalaryText() {
   return 'Negotiable';
 }
 
+/* ── Salary range validation ── */
+function validateSalRange() {
+  var min = parseFloat(document.getElementById('salMin').value);
+  var max = parseFloat(document.getElementById('salMax').value);
+  var err = document.getElementById('salRangeErr');
+  if (min && max && min > max) {
+    err.style.display = 'block';
+    document.getElementById('salMax').style.borderColor = '#c62828';
+    return false;
+  }
+  err.style.display = 'none';
+  document.getElementById('salMax').style.borderColor = '';
+  return true;
+}
+
 /* ── Submit with action ── */
 function submitForm(action) {
+  if (!validateSalRange()) {
+    document.getElementById('salAmountRow').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
   document.getElementById('action_input').value = action;
   syncLanguages();
   syncWorkingDays();
@@ -1173,6 +1193,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 <script src="/static/js/ac_roles.js?v=1"></script>
+<script src="/static/js/pincode_lookup.js?v=1"></script>
 </body>
 </html>
 

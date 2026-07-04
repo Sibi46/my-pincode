@@ -798,6 +798,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
       <div class="ob-step" id="obStep2">
         <p class="ob-title" id="obStep2Title">Your details</p>
 
+        <div class="ob-field" id="obJobField" style="display:none">
+          <label id="obJobLabel">What kind of job?</label>
+          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off" data-ac="job">
+        </div>
+
         <div class="ob-field">
           <label>Full Name</label>
           <input type="text" id="obName" placeholder="Enter your full name" autocomplete="name">
@@ -807,11 +812,6 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           <label>PIN Code</label>
           <input type="text" id="obPincode" placeholder="6-digit PIN code" maxlength="6" inputmode="numeric">
           <p style="font-size:11px;color:#999;margin-top:4px">We show jobs near your area</p>
-        </div>
-
-        <div class="ob-field" id="obJobField" style="display:none">
-          <label id="obJobLabel">What kind of job?</label>
-          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off" data-ac="job">
         </div>
 
         <div class="ob-field">

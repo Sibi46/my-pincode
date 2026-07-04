@@ -123,14 +123,14 @@
         <textarea name="address" rows="2">{{ user.address }}</textarea>
       </div>
 
-      <div class="sp-grid3">
+      <div class="sp-grid2">
         <div class="sp-field">
           <label>PIN Code *</label>
-          <input type="text" name="pincode" value="{{ user.pincode }}" maxlength="6" pattern="\d{6}" placeholder="6-digit PIN">
+          <input type="text" name="pincode" id="seekerPincode" value="{{ user.pincode }}" maxlength="6" pattern="\d{6}" placeholder="6-digit PIN" data-pinlookup data-fill-city="seekerCity">
         </div>
         <div class="sp-field">
           <label>City / Town</label>
-          <input type="text" name="city" value="{{ user.city }}" placeholder="e.g. Chennai">
+          <input type="text" name="city" id="seekerCity" value="{{ user.city }}" placeholder="e.g. Chennai">
         </div>
         <div class="sp-field">
           <label>State</label>
@@ -141,9 +141,6 @@
             {% endfor %}
           </select>
         </div>
-      </div>
-
-      <div class="sp-grid2">
         <div class="sp-field">
           <label>District</label>
           <select name="district" id="spDistrict">
@@ -256,15 +253,28 @@
 
       <div class="sp-field">
         <label>Preferred Work Location (areas / PIN codes)</label>
-        <input type="text" name="preferred_location" value="{{ profile.preferred_location }}"
-          placeholder="e.g. Chennai, 600001, Velachery">
-        <small>Separate multiple locations with commas</small>
+        <input type="hidden" name="preferred_location" id="prefLocHidden" value="{{ profile.preferred_location }}">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="prefLocInput" placeholder="Enter PIN code or area name" maxlength="50" autocomplete="off"
+            style="flex:1;padding:9px 12px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;outline:none;font-family:inherit"
+            oninput="prefLocPinCheck(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addPrefLoc();}">
+          <button type="button" onclick="addPrefLoc()" style="padding:9px 18px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Add</button>
+        </div>
+        <div id="prefLocHint" style="font-size:12px;font-weight:600;min-height:16px;margin-top:4px;color:#2e7d32"></div>
+        <div id="prefLocTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
       </div>
 
       <div class="sp-field">
-        <label>Preferred PIN Code Area</label>
-        <input type="text" name="preferred_pincode" value="{{ profile.preferred_pincode }}"
-          placeholder="e.g. 600001, 600002">
+        <label>Preferred PIN Code Areas</label>
+        <input type="hidden" name="preferred_pincode" id="prefPinHidden" value="{{ profile.preferred_pincode }}">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="prefPinInput" placeholder="Enter 6-digit PIN code" maxlength="6" inputmode="numeric" autocomplete="off"
+            style="flex:1;padding:9px 12px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;outline:none;font-family:inherit"
+            oninput="prefPinLookup(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addPrefPin();}">
+          <button type="button" onclick="addPrefPin()" style="padding:9px 18px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Add</button>
+        </div>
+        <div id="prefPinHint" style="font-size:12px;font-weight:600;min-height:16px;margin-top:4px;color:#2e7d32"></div>
+        <div id="prefPinTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
       </div>
 
       <!-- Salary -->
@@ -282,12 +292,13 @@
       <div class="sp-grid2" style="margin-top:10px">
         <div class="sp-field">
           <label>Minimum (₹)</label>
-          <input type="number" name="salary_min" value="{{ profile.salary_min|default:'' }}" placeholder="e.g. 15000">
+          <input type="number" name="salary_min" id="spSalMin" value="{{ profile.salary_min|default:'' }}" placeholder="e.g. 15000" oninput="validateSpSal()">
         </div>
         <div class="sp-field">
           <label>Maximum (₹)</label>
-          <input type="number" name="salary_max" value="{{ profile.salary_max|default:'' }}" placeholder="e.g. 30000">
+          <input type="number" name="salary_max" id="spSalMax" value="{{ profile.salary_max|default:'' }}" placeholder="e.g. 30000" oninput="validateSpSal()">
         </div>
+        <div id="spSalErr" style="display:none;grid-column:1/-1;color:#c62828;font-size:12px;font-weight:600"><i class="fas fa-exclamation-circle"></i> Maximum must be greater than Minimum</div>
       </div>
 
       <div class="sp-field">
@@ -343,11 +354,6 @@
         <textarea name="education_details" rows="2" placeholder="College name, year of passing, percentage / CGPA...">{{ profile.education_details }}</textarea>
       </div>
 
-      <div class="sp-field">
-        <label>Primary / Key Skill</label>
-        <input type="text" name="primary_skill" value="{{ profile.primary_skill }}"
-          placeholder="e.g. Welding, Data Entry, Python, Plumbing" data-ac="job" autocomplete="off">
-      </div>
 
       <!-- Skills tag input -->
       <div class="sp-field">
@@ -424,8 +430,8 @@
               <a href="{{ profile.driving_license.url }}" target="_blank"><i class="fa-solid fa-eye"></i> View Current</a>
             </p>
           {% endif %}
-          <input type="file" name="driving_license" accept=".pdf,.jpg,.jpeg,.png" class="doc-file-input">
-          <small>PDF or image — max 2MB</small>
+          <input type="file" name="driving_license" accept=".pdf" class="doc-file-input" onchange="validatePdfOnly(this)">
+          <small>PDF only — max 2MB</small>
         </div>
       </div>
 
@@ -727,11 +733,172 @@ function addCertRow() {
   container.appendChild(div);
 }
 
+// ── PDF-only file validation ─────────────────────────────────────────
+function validatePdfOnly(input) {
+  if (!input.files.length) return;
+  var file = input.files[0];
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    alert('Only PDF files are allowed for Driving License.');
+    input.value = '';
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    alert('File size must be under 2MB.');
+    input.value = '';
+  }
+}
+
+// ── Salary range validation ──────────────────────────────────────────
+function validateSpSal() {
+  var min = parseFloat(document.getElementById('spSalMin').value);
+  var max = parseFloat(document.getElementById('spSalMax').value);
+  var err = document.getElementById('spSalErr');
+  if (min && max && min > max) {
+    err.style.display = 'block';
+    document.getElementById('spSalMax').style.borderColor = '#c62828';
+    return false;
+  }
+  err.style.display = 'none';
+  document.getElementById('spSalMax').style.borderColor = '';
+  return true;
+}
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+  if (!validateSpSal()) { e.preventDefault(); document.getElementById('spSalMin').scrollIntoView({behavior:'smooth', block:'center'}); }
+});
+
 // ── Hash-based tab restore ────────────────────────────────────────────
 const hash = window.location.hash.replace('#', '');
 if (TAB_ORDER.includes(hash)) showTab(hash, null);
+
+// ── Preferred Work Location tags ─────────────────────────────────────
+var prefLocList = [];
+(function(){
+  var saved = (document.getElementById('prefLocHidden').value || '').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  saved.forEach(function(v){ prefLocList.push(v); });
+  renderPrefLocTags();
+})();
+
+function prefLocPinCheck(val) {
+  var hint = document.getElementById('prefLocHint');
+  var clean = val.replace(/\D/g,'');
+  if (clean.length !== 6) { hint.textContent = ''; document.getElementById('prefLocInput')._locLabel = null; return; }
+  hint.style.color = '#aaa';
+  hint.textContent = '🔍 Looking up…';
+  fetch('https://api.postalpincode.in/pincode/' + clean)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
+        var po = data[0].PostOffice[0];
+        var label = (po.Name !== po.District ? po.Name + ', ' + po.District : po.District) + ', ' + po.State;
+        hint.style.color = '#2e7d32';
+        hint.textContent = '📍 ' + label;
+        document.getElementById('prefLocInput')._locLabel = label + ' (' + clean + ')';
+      } else {
+        hint.style.color = '#e65100';
+        hint.textContent = '⚠️ PIN not found';
+        document.getElementById('prefLocInput')._locLabel = null;
+      }
+    }).catch(function(){ hint.textContent = ''; });
+}
+
+function addPrefLoc() {
+  var inp = document.getElementById('prefLocInput');
+  var val = inp.value.trim();
+  if (!val) return;
+  var entry = inp._locLabel || val;
+  if (prefLocList.indexOf(entry) === -1) {
+    prefLocList.push(entry);
+    renderPrefLocTags();
+  }
+  inp.value = '';
+  inp._locLabel = null;
+  document.getElementById('prefLocHint').textContent = '';
+}
+
+function removePrefLoc(idx) {
+  prefLocList.splice(idx, 1);
+  renderPrefLocTags();
+}
+
+function renderPrefLocTags() {
+  var box = document.getElementById('prefLocTags');
+  box.innerHTML = '';
+  prefLocList.forEach(function(v, i) {
+    var tag = document.createElement('span');
+    tag.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#e8f0fe;border:1.5px solid #0a66c2;color:#0a66c2;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700';
+    tag.innerHTML = '📍 ' + v + ' <button type="button" onclick="removePrefLoc(' + i + ')" style="background:none;border:none;cursor:pointer;color:#0a66c2;font-size:14px;line-height:1;padding:0">×</button>';
+    box.appendChild(tag);
+  });
+  document.getElementById('prefLocHidden').value = prefLocList.join(', ');
+}
+
+// ── Preferred PIN code tags ───────────────────────────────────────────
+var prefPinData = {}; // pin -> label
+(function(){
+  var saved = (document.getElementById('prefPinHidden').value || '').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  saved.forEach(function(pin){ if(/^\d{6}$/.test(pin)) prefPinAddTag(pin, pin); });
+})();
+
+function prefPinLookup(val) {
+  var hint = document.getElementById('prefPinHint');
+  val = val.replace(/\D/g,'');
+  if (val.length !== 6) { hint.textContent = ''; return; }
+  hint.style.color = '#aaa';
+  hint.textContent = '🔍 Looking up…';
+  fetch('https://api.postalpincode.in/pincode/' + val)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
+        var po = data[0].PostOffice[0];
+        var label = po.Name !== po.District ? po.Name + ', ' + po.District : po.District;
+        label += ', ' + po.State;
+        hint.style.color = '#2e7d32';
+        hint.textContent = '📍 ' + label;
+        document.getElementById('prefPinInput')._pinLabel = label;
+      } else {
+        hint.style.color = '#e65100';
+        hint.textContent = '⚠️ PIN not found';
+        document.getElementById('prefPinInput')._pinLabel = null;
+      }
+    }).catch(function(){ hint.textContent = ''; });
+}
+
+function addPrefPin() {
+  var inp = document.getElementById('prefPinInput');
+  var pin = inp.value.replace(/\D/g,'');
+  if (pin.length !== 6) return;
+  if (prefPinData[pin]) { inp.value = ''; document.getElementById('prefPinHint').textContent = ''; return; }
+  var label = inp._pinLabel || pin;
+  prefPinAddTag(pin, label);
+  inp.value = '';
+  inp._pinLabel = null;
+  document.getElementById('prefPinHint').textContent = '';
+}
+
+function prefPinAddTag(pin, label) {
+  prefPinData[pin] = label;
+  renderPrefPinTags();
+}
+
+function removePrefPin(pin) {
+  delete prefPinData[pin];
+  renderPrefPinTags();
+}
+
+function renderPrefPinTags() {
+  var box = document.getElementById('prefPinTags');
+  box.innerHTML = '';
+  Object.keys(prefPinData).forEach(function(pin) {
+    var tag = document.createElement('span');
+    tag.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#e8f0fe;border:1.5px solid #0a66c2;color:#0a66c2;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700';
+    tag.innerHTML = '📍 ' + prefPinData[pin] + ' <button type="button" onclick="removePrefPin(\'' + pin + '\')" style="background:none;border:none;cursor:pointer;color:#0a66c2;font-size:14px;line-height:1;padding:0">×</button>';
+    box.appendChild(tag);
+  });
+  document.getElementById('prefPinHidden').value = Object.keys(prefPinData).join(', ');
+}
 </script>
 <script src="/static/js/ac_roles.js?v=1"></script>
+<script src="/static/js/pincode_lookup.js?v=1"></script>
 </body>
 </html>
 
