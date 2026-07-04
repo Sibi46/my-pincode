@@ -23,6 +23,7 @@
         </div>
         <div class="nav-links">
             <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
+            <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>

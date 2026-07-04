@@ -800,7 +800,15 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 
         <div class="ob-field" id="obJobField" style="display:none">
           <label id="obJobLabel">What kind of job?</label>
-          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off" data-ac="job">
+          <div style="display:flex;gap:6px">
+            <input type="text" id="obJob" placeholder="e.g. Driver, Cook, Clerk…" autocomplete="off" data-ac="job"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();obAddJob();}"
+              style="flex:1">
+            <button type="button" onclick="obAddJob()"
+              style="background:#0a66c2;color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Add</button>
+          </div>
+          <input type="hidden" id="obJobHidden">
+          <div id="obJobTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
         </div>
 
         <div class="ob-field">
@@ -885,6 +893,38 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 </div>
 
 <script>
+// ── Job tag system ────────────────────────────────────────────
+var _obJobTags = [];
+function obRenderJobTags(){
+  var wrap   = document.getElementById('obJobTags');
+  var hidden = document.getElementById('obJobHidden');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  _obJobTags.forEach(function(tag, i){
+    var el = document.createElement('span');
+    el.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:#e8f0fe;border:1.5px solid #c8ddf8;color:#1a56db;font-size:12px;font-weight:600;padding:4px 10px;border-radius:20px';
+    el.innerHTML = tag + ' <span onclick="obRemoveJob(' + i + ')" style="cursor:pointer;font-weight:800;font-size:14px;line-height:1;color:#555">×</span>';
+    wrap.appendChild(el);
+  });
+  hidden.value = _obJobTags.join(', ');
+}
+function obAddJob(){
+  var inp = document.getElementById('obJob');
+  var val = inp.value.trim();
+  if (!val) return;
+  if (!_obJobTags.includes(val)) {
+    _obJobTags.push(val);
+    obRenderJobTags();
+  }
+  inp.value = '';
+  inp.focus();
+}
+function obRemoveJob(i){
+  _obJobTags.splice(i, 1);
+  obRenderJobTags();
+}
+// ─────────────────────────────────────────────────────────────
+
 (function(){
   var obType   = '';
   var obCollarV= '';
@@ -931,6 +971,8 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     var isFind = type === 'find';
     document.getElementById('obStep2Title').textContent = isFind ? 'Find your next job' : 'Post a job';
     document.getElementById('obJobField').style.display  = isFind ? 'block' : 'none';
+    // Reset job tags
+    _obJobTags = []; obRenderJobTags();
     // Reset inline OTP/verify state each time step 2 is entered
     document.getElementById('obOtpSection').style.display  = 'none';
     document.getElementById('obPostVerify').style.display  = 'none';
@@ -950,8 +992,8 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
     var pincode = document.getElementById('obPincode').value.trim();
     if (!name)                      { obShowErr('obStep2Err','Please enter your name'); return; }
     if (!/^\d{6}$/.test(pincode))   { obShowErr('obStep2Err','Enter valid 6-digit PIN code'); return; }
-    if (obType === 'find' && !document.getElementById('obJob').value.trim()) {
-      obShowErr('obStep2Err','Please enter what kind of job you are looking for'); return;
+    if (obType === 'find' && !document.getElementById('obJobHidden').value.trim()) {
+      obShowErr('obStep2Err','Please add at least one job type'); return;
     }
     if (!/^\d{10}$/.test(phone))    { obShowErr('obStep2Err','Enter valid 10-digit mobile'); return; }
     obShowErr('obStep2Err','');
@@ -1068,7 +1110,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         pincode:    pincode,
         job_type:   obType,
         collar:     obCollarV,
-        job_search: obType === 'find' ? document.getElementById('obJob').value.trim() : '',
+        job_search: obType === 'find' ? document.getElementById('obJobHidden').value.trim() : '',
         password:   pwd
       })
     })

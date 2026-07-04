@@ -1052,12 +1052,15 @@ def chat_messages_api(request, user_id, job_id=0):
 
 @login_required
 def ads_gallery(request):
-    """Public page: show active ads as image gallery."""
-    today = timezone.now().date()
-    ads = Advertisement.objects.filter(
-        status='active', start_date__lte=today, end_date__gte=today
-    ).select_related('advertiser', 'package').order_by('-created_at')
-    return render(request, 'ads_gallery.html', {'ads': ads})
+    """Public page: show all ads same style as home page."""
+    ads = Advertisement.objects.select_related('advertiser', 'package').order_by('-created_at')
+    advertiser_banners = Advertiser.objects.filter(
+        status='approved', banner_image__isnull=False
+    ).exclude(banner_image='')
+    return render(request, 'ads_gallery.html', {
+        'ads': ads,
+        'advertiser_banners': advertiser_banners,
+    })
 
 
 def advertiser_register(request):
