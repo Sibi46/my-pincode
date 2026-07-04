@@ -51,6 +51,9 @@
           <p><i class="fas fa-map-marker-alt"></i> {{ request.user.address|default:"—" }}</p>
           <p><i class="fas fa-city"></i> {{ request.user.city|default:"—" }} - {{ request.user.pincode|default:"—" }}</p>
         </div>
+        <a href="{% url 'seeker_profile' %}" style="display:inline-flex;align-items:center;gap:7px;margin-top:14px;background:#0a66c2;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;width:100%;justify-content:center;box-sizing:border-box">
+          <i class="fas fa-user-edit"></i> Edit My Profile
+        </a>
       </div>
     </div>
 

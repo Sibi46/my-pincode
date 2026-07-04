@@ -131,5 +131,6 @@ urlpatterns = [
     # ── UTILITY ─────────────────────────────────────────────
     path('profile/',                                   views.profile_redirect,      name='profile_redirect'),
     path('candidates/',                                views.candidates,            name='candidates'),
+    path('candidates/<int:user_id>/',                  views.candidate_profile,     name='candidate_profile'),
     path('candidates/save/<int:user_id>/',             views.save_candidate,        name='save_candidate'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

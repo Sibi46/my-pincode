@@ -77,7 +77,9 @@
 <div class="gal-hero">
   <h1><i class="fas fa-bullhorn"></i> Advertisements</h1>
   <p>Discover local businesses and services near you</p>
+  {% if not request.user.is_authenticated or request.user.is_employer %}
   <a href="/advertise/register/"><i class="fas fa-plus"></i> Place Your Ad Here</a>
+  {% endif %}
 </div>
 
 <!-- OLX-style Advertiser Banner Slider -->
@@ -152,8 +154,10 @@
   <div class="empty-state">
     <i class="fas fa-bullhorn"></i>
     <h3>No ads yet</h3>
-    <p>Be the first to advertise your business to local job seekers!</p>
+    <p>{% if not request.user.is_authenticated or request.user.is_employer %}Be the first to advertise your business to local job seekers!{% else %}Check back soon for local business ads.{% endif %}</p>
+    {% if not request.user.is_authenticated or request.user.is_employer %}
     <a href="/advertise/register/" style="display:inline-block;margin-top:14px;background:#0a66c2;color:#fff;padding:10px 26px;border-radius:8px;font-weight:700;font-size:13px;text-decoration:none">Advertise With Us</a>
+    {% endif %}
   </div>
   {% endif %}
 </div>

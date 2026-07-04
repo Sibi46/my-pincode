@@ -456,6 +456,7 @@ class Advertiser(models.Model):
     phone          = models.CharField(max_length=10)
     email          = models.EmailField()
     address        = models.TextField()
+    description    = models.TextField(blank=True, help_text='About your business / what you offer')
     gst            = models.CharField(max_length=15, blank=True)
     website        = models.URLField(blank=True)
     banner_image   = models.ImageField(upload_to='advertiser_banners/', blank=True, null=True)

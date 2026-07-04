@@ -162,6 +162,12 @@
         </div>
 
         <div class="ar-field">
+          <label>Business Description <span class="ar-req">*</span></label>
+          <textarea name="description" required rows="4" maxlength="500" placeholder="Tell us about your business — what you offer, your services, why customers should choose you…" oninput="descCount(this)" style="resize:vertical"></textarea>
+          <div style="text-align:right;margin-top:3px"><small id="descCharCount" style="color:#aaa;font-weight:700">0 / 500</small></div>
+        </div>
+
+        <div class="ar-field">
           <label>Banner / Logo Image <span class="ar-req">*</span></label>
           <div class="ar-upload-area" id="arUploadArea" onclick="document.getElementById('arBannerInput').click()">
             <i class="fas fa-image"></i>
@@ -203,6 +209,12 @@
 </section>
 
 <script>
+function descCount(ta) {
+  const len = ta.value.length;
+  const el  = document.getElementById('descCharCount');
+  el.textContent = len + ' / 500';
+  el.style.color = len > 450 ? '#e65100' : len > 300 ? '#f3a000' : '#aaa';
+}
 function previewLogo(input) {
   const file = input.files[0];
   if (!file) return;

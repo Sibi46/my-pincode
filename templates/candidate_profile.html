@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ seeker_user.get_full_name|default:seeker_user.username }} — Candidate Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+.cp-wrap{max-width:780px;margin:32px auto;padding:0 16px 60px}
+.cp-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#0a66c2;font-weight:600;text-decoration:none;margin-bottom:18px}
+.cp-back:hover{text-decoration:underline}
+
+.cp-hero{background:#fff;border-radius:16px;border:1.5px solid #eaecf2;padding:28px;display:flex;gap:20px;align-items:flex-start;margin-bottom:18px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.cp-avatar{width:80px;height:80px;border-radius:50%;background:#e8f0fe;color:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden}
+.cp-avatar img{width:100%;height:100%;object-fit:cover}
+.cp-hero-info{flex:1;min-width:0}
+.cp-name{font-size:22px;font-weight:800;color:#111;margin-bottom:4px}
+.cp-badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:700;background:#e8f0fe;color:#0a66c2;margin-bottom:10px}
+.cp-badge.blue-c{background:#fff3e0;color:#e65100}
+.cp-meta{font-size:13px;color:#555;display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.cp-meta i{color:#0a66c2;width:16px}
+.cp-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.cp-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;border:none}
+.cp-btn-primary{background:#0a66c2;color:#fff}
+.cp-btn-primary:hover{background:#004182}
+.cp-btn-phone{background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7}
+
+.cp-card{background:#fff;border-radius:14px;border:1.5px solid #eaecf2;padding:22px;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+.cp-card-title{font-size:13px;font-weight:700;color:#0a66c2;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;display:flex;align-items:center;gap:7px;border-bottom:2px solid #e8f0fe;padding-bottom:10px}
+.cp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.cp-item label{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px}
+.cp-item span{font-size:14px;color:#111;font-weight:500}
+.cp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cp-tag{background:#f3f2ee;padding:4px 12px;border-radius:10px;font-size:12px;color:#555}
+@media(max-width:600px){.cp-hero{flex-direction:column;align-items:center;text-align:center}.cp-row{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cp-wrap">
+  <a href="/candidates/" class="cp-back"><i class="fas fa-arrow-left"></i> Back to Candidates</a>
+
+  <!-- Hero -->
+  <div class="cp-hero">
+    <div class="cp-avatar {% if p.job_category == 'blue' %}blue-c{% endif %}">
+      {% if p.photo %}<img src="{{ p.photo.url }}" alt="">{% else %}<i class="fas fa-user"></i>{% endif %}
+    </div>
+    <div class="cp-hero-info">
+      <div class="cp-name">{{ seeker_user.get_full_name|default:seeker_user.username }}</div>
+      <span class="cp-badge {% if p.job_category == 'blue' %}blue-c{% endif %}">{{ p.job_category|capfirst|default:"Any" }} Collar</span>
+      {% if p.primary_skill %}<div class="cp-meta"><i class="fas fa-tools"></i> {{ p.primary_skill }}</div>{% endif %}
+      <div class="cp-meta"><i class="fas fa-map-marker-alt"></i> {{ seeker_user.city|default:"—" }}{% if seeker_user.pincode %} — {{ seeker_user.pincode }}{% endif %}</div>
+      {% if p.experience %}<div class="cp-meta"><i class="fas fa-clock"></i> {{ p.experience }}</div>{% endif %}
+      {% if p.get_availability_display %}<div class="cp-meta"><i class="fas fa-circle-check"></i> {{ p.get_availability_display }}</div>{% endif %}
+
+      {% if request.user.is_authenticated %}
+      <div class="cp-actions">
+        <a href="/messages/start/{{ seeker_user.pk }}/" class="cp-btn cp-btn-primary"><i class="fas fa-comment-dots"></i> Message</a>
+        {% if seeker_user.phone %}
+        <button class="cp-btn cp-btn-phone" onclick="this.innerHTML='<i class=\'fas fa-phone\'></i> +91 {{ seeker_user.phone }}';this.onclick=function(){window.location.href='tel:+91{{ seeker_user.phone }}'}">
+          <i class="fas fa-phone"></i> Show Contact Number
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Career Preferences -->
+  <div class="cp-card">
+    <div class="cp-card-title"><i class="fas fa-briefcase"></i> Career Preferences</div>
+    <div class="cp-row">
+      {% if p.industry %}<div class="cp-item"><label>Industry</label><span>{{ p.industry }}</span></div>{% endif %}
+      {% if p.preferred_roles %}<div class="cp-item"><label>Preferred Roles</label><span>{{ p.preferred_roles }}</span></div>{% endif %}
+      {% if p.salary_min or p.salary_max %}<div class="cp-item"><label>Expected Salary</label><span>{{ p.salary_display }}</span></div>{% endif %}
+      {% if p.preferred_location %}<div class="cp-item"><label>Preferred Location</label><span>{{ p.preferred_location }}</span></div>{% endif %}
+    </div>
+  </div>
+
+  <!-- Qualifications -->
+  <div class="cp-card">
+    <div class="cp-card-title"><i class="fas fa-graduation-cap"></i> Qualifications</div>
+    <div class="cp-row">
+      {% if p.education %}<div class="cp-item"><label>Education</label><span>{{ p.education }}</span></div>{% endif %}
+      {% if p.experience %}<div class="cp-item"><label>Experience</label><span>{{ p.experience }}</span></div>{% endif %}
+      {% if p.languages %}<div class="cp-item"><label>Languages</label><span>{{ p.languages }}</span></div>{% endif %}
+    </div>
+    {% if p.skills %}
+    <div style="margin-top:12px"><label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.4px">Skills</label>
+      <div class="cp-tags">
+        {% for s in p.skills.split %}
+        <span class="cp-tag">{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Documents -->
+  {% if p.resume or p.portfolio_url %}
+  <div class="cp-card">
+    <div class="cp-card-title"><i class="fas fa-folder"></i> Documents</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      {% if p.resume %}
+      <a href="{{ p.resume.url }}" target="_blank" class="cp-btn cp-btn-primary" style="font-size:13px"><i class="fas fa-file-alt"></i> View Resume</a>
+      {% endif %}
+      {% if p.portfolio_url %}
+      <a href="{{ p.portfolio_url }}" target="_blank" class="cp-btn" style="background:#f3f4f6;color:#111;font-size:13px"><i class="fas fa-globe"></i> Portfolio</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

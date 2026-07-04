@@ -253,7 +253,7 @@ def dashboard(request):
 
 # ── JOBS ──────────────────────────────────────────────────────────────────────
 def job_list(request):
-    jobs = Job.objects.filter(status='active')
+    jobs = Job.objects.filter(status='active', posted_by__user_type__in=User.EMPLOYER_TYPES)
 
     collar    = request.GET.get('collar', '')
     category  = request.GET.get('category', '')
@@ -1084,6 +1084,7 @@ def advertiser_register(request):
             phone          = request.POST.get('phone', user.phone).strip(),
             email          = request.POST.get('email', user.email).strip(),
             address        = request.POST.get('address', '').strip(),
+            description    = request.POST.get('description', '').strip(),
             gst            = request.POST.get('gst', '').strip(),
             website        = request.POST.get('website', '').strip(),
             status         = 'pending',
@@ -2158,7 +2159,10 @@ def candidates(request):
     if request.user.is_authenticated and not request.user.is_employer():
         from django.http import HttpResponseForbidden
         return HttpResponseForbidden("Only employers can view candidates.")
-    profiles = JobSeekerProfile.objects.select_related('user').filter(profile_completed=True)
+    profiles = JobSeekerProfile.objects.select_related('user').filter(
+        profile_completed=True,
+        user__user_type__in=['employee', 'individual', 'freelancer']
+    )
 
     skill    = request.GET.get('skill', '').strip()
     city     = request.GET.get('city', '').strip()
@@ -2187,3 +2191,16 @@ def candidates(request):
         'skill': skill, 'city': city, 'pincode': pincode,
         'collar': collar, 'total': profiles.count(),
     })
+
+
+def candidate_profile(request, user_id):
+    if request.user.is_authenticated and not request.user.is_employer():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden("Only employers can view candidate profiles.")
+    seeker_user = get_object_or_404(User, pk=user_id, user_type__in=['employee', 'individual', 'freelancer'])
+    try:
+        profile = seeker_user.seeker
+    except JobSeekerProfile.DoesNotExist:
+        from django.http import Http404
+        raise Http404
+    return render(request, 'candidate_profile.html', {'p': profile, 'seeker_user': seeker_user})
