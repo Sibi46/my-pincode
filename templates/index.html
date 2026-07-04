@@ -811,7 +811,7 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 
         <div class="ob-field" id="obJobField" style="display:none">
           <label id="obJobLabel">What kind of job?</label>
-          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off">
+          <input type="text" id="obJob" placeholder="e.g. Software Developer, Driver, Cook" autocomplete="off" data-ac="job">
         </div>
 
         <div class="ob-field">
@@ -1270,7 +1270,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 {% endwith %}
 {% endif %}
-
+<script src="/static/js/ac_roles.js?v=1"></script>
 </body>
 </html>
 

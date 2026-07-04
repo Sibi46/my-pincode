@@ -346,7 +346,7 @@
       <div class="sp-field">
         <label>Primary / Key Skill</label>
         <input type="text" name="primary_skill" value="{{ profile.primary_skill }}"
-          placeholder="e.g. Welding, Data Entry, Python, Plumbing">
+          placeholder="e.g. Welding, Data Entry, Python, Plumbing" data-ac="job" autocomplete="off">
       </div>
 
       <!-- Skills tag input -->
@@ -731,6 +731,7 @@ function addCertRow() {
 const hash = window.location.hash.replace('#', '');
 if (TAB_ORDER.includes(hash)) showTab(hash, null);
 </script>
+<script src="/static/js/ac_roles.js?v=1"></script>
 </body>
 </html>
 
