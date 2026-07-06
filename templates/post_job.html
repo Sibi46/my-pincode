@@ -1168,15 +1168,7 @@ function submitForm(action) {
 <!-- Leaflet (served locally — no tracking issues) -->
 <link rel="stylesheet" href="/static/css/leaflet.css">
 <script src="/static/js/leaflet.js"></script>
-<script>
-// Fix default marker icon paths
-L.Icon.Default.mergeOptions({
-  iconUrl: '/static/images/marker-icon.png',
-  iconRetinaUrl: '/static/images/marker-icon-2x.png',
-  shadowUrl: '/static/images/marker-shadow.png',
-});
-document.addEventListener('DOMContentLoaded', initMap);
-</script>
+<script>document.addEventListener('DOMContentLoaded', initMap);</script>
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
