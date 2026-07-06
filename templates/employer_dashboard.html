@@ -29,6 +29,8 @@
     {% else %}
     <a href="/post-job/" class="dash-post-btn"><i class="fas fa-plus"></i> Post Job</a>
     {% endif %}
+    <a href="/advertiser/create-ad/" class="dash-post-btn" style="background:#2e7d32"><i class="fas fa-bullhorn"></i> Post Ads</a>
+    <a href="/advertiser/dashboard/" class="dash-post-btn" style="background:#555"><i class="fas fa-chart-bar"></i> My Ads</a>
     <div class="dash-icon-btn" onclick="showSection('notifications')">
       <i class="fas fa-bell"></i>
       {% if unread_notif_count %}<span class="dash-badge">{{ unread_notif_count }}</span>{% endif %}
@@ -157,18 +159,6 @@
       </div>
     </div>
 
-    {% if profile_incomplete %}
-    <div style="background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:14px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:200px">
-        <div style="font-weight:800;font-size:15px;color:#7a4f00;margin-bottom:4px"><i class="fas fa-exclamation-circle" style="color:#e65100"></i> Complete your profile to post a job</div>
-        <div style="font-size:13px;color:#a06000;margin-bottom:8px">Your profile is <strong>{{ profile_pct }}%</strong> complete. Fill in your company details to unlock job posting.</div>
-        <div style="background:#f5e6c0;border-radius:8px;height:8px;overflow:hidden">
-          <div style="background:linear-gradient(90deg,#e65100,#f9a825);width:{{ profile_pct }}%;height:100%;border-radius:8px;transition:.4s"></div>
-        </div>
-      </div>
-      <button onclick="showSection('my-profile',null)" style="background:#e65100;color:#fff;border:none;padding:10px 20px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap"><i class="fas fa-edit"></i> Complete Profile</button>
-    </div>
-    {% endif %}
 
     {% if ads_by_type.dashboard_banner %}
     {% with ad=ads_by_type.dashboard_banner|first %}

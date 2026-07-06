@@ -162,8 +162,8 @@ a{text-decoration:none;color:inherit}
 .footer-links a:hover{color:#fff}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .footer-bottom p{font-size:12px}
-.admin-footer-btn{background:rgba(255,255,255,.08);color:#aaa;border:1px solid rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;font-size:12px;cursor:pointer;transition:.2s}
-.admin-footer-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+.admin-footer-btn{background:none;color:rgba(255,255,255,.25);border:none;padding:4px 6px;border-radius:6px;font-size:13px;cursor:pointer;transition:.2s;line-height:1}
+.admin-footer-btn:hover{color:rgba(255,255,255,.6)}
 @media(max-width:768px){
   .footer-grid{grid-template-columns:1fr 1fr}
   .stats{flex-wrap:wrap}
@@ -215,10 +215,16 @@ a{text-decoration:none;color:inherit}
       </form>
     </div>
     <div class="nav-links">
+      {% if not request.user.is_authenticated or request.user.is_employer %}
       <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
+      {% endif %}
+      {% if not request.user.is_authenticated or not request.user.is_employer %}
       <a href="/jobs/" class="btn-signin"><i class="fas fa-search"></i> Find a Job</a>
+      {% endif %}
       {% if request.user.is_authenticated %}
+        {% if request.user.is_employer %}
         <a href="/advertise/" style="color:#f3a000;font-weight:600"><i class="fas fa-bullhorn"></i> Advertise</a>
+        {% endif %}
         <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" style="color:#444;font-size:13px"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
         <a href="/logout/" style="color:#888;font-size:13px">Logout</a>
       {% else %}
@@ -230,10 +236,16 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
   <div class="mob-menu" id="mobMenu">
+    {% if not request.user.is_authenticated or request.user.is_employer %}
     <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
+    {% endif %}
+    {% if not request.user.is_authenticated or not request.user.is_employer %}
     <a href="/jobs/"><i class="fas fa-search"></i> Find a Job</a>
+    {% endif %}
     {% if request.user.is_authenticated %}
+      {% if request.user.is_employer %}
       <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+      {% endif %}
       <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/">Dashboard</a>
       <a href="/logout/">Logout</a>
     {% else %}
@@ -323,18 +335,21 @@ a{text-decoration:none;color:inherit}
   <button class="site-ad-close" onclick="document.getElementById('siteAdBar').style.display='none'"><i class="fas fa-times"></i></button>
 </div>
 <style>
-.site-ad-bar{background:#f0f6ff;border-bottom:1px solid #c8ddf8;position:relative;overflow:hidden}
-.site-ad-inner{position:relative;max-width:1100px;margin:0 auto;overflow:hidden}
-.site-ad-slide{display:none;align-items:center;gap:12px;padding:8px 48px 8px 16px;text-decoration:none;color:#111}
-.site-ad-slide.active{display:flex}
-.site-ad-slide img{height:48px;width:80px;object-fit:cover;border-radius:6px;flex-shrink:0}
-.site-ad-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.site-ad-label{background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px}
-.site-ad-title{font-size:13px;font-weight:700;color:#111}
-.site-ad-biz{font-size:11px;color:#666}
-.site-ad-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:16px;cursor:pointer;padding:6px}
-.site-ad-prev,.site-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.85);border:1px solid #dde4f0;color:#0a66c2;width:28px;height:28px;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.site-ad-prev{left:4px}.site-ad-next{right:36px}
+.site-ad-bar{background:#000;position:relative;overflow:hidden}
+.site-ad-inner{position:relative;max-width:1200px;margin:0 auto;overflow:hidden}
+.site-ad-slide{display:none;width:100%;position:relative;text-decoration:none;color:#fff}
+.site-ad-slide.active{display:block}
+.site-ad-slide img{width:100%;height:320px;object-fit:cover;display:block;opacity:.92}
+.site-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);padding:24px 56px 20px 20px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.site-ad-label{background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px;align-self:center}
+.site-ad-title{font-size:18px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.site-ad-biz{font-size:13px;color:rgba(255,255,255,.8);align-self:center}
+.site-ad-close{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.45);border:none;color:#fff;font-size:15px;cursor:pointer;padding:6px 10px;border-radius:50%;line-height:1;z-index:2}
+.site-ad-prev,.site-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:36px;height:36px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.site-ad-prev{left:10px}.site-ad-next{right:10px}
+.site-ad-prev:hover,.site-ad-next:hover{background:rgba(0,0,0,.7)}
+@media(max-width:768px){.site-ad-slide img{height:200px}.site-ad-title{font-size:15px}.site-ad-info{padding:16px 16px 14px}}
+@media(max-width:480px){.site-ad-slide img{height:160px}.site-ad-title{font-size:13px}}
 </style>
 <script>
 (function(){
@@ -365,6 +380,8 @@ a{text-decoration:none;color:inherit}
     {% endfor %}
   </div>
   {% if advertiser_banners|length > 1 %}
+  <button class="olx-ad-prev" onclick="olxAdGo(olxAdCur-1)"><i class="fas fa-chevron-left"></i></button>
+  <button class="olx-ad-next" onclick="olxAdGo(olxAdCur+1)"><i class="fas fa-chevron-right"></i></button>
   <div class="olx-ad-dots" id="olxAdDots">
     {% for adv in advertiser_banners %}
     <span class="olx-ad-dot {% if forloop.first %}active{% endif %}" onclick="olxAdGo({{ forloop.counter0 }})"></span>
@@ -373,39 +390,127 @@ a{text-decoration:none;color:inherit}
   {% endif %}
 </div>
 <style>
-.olx-ad-wrap{background:#f3f4f6;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;padding:6px 0 4px;position:relative;overflow:hidden}
-.olx-ad-label{text-align:center;font-size:10px;color:#aaa;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px}
-.olx-ad-track{position:relative;width:100%;height:160px}
-.olx-ad-slide{display:none;width:100%;height:160px;position:relative;text-decoration:none}
+.olx-ad-wrap{background:#000;position:relative;overflow:hidden}
+.olx-ad-label{position:absolute;top:10px;left:14px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
+.olx-ad-track{position:relative;width:100%;height:340px}
+.olx-ad-slide{display:none;width:100%;height:340px;position:relative;text-decoration:none}
 .olx-ad-slide.active{display:block}
-.olx-ad-slide img{width:100%;height:160px;object-fit:cover;display:block}
-.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent);padding:12px 16px 10px;color:#fff;display:flex;flex-direction:column;gap:2px}
-.olx-ad-name{font-size:14px;font-weight:800}
-.olx-ad-addr{font-size:11px;opacity:.85}
-.olx-ad-dots{display:flex;justify-content:center;gap:6px;padding:6px 0 2px}
-.olx-ad-dot{width:7px;height:7px;border-radius:50%;background:#ccc;cursor:pointer;transition:.3s}
-.olx-ad-dot.active{background:#0a66c2;width:22px;border-radius:4px}
-@media(max-width:600px){.olx-ad-slide,.olx-ad-slide img,.olx-ad-track{height:120px}}
+.olx-ad-slide img{width:100%;height:340px;object-fit:cover;display:block;opacity:.93}
+.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);padding:28px 60px 20px 20px;color:#fff;display:flex;flex-direction:column;gap:3px}
+.olx-ad-name{font-size:18px;font-weight:900;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.olx-ad-addr{font-size:13px;opacity:.88}
+.olx-ad-dots{position:absolute;bottom:10px;right:16px;display:flex;gap:6px;z-index:3}
+.olx-ad-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.3s}
+.olx-ad-dot.active{background:#fff;width:24px;border-radius:4px}
+/* prev/next arrows */
+.olx-ad-prev,.olx-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
+.olx-ad-prev{left:12px}.olx-ad-next{right:12px}
+.olx-ad-prev:hover,.olx-ad-next:hover{background:rgba(0,0,0,.7)}
+@media(max-width:768px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:220px}.olx-ad-name{font-size:15px}.olx-ad-info{padding:20px 16px 14px}}
+@media(max-width:480px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:180px}.olx-ad-name{font-size:14px}}
 </style>
 <script>
+var olxAdCur = 0;
 (function(){
   var slides = document.querySelectorAll('.olx-ad-slide');
   var dots   = document.querySelectorAll('.olx-ad-dot');
-  if(slides.length < 2) return;
-  var cur = 0;
-  function olxAdGo(n){
-    slides[cur].classList.remove('active');
-    dots[cur] && dots[cur].classList.remove('active');
-    cur = n % slides.length;
-    slides[cur].classList.add('active');
-    dots[cur] && dots[cur].classList.add('active');
-  }
-  window.olxAdGo = olxAdGo;
-  setInterval(function(){ olxAdGo(cur + 1); }, 4000);
+  window.olxAdGo = function(n){
+    slides[olxAdCur].classList.remove('active');
+    dots[olxAdCur] && dots[olxAdCur].classList.remove('active');
+    olxAdCur = ((n % slides.length) + slides.length) % slides.length;
+    slides[olxAdCur].classList.add('active');
+    dots[olxAdCur] && dots[olxAdCur].classList.add('active');
+  };
+  if(slides.length > 1) setInterval(function(){ olxAdGo(olxAdCur + 1); }, 4000);
 })();
 </script>
 {% endif %}
 
+
+<!-- HOW ADVERTISING WORKS -->
+<section style="background:#fff;padding:56px 20px 60px;border-top:1px solid #eaecf2">
+  <div style="max-width:1080px;margin:0 auto">
+
+    <!-- Heading -->
+    <div style="text-align:center;margin-bottom:42px">
+      <span style="display:inline-flex;align-items:center;gap:7px;background:#e8f0fe;color:#0a66c2;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px"><i class="fas fa-bullhorn"></i> Advertise With Us</span>
+      <h2 style="font-size:clamp(22px,3.5vw,32px);font-weight:900;color:#111;margin-bottom:10px">How Advertising on MY PINCOD Works</h2>
+      <p style="font-size:15px;color:#666;max-width:560px;margin:0 auto">Reach thousands of local job seekers and businesses in your PIN code area — simple, fast, and affordable.</p>
+    </div>
+
+    <!-- Steps -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;max-width:780px;margin-left:auto;margin-right:auto">
+
+      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
+        <div style="width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">1</div>
+        <div style="width:60px;height:60px;border-radius:14px;background:#e8f0fe;color:#0a66c2;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-store"></i></div>
+        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Register Company or Shop</h4>
+        <p style="font-size:13px;color:#666;line-height:1.6">Enter your business name, contact details, address, description and upload your banner image.</p>
+      </div>
+
+      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
+        <div style="width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">2</div>
+        <div style="width:60px;height:60px;border-radius:14px;background:#e8f0fe;color:#0a66c2;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-shield-alt"></i></div>
+        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Admin Approval</h4>
+        <p style="font-size:13px;color:#666;line-height:1.6">Our team reviews your registration and approves your business account before it goes live.</p>
+      </div>
+
+      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
+        <div style="width:44px;height:44px;border-radius:50%;background:#2e7d32;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">3</div>
+        <div style="width:60px;height:60px;border-radius:14px;background:#e8f5e9;color:#2e7d32;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-bullhorn"></i></div>
+        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Your Ad Goes Live!</h4>
+        <p style="font-size:13px;color:#666;line-height:1.6">Your banner is shown to thousands of local job seekers and businesses across MY PINCOD.</p>
+      </div>
+
+    </div>
+
+    <!-- Connector arrows (desktop only) -->
+    <style>
+    @media(max-width:600px){
+      #adv-steps-grid{grid-template-columns:1fr !important}
+    }
+    </style>
+
+    <!-- Ad formats -->
+    <div style="background:linear-gradient(135deg,#f0f6ff,#e8f0fe);border-radius:18px;padding:32px;margin-bottom:40px">
+      <h3 style="font-size:18px;font-weight:800;color:#111;margin-bottom:20px;text-align:center"><i class="fas fa-layer-group" style="color:#0a66c2"></i> Ad Placement Options</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
+          <i class="fas fa-home" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Homepage Banner</div>
+          <div style="font-size:11px;color:#888">Full-width slider at top of home page — maximum visibility</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
+          <i class="fas fa-tachometer-alt" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Employer Dashboard</div>
+          <div style="font-size:11px;color:#888">Shown inside employer dashboards — targeted to hirers</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
+          <i class="fas fa-bullseye" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Pop-up Ad</div>
+          <div style="font-size:11px;color:#888">Eye-catching popup shown to visitors on page load</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
+          <i class="fas fa-images" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Ads Gallery</div>
+          <div style="font-size:11px;color:#888">Listed on the dedicated Advertise page browsed by all users</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center">
+      <p style="font-size:14px;color:#666;margin-bottom:18px">Ready to put your business in front of local job seekers?</p>
+      <a href="/advertise/register/" style="display:inline-flex;align-items:center;gap:9px;background:#0a66c2;color:#fff;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 16px rgba(10,102,194,.25)">
+        <i class="fas fa-bullhorn"></i> Start Advertising Now
+      </a>
+      <a href="/advertise/" style="display:inline-flex;align-items:center;gap:7px;margin-left:14px;color:#0a66c2;font-size:14px;font-weight:700;text-decoration:none">
+        <i class="fas fa-eye"></i> View Current Ads
+      </a>
+    </div>
+
+  </div>
+</section>
 
 <!-- FOOTER -->
 <footer class="footer">
@@ -436,8 +541,8 @@ a{text-decoration:none;color:inherit}
   </div>
   <div class="footer-bottom">
     <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
-    <button class="admin-footer-btn" onclick="openAdminPanel()">
-      <i class="fas fa-shield-alt"></i> Admin Panel
+    <button class="admin-footer-btn" onclick="openAdminPanel()" title="Admin Panel">
+      <i class="fas fa-shield-alt"></i>
     </button>
   </div>
 </footer>
@@ -697,14 +802,16 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 .ob-prog-dot.on{background:#fff}
 .ob-body{padding:22px}
 .ob-title{font-size:15px;font-weight:800;color:#111;text-align:center;margin-bottom:16px}
-.ob-type-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
-.ob-type-btn{border:2px solid #dde1ea;border-radius:14px;background:#fff;padding:20px 10px;cursor:pointer;text-align:center;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:9px}
-.ob-type-btn i{font-size:28px}
-.ob-type-btn span{font-size:13px;font-weight:700;color:#111}
+.ob-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.ob-type-btn{border:2px solid #dde1ea;border-radius:14px;background:#fff;padding:18px 8px;cursor:pointer;text-align:center;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:9px}
+.ob-type-btn i{font-size:26px}
+.ob-type-btn span{font-size:12px;font-weight:700;color:#111}
 .ob-type-btn.find-btn i{color:#0a66c2}
 .ob-type-btn.post-btn i{color:#f3a000}
+.ob-type-btn.ads-btn i{color:#2e7d32}
 .ob-type-btn:hover,.ob-type-btn.sel{border-color:#0a66c2;background:#f0f7ff}
 .ob-type-btn.post-btn:hover,.ob-type-btn.post-btn.sel{border-color:#f3a000;background:#fff8eb}
+.ob-type-btn.ads-btn:hover,.ob-type-btn.ads-btn.sel{border-color:#2e7d32;background:#f1f8e9}
 .ob-collar-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
 .ob-collar-btn{border:2px solid #dde1ea;border-radius:12px;background:#fff;padding:16px 10px;cursor:pointer;text-align:center;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:8px}
 .ob-collar-btn i{font-size:22px}
@@ -765,6 +872,9 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           </button>
           <a class="ob-type-btn post-btn" href="/register/?type=company" style="text-decoration:none">
             <i class="fas fa-briefcase"></i><span>Post a Job</span>
+          </a>
+          <a class="ob-type-btn ads-btn" href="/register/?type=company" style="text-decoration:none">
+            <i class="fas fa-bullhorn"></i><span>Post Ads</span>
           </a>
         </div>
 

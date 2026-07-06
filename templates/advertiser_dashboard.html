@@ -117,14 +117,7 @@
   </div>
 
   <!-- Account status banners -->
-  {% if adv.status == 'pending' %}
-  <div class="adv-pending-banner">
-    <i class="fas fa-clock" style="font-size:20px;flex-shrink:0;margin-top:1px"></i>
-    <div>
-      <strong>Account under review.</strong> Admin will approve your advertiser account within 24 hours. Once approved you can post ads.
-    </div>
-  </div>
-  {% elif adv.status == 'rejected' %}
+  {% if adv.status == 'rejected' %}
   <div class="adv-pending-banner adv-rejected-banner">
     <i class="fas fa-times-circle" style="font-size:20px;flex-shrink:0"></i>
     <div>

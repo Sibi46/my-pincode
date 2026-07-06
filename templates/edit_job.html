@@ -852,45 +852,65 @@ function togglePerk(id, cb) {
   document.getElementById(id).classList.toggle('selected', cb.checked);
 }
 
-/* ── PIN code area preview ── */
+/* ── PIN code → auto-fill location ── */
+var _pinCache = {};
 function onPincodeInput(val) {
-  const preview = document.getElementById('pin-area-preview');
-  if (val.length === 6) {
-    preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Looking up area…';
-    // Would call API — show placeholder
-    setTimeout(() => {
-      preview.innerHTML = '<i class="fas fa-check-circle" style="color:#2e7d32"></i> PIN code entered';
-    }, 500);
-  } else {
-    preview.innerHTML = '';
+  var preview = document.getElementById('pin-area-preview');
+  var pin = val.replace(/\D/g, '');
+  if (pin.length !== 6) { preview.innerHTML = ''; return; }
+  if (_pinCache[pin]) { applyPinResult(pin, _pinCache[pin], preview); return; }
+  preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Looking up…';
+  fetch('https://api.postalpincode.in/pincode/' + pin)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var res = null;
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
+        var po = data[0].PostOffice[0];
+        res = { area: po.Name, district: po.District, state: po.State };
+      }
+      _pinCache[pin] = res;
+      applyPinResult(pin, res, preview);
+    })
+    .catch(function(){ preview.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#e65100"></i> Lookup failed'; });
+}
+function applyPinResult(pin, res, preview) {
+  if (!res) {
+    preview.innerHTML = '<i class="fas fa-exclamation-triangle" style="color:#e65100"></i> PIN code not found';
+    return;
+  }
+  var label = res.area !== res.district ? res.area + ', ' + res.district : res.district;
+  preview.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#2e7d32"></i> <strong>' + label + '</strong>, ' + res.state;
+  var locEl = document.getElementById('f-location');
+  if (locEl && !locEl._userTyped) locEl.value = label;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var locEl = document.getElementById('f-location');
+  if (locEl) locEl.addEventListener('input', function(){ locEl._userTyped = true; });
+});
+
+/* ── Map functions (Leaflet + OpenStreetMap, no API key needed) ── */
+function initMap() {
+  const savedLat = parseFloat(document.getElementById('lat_input').value) || 11.0168;
+  const savedLng = parseFloat(document.getElementById('lng_input').value) || 76.9558;
+  mapInstance = L.map('job-map', { zoomControl: true }).setView([savedLat, savedLng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(mapInstance);
+  mapInstance.on('click', function(e) {
+    placeMarker(e.latlng.lat, e.latlng.lng);
+  });
+  if (document.getElementById('lat_input').value && document.getElementById('lng_input').value) {
+    placeMarker(savedLat, savedLng);
   }
 }
 
-/* ── Map functions ── */
-function initMap() {
-  if (typeof google === 'undefined') return;
-  mapInstance = new google.maps.Map(document.getElementById('job-map'), {
-    center: { lat: 11.0168, lng: 76.9558 },
-    zoom: 12,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
-  });
-  mapInstance.addListener('click', function(e) {
-    placeMarker(e.latLng.lat(), e.latLng.lng());
-  });
-}
-
 function placeMarker(lat, lng) {
-  if (mapMarker) mapMarker.setMap(null);
-  mapMarker = new google.maps.Marker({
-    position: { lat, lng },
-    map: mapInstance,
-    draggable: true,
-  });
-  mapMarker.addListener('dragend', function() {
-    const pos = mapMarker.getPosition();
-    setLatLng(pos.lat(), pos.lng());
+  if (mapMarker) mapInstance.removeLayer(mapMarker);
+  mapMarker = L.marker([lat, lng], { draggable: true }).addTo(mapInstance);
+  mapMarker.on('dragend', function() {
+    const pos = mapMarker.getLatLng();
+    setLatLng(pos.lat, pos.lng);
   });
   setLatLng(lat, lng);
 }
@@ -905,34 +925,30 @@ function setLatLng(lat, lng) {
 }
 
 function searchMapAddress() {
-  if (!mapInstance) { alert('Map not loaded.'); return; }
   const q = document.getElementById('map-search-input').value.trim();
   if (!q) return;
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: q }, function(results, status) {
-    if (status === 'OK') {
-      const loc = results[0].geometry.location;
-      mapInstance.setCenter(loc);
-      mapInstance.setZoom(15);
-      placeMarker(loc.lat(), loc.lng());
-    } else {
-      alert('Location not found. Try a different address.');
-    }
-  });
+  fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(q) + '&limit=1&countrycodes=in')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data && data.length) {
+        const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+        mapInstance.setView([lat, lng], 15);
+        placeMarker(lat, lng);
+      } else {
+        alert('Location not found. Try a different address or place name.');
+      }
+    })
+    .catch(function(){ alert('Search failed. Check your internet connection.'); });
 }
 
 function getMyLocation() {
-  if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+  if (!navigator.geolocation) { alert('Geolocation not supported by your browser.'); return; }
   navigator.geolocation.getCurrentPosition(function(pos) {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    if (mapInstance) {
-      mapInstance.setCenter({ lat, lng });
-      mapInstance.setZoom(15);
-    }
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    mapInstance.setView([lat, lng], 15);
     placeMarker(lat, lng);
   }, function() {
-    alert('Could not get your location. Please enable location permission.');
+    alert('Could not get your location. Please allow location access.');
   });
 }
 
@@ -1021,9 +1037,16 @@ function submitForm(action) {
 
 </script>
 
-<!-- Load Google Maps (replace YOUR_API_KEY or remove if not using) -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap" async defer
-        onerror="document.getElementById('job-map').innerHTML='<div style=\'padding:32px;text-align:center;color:#888;font-size:14px\'><i class=\'fas fa-map-marked-alt\' style=\'font-size:32px;color:#ddd;display:block;margin-bottom:10px\'></i>Map unavailable — enter PIN code and area name above</div>'">
+<!-- Leaflet (served locally — no tracking issues) -->
+<link rel="stylesheet" href="/static/css/leaflet.css">
+<script src="/static/js/leaflet.js"></script>
+<script>
+L.Icon.Default.mergeOptions({
+  iconUrl: '/static/images/marker-icon.png',
+  iconRetinaUrl: '/static/images/marker-icon-2x.png',
+  shadowUrl: '/static/images/marker-shadow.png',
+});
+document.addEventListener('DOMContentLoaded', initMap);
 </script>
 
 <!-- BOTTOM NAV -->

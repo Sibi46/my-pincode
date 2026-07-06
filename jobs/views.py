@@ -355,7 +355,6 @@ def post_job(request):
         if prof and prof.company_size: score += 10
         if prof and prof.website:      score += 10
         if score < 70:
-            messages.warning(request, f'Your profile is only {score}% complete. Please fill in your company details before posting a job.')
             return redirect('employer_dashboard')
 
     if request.method == 'POST':
@@ -579,7 +578,6 @@ def employer_profile_save(request):
         prof.company_size = p.get('company_size', '').strip()
         prof.website      = p.get('website', '').strip()
         prof.save()
-    messages.success(request, 'Profile updated successfully!')
     return redirect('employer_dashboard')
 
 
@@ -1094,7 +1092,6 @@ def advertiser_register(request):
             adv.banner_image = request.FILES['banner_image']
             adv.save()
 
-        messages.success(request, 'Ad registration submitted! Admin will review within 24 hours. Once approved, go to "My Ads" to create your ad.')
         return redirect('advertiser_register_success')
 
     return render(request, 'advertiser_register.html', {'user': user})
