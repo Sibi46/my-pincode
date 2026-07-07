@@ -135,4 +135,5 @@ urlpatterns = [
     path('candidates/save/<int:user_id>/',             views.save_candidate,        name='save_candidate'),
     path('notifications/mark-all-read/',               views.mark_all_notifications_read, name='mark_all_notifications_read'),
     path('jobs/<int:pk>/select-plan/',                 views.job_select_plan,             name='job_select_plan'),
+    path('referral/',                                  views.referral_dashboard,          name='referral_dashboard'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

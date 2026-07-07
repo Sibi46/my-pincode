@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Referral & Points – MY PINCOD{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+{% block content %}
+<style>
+.ref-page{max-width:700px;margin:30px auto;padding:0 16px 60px}
+.ref-hero{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border-radius:18px;padding:32px 28px;text-align:center;margin-bottom:24px;position:relative;overflow:hidden}
+.ref-hero h1{font-size:26px;font-weight:900;margin:0 0 6px}
+.ref-hero p{font-size:14px;opacity:.85;margin:0 0 20px}
+.pts-big{font-size:52px;font-weight:900;line-height:1;color:#fff}
+.pts-label{font-size:13px;opacity:.7;margin-top:4px}
+.ref-link-box{background:rgba(255,255,255,.15);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-top:18px;text-align:left}
+.ref-link-box input{flex:1;background:none;border:none;color:#fff;font-size:13px;font-weight:600;outline:none;word-break:break-all}
+.copy-btn{background:#fff;color:#0a66c2;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.how-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);padding:20px 22px;margin-bottom:20px}
+.how-card h3{font-size:15px;font-weight:800;color:#191919;margin:0 0 16px}
+.step-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.step-num{width:32px;height:32px;border-radius:50%;background:#e8f0fe;color:#0a66c2;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-text{font-size:13px;color:#333;line-height:1.5}
+.step-pts{display:inline-block;background:#e6f4ea;color:#2e7d32;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin-top:3px}
+.ref-table-wrap{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:20px}
+.ref-table-wrap h3{font-size:15px;font-weight:800;color:#191919;padding:16px 20px;margin:0;border-bottom:1px solid #f0f0f0}
+.ref-table{width:100%;border-collapse:collapse}
+.ref-table th{font-size:11px;font-weight:700;color:#888;padding:10px 16px;text-align:left;background:#fafafa;border-bottom:1px solid #f0f0f0}
+.ref-table td{font-size:13px;padding:10px 16px;border-bottom:1px solid #f7f7f7;color:#333}
+.ref-table tr:last-child td{border-bottom:none}
+.txn-plus{color:#2e7d32;font-weight:700}
+.share-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.share-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;border:none;cursor:pointer}
+.share-wa{background:#25d366;color:#fff}
+.share-copy{background:#f0f4ff;color:#0a66c2}
+.wallet-strip{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.wallet-chip{flex:1;min-width:140px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:16px 18px;text-align:center}
+.wallet-chip .wc-num{font-size:26px;font-weight:900;color:#0a66c2}
+.wallet-chip .wc-label{font-size:11px;color:#888;margin-top:2px}
+.redeem-note{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:12px 16px;font-size:13px;color:#856404;margin-bottom:20px}
+</style>
+
+<div class="ref-page">
+
+  <!-- Hero -->
+  <div class="ref-hero">
+    <h1>Refer & Earn Points</h1>
+    <p>Invite friends to MY PINCOD and earn points every time they take action</p>
+    <div class="pts-big">{{ wallet.balance }}</div>
+    <div class="pts-label">Points Available</div>
+    <div class="ref-link-box">
+      <input type="text" id="refLinkInput" value="{{ referral_link }}" readonly>
+      <button class="copy-btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <div class="share-row" style="justify-content:center;margin-top:14px">
+      <a class="share-btn share-wa"
+         href="https://wa.me/?text=Join%20MY%20PINCOD%20-%20Local%20Jobs%20%26%20Hiring%20in%20your%20Pincode!%20Register%20now%3A%20{{ referral_link|urlencode }}"
+         target="_blank"><i class="fab fa-whatsapp"></i> Share on WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- Wallet chips -->
+  <div class="wallet-strip">
+    <div class="wallet-chip">
+      <div class="wc-num">{{ wallet.balance }}</div>
+      <div class="wc-label">Points Balance</div>
+    </div>
+    <div class="wallet-chip">
+      <div class="wc-num">{{ wallet.total_earned }}</div>
+      <div class="wc-label">Total Earned</div>
+    </div>
+    <div class="wallet-chip">
+      <div class="wc-num">{{ referrals.count }}</div>
+      <div class="wc-label">People Referred</div>
+    </div>
+  </div>
+
+  <!-- Redeem note -->
+  <div class="redeem-note">
+    <i class="fas fa-info-circle"></i>
+    <strong>100 points = ₹100 discount</strong> on the ₹499 paid plan (12 weeks).
+    Contact admin to redeem your points before subscribing.
+  </div>
+
+  <!-- How it works -->
+  <div class="how-card">
+    <h3><i class="fas fa-gift" style="color:#0a66c2"></i> How It Works</h3>
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        Share your referral link with friends<br>
+        <span class="step-pts">Share your unique link below</span>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        Friend registers using your link<br>
+        <span class="step-pts">+50 Points</span>
+      </div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        Referred employer posts their first job<br>
+        <span class="step-pts">+100 Points</span>
+      </div>
+    </div>
+    <div class="step-row" style="margin-bottom:0">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        Referred job seeker applies for their first job<br>
+        <span class="step-pts">+25 Points</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referrals list -->
+  <div class="ref-table-wrap">
+    <h3><i class="fas fa-users" style="color:#0a66c2"></i> People You Referred</h3>
+    {% if referrals %}
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Joined</th>
+          <th>Action Bonus</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ref in referrals %}
+        <tr>
+          <td>{{ ref.referred.get_full_name|default:ref.referred.username }}</td>
+          <td style="font-size:12px;color:#888">{{ ref.created_at|date:"d M Y" }}</td>
+          <td>
+            {% if ref.bonus_action %}
+              <span style="background:#e6f4ea;color:#2e7d32;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px">
+                <i class="fas fa-check"></i> Earned
+              </span>
+            {% else %}
+              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px">
+                Pending action
+              </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:30px;text-align:center;color:#bbb">
+      <i class="fas fa-user-friends" style="font-size:32px;display:block;margin-bottom:10px"></i>
+      No referrals yet. Share your link to start earning!
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Points history -->
+  <div class="ref-table-wrap">
+    <h3><i class="fas fa-history" style="color:#0a66c2"></i> Points History</h3>
+    {% if transactions %}
+    <table class="ref-table">
+      <thead>
+        <tr><th>Description</th><th>Points</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td>{{ txn.description }}</td>
+          <td class="txn-plus">+{{ txn.amount }}</td>
+          <td style="font-size:12px;color:#888">{{ txn.created_at|date:"d M Y" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:30px;text-align:center;color:#bbb">
+      <i class="fas fa-coins" style="font-size:32px;display:block;margin-bottom:10px"></i>
+      No points earned yet. Refer friends to get started!
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function copyLink() {
+  var inp = document.getElementById('refLinkInput');
+  inp.select();
+  inp.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(inp.value).then(function() {
+      showCopyToast();
+    });
+  } catch(e) {
+    document.execCommand('copy');
+    showCopyToast();
+  }
+}
+function showCopyToast() {
+  var t = document.createElement('div');
+  t.textContent = 'Link copied!';
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#191919;color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:700;z-index:9999';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2000);
+}
+</script>
+{% endblock %}

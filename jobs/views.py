@@ -12,7 +12,8 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      State, District, AdminProfile, Industry, JobRole,
                      PaymentPlan, Discount, Complaint, SystemNotification, PinCode,
                      UserNotification, SavedCandidate, Wallet, WalletTransaction,
-                     EmployerSubscription, BillingRecord)
+                     EmployerSubscription, BillingRecord,
+                     PointsWallet, PointsTransaction, Referral)
 
 User = get_user_model()
 
@@ -85,7 +86,8 @@ def home(request):
 
 # ── REGISTER ─────────────────────────────────────────────────────────────────
 def register(request):
-    return render(request, 'register.html')
+    ref_code = request.GET.get('ref', '').strip().upper()
+    return render(request, 'register.html', {'ref_code': ref_code})
 
 
 def register_process(request):
@@ -110,6 +112,7 @@ def register_process(request):
     city       = request.POST.get('city', '').strip()
     pincode    = request.POST.get('pincode', '').strip()
     whatsapp   = request.POST.get('whatsapp', '').strip()
+    ref_code   = request.POST.get('ref_code', '').strip().upper()
 
     username = phone if phone else email
     if not username:
@@ -121,6 +124,7 @@ def register_process(request):
     if User.objects.filter(username=username).exists():
         return err('An account already exists with this phone/email. Please login instead.')
 
+    from .utils import generate_referral_code
     user = User.objects.create_user(
         username=username,
         password=password,
@@ -133,7 +137,19 @@ def register_process(request):
         address=address,
         city=city,
         pincode=pincode,
+        referral_code=generate_referral_code(),
     )
+
+    # Track referral and award signup bonus
+    if ref_code:
+        referrer = User.objects.filter(referral_code=ref_code).first()
+        if referrer and referrer != user:
+            Referral.objects.create(referrer=referrer, referred=user, bonus_signup=True)
+            from .utils import award_referral_points
+            award_referral_points(
+                referrer, 50, 'referral_signup',
+                f'{user.get_full_name() or user.username} joined using your referral link!'
+            )
 
     org_name = (
         request.POST.get('org_name', '').strip()
@@ -166,6 +182,7 @@ def register_process(request):
         )
 
     login(request, user, backend='jobs.backends.PhoneOrEmailBackend')
+    request.session['show_referral_popup'] = True
 
     if user_type in User.EMPLOYER_TYPES:
         redirect_url = '/employer/dashboard/'
@@ -331,6 +348,20 @@ def apply_job(request, pk):
                 cover_note=request.POST.get('cover_note', ''),
             )
             messages.success(request, 'Application submitted successfully!')
+            # Referral bonus: first application by a referred seeker
+            try:
+                ref = Referral.objects.get(referred=request.user, bonus_action=False)
+                first_app = JobApplication.objects.filter(applicant=request.user).count() == 1
+                if first_app:
+                    from .utils import award_referral_points
+                    award_referral_points(
+                        ref.referrer, 25, 'referral_apply',
+                        f'{request.user.get_full_name() or request.user.username} applied for their first job!'
+                    )
+                    ref.bonus_action = True
+                    ref.save(update_fields=['bonus_action'])
+            except Referral.DoesNotExist:
+                pass
         else:
             messages.warning(request, 'You have already applied for this job.')
     return redirect('job_detail', pk=pk)
@@ -409,6 +440,20 @@ def post_job(request):
             messages.success(request, 'Job saved as draft.')
         else:
             messages.success(request, 'Job submitted! Admin will review and approve it shortly.')
+            # Referral bonus: first job posted by a referred employer
+            try:
+                ref = Referral.objects.get(referred=request.user, bonus_action=False)
+                first_job = Job.objects.filter(posted_by=request.user).count() == 1
+                if first_job:
+                    from .utils import award_referral_points
+                    award_referral_points(
+                        ref.referrer, 100, 'referral_job',
+                        f'{request.user.get_full_name() or request.user.username} posted their first job!'
+                    )
+                    ref.bonus_action = True
+                    ref.save(update_fields=['bonus_action'])
+            except Referral.DoesNotExist:
+                pass
         return redirect('employer_dashboard')
 
     industries = Industry.objects.filter(is_active=True).prefetch_related('roles')
@@ -597,6 +642,9 @@ def employer_dashboard(request):
     profile_pct = _pct(user, profile)
     profile_incomplete = profile_pct < 70
 
+    show_referral_popup = request.session.pop('show_referral_popup', False)
+    referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
         'expired_jobs':       expired_jobs,
@@ -620,6 +668,8 @@ def employer_dashboard(request):
         'profile':            profile,
         'profile_pct':        profile_pct,
         'profile_incomplete': profile_incomplete,
+        'show_referral_popup': show_referral_popup,
+        'referral_link':      referral_link,
     })
 
 
@@ -661,12 +711,16 @@ def jobseeker_dashboard(request):
         recommended = Job.objects.filter(status='active', is_approved=True, job_plan__in=['free', 'paid']).order_by('-created_at')[:4]
     notifs = UserNotification.objects.filter(user=request.user).order_by('-created_at')[:12]
     unread_notif_count = UserNotification.objects.filter(user=request.user, is_read=False).count()
+    show_referral_popup = request.session.pop('show_referral_popup', False)
+    referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
     return render(request, 'jobseeker_dashboard.html', {
         'applications':       applications,
         'recommended':        recommended,
         'profile':            profile,
         'notifs':             notifs,
         'unread_notif_count': unread_notif_count,
+        'show_referral_popup': show_referral_popup,
+        'referral_link':      referral_link,
     })
 
 
@@ -1957,6 +2011,28 @@ def mark_all_notifications_read(request):
     UserNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     next_url = request.GET.get('next') or request.META.get('HTTP_REFERER') or '/'
     return redirect(next_url)
+
+
+@login_required
+def referral_dashboard(request):
+    user = request.user
+    if not user.referral_code:
+        from .utils import generate_referral_code
+        user.referral_code = generate_referral_code()
+        user.save(update_fields=['referral_code'])
+
+    wallet, _ = PointsWallet.objects.get_or_create(user=user)
+    transactions = wallet.transactions.all()[:20]
+    referrals = Referral.objects.filter(referrer=user).select_related('referred').order_by('-created_at')
+
+    referral_link = request.build_absolute_uri(f'/register/?ref={user.referral_code}')
+
+    return render(request, 'referral.html', {
+        'wallet': wallet,
+        'transactions': transactions,
+        'referrals': referrals,
+        'referral_link': referral_link,
+    })
 
 
 @super_admin_required
