@@ -253,7 +253,7 @@ def dashboard(request):
 
 # ── JOBS ──────────────────────────────────────────────────────────────────────
 def job_list(request):
-    jobs = Job.objects.filter(status='active', posted_by__user_type__in=User.EMPLOYER_TYPES)
+    jobs = Job.objects.filter(status='active', is_approved=True, job_plan__in=['free', 'paid'], posted_by__user_type__in=User.EMPLOYER_TYPES)
 
     collar    = request.GET.get('collar', '')
     category  = request.GET.get('category', '')
@@ -305,13 +305,13 @@ def job_list(request):
 
 
 def job_detail(request, pk):
-    job = get_object_or_404(Job, pk=pk, status='active')
+    job = get_object_or_404(Job, pk=pk, status='active', is_approved=True, job_plan__in=['free', 'paid'])
     already_applied = False
     is_saved = False
     if request.user.is_authenticated:
         already_applied = JobApplication.objects.filter(job=job, applicant=request.user).exists()
         is_saved = SavedJob.objects.filter(user=request.user, job=job).exists()
-    related = Job.objects.filter(collar_type=job.collar_type, status='active').exclude(pk=pk)[:3]
+    related = Job.objects.filter(collar_type=job.collar_type, status='active', is_approved=True, job_plan__in=['free', 'paid']).exclude(pk=pk)[:3]
     return render(request, 'job_detail.html', {
         'job': job,
         'already_applied': already_applied,
@@ -322,7 +322,7 @@ def job_detail(request, pk):
 
 @login_required
 def apply_job(request, pk):
-    job = get_object_or_404(Job, pk=pk, status='active')
+    job = get_object_or_404(Job, pk=pk, status='active', is_approved=True, job_plan__in=['free', 'paid'])
     if request.method == 'POST':
         if not JobApplication.objects.filter(job=job, applicant=request.user).exists():
             JobApplication.objects.create(
@@ -408,11 +408,52 @@ def post_job(request):
         if status == 'draft':
             messages.success(request, 'Job saved as draft.')
         else:
-            messages.success(request, 'Job posted successfully!')
+            messages.success(request, 'Job submitted! Admin will review and approve it shortly.')
         return redirect('employer_dashboard')
 
     industries = Industry.objects.filter(is_active=True).prefetch_related('roles')
     return render(request, 'post_job.html', {'industries': industries})
+
+
+@login_required
+def job_select_plan(request, pk):
+    import datetime
+    job = get_object_or_404(Job, pk=pk, posted_by=request.user)
+
+    if not job.is_approved:
+        messages.warning(request, 'This job is still pending admin approval.')
+        return redirect('employer_dashboard')
+
+    if job.job_plan and job.job_plan not in ('', 'free_expired'):
+        messages.info(request, 'A plan is already active for this job.')
+        return redirect('employer_dashboard')
+
+    is_upgrade = job.job_plan == 'free_expired'
+
+    if request.method == 'POST':
+        plan = request.POST.get('plan')
+
+        if plan == 'free':
+            job.job_plan = 'free'
+            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=1)
+            job.save()
+            from .utils import notify_seekers_for_job
+            notify_seekers_for_job(job)
+            messages.success(request, 'Free plan activated! Your job is now live for 1 week.')
+            return redirect('employer_dashboard')
+
+        elif plan == 'paid_confirm':
+            screenshot = request.FILES.get('screenshot')
+            if not screenshot:
+                messages.error(request, 'Please upload the payment screenshot.')
+                return render(request, 'job_select_plan.html', {'job': job, 'show_qr': True, 'is_upgrade': is_upgrade})
+            job.job_plan = 'paid_pending'
+            job.payment_screenshot = screenshot
+            job.save()
+            messages.success(request, 'Payment screenshot submitted! Admin will verify and activate your plan shortly.')
+            return redirect('employer_dashboard')
+
+    return render(request, 'job_select_plan.html', {'job': job, 'show_qr': False, 'is_upgrade': is_upgrade})
 
 
 @login_required
@@ -475,10 +516,31 @@ def edit_job(request, pk):
 def employer_dashboard(request):
     user = request.user
 
+    # ── Auto-expire free plans ──
+    import datetime
+    today = datetime.date.today()
+    to_expire = Job.objects.filter(posted_by=user, job_plan='free', plan_expires_at__lt=today, status='active')
+    for _job in to_expire:
+        _job.job_plan = 'free_expired'
+        _job.save(update_fields=['job_plan'])
+        UserNotification.objects.get_or_create(
+            user=user,
+            link=f'/jobs/{_job.pk}/select-plan/',
+            defaults={
+                'title': f'Free Week Ended: {_job.title}',
+                'message': f'Your 1-week free listing for "{_job.title}" has expired. Upgrade to 12 weeks for ₹499!',
+                'notif_type': 'warning',
+            },
+        )
+
     # ── Jobs ──
-    active_jobs  = Job.objects.filter(posted_by=user, status='active').order_by('-created_at')
-    pending_jobs = Job.objects.filter(posted_by=user, status='draft').order_by('-created_at')
-    closed_jobs  = Job.objects.filter(posted_by=user, status='closed').order_by('-created_at')
+    active_jobs       = Job.objects.filter(posted_by=user, status='active', is_approved=True, job_plan__in=['free', 'paid']).order_by('-created_at')
+    expired_jobs      = Job.objects.filter(posted_by=user, status='active', is_approved=True, job_plan='free_expired').order_by('-created_at')
+    paid_pending_jobs = Job.objects.filter(posted_by=user, status='active', is_approved=True, job_plan='paid_pending').order_by('-created_at')
+    plan_pending      = Job.objects.filter(posted_by=user, status='active', is_approved=True, job_plan='').order_by('-created_at')
+    approval_pending  = Job.objects.filter(posted_by=user, status='active', is_approved=False).order_by('-created_at')
+    pending_jobs      = Job.objects.filter(posted_by=user, status='draft').order_by('-created_at')
+    closed_jobs       = Job.objects.filter(posted_by=user, status='closed').order_by('-created_at')
 
     # ── Applications ──
     all_apps    = JobApplication.objects.filter(job__posted_by=user).select_related('applicant', 'job').order_by('-applied_at')
@@ -537,6 +599,10 @@ def employer_dashboard(request):
 
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
+        'expired_jobs':       expired_jobs,
+        'paid_pending_jobs':  paid_pending_jobs,
+        'plan_pending':       plan_pending,
+        'approval_pending':   approval_pending,
         'pending_jobs':       pending_jobs,
         'closed_jobs':        closed_jobs,
         'all_apps':           all_apps,
@@ -584,15 +650,23 @@ def employer_profile_save(request):
 @login_required
 def jobseeker_dashboard(request):
     applications = JobApplication.objects.filter(applicant=request.user).select_related('job')
-    recommended  = Job.objects.filter(status='active')[:4]
     try:
         profile = request.user.seeker
+        qs = Job.objects.filter(status='active', is_approved=True, job_plan__in=['free', 'paid'])
+        if profile.job_category and profile.job_category != 'any':
+            qs = qs.filter(collar_type=profile.job_category)
+        recommended = qs.order_by('-created_at')[:4]
     except Exception:
         profile = None
+        recommended = Job.objects.filter(status='active', is_approved=True, job_plan__in=['free', 'paid']).order_by('-created_at')[:4]
+    notifs = UserNotification.objects.filter(user=request.user).order_by('-created_at')[:12]
+    unread_notif_count = UserNotification.objects.filter(user=request.user, is_read=False).count()
     return render(request, 'jobseeker_dashboard.html', {
-        'applications': applications,
-        'recommended': recommended,
-        'profile': profile,
+        'applications':       applications,
+        'recommended':        recommended,
+        'profile':            profile,
+        'notifs':             notifs,
+        'unread_notif_count': unread_notif_count,
     })
 
 
@@ -1654,11 +1728,13 @@ def super_admin_dashboard(request):
     open_complaints = Complaint.objects.filter(status='open').count()
     employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
     jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
-    recent_users    = User.objects.order_by('-date_joined')[:8]
-    state_list      = State.objects.annotate(d_count=Count('districts')).order_by('name')
-    recent_jobs     = Job.objects.select_related('posted_by').order_by('-created_at')[:6]
-    industries      = Industry.objects.filter(is_active=True)
-    notifications   = SystemNotification.objects.filter(is_active=True)[:5]
+    recent_users       = User.objects.order_by('-date_joined')[:8]
+    state_list         = State.objects.annotate(d_count=Count('districts')).order_by('name')
+    recent_jobs        = Job.objects.select_related('posted_by').order_by('-created_at')[:6]
+    industries         = Industry.objects.filter(is_active=True)
+    notifications      = SystemNotification.objects.filter(is_active=True)[:5]
+    pending_jobs_count = Job.objects.filter(status='active', is_approved=False).count()
+    paid_verify_count  = Job.objects.filter(job_plan='paid_pending').count()
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
@@ -1667,6 +1743,7 @@ def super_admin_dashboard(request):
         'state_list': state_list, 'recent_jobs': recent_jobs,
         'industries': industries, 'notifications': notifications,
         'employer_count': employer_count, 'jobseeker_count': jobseeker_count,
+        'pending_jobs_count': pending_jobs_count, 'paid_verify_count': paid_verify_count,
     })
 
 
@@ -1875,6 +1952,13 @@ def manage_notifications(request):
     return render(request, 'manage_notifications.html', {'notifs': notifs})
 
 
+@login_required
+def mark_all_notifications_read(request):
+    UserNotification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    next_url = request.GET.get('next') or request.META.get('HTTP_REFERER') or '/'
+    return redirect(next_url)
+
+
 @super_admin_required
 def national_analytics(request):
     jobs_by_collar = {
@@ -2044,11 +2128,13 @@ def approve_employers_district(request):
 
 @district_admin_required
 def moderate_jobs(request):
-    jobs = Job.objects.select_related('posted_by').order_by('-created_at')
+    tab = request.GET.get('tab', 'all')
+
     if request.method == 'POST':
-        job_id = request.POST.get('job_id')
-        action = request.POST.get('action')
-        job    = get_object_or_404(Job, pk=job_id)
+        job_id  = request.POST.get('job_id')
+        action  = request.POST.get('action')
+        back_tab = request.POST.get('back_tab', 'all')
+        job     = get_object_or_404(Job, pk=job_id)
         if action == 'suspend':
             job.status = 'closed'
             job.save()
@@ -2057,8 +2143,58 @@ def moderate_jobs(request):
             job.status = 'active'
             job.save()
             messages.success(request, f'Job "{job.title}" reactivated.')
-        return redirect('moderate_jobs')
-    return render(request, 'moderate_jobs.html', {'jobs': jobs})
+        elif action == 'approve':
+            job.is_approved = True
+            job.status = 'active'
+            job.save()
+            UserNotification.objects.create(
+                user=job.posted_by,
+                title=f'Job Approved! Choose Your Plan — {job.title}',
+                message='Your job is approved! 🎉 Start with 1 Week FREE, or go straight to 12 Weeks for ₹499. Tap to choose.',
+                notif_type='success',
+                link=f'/jobs/{job.pk}/select-plan/',
+            )
+            messages.success(request, f'Job "{job.title}" approved. Employer notified to select a plan.')
+        elif action == 'reject':
+            job.is_approved = False
+            job.status = 'closed'
+            job.save()
+            messages.success(request, f'Job "{job.title}" rejected.')
+        elif action == 'activate_plan':
+            import datetime
+            job.job_plan = 'paid'
+            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=12)
+            job.save()
+            from .utils import notify_seekers_for_job
+            notify_seekers_for_job(job)
+            UserNotification.objects.create(
+                user=job.posted_by,
+                title='Your Plan is Activated!',
+                message=f'Your payment has been verified. "{job.title}" is now live for 12 weeks. Job seekers can now find and apply!',
+                notif_type='success',
+                link=f'/jobs/{job.pk}/',
+            )
+            messages.success(request, f'Plan activated for "{job.title}". Employer notified.')
+        return redirect(f'/district-admin/jobs/?tab={back_tab}')
+
+    base_qs = Job.objects.select_related('posted_by').order_by('is_approved', '-created_at')
+
+    if tab == 'pending':
+        jobs = base_qs.filter(status='active', is_approved=False)
+    elif tab == 'payment':
+        jobs = base_qs.filter(job_plan__in=['paid_pending', 'paid']).exclude(payment_screenshot='').exclude(payment_screenshot__isnull=True)
+    else:
+        jobs = base_qs
+
+    pending_count = base_qs.filter(status='active', is_approved=False).count()
+    payment_count = base_qs.filter(job_plan='paid_pending').count()
+
+    return render(request, 'moderate_jobs.html', {
+        'jobs':          jobs,
+        'pending_count': pending_count,
+        'payment_count': payment_count,
+        'tab':           tab,
+    })
 
 
 @district_admin_required

@@ -1,36 +1,246 @@
-﻿{% extends "admin_base.html" %}
+{% extends "admin_base.html" %}
 {% block title %}Moderate Jobs{% endblock %}
 {% block content %}
-<div class="ap-page-title"><i class="fas fa-briefcase" style="color:#e65100"></i> Moderate Jobs</div>
+
+<div class="ap-page-title">
+  <i class="fas fa-briefcase" style="color:#e65100"></i> Job Approval
+</div>
+
+<!-- Tabs -->
+<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+  <a href="?tab=all"
+     style="padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;
+            background:{% if tab == 'all' %}#191919{% else %}#f3f4f6{% endif %};
+            color:{% if tab == 'all' %}#fff{% else %}#555{% endif %}">
+    <i class="fas fa-list"></i> All Jobs
+  </a>
+  <a href="?tab=pending"
+     style="padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;
+            background:{% if tab == 'pending' %}#e65100{% else %}#fff3cd{% endif %};
+            color:{% if tab == 'pending' %}#fff{% else %}#856404{% endif %};border:1px solid #ffc107">
+    <i class="fas fa-hourglass-half"></i> Pending Approval
+    {% if pending_count %}<span style="background:{% if tab == 'pending' %}rgba(255,255,255,0.3){% else %}#e65100{% endif %};color:#fff;font-size:11px;padding:1px 7px;border-radius:20px;margin-left:4px">{{ pending_count }}</span>{% endif %}
+  </a>
+  <a href="?tab=payment"
+     style="padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;
+            background:{% if tab == 'payment' %}#0a66c2{% else %}#e8f0fe{% endif %};
+            color:{% if tab == 'payment' %}#fff{% else %}#0a66c2{% endif %};border:1px solid #0a66c2">
+    <i class="fas fa-receipt"></i> Paid – Verify Payment
+    {% if payment_count %}<span style="background:{% if tab == 'payment' %}rgba(255,255,255,0.3){% else %}#0a66c2{% endif %};color:#fff;font-size:11px;padding:1px 7px;border-radius:20px;margin-left:4px">{{ payment_count }}</span>{% endif %}
+  </a>
+</div>
+
+<!-- Table -->
 <div class="ap-card">
   <div class="ap-table-wrap">
     <table class="ap-table">
-      <thead><tr><th>Job</th><th>Collar</th><th>Posted By</th><th>Location</th><th>Posted</th><th>Status</th><th>Action</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>Employer</th>
+          <th>Plan / Payment</th>
+          <th>Location</th>
+          <th>Posted</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
       <tbody>
         {% for job in jobs %}
-        <tr>
-          <td><a href="/jobs/{{ job.pk }}/" style="font-weight:700;color:#0a66c2;font-size:13px">{{ job.title }}</a></td>
-          <td><span style="font-size:11px;color:{% if job.collar_type == 'white' %}#0a66c2{% else %}#e65100{% endif %}">{{ job.get_collar_type_display }}</span></td>
-          <td>{{ job.posted_by.get_full_name|default:job.posted_by.username }}<br><small style="color:#888">{{ job.posted_by.phone }}</small></td>
-          <td>{{ job.location }}<br><small style="color:#888">{{ job.pincode }}</small></td>
-          <td style="font-size:12px;color:#888;white-space:nowrap">{{ job.created_at|date:"d M Y" }}</td>
-          <td><span class="status-pill pill-{% if job.status == 'active' %}active{% elif job.status == 'closed' %}suspended{% else %}inactive{% endif %}">{{ job.get_status_display }}</span></td>
+        <tr {% if job.status == 'active' and not job.is_approved %}style="background:#fff8f0"{% elif job.job_plan == 'paid' and job.payment_screenshot %}style="background:#f0f7ff"{% endif %}>
+
+          <!-- Job title -->
           <td>
+            <a href="/jobs/{{ job.pk }}/" style="font-weight:700;color:#0a66c2;font-size:13px">{{ job.title }}</a>
+            <div style="font-size:11px;color:#aaa;margin-top:2px">{{ job.job_id }}</div>
+            <span style="font-size:11px;color:{% if job.collar_type == 'white' %}#0a66c2{% else %}#e65100{% endif %}">{{ job.get_collar_type_display }}</span>
+          </td>
+
+          <!-- Employer details -->
+          <td>
+            <div style="font-weight:700;font-size:13px;color:#191919">
+              {{ job.posted_by.get_full_name|default:job.posted_by.username }}
+            </div>
+            {% with co=job.posted_by.company %}
+            {% if co %}<div style="font-size:12px;color:#0a66c2;font-weight:600">{{ co.company_name }}</div>{% endif %}
+            {% endwith %}
+            {% with sh=job.posted_by.shop %}
+            {% if sh %}<div style="font-size:12px;color:#e65100;font-weight:600">{{ sh.shop_name }}</div>{% endif %}
+            {% endwith %}
+            <div style="font-size:11px;color:#888;margin-top:2px">
+              <i class="fas fa-phone"></i> {{ job.posted_by.phone|default:"—" }}
+            </div>
+          </td>
+
+          <!-- Plan / Payment Screenshot -->
+          <td style="min-width:140px">
+            {% if job.job_plan == 'free' %}
+              <span style="background:#e6f4ea;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">
+                <i class="fas fa-gift"></i> Free – 1 Week
+              </span>
+            {% elif job.job_plan == 'free_expired' %}
+              <span style="background:#fce4ec;color:#c62828;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">
+                <i class="fas fa-hourglass-end"></i> Free Expired
+              </span>
+            {% elif job.job_plan == 'paid_pending' %}
+              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:6px">
+                <i class="fas fa-clock"></i> Payment Under Review
+              </span>
+              {% if job.payment_screenshot %}
+              <div style="margin-top:6px">
+                <a href="{{ job.payment_screenshot.url }}" target="_blank"
+                   onclick="openScreenshot('{{ job.payment_screenshot.url }}','{{ job.posted_by.get_full_name|default:job.posted_by.username }}','{{ job.title }}');return false;"
+                   style="display:inline-block;cursor:pointer">
+                  <img src="{{ job.payment_screenshot.url }}" alt="Payment"
+                       style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:2px solid #ffc107">
+                </a>
+                <div style="font-size:10px;color:#856404;margin-top:2px;cursor:pointer"
+                     onclick="openScreenshot('{{ job.payment_screenshot.url }}','{{ job.posted_by.get_full_name|default:job.posted_by.username }}','{{ job.title }}')">
+                  <i class="fas fa-eye"></i> View Screenshot
+                </div>
+              </div>
+              {% endif %}
+            {% elif job.job_plan == 'paid' %}
+              <span style="background:#e8f0fe;color:#0a66c2;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:6px">
+                <i class="fas fa-star"></i> Paid ₹499 – 12 Weeks
+              </span>
+              {% if job.payment_screenshot %}
+              <div style="margin-top:6px">
+                <a href="{{ job.payment_screenshot.url }}" target="_blank"
+                   onclick="openScreenshot('{{ job.payment_screenshot.url }}','{{ job.posted_by.get_full_name|default:job.posted_by.username }}','{{ job.title }}');return false;"
+                   style="display:inline-block;cursor:pointer">
+                  <img src="{{ job.payment_screenshot.url }}" alt="Payment"
+                       style="width:60px;height:60px;object-fit:cover;border-radius:6px;border:2px solid #0a66c2">
+                </a>
+              </div>
+              {% endif %}
+            {% else %}
+              <span style="font-size:11px;color:#aaa">No plan selected</span>
+            {% endif %}
+          </td>
+
+          <!-- Location -->
+          <td>{{ job.location }}<br><small style="color:#888">{{ job.pincode }}</small></td>
+
+          <!-- Posted date -->
+          <td style="font-size:12px;color:#888;white-space:nowrap">{{ job.created_at|date:"d M Y" }}</td>
+
+          <!-- Status badge -->
+          <td>
+            {% if job.status == 'active' and not job.is_approved %}
+              <span class="status-pill" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:11px">Pending Approval</span>
+            {% elif job.is_approved and not job.job_plan %}
+              <span class="status-pill" style="background:#e8f0fe;color:#0a66c2;font-size:11px">Choose Plan</span>
+            {% else %}
+              <span class="status-pill pill-{% if job.status == 'active' %}active{% elif job.status == 'closed' %}suspended{% else %}inactive{% endif %}">{{ job.get_status_display }}</span>
+            {% endif %}
+          </td>
+
+          <!-- Actions -->
+          <td>
+            {% if job.status == 'active' and not job.is_approved %}
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="approve">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn ap-btn-success" style="font-size:11px">
+                  <i class="fas fa-check"></i> Approve
+                </button>
+              </form>
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn ap-btn-danger" style="font-size:11px">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+              </form>
+            </div>
+            {% elif job.job_plan == 'paid_pending' %}
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="activate_plan">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn ap-btn-success" style="font-size:11px;font-weight:800">
+                  <i class="fas fa-bolt"></i> Activate Plan
+                </button>
+              </form>
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="reject">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn ap-btn-danger" style="font-size:11px">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+              </form>
+            </div>
+            {% else %}
             <form method="POST" style="display:inline">
               {% csrf_token %}
               <input type="hidden" name="job_id" value="{{ job.pk }}">
               <input type="hidden" name="action" value="{% if job.status == 'active' %}suspend{% else %}activate{% endif %}">
+              <input type="hidden" name="back_tab" value="{{ tab }}">
               <button type="submit" class="ap-btn {% if job.status == 'active' %}ap-btn-danger{% else %}ap-btn-success{% endif %}" style="font-size:11px">
                 {% if job.status == 'active' %}Suspend{% else %}Activate{% endif %}
               </button>
             </form>
+            {% endif %}
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" style="text-align:center;color:#bbb;padding:40px">No jobs.</td></tr>
+        <tr><td colspan="7" style="text-align:center;color:#bbb;padding:40px">
+          <i class="fas fa-check-circle" style="font-size:32px;margin-bottom:8px;display:block"></i>
+          No jobs in this category.
+        </td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+
+<!-- Screenshot Modal -->
+<div id="ss-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;align-items:center;justify-content:center" onclick="closeScreenshot(event)">
+  <div style="background:#fff;border-radius:16px;max-width:90vw;max-height:90vh;overflow:auto;padding:0" onclick="event.stopPropagation()">
+    <div style="padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-weight:800;font-size:15px;color:#191919" id="ss-job-title"></div>
+        <div style="font-size:12px;color:#888;margin-top:2px"><i class="fas fa-user"></i> <span id="ss-employer-name"></span></div>
+      </div>
+      <button onclick="document.getElementById('ss-modal').style.display='none'"
+              style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;padding:4px 8px">&times;</button>
+    </div>
+    <div style="padding:16px;text-align:center">
+      <img id="ss-img" src="" alt="Payment Screenshot"
+           style="max-width:100%;max-height:70vh;border-radius:8px;border:1px solid #e8e8e8">
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid #f0f0f0;text-align:right">
+      <a id="ss-download" href="" target="_blank"
+         style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#0a66c2;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">
+        <i class="fas fa-external-link-alt"></i> Open Full Image
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+function openScreenshot(url, employer, jobTitle) {
+  document.getElementById('ss-img').src = url;
+  document.getElementById('ss-download').href = url;
+  document.getElementById('ss-employer-name').textContent = employer;
+  document.getElementById('ss-job-title').textContent = jobTitle;
+  document.getElementById('ss-modal').style.display = 'flex';
+}
+function closeScreenshot(e) {
+  if (e.target === document.getElementById('ss-modal')) {
+    document.getElementById('ss-modal').style.display = 'none';
+  }
+}
+</script>
+
 {% endblock %}

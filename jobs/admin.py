@@ -38,10 +38,34 @@ class JobSeekerProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display  = ('job_id', 'title', 'collar_type', 'category', 'location', 'pincode', 'is_urgent', 'status', 'created_at')
-    list_filter   = ('collar_type', 'status', 'is_urgent', 'job_type')
+    list_display  = ('job_id', 'title', 'collar_type', 'category', 'location', 'pincode', 'is_urgent', 'status', 'is_approved', 'created_at')
+    list_filter   = ('collar_type', 'status', 'is_approved', 'is_urgent', 'job_type')
     search_fields = ('job_id', 'title', 'category', 'location', 'pincode')
     date_hierarchy = 'created_at'
+    actions       = ['approve_jobs', 'reject_jobs']
+
+    def approve_jobs(self, request, queryset):
+        from .models import UserNotification
+        count = 0
+        for job in queryset:
+            job.is_approved = True
+            job.status = 'active'
+            job.save()
+            UserNotification.objects.create(
+                user=job.posted_by,
+                title=f'Job Approved! Choose Your Plan — {job.title}',
+                message='Your job is approved! 🎉 Start with 1 Week FREE, or go straight to 12 Weeks for ₹499. Tap to choose.',
+                notif_type='success',
+                link=f'/jobs/{job.pk}/select-plan/',
+            )
+            count += 1
+        self.message_user(request, f'{count} job(s) approved. Employers notified to select plan.')
+    approve_jobs.short_description = 'Approve selected jobs'
+
+    def reject_jobs(self, request, queryset):
+        queryset.update(is_approved=False, status='closed')
+        self.message_user(request, f'{queryset.count()} job(s) rejected.')
+    reject_jobs.short_description = 'Reject selected jobs'
 
 
 @admin.register(JobApplication)

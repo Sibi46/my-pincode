@@ -76,6 +76,30 @@
         <i class="fas fa-briefcase"></i> Active Jobs
         <span class="snav-count">{{ active_jobs.count }}</span>
       </a>
+      {% if expired_jobs.count %}
+      <a class="snav-item" onclick="showSection('expired-jobs',this)" data-sec="expired-jobs" style="color:#c62828">
+        <i class="fas fa-exclamation-circle"></i> Free Plan Ended
+        <span class="snav-count" style="background:#c62828">{{ expired_jobs.count }}</span>
+      </a>
+      {% endif %}
+      {% if paid_pending_jobs.count %}
+      <a class="snav-item" onclick="showSection('paid-pending',this)" data-sec="paid-pending" style="color:#856404">
+        <i class="fas fa-receipt"></i> Payment Review
+        <span class="snav-count" style="background:#856404">{{ paid_pending_jobs.count }}</span>
+      </a>
+      {% endif %}
+      {% if plan_pending.count %}
+      <a class="snav-item" onclick="showSection('plan-pending',this)" data-sec="plan-pending" style="color:#0a66c2">
+        <i class="fas fa-rocket"></i> Choose Plan
+        <span class="snav-count" style="background:#0a66c2">{{ plan_pending.count }}</span>
+      </a>
+      {% endif %}
+      {% if approval_pending.count %}
+      <a class="snav-item" onclick="showSection('approval-pending',this)" data-sec="approval-pending" style="color:#e65100">
+        <i class="fas fa-hourglass-half"></i> Awaiting Approval
+        <span class="snav-count" style="background:#e65100">{{ approval_pending.count }}</span>
+      </a>
+      {% endif %}
       <a class="snav-item" onclick="showSection('pending-jobs',this)" data-sec="pending-jobs">
         <i class="fas fa-clock"></i> Pending Jobs
         <span class="snav-count">{{ pending_jobs.count }}</span>
@@ -136,6 +160,21 @@
       <div class="stat-chip blue"   onclick="showSection('active-jobs')">
         <i class="fas fa-briefcase"></i><span>{{ active_jobs.count }}</span><label>Active</label>
       </div>
+      {% if expired_jobs.count %}
+      <div class="stat-chip" style="background:#fce4ec;border:1px solid #ef9a9a;cursor:pointer;animation:pulse 2s infinite" onclick="showSection('expired-jobs')">
+        <i class="fas fa-exclamation-circle" style="color:#c62828"></i><span style="color:#c62828">{{ expired_jobs.count }}</span><label style="color:#c62828">Expired</label>
+      </div>
+      {% endif %}
+      {% if plan_pending.count %}
+      <div class="stat-chip" style="background:#e8f0fe;border:1px solid #0a66c2;cursor:pointer" onclick="showSection('plan-pending')">
+        <i class="fas fa-rocket" style="color:#0a66c2"></i><span style="color:#0a66c2">{{ plan_pending.count }}</span><label style="color:#0a66c2">Choose Plan</label>
+      </div>
+      {% endif %}
+      {% if approval_pending.count %}
+      <div class="stat-chip" style="background:#fff3cd;border:1px solid #ffc107;cursor:pointer" onclick="showSection('approval-pending')">
+        <i class="fas fa-hourglass-half" style="color:#e65100"></i><span style="color:#e65100">{{ approval_pending.count }}</span><label style="color:#856404">Under Review</label>
+      </div>
+      {% endif %}
       <div class="stat-chip yellow" onclick="showSection('pending-jobs')">
         <i class="fas fa-clock"></i><span>{{ pending_jobs.count }}</span><label>Pending</label>
       </div>
@@ -216,6 +255,132 @@
         <p>Post your first job to start receiving applications</p>
         <a href="/post-job/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-plus"></i> Post a Job</a>
       </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ FREE PLAN EXPIRED ═══ -->
+    <section class="dsec hidden" id="sec-expired-jobs">
+      <div class="dsec-header">
+        <div>
+          <h2><i class="fas fa-exclamation-circle" style="color:#c62828"></i> Free Week Ended</h2>
+          <p>Your free 1-week listing has expired — upgrade to stay visible to job seekers</p>
+        </div>
+      </div>
+      {% if expired_jobs %}
+      <div class="job-list">
+        {% for job in expired_jobs %}
+        <div class="jl-row" style="border-left:3px solid #ef9a9a;background:#fff5f5">
+          <div class="jl-icon" style="background:#fce4ec"><i class="fas fa-hourglass-end" style="color:#c62828"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"—" }}</span>
+              <span style="color:#c62828"><i class="fas fa-calendar-times"></i> Expired {{ job.plan_expires_at|date:"d M Y" }}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <span style="background:#fce4ec;color:#c62828;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Free week ended</span>
+            <a href="/jobs/{{ job.pk }}/select-plan/"
+               style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#e65100;color:#fff;border-radius:8px;font-size:13px;font-weight:800;text-decoration:none;animation:pulse 2s infinite">
+              <i class="fas fa-bolt"></i> Continue — ₹499 / 12 Weeks
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ PAYMENT UNDER REVIEW ═══ -->
+    <section class="dsec hidden" id="sec-paid-pending">
+      <div class="dsec-header">
+        <div>
+          <h2><i class="fas fa-receipt" style="color:#856404"></i> Payment Under Review</h2>
+          <p>Admin is verifying your payment — your job will go live once approved</p>
+        </div>
+      </div>
+      {% if paid_pending_jobs %}
+      <div class="job-list">
+        {% for job in paid_pending_jobs %}
+        <div class="jl-row" style="border-left:3px solid #ffc107;background:#fffde7">
+          <div class="jl-icon" style="background:#fff3cd"><i class="fas fa-hourglass-half" style="color:#856404"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"—" }}</span>
+              <span><i class="fas fa-rupee-sign"></i> ₹499 paid — 12 Weeks</span>
+              <span style="color:#856404"><i class="fas fa-clock"></i> Submitted {{ job.created_at|date:"d M Y" }}</span>
+            </div>
+          </div>
+          <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;white-space:nowrap">
+            <i class="fas fa-search"></i> Admin Verifying
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ CHOOSE PLAN ═══ -->
+    <section class="dsec hidden" id="sec-plan-pending">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-rocket" style="color:#0a66c2"></i> Choose a Plan</h2>
+          <p>Admin approved these jobs — select a plan to make them live for seekers</p></div>
+      </div>
+      {% if plan_pending %}
+      <div class="job-list">
+        {% for job in plan_pending %}
+        <div class="jl-row" style="border-left:3px solid #0a66c2">
+          <div class="jl-icon" style="background:#e8f0fe"><i class="fas fa-rocket" style="color:#0a66c2"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"Location not set" }}</span>
+              <span><i class="fas fa-tag"></i> {{ job.get_collar_type_display }}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+            <span style="background:#e8f0fe;color:#0a66c2;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Admin Approved ✓</span>
+            <a href="/jobs/{{ job.pk }}/select-plan/" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:#0a66c2;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">
+              <i class="fas fa-rocket"></i> Choose Plan
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-rocket"></i><h3>No jobs awaiting plan selection</h3></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ AWAITING APPROVAL ═══ -->
+    <section class="dsec hidden" id="sec-approval-pending">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-hourglass-half" style="color:#e65100"></i> Awaiting Admin Approval</h2>
+          <p>These jobs are submitted and pending review before going live to seekers</p></div>
+      </div>
+      {% if approval_pending %}
+      <div class="job-list">
+        {% for job in approval_pending %}
+        <div class="jl-row" style="border-left:3px solid #ffc107">
+          <div class="jl-icon" style="background:#fff3cd"><i class="fas fa-hourglass-half" style="color:#e65100"></i></div>
+          <div class="jl-info">
+            <h4>{{ job.title }}</h4>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location|default:"Location not set" }}</span>
+              <span><i class="fas fa-calendar-alt"></i> Submitted {{ job.created_at|date:"d M Y" }}</span>
+              <span><i class="fas fa-tag"></i> {{ job.get_collar_type_display }}</span>
+            </div>
+          </div>
+          <span class="status-pill" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:11px">Under Review</span>
+          <div class="jl-actions">
+            <a href="/jobs/{{ job.pk }}/edit/" class="jl-btn edit" title="Edit"><i class="fas fa-pen"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-hourglass-half"></i><h3>No jobs pending approval</h3><p>All your submitted jobs have been reviewed</p></div>
       {% endif %}
     </section>
 

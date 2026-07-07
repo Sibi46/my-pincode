@@ -198,6 +198,12 @@ class Job(models.Model):
     SALARY_TYPE = [('month', 'Per Month'), ('day', 'Per Day'), ('hour', 'Per Hour')]
     STATUS = [('active', 'Active'), ('closed', 'Closed'), ('draft', 'Draft')]
 
+    is_approved        = models.BooleanField(default=False)
+    JOB_PLAN = [('', 'No Plan'), ('free', '1 Week Free'), ('paid_pending', 'Payment Under Review'), ('paid', '12 Weeks Paid'), ('free_expired', 'Free Plan Expired')]
+    job_plan           = models.CharField(max_length=15, choices=JOB_PLAN, default='', blank=True)
+    payment_screenshot = models.ImageField(upload_to='payment_proofs/', null=True, blank=True)
+    plan_expires_at    = models.DateField(null=True, blank=True)
+
     # Core
     posted_by     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='jobs')
     title         = models.CharField(max_length=200)

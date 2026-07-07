@@ -19,6 +19,16 @@
     <h3>{{ active_jobs }}</h3>
     <p>Active Jobs</p>
   </div>
+  <a href="/district-admin/jobs/?tab=pending" class="ap-stat" style="background:linear-gradient(135deg,#fff8e1,#fffde7);text-decoration:none;border:1.5px solid #ffc107">
+    <div class="ap-stat-icon"><i class="fas fa-hourglass-half" style="color:#e65100"></i></div>
+    <h3 style="color:#e65100">{{ pending_jobs_count }}</h3>
+    <p style="color:#856404">Pending Approval</p>
+  </a>
+  <a href="/district-admin/jobs/?tab=payment" class="ap-stat" style="background:linear-gradient(135deg,#e8f0fe,#eff6ff);text-decoration:none;border:1.5px solid #bfdbfe">
+    <div class="ap-stat-icon"><i class="fas fa-receipt" style="color:#0a66c2"></i></div>
+    <h3 style="color:#0a66c2">{{ paid_verify_count }}</h3>
+    <p style="color:#0a66c2">Verify Payments</p>
+  </a>
   <div class="ap-stat orange">
     <div class="ap-stat-icon"><i class="fas fa-file-alt"></i></div>
     <h3>{{ total_apps }}</h3>
@@ -78,6 +88,18 @@
     <a href="/super-admin/analytics/" class="ap-quick-card">
       <i class="fas fa-chart-line" style="color:#f3a000"></i>
       <span>Analytics</span>
+    </a>
+    <a href="/district-admin/jobs/?tab=pending" class="ap-quick-card" style="{% if pending_jobs_count %}border:2px solid #ffc107;background:#fffde7{% endif %}">
+      <i class="fas fa-check-square" style="color:#e65100"></i>
+      <span>Job Approval
+        {% if pending_jobs_count %}<br><small style="color:#e65100;font-weight:900">{{ pending_jobs_count }} pending</small>{% endif %}
+      </span>
+    </a>
+    <a href="/district-admin/jobs/?tab=payment" class="ap-quick-card" style="{% if paid_verify_count %}border:2px solid #0a66c2;background:#e8f0fe{% endif %}">
+      <i class="fas fa-receipt" style="color:#0a66c2"></i>
+      <span>Verify Payments
+        {% if paid_verify_count %}<br><small style="color:#0a66c2;font-weight:900">{{ paid_verify_count }} to verify</small>{% endif %}
+      </span>
     </a>
     <a href="/admin-panel/advertisers/" class="ap-quick-card">
       <i class="fas fa-bullhorn" style="color:#0a66c2"></i>

@@ -118,3 +118,32 @@ def jobs_within_radius(lat: float, lng: float, radius_km: float = 5, queryset=No
 
     results.sort(key=lambda x: x[1])
     return results
+
+
+def notify_seekers_for_job(job):
+    """Create a UserNotification for every seeker whose profile matches this job."""
+    from .models import User, UserNotification
+    seekers = User.objects.filter(user_type='seeker').select_related('seeker')
+    for seeker in seekers:
+        try:
+            sp = seeker.seeker
+        except Exception:
+            continue
+        if sp.availability == 'not_looking':
+            continue
+        # Skip if collar preference doesn't match
+        if sp.job_category and sp.job_category != 'any' and sp.job_category != job.collar_type:
+            continue
+        # Skip if both sides have an industry set but they don't overlap
+        if sp.industry and job.industry:
+            job_ind = job.industry.lower()
+            seek_ind = sp.industry.lower()
+            if job_ind not in seek_ind and seek_ind not in job_ind:
+                continue
+        UserNotification.objects.create(
+            user=seeker,
+            title=f'New Job: {job.title}',
+            message=f'{job.title} in {job.location} is now hiring. Tap to apply!',
+            notif_type='info',
+            link=f'/jobs/{job.pk}/',
+        )

@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Choose Plan - {{ job.title }}{% endblock %}
+{% block content %}
+<div style="max-width:540px;margin:48px auto;padding:0 16px">
+
+  <!-- Header -->
+  <div style="text-align:center;margin-bottom:32px">
+    {% if is_upgrade %}
+    <div style="width:64px;height:64px;background:#fff3cd;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;color:#e65100">
+      <i class="fas fa-redo"></i>
+    </div>
+    <h2 style="font-size:22px;font-weight:900;color:#191919;margin-bottom:6px">Your Free Week Has Ended</h2>
+    <p style="color:#666;font-size:14px">Keep <strong>{{ job.title }}</strong> live — upgrade to 12 weeks for ₹499</p>
+    {% else %}
+    <div style="width:64px;height:64px;background:#e8f0fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;color:#0a66c2">
+      <i class="fas fa-rocket"></i>
+    </div>
+    <h2 style="font-size:22px;font-weight:900;color:#191919;margin-bottom:6px">Your Job is Approved!</h2>
+    <p style="color:#666;font-size:14px">Choose a plan to make <strong>{{ job.title }}</strong> visible to job seekers</p>
+    {% endif %}
+  </div>
+
+  <!-- Plan Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px">
+
+    <!-- Free Card -->
+    <div id="card-free" onclick="selectPlan('free')"
+         style="border:2px solid #e0e0e0;border-radius:16px;padding:22px 16px;cursor:pointer;text-align:center;transition:all .2s">
+      <div style="font-size:32px;margin-bottom:8px">🎁</div>
+      <div style="font-size:26px;font-weight:900;color:#2e7d32">FREE</div>
+      <div style="font-size:13px;color:#555;margin:6px 0 10px">1 Week</div>
+      <div style="background:#e6f4ea;color:#2e7d32;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block">No payment needed</div>
+    </div>
+
+    <!-- Paid Card -->
+    <div id="card-paid" onclick="selectPlan('paid')"
+         style="border:2px solid #e0e0e0;border-radius:16px;padding:22px 16px;cursor:pointer;text-align:center;transition:all .2s;position:relative;overflow:hidden">
+      <div style="position:absolute;top:10px;right:-22px;background:#e65100;color:#fff;font-size:10px;font-weight:900;padding:3px 30px;transform:rotate(45deg)">50% OFF</div>
+      <div style="font-size:32px;margin-bottom:8px">⭐</div>
+      <div style="font-size:13px;color:#aaa;text-decoration:line-through">₹999</div>
+      <div style="font-size:26px;font-weight:900;color:#e65100">₹499</div>
+      <div style="font-size:13px;color:#555;margin:6px 0 10px">12 Weeks</div>
+      <div style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-block">Best Value</div>
+    </div>
+  </div>
+
+  <!-- Benefits comparison -->
+  <div style="background:#f7f9ff;border-radius:14px;padding:16px 20px;margin-bottom:24px;font-size:13px">
+    <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:8px;align-items:center">
+      <div style="font-weight:700;color:#444;font-size:12px;padding-bottom:8px;border-bottom:1px solid #e8e8e8">Feature</div>
+      <div style="text-align:center;font-weight:700;color:#2e7d32;font-size:12px;padding-bottom:8px;border-bottom:1px solid #e8e8e8">Free</div>
+      <div style="text-align:center;font-weight:700;color:#e65100;font-size:12px;padding-bottom:8px;border-bottom:1px solid #e8e8e8">Paid</div>
+      {% for row in benefits %}{% endfor %}
+    </div>
+    {% for label, free, paid in benefits_data %}
+    <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0">
+      <div style="color:#555">{{ label }}</div>
+      <div style="text-align:center">{{ free }}</div>
+      <div style="text-align:center">{{ paid }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Free Plan Action -->
+  <div id="free-section" style="display:{% if show_qr %}none{% else %}none{% endif %}">
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="plan" value="free">
+      <button type="submit" style="width:100%;padding:14px;background:#2e7d32;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer">
+        <i class="fas fa-check-circle"></i> Activate Free Plan (1 Week)
+      </button>
+    </form>
+    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:8px">Your job will be live for 7 days at no cost</p>
+  </div>
+
+  <!-- Paid Plan Section -->
+  <div id="paid-section" style="display:{% if show_qr %}block{% else %}none{% endif %}">
+    <div style="background:#fff;border:1.5px solid #e0e0e0;border-radius:16px;padding:24px;text-align:center;margin-bottom:16px">
+      <h4 style="font-size:15px;font-weight:800;color:#191919;margin-bottom:4px">Scan & Pay ₹499</h4>
+      <p style="font-size:12px;color:#888;margin-bottom:16px">Use any UPI app — GPay, PhonePe, Paytm</p>
+
+      <!-- QR Code -->
+      <div style="display:inline-block;padding:12px;border:2px solid #e0e0e0;border-radius:12px;background:#fafafa">
+        <img src="{% static 'images/payment_qr.png' %}" alt="Payment QR"
+             style="width:180px;height:180px;display:block"
+             onerror="this.style.display='none';document.getElementById('qr-placeholder').style.display='flex'">
+        <div id="qr-placeholder" style="display:none;width:180px;height:180px;border:2px dashed #ccc;border-radius:8px;align-items:center;justify-content:center;flex-direction:column;color:#aaa;font-size:12px">
+          <i class="fas fa-qrcode" style="font-size:48px;margin-bottom:8px"></i>
+          <span>Upload QR to<br>static/images/payment_qr.png</span>
+        </div>
+      </div>
+
+      <p style="font-size:13px;font-weight:700;color:#191919;margin-top:12px">Amount: ₹499</p>
+      <p style="font-size:12px;color:#666">UPI ID: <strong>mypincod@upi</strong></p>
+    </div>
+
+    <!-- Screenshot Upload -->
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="plan" value="paid_confirm">
+      <label style="display:block;font-size:13px;font-weight:700;color:#444;margin-bottom:8px">
+        <i class="fas fa-upload"></i> Upload Payment Screenshot
+      </label>
+      <div style="border:2px dashed #d0d0d0;border-radius:10px;padding:20px;text-align:center;margin-bottom:14px;background:#fafafa;cursor:pointer" onclick="document.getElementById('ss-input').click()">
+        <i class="fas fa-image" style="font-size:28px;color:#ccc;margin-bottom:8px"></i>
+        <p style="font-size:13px;color:#888;margin:0" id="ss-label">Tap to select screenshot</p>
+        <input type="file" id="ss-input" name="screenshot" accept="image/*" required style="display:none"
+               onchange="document.getElementById('ss-label').textContent=this.files[0]?this.files[0].name:'Tap to select screenshot'">
+      </div>
+      <button type="submit" style="width:100%;padding:14px;background:#e65100;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer">
+        <i class="fas fa-paper-plane"></i> Submit Payment & Go Live (12 Weeks)
+      </button>
+    </form>
+    <p style="text-align:center;font-size:12px;color:#aaa;margin-top:8px">Your job will be visible to seekers immediately after submission</p>
+  </div>
+
+  <div style="text-align:center;margin-top:20px">
+    <a href="/employer/dashboard/" style="font-size:13px;color:#888;text-decoration:none">← Back to Dashboard</a>
+  </div>
+</div>
+
+<script>
+function selectPlan(plan) {
+  var freeCard = document.getElementById('card-free');
+  var paidCard = document.getElementById('card-paid');
+  var freeSection = document.getElementById('free-section');
+  var paidSection = document.getElementById('paid-section');
+
+  if (plan === 'free') {
+    freeCard.style.borderColor = '#2e7d32';
+    freeCard.style.background = '#f0faf0';
+    paidCard.style.borderColor = '#e0e0e0';
+    paidCard.style.background = '#fff';
+    freeSection.style.display = 'block';
+    paidSection.style.display = 'none';
+  } else {
+    paidCard.style.borderColor = '#e65100';
+    paidCard.style.background = '#fff8f5';
+    freeCard.style.borderColor = '#e0e0e0';
+    freeCard.style.background = '#fff';
+    paidSection.style.display = 'block';
+    freeSection.style.display = 'none';
+  }
+}
+{% if show_qr %}
+document.addEventListener('DOMContentLoaded', function(){ selectPlan('paid'); });
+{% endif %}
+</script>
+{% endblock %}
