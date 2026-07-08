@@ -1134,18 +1134,17 @@ function obRemoveJob(i){
         btn.textContent = 'Sending...';
         return fetch('/api/send-otp/', {
           method: 'POST',
-          headers: { 'X-CSRFToken': getCsrf() }
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: JSON.stringify({ phone: phone })
         })
         .then(function(r){ return r.json(); })
         .then(function(d2){
           if (d2.success) {
-            document.getElementById('obOtpHint').textContent = 'Your OTP: ' + d2.otp;
-            document.getElementById('obOtpHint').style.display = 'block';
             document.getElementById('obOtpSection').style.display = 'block';
             document.getElementById('obOtp').focus();
             obStartTimer(60);
           } else {
-            obShowErr('obStep2Err','Could not send OTP. Try again.');
+            obShowErr('obStep2Err', d2.error || 'Could not send OTP. Try again.');
             btn.disabled = false; btn.textContent = 'Send OTP';
           }
         });

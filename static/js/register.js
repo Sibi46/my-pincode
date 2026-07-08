@@ -118,102 +118,109 @@ function injectField(form, name, value) {
     el.value = value;
 }
 
-// ── OTP flow ──────────────────────────────────────────────────────────────────
-function showDemoOtpPopup() {
-    var existing = document.getElementById('demoOtpPopup');
-    if (existing) existing.remove();
-
-    var popup = document.createElement('div');
-    popup.id = 'demoOtpPopup';
-    popup.innerHTML = `
-        <div style="
-            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-            background:#fff;border-radius:20px;padding:32px 36px;
-            box-shadow:0 20px 60px rgba(0,0,0,.25);z-index:99999;
-            text-align:center;min-width:280px;animation:otpPopIn .3s cubic-bezier(.22,.68,0,1.4)
-        ">
-            <div style="font-size:48px;margin-bottom:10px">📱</div>
-            <div style="font-size:13px;font-weight:700;color:#888;letter-spacing:.5px;margin-bottom:6px">DEMO OTP</div>
-            <div style="font-size:42px;font-weight:900;color:#0a66c2;letter-spacing:12px;margin-bottom:14px">123456</div>
-            <div style="font-size:13px;color:#aaa">Use this code to verify</div>
-            <button onclick="document.getElementById('demoOtpPopup').remove()" style="
-                margin-top:20px;background:#0a66c2;color:#fff;border:none;
-                padding:10px 32px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer
-            ">Got it!</button>
-        </div>
-        <div onclick="document.getElementById('demoOtpPopup').remove()" style="
-            position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99998
-        "></div>
-        <style>
-        @keyframes otpPopIn{
-            0%{transform:translate(-50%,-50%) scale(.7);opacity:0}
-            100%{transform:translate(-50%,-50%) scale(1);opacity:1}
-        }
-        </style>
-    `;
-    document.body.appendChild(popup);
-    setTimeout(function(){ if(document.getElementById('demoOtpPopup')) document.getElementById('demoOtpPopup').remove(); }, 8000);
+// ── OTP helpers ───────────────────────────────────────────────────────────────
+function regGetCsrf() {
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
 }
 
 function sendOTP(prefix) {
-    const phoneInput = document.getElementById(prefix + 'Phone');
+    var phoneInput = document.getElementById(prefix + 'Phone');
     if (!phoneInput) return;
-    const phone = phoneInput.value.trim();
+    var phone = phoneInput.value.trim();
 
-    if (phone.length !== 10 || isNaN(phone)) {
+    if (!/^\d{10}$/.test(phone)) {
         alert('Please enter a valid 10-digit mobile number.');
         return;
     }
 
-    const btn = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
-    btn.textContent = 'Sent!';
-    btn.classList.add('sent');
+    var btn = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
+    btn.textContent = 'Sending…';
     btn.disabled = true;
 
-    document.getElementById(prefix + 'OtpBox').classList.remove('hidden');
-    setTimeout(() => {
-        const first = document.getElementById(prefix + 'OtpBox').querySelector('.otp-digit');
-        if (first) first.focus();
-    }, 100);
-
-    showDemoOtpPopup();
-
-    setTimeout(() => {
-        btn.textContent = 'Resend';
-        btn.classList.remove('sent');
+    fetch('/api/send-otp/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
+        body: JSON.stringify({ phone: phone })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.success) {
+            btn.textContent = 'Sent ✓';
+            btn.classList.add('sent');
+            var otpBox = document.getElementById(prefix + 'OtpBox');
+            if (otpBox) {
+                otpBox.classList.remove('hidden');
+                var first = otpBox.querySelector('.otp-digit');
+                if (first) setTimeout(function(){ first.focus(); }, 100);
+            }
+            setTimeout(function() {
+                btn.textContent = 'Resend';
+                btn.classList.remove('sent');
+                btn.disabled = false;
+            }, 30000);
+        } else {
+            btn.textContent = 'Send OTP';
+            btn.disabled = false;
+            alert(d.error || 'Failed to send OTP. Please try again.');
+        }
+    })
+    .catch(function() {
+        btn.textContent = 'Send OTP';
         btn.disabled = false;
-    }, 30000);
+        alert('Network error. Please check your connection and try again.');
+    });
 }
 
 function otpNext(input) {
     input.value = input.value.replace(/[^0-9]/g, '');
     if (input.value.length === 1) {
-        const next = input.nextElementSibling;
+        var next = input.nextElementSibling;
         if (next && next.classList.contains('otp-digit')) next.focus();
     }
 }
 
 function verifyOTP(prefix) {
-    const box    = document.getElementById(prefix + 'OtpBox');
-    const digits = box.querySelectorAll('.otp-digit');
-    let otp = '';
-    digits.forEach(d => otp += d.value);
+    var box    = document.getElementById(prefix + 'OtpBox');
+    var digits = box.querySelectorAll('.otp-digit');
+    var otp = '';
+    digits.forEach(function(d) { otp += d.value; });
 
     if (otp.length !== 6) {
         alert('Please enter the 6-digit OTP.');
         return;
     }
 
-    var sub1 = document.getElementById(prefix + '-substep1');
-    var sub2 = document.getElementById(prefix + '-substep2');
-    if (sub1 && sub2) {
-        sub1.classList.add('hidden');
-        sub2.classList.remove('hidden');
-    } else {
-        document.getElementById(prefix + 'OtpBox').style.display = 'none';
-        var badge = document.getElementById(prefix + 'Verified');
-        if (badge) badge.classList.remove('hidden');
-    }
+    var verifyBtn = box.querySelector('.otp-verify-btn');
+    if (verifyBtn) { verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying…'; }
+
+    fetch('/api/verify-otp/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
+        body: JSON.stringify({ otp: otp })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.success) {
+            var sub1 = document.getElementById(prefix + '-substep1');
+            var sub2 = document.getElementById(prefix + '-substep2');
+            if (sub1 && sub2) {
+                sub1.classList.add('hidden');
+                sub2.classList.remove('hidden');
+            } else {
+                box.style.display = 'none';
+                var badge = document.getElementById(prefix + 'Verified');
+                if (badge) badge.classList.remove('hidden');
+            }
+        } else {
+            if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify OTP'; }
+            alert(d.error || 'Wrong OTP. Please try again.');
+        }
+    })
+    .catch(function() {
+        if (verifyBtn) { verifyBtn.disabled = false; verifyBtn.textContent = 'Verify OTP'; }
+        alert('Network error. Please try again.');
+    });
 }
 
 // ── Password match check ──────────────────────────────────────────────────────
