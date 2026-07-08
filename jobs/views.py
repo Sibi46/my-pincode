@@ -860,30 +860,69 @@ def seeker_cert_delete(request, cert_id):
 
 
 
-# ── OTP (mock) ────────────────────────────────────────────────────────────────
+# ── OTP via 2Factor.in ────────────────────────────────────────────────────────
 def send_otp(request):
-    if request.method == 'POST':
-        import random
-        otp = str(random.randint(100000, 999999))
-        request.session['otp'] = otp
-        request.session['otp_verified'] = False
-        # TODO: integrate SMS gateway (Fast2SMS / MSG91) to send otp to phone
-        return JsonResponse({'success': True, 'otp': otp})
-    return JsonResponse({'success': False})
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+
+    import json, requests as _req
+    try:
+        data = json.loads(request.body)
+        phone = data.get('phone', '').strip()
+    except Exception:
+        phone = request.POST.get('phone', '').strip()
+
+    if not phone or len(phone) != 10 or not phone.isdigit():
+        return JsonResponse({'success': False, 'error': 'Enter a valid 10-digit mobile number.'})
+
+    from django.conf import settings as _s
+    api_key  = _s.TWO_FACTOR_API_KEY
+    template = _s.TWO_FACTOR_OTP_TEMPLATE
+    url = f'https://2factor.in/API/V1/{api_key}/SMS/{phone}/AUTOGEN/{template}'
+
+    try:
+        resp = _req.get(url, timeout=10)
+        result = resp.json()
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': 'SMS service unavailable. Try again.'})
+
+    if result.get('Status') == 'Success':
+        request.session['otp_session_id'] = result['Details']
+        request.session['otp_phone']      = phone
+        request.session['otp_verified']   = False
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False, 'error': result.get('Details', 'Failed to send OTP.')})
 
 
 def verify_otp(request):
-    if request.method == 'POST':
-        import json
-        data    = json.loads(request.body)
-        entered = data.get('otp', '')
-        stored  = request.session.get('otp', '')
-        if entered and entered == stored:
-            request.session['otp_verified'] = True
-            request.session.pop('otp', None)
-            return JsonResponse({'success': True})
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+
+    import json, requests as _req
+    data       = json.loads(request.body)
+    entered    = data.get('otp', '').strip()
+    session_id = request.session.get('otp_session_id', '')
+
+    if not entered or not session_id:
+        return JsonResponse({'success': False, 'error': 'OTP session expired. Please resend.'})
+
+    from django.conf import settings as _s
+    api_key = _s.TWO_FACTOR_API_KEY
+    url = f'https://2factor.in/API/V1/{api_key}/SMS/VERIFY3/{session_id}/{entered}'
+
+    try:
+        resp   = _req.get(url, timeout=10)
+        result = resp.json()
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Verification service unavailable. Try again.'})
+
+    if result.get('Status') == 'Success':
+        request.session['otp_verified'] = True
+        request.session.pop('otp_session_id', None)
+        return JsonResponse({'success': True})
+    else:
         return JsonResponse({'success': False, 'error': 'Wrong OTP. Please try again.'})
-    return JsonResponse({'success': False})
 
 
 def check_phone(request):
