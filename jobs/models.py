@@ -36,13 +36,14 @@ class User(AbstractUser):
         ('state_admin',    'State Admin'),
         ('district_admin', 'District Admin'),
     ]
-    user_type  = models.CharField(max_length=20, choices=USER_TYPES, default='employee')
-    admin_role = models.CharField(max_length=20, choices=ADMIN_ROLES, blank=True, default='')
-    phone      = models.CharField(max_length=10, blank=True)
-    whatsapp   = models.CharField(max_length=10, blank=True)
-    address    = models.TextField(blank=True)
-    city       = models.CharField(max_length=100, blank=True)
-    pincode    = models.CharField(max_length=6, blank=True)
+    user_type     = models.CharField(max_length=20, choices=USER_TYPES, default='employee')
+    admin_role    = models.CharField(max_length=20, choices=ADMIN_ROLES, blank=True, default='')
+    phone         = models.CharField(max_length=10, blank=True)
+    whatsapp      = models.CharField(max_length=10, blank=True)
+    address       = models.TextField(blank=True)
+    city          = models.CharField(max_length=100, blank=True)
+    pincode       = models.CharField(max_length=6, blank=True)
+    referral_code = models.CharField(max_length=12, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.username
@@ -886,3 +887,50 @@ class BillingRecord(models.Model):
 
     def __str__(self):
         return f"INV-{self.invoice_number} ₹{self.amount} [{self.status}]"
+
+
+# ── REFERRAL SYSTEM ───────────────────────────────────────────────────────────
+
+class PointsWallet(models.Model):
+    user         = models.OneToOneField(User, on_delete=models.CASCADE, related_name='points_wallet')
+    balance      = models.IntegerField(default=0)
+    total_earned = models.IntegerField(default=0)
+    updated_at   = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} — {self.balance} pts"
+
+
+class PointsTransaction(models.Model):
+    TYPES = [
+        ('referral_signup', 'Referral Signup Bonus'),
+        ('referral_job',    'Referral Job Posted Bonus'),
+        ('referral_apply',  'Referral Application Bonus'),
+        ('redeemed',        'Points Redeemed'),
+    ]
+    wallet      = models.ForeignKey(PointsWallet, on_delete=models.CASCADE, related_name='transactions')
+    amount      = models.IntegerField()
+    txn_type    = models.CharField(max_length=20, choices=TYPES)
+    description = models.CharField(max_length=300)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        sign = '+' if self.amount > 0 else ''
+        return f"{sign}{self.amount} pts — {self.description}"
+
+
+class Referral(models.Model):
+    referrer        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='referrals_made')
+    referred        = models.OneToOneField(User, on_delete=models.CASCADE, related_name='referred_by')
+    bonus_signup    = models.BooleanField(default=False)
+    bonus_action    = models.BooleanField(default=False)
+    created_at      = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.referrer.username} → {self.referred.username}"

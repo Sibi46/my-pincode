@@ -120,6 +120,41 @@ def jobs_within_radius(lat: float, lng: float, radius_km: float = 5, queryset=No
     return results
 
 
+def generate_referral_code():
+    """Generate a unique 8-character referral code."""
+    import random
+    import string
+    from .models import User
+    chars = string.ascii_uppercase + string.digits
+    for _ in range(20):
+        code = ''.join(random.choices(chars, k=8))
+        if not User.objects.filter(referral_code=code).exists():
+            return code
+    return ''.join(random.choices(chars, k=12))
+
+
+def award_referral_points(referrer, amount, txn_type, description):
+    """Credit points to referrer's wallet and create a notification."""
+    from .models import PointsWallet, PointsTransaction, UserNotification
+    wallet, _ = PointsWallet.objects.get_or_create(user=referrer)
+    wallet.balance += amount
+    wallet.total_earned += amount
+    wallet.save(update_fields=['balance', 'total_earned', 'updated_at'])
+    PointsTransaction.objects.create(
+        wallet=wallet,
+        amount=amount,
+        txn_type=txn_type,
+        description=description,
+    )
+    UserNotification.objects.create(
+        user=referrer,
+        title=f'+{amount} Referral Points Earned!',
+        message=description,
+        notif_type='success',
+        link='/referral/',
+    )
+
+
 def notify_seekers_for_job(job):
     """Create a UserNotification for every seeker whose profile matches this job."""
     from .models import User, UserNotification

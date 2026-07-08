@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MY PINCOD — Find Jobs Near You</title>
+  <title>MY PINCOD — Business, Opportunity, Job at Near You</title>
   <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="/static/fonts/poppins/poppins.css">
 <style>
@@ -256,11 +256,18 @@ a{text-decoration:none;color:inherit}
   </div>
 </nav>
 
+<!-- App Launch Banner -->
+<div style="background:linear-gradient(90deg,#0a66c2,#004182);color:#fff;text-align:center;padding:10px 16px;font-size:13px;font-weight:700;position:relative">
+  🚀 <strong>MY PINCOD App</strong> launching on <strong>August 01, 2026</strong> — Business, Opportunity, Job at Near You!
+  &nbsp;
+  <a href="/register/" style="background:#fff;color:#0a66c2;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;margin-left:6px">Join Now</a>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <h1>India's PIN-code based local job portal</h1>
-    <p class="hero-sub">Find Jobs Near You. &nbsp;•&nbsp; Hire People Near You.</p>
+    <h1>Business, Opportunity, Job at Near You</h1>
+    <p class="hero-sub">Find Jobs Near You. &nbsp;•&nbsp; Hire People Near You. &nbsp;•&nbsp; India's PIN-code based hyperlocal job portal.</p>
 
     <form class="hero-search" action="/jobs/" method="get">
       <div class="hs-wrap">
@@ -517,7 +524,7 @@ var olxAdCur = 0;
   <div class="footer-grid">
     <div class="footer-brand">
       <h3><i class="fas fa-map-pin"></i> MY PINCOD</h3>
-      <p>Find Jobs Near You. Hire People Near You.<br>India's PIN-code based hyperlocal job portal.</p>
+      <p>Business, Opportunity, Job at Near You.<br>Find Jobs Near You. Hire People Near You.<br>India's PIN-code based hyperlocal job portal.</p>
     </div>
     <div class="footer-links">
       <h4>For Job Seekers</h4>
@@ -1127,18 +1134,17 @@ function obRemoveJob(i){
         btn.textContent = 'Sending...';
         return fetch('/api/send-otp/', {
           method: 'POST',
-          headers: { 'X-CSRFToken': getCsrf() }
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrf() },
+          body: JSON.stringify({ phone: phone })
         })
         .then(function(r){ return r.json(); })
         .then(function(d2){
           if (d2.success) {
-            document.getElementById('obOtpHint').textContent = 'Your OTP: ' + d2.otp;
-            document.getElementById('obOtpHint').style.display = 'block';
             document.getElementById('obOtpSection').style.display = 'block';
             document.getElementById('obOtp').focus();
             obStartTimer(60);
           } else {
-            obShowErr('obStep2Err','Could not send OTP. Try again.');
+            obShowErr('obStep2Err', d2.error || 'Could not send OTP. Try again.');
             btn.disabled = false; btn.textContent = 'Send OTP';
           }
         });

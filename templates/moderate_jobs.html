@@ -83,9 +83,15 @@
                 <i class="fas fa-hourglass-end"></i> Free Expired
               </span>
             {% elif job.job_plan == 'paid_pending' %}
-              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:6px">
-                <i class="fas fa-clock"></i> Payment Under Review
+              {% if job.plan_expires_at %}
+              <span style="background:#f3e5f5;color:#6a1b9a;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:4px">
+                <i class="fas fa-arrow-up"></i> Upgrade – Verify ₹999
               </span>
+              {% else %}
+              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:4px">
+                <i class="fas fa-clock"></i> New Plan – Verify ₹499
+              </span>
+              {% endif %}
               {% if job.payment_screenshot %}
               <div style="margin-top:6px">
                 <a href="{{ job.payment_screenshot.url }}" target="_blank"
@@ -101,9 +107,15 @@
               </div>
               {% endif %}
             {% elif job.job_plan == 'paid' %}
+              {% if job.plan_expires_at %}
+              <span style="background:#ede7f6;color:#4527a0;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:6px">
+                <i class="fas fa-star"></i> Upgrade ₹999 – 12 Weeks
+              </span>
+              {% else %}
               <span style="background:#e8f0fe;color:#0a66c2;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:block;margin-bottom:6px">
                 <i class="fas fa-star"></i> Paid ₹499 – 12 Weeks
               </span>
+              {% endif %}
               {% if job.payment_screenshot %}
               <div style="margin-top:6px">
                 <a href="{{ job.payment_screenshot.url }}" target="_blank"

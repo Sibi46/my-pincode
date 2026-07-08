@@ -27,6 +27,9 @@ SECRET_KEY = 'change-me-in-local-settings'
 
 ANTHROPIC_API_KEY = ''
 
+TWO_FACTOR_API_KEY = 'a21bd99f-6bdc-11f1-8f15-0200cd936042'
+TWO_FACTOR_OTP_TEMPLATE = 'OTP1'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
