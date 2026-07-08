@@ -440,6 +440,7 @@ def post_job(request):
             messages.success(request, 'Job saved as draft.')
         else:
             messages.success(request, 'Job submitted! Admin will review and approve it shortly.')
+            request.session['show_job_posted_popup'] = p.get('title', 'Your job')
             # Referral bonus: first job posted by a referred employer
             try:
                 ref = Referral.objects.get(referred=request.user, bonus_action=False)
@@ -644,6 +645,7 @@ def employer_dashboard(request):
 
     show_referral_popup = request.session.pop('show_referral_popup', False)
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
+    job_posted_title = request.session.pop('show_job_posted_popup', None)
 
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
@@ -670,6 +672,7 @@ def employer_dashboard(request):
         'profile_incomplete': profile_incomplete,
         'show_referral_popup': show_referral_popup,
         'referral_link':      referral_link,
+        'job_posted_title':   job_posted_title,
     })
 
 

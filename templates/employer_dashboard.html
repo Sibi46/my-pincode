@@ -1027,6 +1027,56 @@ function updateBnActive(key){
 
 <script src="/static/js/pincode_lookup.js?v=1"></script>
 
+{% if job_posted_title %}
+<!-- Job Posted Success Popup -->
+<div id="jobPostedOverlay" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10001;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:22px;max-width:400px;width:100%;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.28);animation:refSlideUp .35s ease">
+
+    <!-- Top green header -->
+    <div style="background:linear-gradient(135deg,#1b5e20,#2e7d32);padding:30px 24px 22px;text-align:center;color:#fff">
+      <div style="font-size:52px;margin-bottom:8px">🎉</div>
+      <h2 style="font-size:19px;font-weight:900;margin:0 0 6px">Job Submitted Successfully!</h2>
+      <p style="font-size:13px;opacity:.88;margin:0">"{{ job_posted_title }}"</p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:22px 24px">
+
+      <!-- Steps -->
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:12px;background:#f0faf0;border-radius:10px;padding:11px 14px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#2e7d32;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">1</div>
+          <div style="font-size:13px;color:#333">Admin reviews &amp; approves your job</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:#fff8f0;border-radius:10px;padding:11px 14px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#e65100;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">2</div>
+          <div style="font-size:13px;color:#333">Choose a plan — 1 week <strong>FREE</strong> or ₹499 for 12 weeks</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:#e8f0fe;border-radius:10px;padding:11px 14px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#0a66c2;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0">3</div>
+          <div style="font-size:13px;color:#333"><strong>Your job goes live</strong> &amp; job seekers get notified</div>
+        </div>
+      </div>
+
+      <!-- Launch announcement -->
+      <div style="background:linear-gradient(135deg,#0a66c2,#004182);border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:16px;color:#fff">
+        <div style="font-size:11px;font-weight:700;opacity:.8;letter-spacing:1px;margin-bottom:4px">OFFICIAL LAUNCH</div>
+        <div style="font-size:22px;font-weight:900">August 01, 2026</div>
+        <div style="font-size:12px;opacity:.85;margin-top:4px">MY PINCOD App &amp; Platform goes live! 🚀</div>
+      </div>
+
+      <button onclick="document.getElementById('jobPostedOverlay').style.display='none'"
+              style="width:100%;padding:13px;background:#0a66c2;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+        <i class="fas fa-check-circle"></i> Got it, Check Dashboard
+      </button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes refSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+</style>
+{% endif %}
+
 {% if show_referral_popup %}
 <!-- Referral Welcome Popup -->
 <div id="refPopupOverlay" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:16px">
