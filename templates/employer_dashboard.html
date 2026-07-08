@@ -238,6 +238,23 @@
               <span><i class="fas fa-calendar-alt"></i> {{ job.created_at|date:"d M Y" }}</span>
               {% if job.is_urgent %}<span class="urgent-tag"><i class="fas fa-bolt"></i> Urgent</span>{% endif %}
             </div>
+            <!-- Interview mode toggle -->
+            <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:#666">Interview:</span>
+              <div class="itype-toggle" id="itype-{{ job.pk }}" data-job="{{ job.pk }}" data-current="{{ job.interview_type|default:'walkin' }}"
+                   style="display:inline-flex;border:1.5px solid #dde1ea;border-radius:20px;overflow:hidden;cursor:pointer;font-size:12px;font-weight:700">
+                <span class="itype-opt {% if job.interview_type != 'online' %}itype-active{% endif %}"
+                      onclick="setInterviewType({{ job.pk }},'walkin')"
+                      style="padding:4px 12px;transition:.2s;{% if job.interview_type != 'online' %}background:#0a66c2;color:#fff;{% else %}color:#555;{% endif %}">
+                  🚶 Walk-in
+                </span>
+                <span class="itype-opt {% if job.interview_type == 'online' %}itype-active{% endif %}"
+                      onclick="setInterviewType({{ job.pk }},'online')"
+                      style="padding:4px 12px;transition:.2s;{% if job.interview_type == 'online' %}background:#0a66c2;color:#fff;{% else %}color:#555;{% endif %}">
+                  💻 Online
+                </span>
+              </div>
+            </div>
           </div>
           <div class="jl-salary">{{ job.salary_display }}</div>
           <div class="jl-actions">
@@ -1134,6 +1151,26 @@ function copyRefPopup(){
 }
 </script>
 {% endif %}
+
+<script>
+function setInterviewType(jobId, itype) {
+  var toggle = document.getElementById('itype-' + jobId);
+  if (!toggle) return;
+  var opts = toggle.querySelectorAll('.itype-opt');
+  opts.forEach(function(o) { o.style.background = ''; o.style.color = '#555'; });
+  var idx = itype === 'walkin' ? 0 : 1;
+  opts[idx].style.background = '#0a66c2'; opts[idx].style.color = '#fff';
+
+  var csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+  fetch('/api/update-interview-type/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+    body: JSON.stringify({ job_id: jobId, interview_type: itype })
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (!d.success) alert('Could not update. Please try again.');
+  });
+}
+</script>
 
 <!-- Referral Banner -->
 <div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
