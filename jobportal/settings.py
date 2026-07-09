@@ -165,6 +165,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Cache (file-based, shared across workers) ────────────────────────────────
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/django_cache_mypincod',
+        'TIMEOUT': 300,
+    }
+}
+
 try:
     from .local_settings import *
 except ImportError:

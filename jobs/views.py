@@ -40,30 +40,46 @@ def home(request):
     # ── Jobs & employers ────────────────────────────────
     featured_jobs = Job.objects.filter(status='active').select_related('posted_by').order_by('-created_at')[:8]
 
-    # ── Stats ────────────────────────────────────────────
-    total_jobs      = Job.objects.filter(status='active').count()
-    total_employers = User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count()
-    total_seekers   = User.objects.filter(user_type__in=['employee', 'individual', 'freelancer']).count()
-    total_districts = District.objects.filter(is_active=True).count()
+    # ── Stats — cached 5 min to avoid COUNT on every request ─────────────────
+    from django.core.cache import cache
+    stats = cache.get('homepage_stats')
+    if not stats:
+        stats = {
+            'total_jobs':      Job.objects.filter(status='active').count(),
+            'total_employers': User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count(),
+            'total_seekers':   User.objects.filter(user_type__in=['employee', 'individual', 'freelancer']).count(),
+            'total_districts': District.objects.filter(is_active=True).count(),
+        }
+        cache.set('homepage_stats', stats, 300)
+    total_jobs      = stats['total_jobs']
+    total_employers = stats['total_employers']
+    total_seekers   = stats['total_seekers']
+    total_districts = stats['total_districts']
 
     # ── Industries ───────────────────────────────────────
     industries = Industry.objects.filter(is_active=True).order_by('order')[:12]
 
-    # ── Jobs by District ─────────────────────────────────
+    # ── Jobs by District — single aggregated query instead of N+1 ───────────
+    active_pin_job_counts = dict(
+        Job.objects.filter(status='active')
+        .values('pincode')
+        .annotate(cnt=Count('id'))
+        .values_list('pincode', 'cnt')
+    )
     active_districts = District.objects.filter(is_active=True).prefetch_related('pincodes')[:12]
     districts_jobs = []
     for d in active_districts:
-        pin_list = list(d.pincodes.values_list('code', flat=True))
-        d.job_count = Job.objects.filter(status='active', pincode__in=pin_list).count() if pin_list else 0
+        pin_list = [p.code for p in d.pincodes.all()]
+        d.job_count = sum(active_pin_job_counts.get(p, 0) for p in pin_list)
         districts_jobs.append(d)
     districts_jobs.sort(key=lambda d: d.job_count, reverse=True)
 
-    # ── Jobs by PIN Code ─────────────────────────────────
-    pincode_jobs = []
-    for pin in PinCode.objects.filter(is_active=True).select_related('district', 'district__state')[:20]:
-        cnt = Job.objects.filter(status='active', pincode=pin.code).count()
-        if cnt > 0:
-            pincode_jobs.append({'pin': pin, 'count': cnt})
+    # ── Jobs by PIN Code — reuse the counts dict, no extra queries ────────────
+    pincode_jobs = [
+        {'pin': pin, 'count': active_pin_job_counts.get(pin.code, 0)}
+        for pin in PinCode.objects.filter(is_active=True).select_related('district', 'district__state')[:20]
+        if active_pin_job_counts.get(pin.code, 0) > 0
+    ]
     pincode_jobs.sort(key=lambda x: x['count'], reverse=True)
 
     return render(request, 'index.html', {
@@ -559,7 +575,6 @@ def edit_job(request, pk):
 
 
 # ── DASHBOARDS ────────────────────────────────────────────────────────────────
-@login_required
 @login_required
 def employer_dashboard(request):
     user = request.user
