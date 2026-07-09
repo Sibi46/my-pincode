@@ -2436,18 +2436,16 @@ def district_reports(request):
 # ─── PUBLIC: Submit Complaint ──────────────────────────────────────────────────
 @login_required
 def submit_complaint(request):
-    districts = District.objects.select_related('state').order_by('name')
     if request.method == 'POST':
         Complaint.objects.create(
             submitted_by   = request.user,
             complaint_type = request.POST.get('complaint_type', 'other'),
             subject        = request.POST.get('subject', '').strip(),
             description    = request.POST.get('description', '').strip(),
-            district       = District.objects.filter(pk=request.POST.get('district')).first(),
         )
         messages.success(request, 'Complaint submitted. Our team will review it shortly.')
         return redirect('dashboard')
-    return render(request, 'submit_complaint.html', {'districts': districts})
+    return render(request, 'submit_complaint.html', {})
 
 
 # ── SAVE CANDIDATE ────────────────────────────────────────────────────────────
