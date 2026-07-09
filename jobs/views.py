@@ -2070,6 +2070,14 @@ def update_interview_type(request):
         return JsonResponse({'success': False, 'error': 'Job not found'})
 
 
+def terms(request):
+    return render(request, 'terms.html')
+
+
+def privacy(request):
+    return render(request, 'privacy.html')
+
+
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:
