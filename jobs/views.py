@@ -2070,6 +2070,48 @@ def update_interview_type(request):
         return JsonResponse({'success': False, 'error': 'Job not found'})
 
 
+def api_pincode_lookup(request, pin):
+    from .models import PinCode, District, State
+    import requests as _req
+
+    # Try local DB first
+    try:
+        pc = PinCode.objects.select_related('district__state').get(code=pin)
+        return JsonResponse({
+            'success': True,
+            'area': pc.area_name or pc.district.name,
+            'district': pc.district.name,
+            'state': pc.district.state.name,
+        })
+    except PinCode.DoesNotExist:
+        pass
+
+    # Fall back to India Post API
+    try:
+        resp   = _req.get(f'https://api.postalpincode.in/pincode/{pin}', timeout=8)
+        data   = resp.json()
+        if data and data[0].get('Status') == 'Success' and data[0].get('PostOffice'):
+            po       = data[0]['PostOffice'][0]
+            area     = po.get('Name', '')
+            district = po.get('District', '')
+            state    = po.get('State', '')
+
+            # Cache in local DB if district exists
+            try:
+                dist_obj = District.objects.get(name__iexact=district)
+                PinCode.objects.get_or_create(
+                    code=pin,
+                    defaults={'district': dist_obj, 'area_name': area}
+                )
+            except District.DoesNotExist:
+                pass
+
+            return JsonResponse({'success': True, 'area': area, 'district': district, 'state': state})
+        return JsonResponse({'success': False, 'error': 'PIN code not found'})
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Lookup unavailable'})
+
+
 def terms(request):
     return render(request, 'terms.html')
 
