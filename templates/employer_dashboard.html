@@ -144,6 +144,9 @@
       <a class="snav-item" href="/advertiser/dashboard/">
         <i class="fas fa-bullhorn"></i> Advertise
       </a>
+      <a class="snav-item" onclick="showSection('feedback',this)" data-sec="feedback">
+        <i class="fas fa-comment-dots"></i> Feedback
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -892,6 +895,21 @@
         </div>
         <button type="submit" style="margin-top:20px;background:#0a66c2;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Profile</button>
       </form>
+    </section>
+
+    <!-- ══ FEEDBACK ══ -->
+    <section class="dash-section" data-sec="feedback">
+      <div class="sec-hdr"><h2><i class="fas fa-comment-dots"></i> Feedback</h2></div>
+      <div style="max-width:560px">
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:32px;text-align:center">
+          <div style="font-size:48px;margin-bottom:12px">💬</div>
+          <h3 style="font-size:18px;font-weight:800;color:#111;margin:0 0 8px">Share Your Feedback</h3>
+          <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 24px">Help us improve MY PINCOD — report a bug, suggest a feature, or share your experience.</p>
+          <a href="/complaint/submit/" style="display:inline-flex;align-items:center;gap:8px;background:#0a66c2;color:#fff;padding:13px 32px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">
+            <i class="fas fa-paper-plane"></i> Write Feedback
+          </a>
+        </div>
+      </div>
     </section>
 
   </main>
