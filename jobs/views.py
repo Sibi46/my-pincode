@@ -1531,8 +1531,10 @@ def admin_users(request):
     return _users_list(request)
 
 
-@super_admin_required
 def super_admin_users(request):
+    if not request.user.is_authenticated or request.user.admin_role != 'super_admin':
+        messages.error(request, 'Super Admin access required.')
+        return redirect('login')
     return _users_list(request)
 
 
