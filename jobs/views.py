@@ -1528,6 +1528,15 @@ def admin_delete_ad(request, ad_id):
 # ── ADMIN USERS LIST ────────────────────────────────────────────────────────
 @admin_required
 def admin_users(request):
+    return _users_list(request)
+
+
+@super_admin_required
+def super_admin_users(request):
+    return _users_list(request)
+
+
+def _users_list(request):
     from django.db.models import Q
     search   = request.GET.get('q', '').strip()
     utype    = request.GET.get('type', '')   # 'employer' | 'jobseeker' | ''
@@ -2071,6 +2080,10 @@ def update_interview_type(request):
 
 
 def api_pincode_lookup(request, pin):
+    import re
+    if not re.fullmatch(r'\d{6}', pin):
+        return JsonResponse({'success': False, 'error': 'Invalid PIN code'})
+
     from .models import PinCode, District, State
     import requests as _req
 
