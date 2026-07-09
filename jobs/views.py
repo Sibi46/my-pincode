@@ -433,6 +433,7 @@ def post_job(request):
             longitude       = p.get('longitude') or None,
             contact_phone   = p.get('contact_phone', ''),
             is_urgent       = 'is_urgent' in p,
+            interview_type  = p.get('interview_type', 'walkin'),
             last_date       = last_date,
             status          = status,
         )
@@ -546,6 +547,7 @@ def edit_job(request, pk):
         job.longitude         = p.get('longitude') or None
         job.contact_phone     = p.get('contact_phone', job.contact_phone)
         job.is_urgent         = 'is_urgent' in p
+        job.interview_type    = p.get('interview_type', job.interview_type)
         job.last_date         = last_date
         job.status            = 'draft' if action == 'draft' else 'active'
         job.save()
@@ -2049,6 +2051,33 @@ def mark_all_notifications_read(request):
 
 
 @login_required
+@login_required
+def update_interview_type(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data = json.loads(request.body)
+    job_id   = data.get('job_id')
+    itype    = data.get('interview_type', '').strip()
+    if itype not in ('walkin', 'online'):
+        return JsonResponse({'success': False, 'error': 'Invalid type'})
+    try:
+        job = Job.objects.get(id=job_id, posted_by=request.user)
+        job.interview_type = itype
+        job.save(update_fields=['interview_type'])
+        return JsonResponse({'success': True, 'interview_type': itype})
+    except Job.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Job not found'})
+
+
+def terms(request):
+    return render(request, 'terms.html')
+
+
+def privacy(request):
+    return render(request, 'privacy.html')
+
+
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:

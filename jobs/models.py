@@ -198,6 +198,7 @@ class Job(models.Model):
     ]
     SALARY_TYPE = [('month', 'Per Month'), ('day', 'Per Day'), ('hour', 'Per Hour')]
     STATUS = [('active', 'Active'), ('closed', 'Closed'), ('draft', 'Draft')]
+    INTERVIEW_TYPE = [('walkin', 'Walk-in Drive'), ('online', 'Online Interview')]
 
     is_approved        = models.BooleanField(default=False)
     JOB_PLAN = [('', 'No Plan'), ('free', '1 Week Free'), ('paid_pending', 'Payment Under Review'), ('paid', '12 Weeks Paid'), ('free_expired', 'Free Plan Expired')]
@@ -246,9 +247,10 @@ class Job(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     # Other
-    contact_phone = models.CharField(max_length=10, blank=True)
-    is_urgent     = models.BooleanField(default=False)
-    last_date     = models.DateField(null=True, blank=True)
+    contact_phone  = models.CharField(max_length=10, blank=True)
+    is_urgent      = models.BooleanField(default=False)
+    interview_type = models.CharField(max_length=10, choices=INTERVIEW_TYPE, default='walkin', blank=True)
+    last_date      = models.DateField(null=True, blank=True)
     status        = models.CharField(max_length=10, choices=STATUS, default='active')
     created_at    = models.DateTimeField(auto_now_add=True)
     job_id        = models.CharField(max_length=20, unique=True, blank=True, db_index=True)

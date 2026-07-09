@@ -136,4 +136,7 @@ urlpatterns = [
     path('notifications/mark-all-read/',               views.mark_all_notifications_read, name='mark_all_notifications_read'),
     path('jobs/<int:pk>/select-plan/',                 views.job_select_plan,             name='job_select_plan'),
     path('referral/',                                  views.referral_dashboard,          name='referral_dashboard'),
+    path('api/update-interview-type/',                 views.update_interview_type,        name='update_interview_type'),
+    path('terms/',                                     views.terms,                        name='terms'),
+    path('privacy/',                                   views.privacy,                      name='privacy'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

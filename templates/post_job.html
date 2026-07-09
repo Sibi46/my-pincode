@@ -396,6 +396,26 @@
             <input type="tel" name="contact_phone" placeholder="10-digit number" maxlength="10">
           </div>
 
+          <!-- Interview Type -->
+          <div class="pj-field full">
+            <label><i class="fas fa-users"></i> Interview Mode *</label>
+            <input type="hidden" name="interview_type" id="f-interview-type" value="walkin">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+              <div class="interview-opt selected" id="itype-walkin" onclick="selectInterviewType('walkin')"
+                   style="border:2px solid #0a66c2;border-radius:12px;padding:16px;cursor:pointer;text-align:center;background:#e8f0fe;transition:.2s">
+                <div style="font-size:28px;margin-bottom:6px">🚶</div>
+                <div style="font-size:14px;font-weight:800;color:#0a66c2">Walk-in Drive</div>
+                <div style="font-size:11px;color:#555;margin-top:3px">Candidates visit in person</div>
+              </div>
+              <div class="interview-opt" id="itype-online" onclick="selectInterviewType('online')"
+                   style="border:2px solid #e5e7eb;border-radius:12px;padding:16px;cursor:pointer;text-align:center;background:#fff;transition:.2s">
+                <div style="font-size:28px;margin-bottom:6px">💻</div>
+                <div style="font-size:14px;font-weight:800;color:#444">Online Interview</div>
+                <div style="font-size:11px;color:#555;margin-top:3px">Video / phone call</div>
+              </div>
+            </div>
+          </div>
+
           <!-- Urgent toggle -->
           <div class="pj-field full">
             <div class="urgent-toggle" onclick="toggleUrgent(this)">
@@ -972,6 +992,23 @@ function syncWorkingDays() {
 }
 
 /* ── Urgent toggle ── */
+function selectInterviewType(type) {
+  document.getElementById('f-interview-type').value = type;
+  var walkin = document.getElementById('itype-walkin');
+  var online = document.getElementById('itype-online');
+  if (type === 'walkin') {
+    walkin.style.border = '2px solid #0a66c2'; walkin.style.background = '#e8f0fe';
+    walkin.querySelector('div:nth-child(2)').style.color = '#0a66c2';
+    online.style.border = '2px solid #e5e7eb'; online.style.background = '#fff';
+    online.querySelector('div:nth-child(2)').style.color = '#444';
+  } else {
+    online.style.border = '2px solid #0a66c2'; online.style.background = '#e8f0fe';
+    online.querySelector('div:nth-child(2)').style.color = '#0a66c2';
+    walkin.style.border = '2px solid #e5e7eb'; walkin.style.background = '#fff';
+    walkin.querySelector('div:nth-child(2)').style.color = '#444';
+  }
+}
+
 function toggleUrgent(wrapper) {
   const cb  = document.getElementById('urgent-check');
   cb.checked = !cb.checked;
@@ -1110,6 +1147,7 @@ function buildReview() {
     { label: 'Food',            value: document.querySelector('[name="food_provided"]').checked ? '✅ Yes' : '✗ No' },
     { label: 'Transport',       value: document.querySelector('[name="transport"]').checked ? '✅ Yes' : '✗ No' },
     { label: 'Urgent Hiring',   value: document.getElementById('urgent-check').checked ? '⚡ Yes' : 'No' },
+    { label: 'Interview Mode',  value: document.getElementById('f-interview-type').value === 'online' ? '💻 Online Interview' : '🚶 Walk-in Drive' },
   ];
 
   const grid = document.getElementById('review-grid');

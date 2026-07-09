@@ -256,13 +256,6 @@ a{text-decoration:none;color:inherit}
   </div>
 </nav>
 
-<!-- App Launch Banner -->
-<div style="background:linear-gradient(90deg,#0a66c2,#004182);color:#fff;text-align:center;padding:10px 16px;font-size:13px;font-weight:700;position:relative">
-  🚀 <strong>MY PINCOD App</strong> launching on <strong>August 01, 2026</strong> — Business, Opportunity, Job at Near You!
-  &nbsp;
-  <a href="/register/" style="background:#fff;color:#0a66c2;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;text-decoration:none;display:inline-block;margin-left:6px">Join Now</a>
-</div>
-
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
@@ -714,7 +707,7 @@ var olxAdCur = 0;
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% elif request.user.is_authenticated %}
       <a href="/jobs/" class="bn-item"><i class="fas fa-briefcase"></i><span>Jobs</span></a>
-      <a href="/post-job/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-plus"></i></div><span>Post</span></a>
+      <a href="/jobseeker/dashboard/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-th-large"></i></div><span>Dashboard</span></a>
       <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% else %}
