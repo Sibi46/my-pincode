@@ -93,6 +93,7 @@ urlpatterns = [
     path('admin-panel/users/',                    views.admin_users,             name='admin_users'),
 
     # ── SUPER ADMIN ─────────────────────────────────────────
+    path('super-admin/user',                           views.admin_users,           name='super_admin_users'),
     path('super-admin/',                               views.super_admin_dashboard, name='super_admin_dashboard'),
     path('super-admin/states/',                        views.manage_states,         name='manage_states'),
     path('super-admin/states/<int:pk>/toggle/',        views.toggle_state,          name='toggle_state'),
