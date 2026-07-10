@@ -2150,6 +2150,10 @@ def privacy(request):
     return render(request, 'privacy.html')
 
 
+def favicon(request):
+    return HttpResponse(status=204)
+
+
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:

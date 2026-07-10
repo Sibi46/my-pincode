@@ -43,7 +43,7 @@ SECURE_CONTENT_TYPE_NOSNIFF  = True
 SESSION_COOKIE_SECURE        = True
 SESSION_COOKIE_HTTPONLY      = True
 CSRF_COOKIE_SECURE           = True
-CSRF_COOKIE_HTTPONLY         = True
+CSRF_COOKIE_HTTPONLY         = False   # must be False — JS needs to read it for AJAX
 X_FRAME_OPTIONS              = 'DENY'
 
 
