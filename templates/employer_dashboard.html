@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Employer Dashboard — MY PINCOD</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
-  <link rel="stylesheet" href="{% static 'css/employer_dashboard.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/employer_dashboard.css' %}?v=4">
   <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
   <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
   <style>
@@ -16,6 +16,45 @@
     .prof-ind-pill.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
     .prof-ind-tag{display:inline-flex;align-items:center;gap:6px;background:#e8f0fe;border:1.5px solid #0a66c2;color:#0a66c2;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700}
     .prof-ind-tag button{background:none;border:none;cursor:pointer;color:#0a66c2;font-size:14px;line-height:1;padding:0}
+  </style>
+  <style>
+  /* ── MOBILE OVERRIDES (inline to bypass CSS cache) ── */
+  @media (max-width: 768px) {
+    /* Hide topbar action buttons, show hamburger */
+    .dash-post-btn   { display: none !important; }
+    .dash-hamburger  { display: flex !important; }
+    /* Stats: 4-column grid (2 rows × 4 cols) */
+    .stats-strip     { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 6px !important; overflow-x: unset !important; flex-wrap: unset !important; }
+    .stat-chip       { min-width: 0 !important; flex: unset !important; padding: 10px 6px !important; }
+    .stat-chip span  { font-size: 17px !important; }
+    .stat-chip label { font-size: 10px !important; }
+    /* Main padding */
+    .dash-main       { padding: 12px 10px 80px !important; }
+    /* Job rows: stack on small screens */
+    .jl-salary       { display: none !important; }
+    .jl-row          { flex-wrap: wrap; gap: 10px; }
+    /* Tables scroll */
+    .table-wrap      { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+    /* Section header */
+    .dsec-header     { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+    .dsec-header > div:last-child { width: 100%; }
+    .dsec-btn        { width: 100% !important; justify-content: center !important; }
+    /* Candidate grid */
+    .cand-grid       { grid-template-columns: 1fr !important; }
+    /* Plans */
+    .plans-grid      { grid-template-columns: 1fr !important; }
+    /* Sidebar overlay */
+    .dash-layout     { grid-template-columns: 1fr !important; }
+    .dash-sidebar    { position: fixed !important; left: -270px !important; top: 56px !important; width: 260px !important; height: calc(100vh - 56px) !important; z-index: 500 !important; transition: left .25s !important; box-shadow: 4px 0 20px rgba(0,0,0,.15) !important; }
+    .dash-sidebar.open { left: 0 !important; }
+    .dash-sidebar-overlay { display: block !important; }
+  }
+  @media (max-width: 480px) {
+    .dash-topbar     { gap: 6px !important; padding: 0 10px !important; }
+    .dash-icon-btn   { width: 32px !important; height: 32px !important; font-size: 15px !important; }
+    .stat-chip span  { font-size: 15px !important; }
+    .dsec-header h2  { font-size: 16px !important; }
+  }
   </style>
 </head>
 <body class="dash-body">
