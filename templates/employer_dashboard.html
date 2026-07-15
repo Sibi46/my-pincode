@@ -145,7 +145,7 @@
       <a class="snav-item" href="/advertiser/dashboard/">
         <i class="fas fa-bullhorn"></i> Advertise
       </a>
-      <a class="snav-item" href="/flicks/">
+      <a class="snav-item" onclick="showSection('flicks',this)" data-sec="flicks">
         <i class="fas fa-bolt"></i> Flicks
       </a>
       <a class="snav-item" onclick="showSection('feedback',this)" data-sec="feedback">
@@ -901,6 +901,99 @@
       </form>
     </section>
 
+    <!-- ══ FLICKS ══ -->
+    <section class="dash-section" data-sec="flicks">
+      <div class="sec-hdr" style="display:flex;align-items:center;justify-content:space-between">
+        <h2><i class="fas fa-bolt"></i> Flicks</h2>
+        <div style="display:flex;gap:10px">
+          <a href="/flicks/post/" style="background:#0a66c2;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none"><i class="fas fa-plus"></i> Post Flick</a>
+          <a href="/flicks/" style="background:#f0f4ff;color:#0a66c2;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">See All</a>
+        </div>
+      </div>
+
+      {% if recent_flicks %}
+      <!-- Horizontal scroll strip -->
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch;margin-bottom:24px">
+        {% for flick in recent_flicks %}
+        <div style="flex-shrink:0;width:160px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="openEFlick('eflick-modal-{{ flick.pk }}')">
+
+          {% if flick.video %}
+          <video src="{{ flick.video.url }}" style="width:160px;height:285px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none">
+            <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:3px"></i>
+          </div>
+          {% elif flick.image %}
+          <img src="{{ flick.image.url }}" style="width:160px;height:285px;object-fit:cover;display:block">
+          {% else %}
+          <div style="width:160px;height:285px;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center">
+            <i class="fas fa-bolt" style="font-size:40px;color:rgba(255,255,255,0.4)"></i>
+          </div>
+          {% endif %}
+
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:20px 10px 10px">
+            <div style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              {{ flick.user.get_full_name|default:flick.user.username }}
+            </div>
+            {% if flick.title %}
+            <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.title }}</div>
+            {% endif %}
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+              <button onclick="event.stopPropagation();eLike({{ flick.pk }},this)"
+                data-liked="{% if flick.pk in liked_ids %}1{% else %}0{% endif %}"
+                style="background:none;border:none;cursor:pointer;padding:0;color:{% if flick.pk in liked_ids %}#ff4444{% else %}rgba(255,255,255,0.9){% endif %};font-size:13px;display:flex;align-items:center;gap:4px;font-weight:700">
+                <i class="{% if flick.pk in liked_ids %}fas{% else %}far{% endif %} fa-heart"></i>
+                <span class="elc-{{ flick.pk }}">{{ flick.like_count }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div id="eflick-modal-{{ flick.pk }}" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center" onclick="closeEFlick(this)">
+          <div style="background:#111;border-radius:18px;max-width:400px;width:90%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+            <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #222">
+              <div style="width:36px;height:36px;border-radius:50%;background:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff">{{ flick.user.first_name|first|upper }}</div>
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#fff">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+                <div style="font-size:11px;color:#888">{{ flick.created_at|timesince }} ago</div>
+              </div>
+              <button onclick="closeEFlick(document.getElementById('eflick-modal-{{ flick.pk }}'))" style="margin-left:auto;background:none;border:none;color:#888;font-size:20px;cursor:pointer"><i class="fas fa-times"></i></button>
+            </div>
+            {% if flick.video %}
+            <video controls autoplay style="width:100%;max-height:480px;background:#000;display:block">
+              <source src="{{ flick.video.url }}">
+            </video>
+            {% elif flick.image %}
+            <img src="{{ flick.image.url }}" style="width:100%;max-height:480px;object-fit:contain;display:block;background:#000">
+            {% endif %}
+            {% if flick.title or flick.caption %}
+            <div style="padding:14px 16px">
+              {% if flick.title %}<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">{{ flick.title }}</div>{% endif %}
+              {% if flick.caption %}<div style="font-size:13px;color:#ccc;line-height:1.6">{{ flick.caption }}</div>{% endif %}
+            </div>
+            {% endif %}
+            {% if flick.user == request.user %}
+            <div style="padding:0 16px 16px">
+              <form method="post" action="/flicks/{{ flick.pk }}/delete/" onsubmit="return confirm('Delete this flick?')">
+                {% csrf_token %}
+                <button type="submit" style="background:#fce4ec;color:#c62828;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer"><i class="fas fa-trash-alt"></i> Delete</button>
+              </form>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:48px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
+        <div style="font-size:48px;margin-bottom:12px">⚡</div>
+        <div style="font-size:17px;font-weight:800;color:#111;margin-bottom:8px">No Flicks yet</div>
+        <p style="font-size:13px;color:#888;margin-bottom:20px">Be the first to post a Flick and get noticed!</p>
+        <a href="/flicks/post/" style="background:#0a66c2;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px"><i class="fas fa-bolt"></i> Post a Flick</a>
+      </div>
+      {% endif %}
+    </section>
+
     <!-- ══ FEEDBACK ══ -->
     <section class="dash-section" data-sec="feedback">
       <div class="sec-hdr"><h2><i class="fas fa-comment-dots"></i> Feedback</h2></div>
@@ -1191,6 +1284,31 @@ function setInterviewType(jobId, itype) {
   }).then(function(r){ return r.json(); }).then(function(d){
     if (!d.success) alert('Could not update. Please try again.');
   });
+}
+</script>
+
+<script>
+const _ecsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+function eLike(pk, btn) {
+  fetch('/flicks/' + pk + '/like/', {method:'POST', headers:{'X-CSRFToken':_ecsrf}})
+    .then(r=>r.json()).then(d=>{
+      if (!d.success) return;
+      const icon = btn.querySelector('i');
+      const cnt = btn.querySelector('.elc-' + pk);
+      if (d.liked) { icon.className='fas fa-heart'; btn.style.color='#ff4444'; }
+      else         { icon.className='far fa-heart'; btn.style.color='rgba(255,255,255,0.9)'; }
+      cnt.textContent = d.count;
+    });
+}
+function openEFlick(id) {
+  const m = document.getElementById(id);
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeEFlick(el) {
+  el.style.display = 'none';
+  document.body.style.overflow = '';
+  el.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime=0; });
 }
 </script>
 

@@ -664,6 +664,10 @@ def employer_dashboard(request):
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
     job_posted_title = request.session.pop('show_job_posted_popup', None)
 
+    from .models import Flick, FlickLike
+    recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
         'expired_jobs':       expired_jobs,
@@ -690,6 +694,8 @@ def employer_dashboard(request):
         'show_referral_popup': show_referral_popup,
         'referral_link':      referral_link,
         'job_posted_title':   job_posted_title,
+        'recent_flicks':      recent_flicks,
+        'liked_ids':          liked_ids,
     })
 
 
@@ -733,6 +739,9 @@ def jobseeker_dashboard(request):
     unread_notif_count = UserNotification.objects.filter(user=request.user, is_read=False).count()
     show_referral_popup = request.session.pop('show_referral_popup', False)
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
+    from .models import Flick, FlickLike
+    recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
     return render(request, 'jobseeker_dashboard.html', {
         'applications':       applications,
         'recommended':        recommended,
@@ -741,6 +750,8 @@ def jobseeker_dashboard(request):
         'unread_notif_count': unread_notif_count,
         'show_referral_popup': show_referral_popup,
         'referral_link':      referral_link,
+        'recent_flicks':      recent_flicks,
+        'liked_ids':          liked_ids,
     })
 
 
