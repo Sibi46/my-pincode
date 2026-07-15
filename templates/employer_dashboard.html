@@ -22,7 +22,8 @@
 
 <!-- ══ TOPBAR ══════════════════════════════════════════════════════ -->
 <header class="dash-topbar">
-  <a href="/" class="dash-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:48px;width:auto;max-width:160px;object-fit:contain;display:block"></a>
+  <button class="dash-hamburger" onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:6px;color:#0a66c2;font-size:22px;flex-shrink:0"><i class="fas fa-bars"></i></button>
+  <a href="/" class="dash-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:38px;width:auto;max-width:130px;object-fit:contain;display:block"></a>
   <div class="dash-topbar-right">
     {% if profile_incomplete %}
     <button onclick="showSection('my-profile',null)" class="dash-post-btn" style="background:#e65100;border:none;cursor:pointer" title="Complete profile to post a job"><i class="fas fa-lock"></i> Post Job</button>
@@ -158,6 +159,8 @@
       <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
     </div>
   </aside>
+  <!-- Sidebar overlay (mobile) -->
+  <div class="dash-sidebar-overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:499"></div>
 
   <!-- ══ MAIN CONTENT ════════════════════════════════════════════════ -->
   <main class="dash-main">
@@ -1154,10 +1157,28 @@ function updateBnActive(key){
 // sync on load from hash
 (function(){
   var h = window.location.hash.replace('#','');
-  if(h==='notifications') updateBnActive('alerts');
-  else if(h==='messages') updateBnActive('messages');
-  else if(h==='my-jobs') updateBnActive('jobs');
+  if(h==='messages') updateBnActive('messages');
 })();
+
+function toggleSidebar(){
+  var sb = document.querySelector('.dash-sidebar');
+  var ov = document.querySelector('.dash-sidebar-overlay');
+  var open = sb.classList.toggle('open');
+  ov.style.display = open ? 'block' : 'none';
+}
+// Close sidebar when a nav item is clicked on mobile
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.snav-item').forEach(function(el){
+    el.addEventListener('click', function(){
+      if(window.innerWidth <= 768){
+        var sb = document.querySelector('.dash-sidebar');
+        var ov = document.querySelector('.dash-sidebar-overlay');
+        sb.classList.remove('open');
+        ov.style.display = 'none';
+      }
+    });
+  });
+});
 </script>
 
 {% if ads_by_type.popup %}

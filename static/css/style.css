@@ -1020,9 +1020,28 @@ input[type="number"], input[type="url"], input[type="date"], textarea, select {
     .hero-search input,
     .hero-search button {
         width: 100%;
+        box-sizing: border-box;
     }
 
     .jobs-grid {
         grid-template-columns: 1fr;
     }
+
+    .hero h1 { font-size: 22px; }
+    .hero p  { font-size: 14px; }
+
+    /* Prevent horizontal overflow globally */
+    .container, .section-wrap, .ar-wrap, .ar-wrap-sm { padding-left: 12px; padding-right: 12px; }
+}
+
+/* Global overflow guard */
+*, *::before, *::after { box-sizing: border-box; }
+img, video { max-width: 100%; }
+.overflow-x-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* post_job / edit_job form on mobile */
+@media (max-width: 600px) {
+    .pj-section { padding: 16px 12px; }
+    .pj-row { grid-template-columns: 1fr !important; }
+    .pj-topbar-actions a, .pj-topbar-actions button { font-size: 12px; padding: 7px 10px; }
 }

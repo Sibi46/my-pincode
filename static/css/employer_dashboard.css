@@ -963,26 +963,50 @@
 /* ── RESPONSIVE ─────────────────────────────────── */
 @media (max-width: 1024px) {
   .dash-layout { grid-template-columns: 200px 1fr; }
+  .dash-post-btn span { display: none; }
 }
 
 @media (max-width: 768px) {
   .dash-layout { grid-template-columns: 1fr; }
   .dash-sidebar {
     position: fixed;
-    left: -230px;
+    left: -260px;
     top: 56px;
-    width: 230px;
+    width: 260px;
     height: calc(100vh - 56px);
     z-index: 500;
     transition: left .25s;
     box-shadow: 4px 0 16px rgba(0,0,0,.12);
   }
   .dash-sidebar.open { left: 0; }
-  .stats-strip { gap: 6px; }
-  .stat-chip { min-width: 72px; padding: 10px 8px; }
+  /* Topbar: hide heavy action buttons, show hamburger */
+  .dash-topbar { padding: 0 12px; gap: 8px; }
+  .dash-post-btn { display: none; }
+  .dash-hamburger { display: flex !important; }
+  /* Stats strip */
+  .stats-strip { gap: 6px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
+  .stat-chip { min-width: 72px; padding: 10px 8px; flex-shrink: 0; }
   .stat-chip span { font-size: 18px; }
+  /* Grids */
   .hsc-grid { grid-template-columns: repeat(2,1fr); }
   .jl-salary { display: none; }
   .cand-grid { grid-template-columns: 1fr; }
   .plans-grid { grid-template-columns: 1fr; }
+  /* Section header */
+  .sec-hdr { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .sec-hdr div, .sec-hdr a { flex-wrap: wrap; }
+  /* Tables */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  /* Main content padding */
+  .dash-main { padding: 16px 12px; }
+  /* Avatar menu */
+  .dash-avatar-menu { right: 0; left: auto; }
+  /* Overlay when sidebar open */
+  .dash-sidebar-overlay { display: block !important; }
+}
+
+@media (max-width: 480px) {
+  .hsc-grid { grid-template-columns: 1fr; }
+  .dash-topbar-right { gap: 6px; }
+  .dash-icon-btn { width: 32px; height: 32px; font-size: 15px; }
 }
