@@ -187,16 +187,21 @@
 
                 <form method="POST" action="/register/process/" id="employerForm"
                       onsubmit="injectField(this,'org_name',document.getElementById('emp-org-input').value);
-                                injectField(this,'first_name',document.getElementById('emp-org-input').value);
-                                injectField(this,'phone',document.getElementById('empPhone').value)">
+                                injectField(this,'first_name',document.getElementById('emp-owner-input').value);
+                                injectField(this,'phone',document.getElementById('empPhone').value);
+                                injectField(this,'pincode',document.getElementById('emp-pincode-input').value)">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
 
-                    <!-- ── Substep 1: Org Name + Mobile OTP ── -->
+                    <!-- ── Substep 1: Org Name + Owner + Mobile + Pincode + OTP ── -->
                     <div id="emp-substep1">
                         <div class="form-group full">
                             <label id="emp-org-label"><i class="fas fa-building"></i> Company / Organization Name *</label>
                             <input type="text" id="emp-org-input" name="org_name" placeholder="Enter your company name" required>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-user"></i> Owner Name *</label>
+                            <input type="text" id="emp-owner-input" name="owner_name" placeholder="Enter owner / contact person name" required>
                         </div>
                         <div class="form-group full">
                             <label><i class="fas fa-phone"></i> Mobile Number *</label>
@@ -205,6 +210,10 @@
                                 <input type="tel" id="empPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
                                 <button type="button" class="otp-btn" onclick="sendOTP('emp')">Send OTP</button>
                             </div>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
+                            <input type="text" id="emp-pincode-input" name="emp_pincode" placeholder="Enter 6-digit area pincode" maxlength="6" inputmode="numeric" pattern="\d{6}" required>
                         </div>
                         <div class="otp-box hidden" id="empOtpBox">
                             <label><i class="fas fa-shield-alt"></i> Enter 6-digit OTP</label>

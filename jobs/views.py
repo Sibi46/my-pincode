@@ -122,11 +122,11 @@ def register_process(request):
     password   = request.POST.get('password', '')
     phone      = request.POST.get('phone', '').strip()
     email      = request.POST.get('email', '').strip()
-    first_name = request.POST.get('first_name', '').strip()
+    first_name = (request.POST.get('first_name', '') or request.POST.get('owner_name', '')).strip()
     last_name  = request.POST.get('last_name', '').strip()
     address    = request.POST.get('address', '').strip()
     city       = request.POST.get('city', '').strip()
-    pincode    = request.POST.get('pincode', '').strip()
+    pincode    = (request.POST.get('pincode', '') or request.POST.get('emp_pincode', '')).strip()
     whatsapp   = request.POST.get('whatsapp', '').strip()
     ref_code   = request.POST.get('ref_code', '').strip().upper()
 
@@ -200,12 +200,7 @@ def register_process(request):
     login(request, user, backend='jobs.backends.PhoneOrEmailBackend')
     request.session['show_referral_popup'] = True
 
-    if user_type in User.EMPLOYER_TYPES:
-        redirect_url = '/employer/dashboard/'
-    elif user_type in ('employee', 'individual', 'freelancer'):
-        redirect_url = '/jobseeker/profile/'
-    else:
-        redirect_url = '/dashboard/'
+    redirect_url = '/flicks/'
 
     if is_ajax:
         return JsonResponse({'success': True, 'redirect': redirect_url})

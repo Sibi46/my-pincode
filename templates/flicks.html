@@ -171,6 +171,13 @@
 <div id="fk-share-toast">Link copied!</div>
 
 <script>
+/* Pause all other videos when one starts playing */
+document.addEventListener('play', function(e) {
+  document.querySelectorAll('video').forEach(function(v) {
+    if (v !== e.target) { v.pause(); }
+  });
+}, true);
+
 const _fcsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
 
 /* ── LIKE ── */
