@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block title %}Flicks — MY PINCOD{% endblock %}
+
+{% block content %}
+<div style="max-width:640px;margin:0 auto;padding:16px">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div>
+      <h1 style="font-size:24px;font-weight:900;color:#111;margin:0">⚡ Flicks</h1>
+      <p style="font-size:13px;color:#888;margin:4px 0 0">Short posts from employers &amp; job seekers</p>
+    </div>
+    <a href="/flicks/post/" style="display:inline-flex;align-items:center;gap:8px;background:#0a66c2;color:#fff;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">
+      <i class="fas fa-plus"></i> Post Flick
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:12px 16px;border-radius:10px;margin-bottom:16px;background:#e8f5e9;border-left:4px solid #2e7d32;color:#2e7d32;font-size:13px;font-weight:600">
+      <i class="fas fa-check-circle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% for flick in flicks %}
+  <div class="flick-card" id="flick-{{ flick.pk }}" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:20px;overflow:hidden">
+
+    <!-- User bar -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px">
+      <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0">
+        {{ flick.user.first_name|first|upper }}
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:14px;color:#111">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+        <div style="font-size:11px;color:#888">{{ flick.user.get_user_type_display }} · {{ flick.created_at|timesince }} ago</div>
+      </div>
+      {% if flick.user == request.user %}
+      <form method="post" action="/flicks/{{ flick.pk }}/delete/" onsubmit="return confirm('Delete this flick?')" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:4px"><i class="fas fa-trash-alt"></i></button>
+      </form>
+      {% endif %}
+    </div>
+
+    <!-- Title & caption -->
+    {% if flick.title %}
+    <div style="padding:0 16px 6px;font-size:16px;font-weight:800;color:#111">{{ flick.title }}</div>
+    {% endif %}
+    {% if flick.caption %}
+    <div style="padding:0 16px 12px;font-size:14px;color:#333;line-height:1.6">{{ flick.caption }}</div>
+    {% endif %}
+
+    <!-- Video -->
+    {% if flick.video %}
+    <video controls style="width:100%;max-height:420px;background:#000;display:block" preload="metadata">
+      <source src="{{ flick.video.url }}">
+    </video>
+    {% endif %}
+
+    <!-- Image -->
+    {% if flick.image %}
+    <img src="{{ flick.image.url }}" alt="flick" style="width:100%;max-height:480px;object-fit:cover;display:block">
+    {% endif %}
+
+    <!-- Actions -->
+    <div style="display:flex;gap:0;border-top:1px solid #f0f2f5;margin-top:4px">
+      <button onclick="toggleLike({{ flick.pk }}, this)"
+        data-liked="{% if flick.pk in liked_ids %}1{% else %}0{% endif %}"
+        style="flex:1;padding:12px;background:none;border:none;border-right:1px solid #f0f2f5;cursor:pointer;font-size:13px;font-weight:700;color:{% if flick.pk in liked_ids %}#e53935{% else %}#555{% endif %}">
+        <i class="fa{% if flick.pk in liked_ids %}s{% else %}r{% endif %} fa-heart"></i>
+        <span class="like-count-{{ flick.pk }}"> {{ flick.like_count }}</span> Likes
+      </button>
+      <button onclick="toggleComments({{ flick.pk }})"
+        style="flex:1;padding:12px;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#555">
+        <i class="far fa-comment"></i> <span class="cmt-count-{{ flick.pk }}">{{ flick.comment_count }}</span> Comments
+      </button>
+    </div>
+
+    <!-- Comments section -->
+    <div id="comments-{{ flick.pk }}" style="display:none;border-top:1px solid #f0f2f5;padding:12px 16px">
+      <div id="cmt-list-{{ flick.pk }}">
+        {% for c in flick.comments.all %}
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div style="width:30px;height:30px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a66c2;flex-shrink:0">
+            {{ c.user.first_name|first|upper }}
+          </div>
+          <div style="background:#f8f9fa;border-radius:10px;padding:8px 12px;flex:1">
+            <div style="font-size:12px;font-weight:700;color:#111">{{ c.user.get_full_name|default:c.user.username }}</div>
+            <div style="font-size:13px;color:#333;margin-top:2px">{{ c.text }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input type="text" id="cmt-input-{{ flick.pk }}" placeholder="Write a comment…"
+          style="flex:1;padding:9px 14px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;outline:none">
+        <button onclick="postComment({{ flick.pk }})"
+          style="padding:9px 16px;background:#0a66c2;color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer">
+          Send
+        </button>
+      </div>
+    </div>
+
+  </div>
+  {% empty %}
+  <div style="text-align:center;padding:60px 20px;color:#888">
+    <div style="font-size:48px;margin-bottom:16px">⚡</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:8px">No Flicks yet</div>
+    <p style="font-size:14px;margin-bottom:20px">Be the first to share a Flick!</p>
+    <a href="/flicks/post/" style="background:#0a66c2;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700">Post a Flick</a>
+  </div>
+  {% endfor %}
+
+</div>
+
+<script>
+const csrfToken = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+
+function toggleLike(pk, btn) {
+  fetch('/flicks/' + pk + '/like/', {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrfToken}
+  }).then(r => r.json()).then(d => {
+    if (!d.success) return;
+    const icon = btn.querySelector('i');
+    const cnt  = btn.querySelector('.like-count-' + pk);
+    if (d.liked) {
+      icon.className = 'fas fa-heart'; btn.style.color = '#e53935';
+    } else {
+      icon.className = 'far fa-heart'; btn.style.color = '#555';
+    }
+    cnt.textContent = ' ' + d.count;
+  });
+}
+
+function toggleComments(pk) {
+  const el = document.getElementById('comments-' + pk);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function postComment(pk) {
+  const input = document.getElementById('cmt-input-' + pk);
+  const text  = input.value.trim();
+  if (!text) return;
+  fetch('/flicks/' + pk + '/comment/', {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrfToken, 'Content-Type': 'application/json'},
+    body: JSON.stringify({text: text})
+  }).then(r => r.json()).then(d => {
+    if (!d.success) return;
+    input.value = '';
+    const list = document.getElementById('cmt-list-' + pk);
+    list.insertAdjacentHTML('beforeend', `
+      <div style="display:flex;gap:10px;margin-bottom:10px">
+        <div style="width:30px;height:30px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0a66c2;flex-shrink:0">
+          ${d.name.charAt(0).toUpperCase()}
+        </div>
+        <div style="background:#f8f9fa;border-radius:10px;padding:8px 12px;flex:1">
+          <div style="font-size:12px;font-weight:700;color:#111">${d.name}</div>
+          <div style="font-size:13px;color:#333;margin-top:2px">${d.text}</div>
+        </div>
+      </div>`);
+    const cnt = document.querySelector('.cmt-count-' + pk);
+    cnt.textContent = parseInt(cnt.textContent || 0) + 1;
+  });
+}
+</script>
+{% endblock %}

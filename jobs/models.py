@@ -938,3 +938,49 @@ class Referral(models.Model):
         return f"{self.referrer.username} → {self.referred.username}"
 
 
+# ── FLICKS ────────────────────────────────────────────────────────────────────
+
+class Flick(models.Model):
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flicks')
+    title       = models.CharField(max_length=150, blank=True)
+    caption     = models.TextField(blank=True)
+    video       = models.FileField(upload_to='flicks/videos/', blank=True, null=True)
+    image       = models.ImageField(upload_to='flicks/images/', blank=True, null=True)
+    views       = models.PositiveIntegerField(default=0)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} — {self.title or 'Flick'}"
+
+    def like_count(self):
+        return self.likes.count()
+
+    def comment_count(self):
+        return self.comments.count()
+
+
+class FlickLike(models.Model):
+    flick      = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='likes')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flick_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('flick', 'user')
+
+
+class FlickComment(models.Model):
+    flick      = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='comments')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flick_comments')
+    text       = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.user.username}: {self.text[:40]}"
+
+

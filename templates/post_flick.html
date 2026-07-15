@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Post a Flick — MY PINCOD{% endblock %}
+
+{% block content %}
+<div style="max-width:560px;margin:32px auto;padding:0 16px">
+
+  <div style="text-align:center;margin-bottom:28px">
+    <div style="font-size:48px;margin-bottom:8px">⚡</div>
+    <h1 style="font-size:26px;font-weight:900;color:#111;margin:0 0 6px">Post a Flick</h1>
+    <p style="font-size:14px;color:#666">Share a video, image, or text with the community</p>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:12px 16px;border-radius:10px;margin-bottom:16px;background:#fce4ec;border-left:4px solid #c62828;color:#c62828;font-size:13px">
+      <i class="fas fa-exclamation-circle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div style="background:#fff;border-radius:16px;box-shadow:0 2px 24px rgba(0,0,0,0.08);padding:32px">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:700;font-size:13px;color:#333;margin-bottom:8px">Title <span style="color:#aaa;font-weight:400">(optional)</span></label>
+        <input type="text" name="title" placeholder="Give your flick a title…" maxlength="150"
+          style="width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:700;font-size:13px;color:#333;margin-bottom:8px">Caption</label>
+        <textarea name="caption" rows="4" placeholder="What's on your mind? Share a tip, update, or experience…"
+          style="width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;outline:none;resize:vertical;box-sizing:border-box"></textarea>
+      </div>
+
+      <!-- Media upload tabs -->
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-weight:700;font-size:13px;color:#333;margin-bottom:10px">Media <span style="color:#aaa;font-weight:400">(optional)</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+          <!-- Video upload -->
+          <div id="video-box" onclick="document.getElementById('video-input').click()"
+            style="border:2px dashed #e0e0e0;border-radius:12px;padding:24px 12px;text-align:center;cursor:pointer;transition:.2s"
+            onmouseover="this.style.borderColor='#0a66c2'" onmouseout="if(!videoSelected)this.style.borderColor='#e0e0e0'">
+            <div style="font-size:28px;margin-bottom:6px">🎬</div>
+            <div style="font-size:12px;font-weight:700;color:#555">Upload Video</div>
+            <div style="font-size:11px;color:#aaa;margin-top:3px">MP4, MOV up to 50MB</div>
+            <input type="file" id="video-input" name="video" accept="video/*" style="display:none" onchange="previewVideo(this)">
+          </div>
+
+          <!-- Image upload -->
+          <div id="image-box" onclick="document.getElementById('image-input').click()"
+            style="border:2px dashed #e0e0e0;border-radius:12px;padding:24px 12px;text-align:center;cursor:pointer;transition:.2s"
+            onmouseover="this.style.borderColor='#0a66c2'" onmouseout="if(!imageSelected)this.style.borderColor='#e0e0e0'">
+            <div style="font-size:28px;margin-bottom:6px">🖼️</div>
+            <div style="font-size:12px;font-weight:700;color:#555">Upload Image</div>
+            <div style="font-size:11px;color:#aaa;margin-top:3px">JPG, PNG, GIF</div>
+            <input type="file" id="image-input" name="image" accept="image/*" style="display:none" onchange="previewImage(this)">
+          </div>
+        </div>
+
+        <!-- Previews -->
+        <div id="video-preview" style="display:none;margin-top:12px">
+          <video id="video-prev-el" controls style="width:100%;border-radius:10px;max-height:280px"></video>
+          <button type="button" onclick="clearVideo()" style="margin-top:6px;background:none;border:none;color:#e53935;font-size:12px;font-weight:700;cursor:pointer"><i class="fas fa-times"></i> Remove video</button>
+        </div>
+        <div id="image-preview" style="display:none;margin-top:12px">
+          <img id="image-prev-el" style="width:100%;border-radius:10px;max-height:280px;object-fit:cover">
+          <button type="button" onclick="clearImage()" style="margin-top:6px;background:none;border:none;color:#e53935;font-size:12px;font-weight:700;cursor:pointer"><i class="fas fa-times"></i> Remove image</button>
+        </div>
+      </div>
+
+      <button type="submit"
+        style="width:100%;padding:14px;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer">
+        <i class="fas fa-bolt"></i> Post Flick
+      </button>
+    </form>
+  </div>
+
+  <div style="text-align:center;margin-top:16px">
+    <a href="/flicks/" style="color:#888;font-size:13px;text-decoration:none"><i class="fas fa-arrow-left"></i> Back to Flicks</a>
+  </div>
+</div>
+
+<script>
+var videoSelected = false, imageSelected = false;
+
+function previewVideo(input) {
+  if (!input.files[0]) return;
+  videoSelected = true;
+  document.getElementById('video-box').style.borderColor = '#0a66c2';
+  const url = URL.createObjectURL(input.files[0]);
+  document.getElementById('video-prev-el').src = url;
+  document.getElementById('video-preview').style.display = 'block';
+}
+function clearVideo() {
+  videoSelected = false;
+  document.getElementById('video-input').value = '';
+  document.getElementById('video-preview').style.display = 'none';
+  document.getElementById('video-box').style.borderColor = '#e0e0e0';
+}
+function previewImage(input) {
+  if (!input.files[0]) return;
+  imageSelected = true;
+  document.getElementById('image-box').style.borderColor = '#0a66c2';
+  const reader = new FileReader();
+  reader.onload = e => { document.getElementById('image-prev-el').src = e.target.result; };
+  reader.readAsDataURL(input.files[0]);
+  document.getElementById('image-preview').style.display = 'block';
+}
+function clearImage() {
+  imageSelected = false;
+  document.getElementById('image-input').value = '';
+  document.getElementById('image-preview').style.display = 'none';
+  document.getElementById('image-box').style.borderColor = '#e0e0e0';
+}
+</script>
+{% endblock %}

@@ -142,4 +142,11 @@ urlpatterns = [
     path('api/pincode/<str:pin>/',                     views.api_pincode_lookup,          name='api_pincode_lookup'),
     path('terms/',                                     views.terms,                        name='terms'),
     path('privacy/',                                   views.privacy,                      name='privacy'),
+
+    # ── FLICKS ──────────────────────────────────────────────────────────────
+    path('flicks/',                                    views.flicks_feed,                  name='flicks_feed'),
+    path('flicks/post/',                               views.post_flick,                   name='post_flick'),
+    path('flicks/<int:pk>/like/',                      views.like_flick,                   name='like_flick'),
+    path('flicks/<int:pk>/comment/',                   views.comment_flick,                name='comment_flick'),
+    path('flicks/<int:pk>/delete/',                    views.delete_flick,                 name='delete_flick'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

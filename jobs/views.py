@@ -2158,6 +2158,78 @@ def favicon(request):
     return HttpResponse(status=204)
 
 
+# ── FLICKS ────────────────────────────────────────────────────────────────────
+
+@login_required
+def flicks_feed(request):
+    from .models import Flick, FlickLike
+    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments')
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids})
+
+
+@login_required
+def post_flick(request):
+    from .models import Flick
+    if request.method == 'POST':
+        title   = request.POST.get('title', '').strip()
+        caption = request.POST.get('caption', '').strip()
+        video   = request.FILES.get('video')
+        image   = request.FILES.get('image')
+        if not caption and not video and not image:
+            messages.error(request, 'Add a caption, image, or video.')
+            return redirect('post_flick')
+        Flick.objects.create(user=request.user, title=title, caption=caption,
+                             video=video, image=image)
+        messages.success(request, 'Flick posted!')
+        return redirect('flicks_feed')
+    return render(request, 'post_flick.html')
+
+
+@login_required
+def like_flick(request, pk):
+    from .models import Flick, FlickLike
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    flick = get_object_or_404(Flick, pk=pk)
+    like, created = FlickLike.objects.get_or_create(flick=flick, user=request.user)
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+    return JsonResponse({'success': True, 'liked': liked, 'count': flick.like_count()})
+
+
+@login_required
+def comment_flick(request, pk):
+    from .models import Flick, FlickComment
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data = json.loads(request.body)
+    text = data.get('text', '').strip()
+    if not text:
+        return JsonResponse({'success': False, 'error': 'Empty comment'})
+    flick = get_object_or_404(Flick, pk=pk)
+    c = FlickComment.objects.create(flick=flick, user=request.user, text=text)
+    return JsonResponse({
+        'success': True,
+        'name': request.user.get_full_name() or request.user.username,
+        'text': c.text,
+        'time': c.created_at.strftime('%d %b %Y'),
+    })
+
+
+@login_required
+def delete_flick(request, pk):
+    from .models import Flick
+    flick = get_object_or_404(Flick, pk=pk, user=request.user)
+    flick.delete()
+    messages.success(request, 'Flick deleted.')
+    return redirect('flicks_feed')
+
+
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:
