@@ -2174,7 +2174,7 @@ def favicon(request):
 @login_required
 def flicks_feed(request):
     from .models import Flick, FlickLike
-    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments')
+    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments').order_by('-created_at')
     liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
     return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids})
 
