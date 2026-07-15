@@ -3,13 +3,14 @@
 
 {% block content %}
 <style>
-body { overflow: hidden !important; }
+body { overflow: hidden !important; margin: 0 !important; padding: 0 !important; }
+.navbar { display: none !important; }
 
 /* ── ROOT ── */
 #fk-root {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 1050;
   background: #000;
 }
 
@@ -73,7 +74,7 @@ body { overflow: hidden !important; }
 #fk-topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 120;
+  z-index: 1100;
   display: flex;
   align-items: center;
   justify-content: space-between;
