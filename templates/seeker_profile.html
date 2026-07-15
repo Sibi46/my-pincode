@@ -899,6 +899,29 @@ function renderPrefPinTags() {
 </script>
 <script src="/static/js/ac_roles.js?v=1"></script>
 <script src="/static/js/pincode_lookup.js?v=1"></script>
+
+<!-- ══ BOTTOM NAV ══════════════════════════════════════════════════════ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="/" class="bn-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/jobseeker/dashboard/" class="bn-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+    <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
+    <a href="/profile/" class="bn-item active"><i class="fas fa-user"></i><span>Profile</span></a>
+  </div>
+</nav>
+
+<style>
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.bn-item i{font-size:19px}
+.bn-item.active{color:#0a66c2}
+.bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
+.bn-fab{margin-top:-22px}
+.bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
+.bn-fab-flick{background:linear-gradient(135deg,#7c3aed,#0a66c2);box-shadow:0 4px 14px rgba(124,58,237,.4)}
+body{padding-bottom:62px}
+</style>
 </body>
 </html>
 
