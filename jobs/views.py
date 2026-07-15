@@ -1285,7 +1285,12 @@ def advertiser_register(request):
 
         return redirect('advertiser_register_success')
 
-    return render(request, 'advertiser_register.html', {'user': user})
+    from .models import Flick, FlickLike
+    recent_flicks = Flick.objects.select_related('user').order_by('-created_at')[:16]
+    liked_ids = set()
+    if request.user.is_authenticated:
+        liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+    return render(request, 'advertiser_register.html', {'user': user, 'recent_flicks': recent_flicks, 'liked_ids': liked_ids})
 
 
 def advertiser_register_success(request):

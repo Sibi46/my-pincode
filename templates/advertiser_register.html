@@ -91,6 +91,123 @@
 
 {% block content %}
 
+{% if recent_flicks %}
+<!-- ⚡ FLICKS — YouTube Shorts strip -->
+<div style="background:#0a0a0a;padding:20px 0 14px">
+  <div style="max-width:1080px;margin:0 auto;padding:0 16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px;font-weight:900;color:#fff">⚡ Flicks</span>
+        <span style="font-size:12px;color:rgba(255,255,255,.5);font-weight:500">See what employers &amp; job seekers are sharing</span>
+      </div>
+      <a href="/flicks/" style="font-size:12px;font-weight:700;color:#7c9eff;text-decoration:none">See all <i class="fas fa-chevron-right"></i></a>
+    </div>
+    <!-- Horizontal scroll strip -->
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;scrollbar-color:#333 transparent;-webkit-overflow-scrolling:touch">
+      {% for flick in recent_flicks %}
+      <div style="flex-shrink:0;width:120px;border-radius:12px;overflow:hidden;background:#1a1a1a;position:relative;cursor:pointer" onclick="advFsOpen({{ forloop.counter0 }})">
+        {% if flick.video %}
+        <video src="{{ flick.video.url }}" style="width:120px;height:214px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:12px;margin-left:2px"></i></div>
+        {% elif flick.image %}
+        <img src="{{ flick.image.url }}" style="width:120px;height:214px;object-fit:cover;display:block">
+        {% else %}
+        <div style="width:120px;height:214px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:32px;color:rgba(255,255,255,.35)"></i></div>
+        {% endif %}
+        <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.9));padding:18px 7px 7px">
+          <div style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+          <div style="font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:8px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen viewer -->
+<div id="adv-fs" style="display:none;position:fixed;inset:0;background:#000;z-index:10000;touch-action:none">
+  <div style="position:absolute;top:0;left:0;right:0;padding:env(safe-area-inset-top,12px) 16px 28px;background:linear-gradient(rgba(0,0,0,.75),transparent);z-index:2;display:flex;align-items:center;gap:10px">
+    <div id="adv-avatar" style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0"></div>
+    <div style="flex:1"><div id="adv-name" style="font-size:13px;font-weight:800;color:#fff"></div><div id="adv-time" style="font-size:11px;color:rgba(255,255,255,.6)"></div></div>
+    <button onclick="advFsClose()" style="background:rgba(0,0,0,.45);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
+  </div>
+  <div id="adv-media" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden"></div>
+  <div onclick="advNav(-1)" style="position:absolute;left:0;top:0;bottom:0;width:35%;z-index:3;cursor:pointer"></div>
+  <div onclick="advNav(1)"  style="position:absolute;right:56px;top:0;bottom:0;width:calc(35% - 56px);z-index:3;cursor:pointer"></div>
+  <div style="position:absolute;right:12px;bottom:100px;display:flex;flex-direction:column;align-items:center;gap:22px;z-index:4">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <button id="adv-like-btn" onclick="advLike()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:28px;padding:0;line-height:1"><i id="adv-like-icon" class="far fa-heart"></i></button>
+      <span id="adv-like-count" style="font-size:12px;font-weight:700;color:#fff">0</span>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <button onclick="advShare()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:26px;padding:0;line-height:1"><i class="far fa-paper-plane"></i></button>
+      <span style="font-size:12px;font-weight:700;color:#fff">Share</span>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:60px;padding:60px 16px 28px;background:linear-gradient(transparent,rgba(0,0,0,.85));z-index:3">
+    <div id="adv-cap-name" style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px"></div>
+    <div id="adv-cap" style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;max-height:64px;overflow:hidden"></div>
+  </div>
+  <div id="adv-dots" style="position:absolute;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:5;padding-top:4px"></div>
+  <div id="adv-toast" style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.18);backdrop-filter:blur(8px);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;white-space:nowrap">Link copied!</div>
+</div>
+
+<script>
+const _advcsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+const _advFlicks = [
+  {% for flick in recent_flicks %}
+  { pk:{{ flick.pk }}, name:"{{ flick.user.get_full_name|default:flick.user.username|escapejs }}", initial:"{{ flick.user.first_name|first|upper }}", time:"{{ flick.created_at|timesince }} ago", video:"{% if flick.video %}{{ flick.video.url }}{% endif %}", image:"{% if flick.image %}{{ flick.image.url }}{% endif %}", title:"{{ flick.title|escapejs }}", caption:"{{ flick.caption|escapejs }}", likes:{{ flick.like_count }}, liked:{% if flick.pk in liked_ids %}true{% else %}false{% endif %} }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+let _advIdx = 0;
+
+function advFsOpen(i) { _advIdx = i; document.getElementById('adv-fs').style.display = 'block'; document.body.style.overflow = 'hidden'; advRender(); advDots(); }
+function advFsClose() { document.getElementById('adv-fs').style.display = 'none'; document.body.style.overflow = ''; document.getElementById('adv-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;}); }
+function advNav(d) { const n=_advIdx+d; if(n<0||n>=_advFlicks.length)return; document.getElementById('adv-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;}); _advIdx=n; advRender(); advUpdateDots(); }
+
+function advRender() {
+  const f=_advFlicks[_advIdx];
+  document.getElementById('adv-avatar').textContent=f.initial;
+  document.getElementById('adv-name').textContent=f.name;
+  document.getElementById('adv-time').textContent=f.time;
+  document.getElementById('adv-cap-name').textContent=f.name;
+  document.getElementById('adv-cap').textContent=f.title?(f.title+(f.caption?' · '+f.caption:'')):f.caption;
+  document.getElementById('adv-like-count').textContent=f.likes;
+  const ic=document.getElementById('adv-like-icon'); ic.className=f.liked?'fas fa-heart':'far fa-heart'; ic.style.color=f.liked?'#ff4d6d':'#fff';
+  const m=document.getElementById('adv-media'); m.innerHTML='';
+  if(f.video){const v=document.createElement('video');v.src=f.video;v.controls=true;v.autoplay=true;v.playsInline=true;v.style.cssText='width:100%;height:100%;object-fit:contain;max-height:100vh';m.appendChild(v);}
+  else if(f.image){const img=document.createElement('img');img.src=f.image;img.style.cssText='width:100%;height:100%;object-fit:contain;max-height:100vh';m.appendChild(img);}
+  else{m.innerHTML='<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#0a66c2)"><i class="fas fa-bolt" style="font-size:80px;color:rgba(255,255,255,.3)"></i></div>';}
+}
+function advDots() {
+  const dots=document.getElementById('adv-dots'); dots.innerHTML='';
+  _advFlicks.forEach((_,i)=>{const d=document.createElement('div');d.style.cssText='width:'+(i===_advIdx?'20px':'6px')+';height:3px;border-radius:2px;background:'+(i===_advIdx?'#fff':'rgba(255,255,255,.4)')+';transition:all .2s';dots.appendChild(d);});
+}
+function advUpdateDots(){const dots=document.getElementById('adv-dots').children;for(let i=0;i<dots.length;i++){dots[i].style.width=i===_advIdx?'20px':'6px';dots[i].style.background=i===_advIdx?'#fff':'rgba(255,255,255,.4)';}}
+function advLike(){
+  {% if request.user.is_authenticated %}
+  const f=_advFlicks[_advIdx];
+  fetch('/flicks/'+f.pk+'/like/',{method:'POST',headers:{'X-CSRFToken':_advcsrf}}).then(r=>r.json()).then(d=>{
+    if(!d.success)return;f.liked=d.liked;f.likes=d.count;
+    document.getElementById('adv-like-count').textContent=d.count;
+    const ic=document.getElementById('adv-like-icon');ic.className=d.liked?'fas fa-heart':'far fa-heart';ic.style.color=d.liked?'#ff4d6d':'#fff';
+    if(d.liked){ic.style.transform='scale(1.4)';setTimeout(()=>ic.style.transform='scale(1)',300);}
+  });
+  {% else %}
+  window.location='/login/';
+  {% endif %}
+}
+function advShare(){
+  const f=_advFlicks[_advIdx];const url=window.location.origin+'/flicks/#fk-'+f.pk;
+  if(navigator.share){navigator.share({title:f.name+' on MY PINCOD',url}).catch(()=>{});}
+  else{navigator.clipboard.writeText(url).then(()=>{const t=document.getElementById('adv-toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000);});}
+}
+let _advTsX=0;
+document.getElementById('adv-fs').addEventListener('touchstart',e=>{_advTsX=e.touches[0].clientX;},{passive:true});
+document.getElementById('adv-fs').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-_advTsX;if(Math.abs(dx)>50)advNav(dx<0?1:-1);},{passive:true});
+document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').style.display||document.getElementById('adv-fs').style.display==='none')return;if(e.key==='Escape')advFsClose();if(e.key==='ArrowRight')advNav(1);if(e.key==='ArrowLeft')advNav(-1);});
+</script>
+{% endif %}
 
 <!-- REGISTRATION FORM -->
 <section class="ar-sec" id="register-form">
