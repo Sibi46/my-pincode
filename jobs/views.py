@@ -1556,14 +1556,16 @@ def super_admin_users(request):
 def _users_list(request):
     from django.db.models import Q
     search   = request.GET.get('q', '').strip()
-    utype    = request.GET.get('type', '')   # 'employer' | 'jobseeker' | ''
+    utype    = request.GET.get('type', '')
 
-    qs = User.objects.filter(admin_role='').exclude(user_type='advertiser').order_by('-date_joined')
+    qs = User.objects.exclude(user_type='advertiser').order_by('-date_joined')
 
     if utype == 'employer':
         qs = qs.filter(user_type__in=User.EMPLOYER_TYPES)
     elif utype == 'jobseeker':
         qs = qs.filter(user_type__in=['employee', 'individual', 'freelancer'])
+    elif utype == 'admin':
+        qs = qs.exclude(admin_role='')
 
     if search:
         qs = qs.filter(
@@ -1572,8 +1574,9 @@ def _users_list(request):
             Q(pincode__icontains=search) | Q(city__icontains=search)
         )
 
-    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
-    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
+    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count()
+    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer']).count()
+    admin_count     = User.objects.exclude(admin_role='').count()
 
     return render(request, 'admin_users.html', {
         'users': qs,
@@ -1581,7 +1584,8 @@ def _users_list(request):
         'utype': utype,
         'employer_count': employer_count,
         'jobseeker_count': jobseeker_count,
-        'total_count': employer_count + jobseeker_count,
+        'admin_count': admin_count,
+        'total_count': User.objects.exclude(user_type='advertiser').count(),
     })
 
 
