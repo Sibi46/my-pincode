@@ -10,13 +10,12 @@
 
   function lookup(pin, cb) {
     if (cache[pin]) { cb(cache[pin]); return; }
-    fetch('https://api.postalpincode.in/pincode/' + pin)
+    fetch('/api/pincode/' + pin + '/')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         var result = null;
-        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
-          var po = data[0].PostOffice[0];
-          result = { area: po.Name, district: po.District, state: po.State };
+        if (data && data.success) {
+          result = { area: data.area, district: data.district, state: data.state };
         }
         cache[pin] = result;
         cb(result);

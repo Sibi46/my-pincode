@@ -78,6 +78,26 @@
     </div>
   </div>
 
+  <!-- Flicks quick-action bar -->
+  <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+    <a href="/flicks/" style="flex:1;min-width:200px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:14px;padding:16px 20px;text-decoration:none;color:#fff">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
+      <div>
+        <div style="font-weight:800;font-size:15px">Flicks</div>
+        <div style="font-size:12px;opacity:.8;margin-top:2px">View &amp; share posts</div>
+      </div>
+      <i class="fas fa-chevron-right" style="margin-left:auto;opacity:.7"></i>
+    </a>
+    <a href="/flicks/post/" style="flex:1;min-width:200px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#f0f9ff,#dbeafe);border:1.5px solid #bfdbfe;border-radius:14px;padding:16px 20px;text-decoration:none;color:#1d4ed8">
+      <div style="width:40px;height:40px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎬</div>
+      <div>
+        <div style="font-weight:800;font-size:15px">Post a Flick</div>
+        <div style="font-size:12px;opacity:.7;margin-top:2px">Share video, photo or text</div>
+      </div>
+      <i class="fas fa-plus" style="margin-left:auto;opacity:.7"></i>
+    </a>
+  </div>
+
   <div class="dash-grid">
 
     <!-- Profile Card -->
@@ -203,6 +223,125 @@
     </div>
 
   </div>
+</div>
+
+<!-- ⚡ FLICKS — YouTube Shorts style -->
+{% if recent_flicks %}
+<div style="max-width:900px;margin:0 auto 28px;padding:0 16px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <h2 style="font-size:18px;font-weight:900;color:#111;margin:0">⚡ Flicks</h2>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a href="/flicks/post/" style="font-size:13px;font-weight:700;color:#fff;background:#0a66c2;padding:7px 16px;border-radius:8px;text-decoration:none"><i class="fas fa-plus"></i> Post</a>
+      <a href="/flicks/" style="font-size:13px;font-weight:700;color:#0a66c2;text-decoration:none">See all <i class="fas fa-chevron-right"></i></a>
+    </div>
+  </div>
+
+  <!-- Horizontal scroll row -->
+  <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch">
+    {% for flick in recent_flicks %}
+    <div style="flex-shrink:0;width:160px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="openFlick('flick-modal-{{ flick.pk }}')">
+
+      <!-- Media (portrait 9:16) -->
+      {% if flick.video %}
+      <video src="{{ flick.video.url }}" style="width:160px;height:285px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none">
+        <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:3px"></i>
+      </div>
+      {% elif flick.image %}
+      <img src="{{ flick.image.url }}" style="width:160px;height:285px;object-fit:cover;display:block">
+      {% else %}
+      <div style="width:160px;height:285px;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center">
+        <i class="fas fa-bolt" style="font-size:40px;color:rgba(255,255,255,0.4)"></i>
+      </div>
+      {% endif %}
+
+      <!-- Bottom overlay -->
+      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:20px 10px 10px">
+        <div style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          {{ flick.user.get_full_name|default:flick.user.username }}
+        </div>
+        {% if flick.title %}
+        <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.title }}</div>
+        {% endif %}
+        <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+          <button onclick="event.stopPropagation();dashLike({{ flick.pk }},this)"
+            data-liked="{% if flick.pk in liked_ids %}1{% else %}0{% endif %}"
+            style="background:none;border:none;cursor:pointer;padding:0;color:{% if flick.pk in liked_ids %}#ff4444{% else %}rgba(255,255,255,0.9){% endif %};font-size:13px;display:flex;align-items:center;gap:4px;font-weight:700">
+            <i class="{% if flick.pk in liked_ids %}fas{% else %}far{% endif %} fa-heart"></i>
+            <span class="dlc-{{ flick.pk }}">{{ flick.like_count }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for this flick -->
+    <div id="flick-modal-{{ flick.pk }}" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center" onclick="closeFlickModal(this)">
+      <div style="background:#111;border-radius:18px;max-width:400px;width:90%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #222">
+          <div style="width:36px;height:36px;border-radius:50%;background:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff">{{ flick.user.first_name|first|upper }}</div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#fff">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+            <div style="font-size:11px;color:#888">{{ flick.created_at|timesince }} ago</div>
+          </div>
+          <button onclick="closeFlickModal(document.getElementById('flick-modal-{{ flick.pk }}'))" style="margin-left:auto;background:none;border:none;color:#888;font-size:20px;cursor:pointer"><i class="fas fa-times"></i></button>
+        </div>
+        {% if flick.video %}
+        <video controls autoplay style="width:100%;max-height:480px;background:#000;display:block">
+          <source src="{{ flick.video.url }}">
+        </video>
+        {% elif flick.image %}
+        <img src="{{ flick.image.url }}" style="width:100%;max-height:480px;object-fit:contain;display:block;background:#000">
+        {% endif %}
+        {% if flick.title or flick.caption %}
+        <div style="padding:14px 16px">
+          {% if flick.title %}<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">{{ flick.title }}</div>{% endif %}
+          {% if flick.caption %}<div style="font-size:13px;color:#ccc;line-height:1.6">{{ flick.caption }}</div>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<script>
+const _csrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+function dashLike(pk, btn) {
+  fetch('/flicks/' + pk + '/like/', {method:'POST', headers:{'X-CSRFToken':_csrf}})
+    .then(r=>r.json()).then(d=>{
+      if (!d.success) return;
+      const icon = btn.querySelector('i');
+      const cnt = btn.querySelector('.dlc-' + pk);
+      if (d.liked) { icon.className='fas fa-heart'; btn.style.color='#ff4444'; }
+      else         { icon.className='far fa-heart'; btn.style.color='rgba(255,255,255,0.9)'; }
+      cnt.textContent = d.count;
+    });
+}
+function openFlick(id) {
+  const m = document.getElementById(id);
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeFlickModal(el) {
+  el.style.display = 'none';
+  document.body.style.overflow = '';
+  el.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime=0; });
+}
+</script>
+
+<!-- Feedback Card -->
+<div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
+  <a href="/complaint/submit/" style="display:flex;align-items:center;gap:16px;background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px 24px;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='#e5e7eb'">
+    <div style="width:48px;height:48px;border-radius:12px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#0a66c2">
+      <i class="fas fa-comment-dots"></i>
+    </div>
+    <div style="flex:1">
+      <div style="font-weight:800;font-size:15px;color:#111">Share Your Feedback</div>
+      <div style="font-size:13px;color:#888;margin-top:3px">Report a bug, suggest a feature, or share your experience with MY PINCOD</div>
+    </div>
+    <div style="color:#0a66c2;font-size:18px;flex-shrink:0"><i class="fas fa-chevron-right"></i></div>
+  </a>
 </div>
 
 <!-- Referral Banner -->

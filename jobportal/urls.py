@@ -7,6 +7,7 @@ from jobs import views
 urlpatterns = [
     path('admin/',                  admin.site.urls),
     path('',                        views.home,               name='home'),
+    path('favicon.ico',             views.favicon,            name='favicon'),
 
     # Auth
     path('register/',               views.register,           name='register'),
@@ -93,6 +94,7 @@ urlpatterns = [
     path('admin-panel/users/',                    views.admin_users,             name='admin_users'),
 
     # ── SUPER ADMIN ─────────────────────────────────────────
+    path('super-admin/users/',                          views.super_admin_users,     name='super_admin_users'),
     path('super-admin/',                               views.super_admin_dashboard, name='super_admin_dashboard'),
     path('super-admin/states/',                        views.manage_states,         name='manage_states'),
     path('super-admin/states/<int:pk>/toggle/',        views.toggle_state,          name='toggle_state'),
@@ -137,6 +139,14 @@ urlpatterns = [
     path('jobs/<int:pk>/select-plan/',                 views.job_select_plan,             name='job_select_plan'),
     path('referral/',                                  views.referral_dashboard,          name='referral_dashboard'),
     path('api/update-interview-type/',                 views.update_interview_type,        name='update_interview_type'),
+    path('api/pincode/<str:pin>/',                     views.api_pincode_lookup,          name='api_pincode_lookup'),
     path('terms/',                                     views.terms,                        name='terms'),
     path('privacy/',                                   views.privacy,                      name='privacy'),
+
+    # ── FLICKS ──────────────────────────────────────────────────────────────
+    path('flicks/',                                    views.flicks_feed,                  name='flicks_feed'),
+    path('flicks/post/',                               views.post_flick,                   name='post_flick'),
+    path('flicks/<int:pk>/like/',                      views.like_flick,                   name='like_flick'),
+    path('flicks/<int:pk>/comment/',                   views.comment_flick,                name='comment_flick'),
+    path('flicks/<int:pk>/delete/',                    views.delete_flick,                 name='delete_flick'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

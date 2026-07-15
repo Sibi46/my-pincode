@@ -27,13 +27,24 @@ SECRET_KEY = 'change-me-in-local-settings'
 
 ANTHROPIC_API_KEY = ''
 
-TWO_FACTOR_API_KEY = 'a21bd99f-6bdc-11f1-8f15-0200cd936042'
+# Move API key to local_settings.py — do NOT hardcode here
+TWO_FACTOR_API_KEY = ''
 TWO_FACTOR_OTP_TEMPLATE = 'OTP1'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mypincod.com', 'www.mypincod.com']
+
+# ── Security headers ─────────────────────────────────────────────────────────
+SECURE_SSL_REDIRECT          = True
+SECURE_HSTS_SECONDS          = 31536000   # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_CONTENT_TYPE_NOSNIFF  = True
+SESSION_COOKIE_SECURE        = True
+SESSION_COOKIE_HTTPONLY      = True
+CSRF_COOKIE_SECURE           = True
+CSRF_COOKIE_HTTPONLY         = False   # must be False — JS needs to read it for AJAX
+X_FRAME_OPTIONS              = 'DENY'
 
 
 # Application definition
@@ -153,6 +164,15 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ── Cache (file-based, shared across workers) ────────────────────────────────
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/django_cache_mypincod',
+        'TIMEOUT': 300,
+    }
+}
 
 try:
     from .local_settings import *

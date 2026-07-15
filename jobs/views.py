@@ -40,30 +40,46 @@ def home(request):
     # ── Jobs & employers ────────────────────────────────
     featured_jobs = Job.objects.filter(status='active').select_related('posted_by').order_by('-created_at')[:8]
 
-    # ── Stats ────────────────────────────────────────────
-    total_jobs      = Job.objects.filter(status='active').count()
-    total_employers = User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count()
-    total_seekers   = User.objects.filter(user_type__in=['employee', 'individual', 'freelancer']).count()
-    total_districts = District.objects.filter(is_active=True).count()
+    # ── Stats — cached 5 min to avoid COUNT on every request ─────────────────
+    from django.core.cache import cache
+    stats = cache.get('homepage_stats')
+    if not stats:
+        stats = {
+            'total_jobs':      Job.objects.filter(status='active').count(),
+            'total_employers': User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count(),
+            'total_seekers':   User.objects.filter(user_type__in=['employee', 'individual', 'freelancer']).count(),
+            'total_districts': District.objects.filter(is_active=True).count(),
+        }
+        cache.set('homepage_stats', stats, 300)
+    total_jobs      = stats['total_jobs']
+    total_employers = stats['total_employers']
+    total_seekers   = stats['total_seekers']
+    total_districts = stats['total_districts']
 
     # ── Industries ───────────────────────────────────────
     industries = Industry.objects.filter(is_active=True).order_by('order')[:12]
 
-    # ── Jobs by District ─────────────────────────────────
+    # ── Jobs by District — single aggregated query instead of N+1 ───────────
+    active_pin_job_counts = dict(
+        Job.objects.filter(status='active')
+        .values('pincode')
+        .annotate(cnt=Count('id'))
+        .values_list('pincode', 'cnt')
+    )
     active_districts = District.objects.filter(is_active=True).prefetch_related('pincodes')[:12]
     districts_jobs = []
     for d in active_districts:
-        pin_list = list(d.pincodes.values_list('code', flat=True))
-        d.job_count = Job.objects.filter(status='active', pincode__in=pin_list).count() if pin_list else 0
+        pin_list = [p.code for p in d.pincodes.all()]
+        d.job_count = sum(active_pin_job_counts.get(p, 0) for p in pin_list)
         districts_jobs.append(d)
     districts_jobs.sort(key=lambda d: d.job_count, reverse=True)
 
-    # ── Jobs by PIN Code ─────────────────────────────────
-    pincode_jobs = []
-    for pin in PinCode.objects.filter(is_active=True).select_related('district', 'district__state')[:20]:
-        cnt = Job.objects.filter(status='active', pincode=pin.code).count()
-        if cnt > 0:
-            pincode_jobs.append({'pin': pin, 'count': cnt})
+    # ── Jobs by PIN Code — reuse the counts dict, no extra queries ────────────
+    pincode_jobs = [
+        {'pin': pin, 'count': active_pin_job_counts.get(pin.code, 0)}
+        for pin in PinCode.objects.filter(is_active=True).select_related('district', 'district__state')[:20]
+        if active_pin_job_counts.get(pin.code, 0) > 0
+    ]
     pincode_jobs.sort(key=lambda x: x['count'], reverse=True)
 
     return render(request, 'index.html', {
@@ -560,7 +576,6 @@ def edit_job(request, pk):
 
 # ── DASHBOARDS ────────────────────────────────────────────────────────────────
 @login_required
-@login_required
 def employer_dashboard(request):
     user = request.user
 
@@ -649,6 +664,10 @@ def employer_dashboard(request):
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
     job_posted_title = request.session.pop('show_job_posted_popup', None)
 
+    from .models import Flick, FlickLike
+    recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
         'expired_jobs':       expired_jobs,
@@ -675,6 +694,8 @@ def employer_dashboard(request):
         'show_referral_popup': show_referral_popup,
         'referral_link':      referral_link,
         'job_posted_title':   job_posted_title,
+        'recent_flicks':      recent_flicks,
+        'liked_ids':          liked_ids,
     })
 
 
@@ -718,6 +739,9 @@ def jobseeker_dashboard(request):
     unread_notif_count = UserNotification.objects.filter(user=request.user, is_read=False).count()
     show_referral_popup = request.session.pop('show_referral_popup', False)
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
+    from .models import Flick, FlickLike
+    recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
     return render(request, 'jobseeker_dashboard.html', {
         'applications':       applications,
         'recommended':        recommended,
@@ -726,6 +750,8 @@ def jobseeker_dashboard(request):
         'unread_notif_count': unread_notif_count,
         'show_referral_popup': show_referral_popup,
         'referral_link':      referral_link,
+        'recent_flicks':      recent_flicks,
+        'liked_ids':          liked_ids,
     })
 
 
@@ -1528,16 +1554,29 @@ def admin_delete_ad(request, ad_id):
 # ── ADMIN USERS LIST ────────────────────────────────────────────────────────
 @admin_required
 def admin_users(request):
+    return _users_list(request)
+
+
+def super_admin_users(request):
+    if not request.user.is_authenticated or request.user.admin_role != 'super_admin':
+        messages.error(request, 'Super Admin access required.')
+        return redirect('login')
+    return _users_list(request)
+
+
+def _users_list(request):
     from django.db.models import Q
     search   = request.GET.get('q', '').strip()
-    utype    = request.GET.get('type', '')   # 'employer' | 'jobseeker' | ''
+    utype    = request.GET.get('type', '')
 
-    qs = User.objects.filter(admin_role='').exclude(user_type='advertiser').order_by('-date_joined')
+    qs = User.objects.exclude(user_type='advertiser').order_by('-date_joined')
 
     if utype == 'employer':
         qs = qs.filter(user_type__in=User.EMPLOYER_TYPES)
     elif utype == 'jobseeker':
         qs = qs.filter(user_type__in=['employee', 'individual', 'freelancer'])
+    elif utype == 'admin':
+        qs = qs.exclude(admin_role='')
 
     if search:
         qs = qs.filter(
@@ -1546,8 +1585,9 @@ def admin_users(request):
             Q(pincode__icontains=search) | Q(city__icontains=search)
         )
 
-    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
-    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
+    employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES).count()
+    jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer']).count()
+    admin_count     = User.objects.exclude(admin_role='').count()
 
     return render(request, 'admin_users.html', {
         'users': qs,
@@ -1555,7 +1595,8 @@ def admin_users(request):
         'utype': utype,
         'employer_count': employer_count,
         'jobseeker_count': jobseeker_count,
-        'total_count': employer_count + jobseeker_count,
+        'admin_count': admin_count,
+        'total_count': User.objects.exclude(user_type='advertiser').count(),
     })
 
 
@@ -2070,12 +2111,134 @@ def update_interview_type(request):
         return JsonResponse({'success': False, 'error': 'Job not found'})
 
 
+def api_pincode_lookup(request, pin):
+    import re
+    if not re.fullmatch(r'\d{6}', pin):
+        return JsonResponse({'success': False, 'error': 'Invalid PIN code'})
+
+    from .models import PinCode, District, State
+    import requests as _req
+
+    # Try local DB first
+    try:
+        pc = PinCode.objects.select_related('district__state').get(code=pin)
+        return JsonResponse({
+            'success': True,
+            'area': pc.area_name or pc.district.name,
+            'district': pc.district.name,
+            'state': pc.district.state.name,
+        })
+    except PinCode.DoesNotExist:
+        pass
+
+    # Fall back to India Post API
+    try:
+        resp   = _req.get(f'https://api.postalpincode.in/pincode/{pin}', timeout=8)
+        data   = resp.json()
+        if data and data[0].get('Status') == 'Success' and data[0].get('PostOffice'):
+            po       = data[0]['PostOffice'][0]
+            area     = po.get('Name', '')
+            district = po.get('District', '')
+            state    = po.get('State', '')
+
+            # Cache in local DB if district exists
+            try:
+                dist_obj = District.objects.get(name__iexact=district)
+                PinCode.objects.get_or_create(
+                    code=pin,
+                    defaults={'district': dist_obj, 'area_name': area}
+                )
+            except District.DoesNotExist:
+                pass
+
+            return JsonResponse({'success': True, 'area': area, 'district': district, 'state': state})
+        return JsonResponse({'success': False, 'error': 'PIN code not found'})
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Lookup unavailable'})
+
+
 def terms(request):
     return render(request, 'terms.html')
 
 
 def privacy(request):
     return render(request, 'privacy.html')
+
+
+def favicon(request):
+    return HttpResponse(status=204)
+
+
+# ── FLICKS ────────────────────────────────────────────────────────────────────
+
+@login_required
+def flicks_feed(request):
+    from .models import Flick, FlickLike
+    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments').order_by('-created_at')
+    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids})
+
+
+@login_required
+def post_flick(request):
+    from .models import Flick
+    if request.method == 'POST':
+        title   = request.POST.get('title', '').strip()
+        caption = request.POST.get('caption', '').strip()
+        video   = request.FILES.get('video')
+        image   = request.FILES.get('image')
+        if not caption and not video and not image:
+            messages.error(request, 'Add a caption, image, or video.')
+            return redirect('post_flick')
+        Flick.objects.create(user=request.user, title=title, caption=caption,
+                             video=video, image=image)
+        messages.success(request, 'Flick posted!')
+        return redirect('flicks_feed')
+    return render(request, 'post_flick.html')
+
+
+@login_required
+def like_flick(request, pk):
+    from .models import Flick, FlickLike
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    flick = get_object_or_404(Flick, pk=pk)
+    like, created = FlickLike.objects.get_or_create(flick=flick, user=request.user)
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+    return JsonResponse({'success': True, 'liked': liked, 'count': flick.like_count()})
+
+
+@login_required
+def comment_flick(request, pk):
+    from .models import Flick, FlickComment
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data = json.loads(request.body)
+    text = data.get('text', '').strip()
+    if not text:
+        return JsonResponse({'success': False, 'error': 'Empty comment'})
+    flick = get_object_or_404(Flick, pk=pk)
+    c = FlickComment.objects.create(flick=flick, user=request.user, text=text)
+    return JsonResponse({
+        'success': True,
+        'name': request.user.get_full_name() or request.user.username,
+        'text': c.text,
+        'time': c.created_at.strftime('%d %b %Y'),
+    })
+
+
+@login_required
+def delete_flick(request, pk):
+    from .models import Flick
+    flick = get_object_or_404(Flick, pk=pk, user=request.user)
+    flick.delete()
+    messages.success(request, 'Flick deleted.')
+    return redirect('flicks_feed')
 
 
 def referral_dashboard(request):
@@ -2394,18 +2557,16 @@ def district_reports(request):
 # ─── PUBLIC: Submit Complaint ──────────────────────────────────────────────────
 @login_required
 def submit_complaint(request):
-    districts = District.objects.select_related('state').order_by('name')
     if request.method == 'POST':
         Complaint.objects.create(
             submitted_by   = request.user,
             complaint_type = request.POST.get('complaint_type', 'other'),
             subject        = request.POST.get('subject', '').strip(),
             description    = request.POST.get('description', '').strip(),
-            district       = District.objects.filter(pk=request.POST.get('district')).first(),
         )
         messages.success(request, 'Complaint submitted. Our team will review it shortly.')
         return redirect('dashboard')
-    return render(request, 'submit_complaint.html', {'districts': districts})
+    return render(request, 'submit_complaint.html', {})
 
 
 # ── SAVE CANDIDATE ────────────────────────────────────────────────────────────
