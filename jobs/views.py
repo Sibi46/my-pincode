@@ -740,7 +740,7 @@ def jobseeker_dashboard(request):
     show_referral_popup = request.session.pop('show_referral_popup', False)
     referral_link = request.build_absolute_uri(f'/register/?ref={request.user.referral_code}') if request.user.referral_code else ''
     from .models import Flick, FlickLike
-    recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
+    recent_flicks = Flick.objects.filter(user=request.user).select_related('user').prefetch_related('likes').order_by('-created_at')[:12]
     liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
     return render(request, 'jobseeker_dashboard.html', {
         'applications':       applications,
