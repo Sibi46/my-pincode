@@ -500,8 +500,8 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
       <a href="/candidates/" class="bn-item {% if '/candidates' in request.path %}active{% endif %}">
         <i class="fas fa-users"></i><span>Candidates</span>
       </a>
-      <a href="/post-job/" class="bn-item bn-fab">
-        <div class="bn-fab-icon"><i class="fas fa-plus"></i></div><span>Post</span>
+      <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
+        <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span>
       </a>
       <a href="/messages/" class="bn-item {% if '/messages' in request.path %}active{% endif %}">
         <i class="fas fa-comment-dots"></i><span>Messages</span>
@@ -513,8 +513,8 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
       <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
         <i class="fas fa-briefcase"></i><span>Jobs</span>
       </a>
-      <a href="/jobseeker/dashboard/" class="bn-item bn-fab">
-        <div class="bn-fab-icon"><i class="fas fa-th-large"></i></div><span>Dashboard</span>
+      <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
+        <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span>
       </a>
       <a href="/messages/" class="bn-item {% if '/messages' in request.path %}active{% endif %}">
         <i class="fas fa-comment-dots"></i><span>Messages</span>
@@ -548,7 +548,10 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 .bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
 .bn-fab{margin-top:-22px}
 .bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
+.bn-fab-flick{background:linear-gradient(135deg,#7c3aed,#0a66c2);box-shadow:0 4px 14px rgba(124,58,237,.4)}
 .bn-fab span{color:#0a66c2;font-weight:700}
+.bn-fab-active span{color:#7c3aed}
+.bn-fab-active .bn-fab-flick{box-shadow:0 4px 18px rgba(124,58,237,.6)}
 body{padding-bottom:62px}
 </style>
 
