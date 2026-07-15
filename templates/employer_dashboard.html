@@ -912,77 +912,113 @@
       </div>
 
       {% if recent_flicks %}
-      <!-- Horizontal scroll strip -->
+      <!-- Thumbnail strip -->
       <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch;margin-bottom:24px">
         {% for flick in recent_flicks %}
-        <div style="flex-shrink:0;width:160px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="openEFlick('eflick-modal-{{ flick.pk }}')">
-
+        <div data-efi="{{ forloop.counter0 }}" style="flex-shrink:0;width:140px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="efsOpen({{ forloop.counter0 }})">
           {% if flick.video %}
-          <video src="{{ flick.video.url }}" style="width:160px;height:285px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.25);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none">
-            <i class="fas fa-play" style="color:#fff;font-size:16px;margin-left:3px"></i>
-          </div>
+          <video src="{{ flick.video.url }}" style="width:140px;height:248px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:14px;margin-left:2px"></i></div>
           {% elif flick.image %}
-          <img src="{{ flick.image.url }}" style="width:160px;height:285px;object-fit:cover;display:block">
+          <img src="{{ flick.image.url }}" style="width:140px;height:248px;object-fit:cover;display:block">
           {% else %}
-          <div style="width:160px;height:285px;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-bolt" style="font-size:40px;color:rgba(255,255,255,0.4)"></i>
-          </div>
+          <div style="width:140px;height:248px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:36px;color:rgba(255,255,255,.4)"></i></div>
           {% endif %}
-
-          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:20px 10px 10px">
-            <div style="font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-              {{ flick.user.get_full_name|default:flick.user.username }}
-            </div>
-            {% if flick.title %}
-            <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.title }}</div>
-            {% endif %}
-            <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
-              <button onclick="event.stopPropagation();eLike({{ flick.pk }},this)"
-                data-liked="{% if flick.pk in liked_ids %}1{% else %}0{% endif %}"
-                style="background:none;border:none;cursor:pointer;padding:0;color:{% if flick.pk in liked_ids %}#ff4444{% else %}rgba(255,255,255,0.9){% endif %};font-size:13px;display:flex;align-items:center;gap:4px;font-weight:700">
-                <i class="{% if flick.pk in liked_ids %}fas{% else %}far{% endif %} fa-heart"></i>
-                <span class="elc-{{ flick.pk }}">{{ flick.like_count }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal -->
-        <div id="eflick-modal-{{ flick.pk }}" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center" onclick="closeEFlick(this)">
-          <div style="background:#111;border-radius:18px;max-width:400px;width:90%;max-height:90vh;overflow-y:auto" onclick="event.stopPropagation()">
-            <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #222">
-              <div style="width:36px;height:36px;border-radius:50%;background:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff">{{ flick.user.first_name|first|upper }}</div>
-              <div>
-                <div style="font-size:13px;font-weight:800;color:#fff">{{ flick.user.get_full_name|default:flick.user.username }}</div>
-                <div style="font-size:11px;color:#888">{{ flick.created_at|timesince }} ago</div>
-              </div>
-              <button onclick="closeEFlick(document.getElementById('eflick-modal-{{ flick.pk }}'))" style="margin-left:auto;background:none;border:none;color:#888;font-size:20px;cursor:pointer"><i class="fas fa-times"></i></button>
-            </div>
-            {% if flick.video %}
-            <video controls autoplay style="width:100%;max-height:480px;background:#000;display:block">
-              <source src="{{ flick.video.url }}">
-            </video>
-            {% elif flick.image %}
-            <img src="{{ flick.image.url }}" style="width:100%;max-height:480px;object-fit:contain;display:block;background:#000">
-            {% endif %}
-            {% if flick.title or flick.caption %}
-            <div style="padding:14px 16px">
-              {% if flick.title %}<div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">{{ flick.title }}</div>{% endif %}
-              {% if flick.caption %}<div style="font-size:13px;color:#ccc;line-height:1.6">{{ flick.caption }}</div>{% endif %}
-            </div>
-            {% endif %}
-            {% if flick.user == request.user %}
-            <div style="padding:0 16px 16px">
-              <form method="post" action="/flicks/{{ flick.pk }}/delete/" onsubmit="return confirm('Delete this flick?')">
-                {% csrf_token %}
-                <button type="submit" style="background:#fce4ec;color:#c62828;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer"><i class="fas fa-trash-alt"></i> Delete</button>
-              </form>
-            </div>
-            {% endif %}
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.88));padding:18px 8px 8px">
+            <div style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:9px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
           </div>
         </div>
         {% endfor %}
+      </div>
+
+      <!-- Fullscreen viewer data -->
+      <script>
+      const _ecsrf2 = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+      const _eflicks = [
+        {% for flick in recent_flicks %}
+        { pk:{{ flick.pk }}, name:"{{ flick.user.get_full_name|default:flick.user.username|escapejs }}", initial:"{{ flick.user.first_name|first|upper }}", time:"{{ flick.created_at|timesince }} ago", video:"{% if flick.video %}{{ flick.video.url }}{% endif %}", image:"{% if flick.image %}{{ flick.image.url }}{% endif %}", title:"{{ flick.title|escapejs }}", caption:"{{ flick.caption|escapejs }}", likes:{{ flick.like_count }}, liked:{% if flick.pk in liked_ids %}true{% else %}false{% endif %} }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ];
+      let _efsi = 0;
+
+      function efsOpen(i) { _efsi = i; document.getElementById('efs-viewer').style.display = 'block'; document.body.style.overflow = 'hidden'; efsRender(); efsBuildDots(); }
+      function efsClose() { document.getElementById('efs-viewer').style.display = 'none'; document.body.style.overflow = ''; document.getElementById('efs-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;}); }
+      function efsNav(dir) { const n=_efsi+dir; if(n<0||n>=_eflicks.length)return; document.getElementById('efs-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;}); _efsi=n; efsRender(); efsUpdateDots(); }
+
+      function efsRender() {
+        const f = _eflicks[_efsi];
+        document.getElementById('efs-avatar').textContent = f.initial;
+        document.getElementById('efs-name').textContent = f.name;
+        document.getElementById('efs-time').textContent = f.time;
+        document.getElementById('efs-caption-name').textContent = f.name;
+        document.getElementById('efs-caption').textContent = f.title ? (f.title + (f.caption ? ' · '+f.caption : '')) : f.caption;
+        document.getElementById('efs-like-count').textContent = f.likes;
+        const icon = document.getElementById('efs-like-icon');
+        icon.className = f.liked ? 'fas fa-heart' : 'far fa-heart';
+        icon.style.color = f.liked ? '#ff4d6d' : '#fff';
+        const media = document.getElementById('efs-media'); media.innerHTML = '';
+        if (f.video) { const v=document.createElement('video'); v.src=f.video; v.controls=true; v.autoplay=true; v.playsInline=true; v.style.cssText='width:100%;height:100%;object-fit:contain;display:block;max-height:100vh'; media.appendChild(v); }
+        else if (f.image) { const img=document.createElement('img'); img.src=f.image; img.style.cssText='width:100%;height:100%;object-fit:contain;display:block;max-height:100vh'; media.appendChild(img); }
+        else { media.innerHTML='<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#0a66c2)"><i class="fas fa-bolt" style="font-size:80px;color:rgba(255,255,255,.3)"></i></div>'; }
+      }
+      function efsBuildDots() {
+        const dots = document.getElementById('efs-dots'); dots.innerHTML = '';
+        _eflicks.forEach((_,i)=>{ const d=document.createElement('div'); d.style.cssText='width:'+(i===_efsi?'20px':'6px')+';height:3px;border-radius:2px;background:'+(i===_efsi?'#fff':'rgba(255,255,255,.4)')+';transition:all .2s'; dots.appendChild(d); });
+      }
+      function efsUpdateDots() { const dots=document.getElementById('efs-dots').children; for(let i=0;i<dots.length;i++){dots[i].style.width=i===_efsi?'20px':'6px'; dots[i].style.background=i===_efsi?'#fff':'rgba(255,255,255,.4)';} }
+      function efsLike() {
+        const f=_eflicks[_efsi];
+        fetch('/flicks/'+f.pk+'/like/',{method:'POST',headers:{'X-CSRFToken':_ecsrf2}}).then(r=>r.json()).then(d=>{
+          if(!d.success)return; f.liked=d.liked; f.likes=d.count;
+          document.getElementById('efs-like-count').textContent=d.count;
+          const icon=document.getElementById('efs-like-icon'); icon.className=d.liked?'fas fa-heart':'far fa-heart'; icon.style.color=d.liked?'#ff4d6d':'#fff';
+          if(d.liked){icon.style.transform='scale(1.4)';setTimeout(()=>icon.style.transform='scale(1)',300);}
+        });
+      }
+      function efsShare() {
+        const f=_eflicks[_efsi]; const url=window.location.origin+'/flicks/#fk-'+f.pk;
+        if(navigator.share){navigator.share({title:f.name+' on MY PINCOD',url}).catch(()=>{});}
+        else{navigator.clipboard.writeText(url).then(()=>{const t=document.getElementById('efs-toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000);});}
+      }
+      let _etsX=0;
+      document.addEventListener('DOMContentLoaded',()=>{
+        const v=document.getElementById('efs-viewer');
+        v.addEventListener('touchstart',e=>{_etsX=e.touches[0].clientX;},{passive:true});
+        v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-_etsX;if(Math.abs(dx)>50)efsNav(dx<0?1:-1);},{passive:true});
+      });
+      </script>
+
+      <!-- Fullscreen viewer -->
+      <div id="efs-viewer" style="display:none;position:fixed;inset:0;background:#000;z-index:10000;touch-action:none">
+        <div style="position:absolute;top:0;left:0;right:0;padding:env(safe-area-inset-top,12px) 16px 24px;background:linear-gradient(rgba(0,0,0,.7),transparent);z-index:2;display:flex;align-items:center;gap:10px">
+          <div id="efs-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0"></div>
+          <div style="flex:1"><div id="efs-name" style="font-size:13px;font-weight:800;color:#fff"></div><div id="efs-time" style="font-size:11px;color:rgba(255,255,255,.65)"></div></div>
+          <button onclick="efsClose()" style="background:rgba(0,0,0,.4);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="efs-media" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden"></div>
+        <div onclick="efsNav(-1)" style="position:absolute;left:0;top:0;bottom:0;width:35%;z-index:3;cursor:pointer"></div>
+        <div onclick="efsNav(1)"  style="position:absolute;right:56px;top:0;bottom:0;width:calc(35% - 56px);z-index:3;cursor:pointer"></div>
+        <div style="position:absolute;right:12px;bottom:100px;display:flex;flex-direction:column;align-items:center;gap:22px;z-index:4">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <button id="efs-like-btn" onclick="efsLike()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:28px;padding:0;line-height:1"><i id="efs-like-icon" class="far fa-heart"></i></button>
+            <span id="efs-like-count" style="font-size:12px;font-weight:700;color:#fff">0</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <button onclick="efsShare()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:26px;padding:0;line-height:1"><i class="far fa-paper-plane"></i></button>
+            <span style="font-size:12px;font-weight:700;color:#fff">Share</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <a href="/flicks/" style="color:#fff;font-size:22px;line-height:1"><i class="fas fa-th"></i></a>
+            <span style="font-size:12px;font-weight:700;color:#fff">All</span>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:60px;padding:60px 16px 28px;background:linear-gradient(transparent,rgba(0,0,0,.8));z-index:3">
+          <div id="efs-caption-name" style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px"></div>
+          <div id="efs-caption" style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;max-height:64px;overflow:hidden"></div>
+        </div>
+        <div id="efs-dots" style="position:absolute;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:5;padding-top:4px"></div>
+        <div id="efs-toast" style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.18);backdrop-filter:blur(8px);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;white-space:nowrap">Link copied!</div>
       </div>
       {% else %}
       <div style="text-align:center;padding:48px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
@@ -1287,30 +1323,6 @@ function setInterviewType(jobId, itype) {
 }
 </script>
 
-<script>
-const _ecsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
-function eLike(pk, btn) {
-  fetch('/flicks/' + pk + '/like/', {method:'POST', headers:{'X-CSRFToken':_ecsrf}})
-    .then(r=>r.json()).then(d=>{
-      if (!d.success) return;
-      const icon = btn.querySelector('i');
-      const cnt = btn.querySelector('.elc-' + pk);
-      if (d.liked) { icon.className='fas fa-heart'; btn.style.color='#ff4444'; }
-      else         { icon.className='far fa-heart'; btn.style.color='rgba(255,255,255,0.9)'; }
-      cnt.textContent = d.count;
-    });
-}
-function openEFlick(id) {
-  const m = document.getElementById(id);
-  m.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-function closeEFlick(el) {
-  el.style.display = 'none';
-  document.body.style.overflow = '';
-  el.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime=0; });
-}
-</script>
 
 <!-- Referral Banner -->
 <div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
