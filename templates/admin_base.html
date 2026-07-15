@@ -116,6 +116,11 @@
       <a href="/super-admin/notifications/" class="ap-nav-link">
         <i class="fas fa-bell"></i> Notifications
       </a>
+
+      <div class="ap-nav-section">Users</div>
+      <a href="/super-admin/users/" class="ap-nav-link {% if request.path == '/super-admin/users/' %}active{% endif %}">
+        <i class="fas fa-users"></i> All Users
+      </a>
       <a href="/admin/" class="ap-nav-link">
         <i class="fas fa-cog"></i> Django Admin
       </a>
