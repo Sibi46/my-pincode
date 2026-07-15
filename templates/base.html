@@ -510,14 +510,11 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
         <i class="fas fa-user"></i><span>Profile</span>
       </a>
     {% elif request.user.is_authenticated %}
-      <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
-        <i class="fas fa-briefcase"></i><span>Jobs</span>
+      <a href="/jobseeker/dashboard/" class="bn-item {% if '/jobseeker/dashboard' in request.path %}active{% endif %}">
+        <i class="fas fa-th-large"></i><span>Dashboard</span>
       </a>
       <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
         <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span>
-      </a>
-      <a href="/messages/" class="bn-item {% if '/messages' in request.path %}active{% endif %}">
-        <i class="fas fa-comment-dots"></i><span>Messages</span>
       </a>
       <a href="/profile/" class="bn-item {% if '/profile' in request.path %}active{% endif %}">
         <i class="fas fa-user"></i><span>Profile</span>
