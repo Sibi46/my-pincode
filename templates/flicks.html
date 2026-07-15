@@ -99,23 +99,30 @@ body { overflow: hidden !important; }
   border: 1.5px solid rgba(255,255,255,.3);
 }
 
-/* ── MUTE BUTTON ── */
-#fk-mute-btn {
-  position: fixed;
-  bottom: 100px;
-  left: 14px;
-  z-index: 120;
-  background: rgba(0,0,0,.45);
+/* ── MUTE BUTTON (inside right actions) ── */
+.fk-mute-btn {
+  background: none;
   border: none;
   color: #fff;
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  font-size: 16px;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+  gap: 5px;
+  padding: 0;
+  min-width: 48px;
+  transition: transform .12s;
+}
+.fk-mute-btn:active { transform: scale(0.82); }
+.fk-mute-btn i {
+  font-size: 28px;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.6));
+}
+.fk-mute-btn span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
 }
 
 /* ── RIGHT ACTIONS ── */
@@ -370,10 +377,6 @@ body { overflow: hidden !important; }
   <a href="/flicks/post/" class="fk-post-btn"><i class="fas fa-plus"></i> Post</a>
 </div>
 
-<!-- Mute / unmute -->
-<button id="fk-mute-btn" onclick="fkToggleMute()" title="Toggle sound">
-  <i class="fas fa-volume-mute" id="fk-mute-icon"></i>
-</button>
 
 <div id="fk-root">
   <div class="fk-feed" id="fkFeed">
@@ -424,6 +427,11 @@ body { overflow: hidden !important; }
         <button class="fk-act-btn" onclick="fkShare({{ flick.pk }}, '{{ flick.title|default:flick.user.get_full_name|escapejs }}')">
           <i class="far fa-paper-plane"></i>
           <span>Share</span>
+        </button>
+        <!-- Mute -->
+        <button class="fk-mute-btn" onclick="fkToggleMute(this)">
+          <i class="fas fa-volume-mute fk-mute-icon"></i>
+          <span class="fk-mute-label">Sound</span>
         </button>
         <!-- Delete own -->
         {% if flick.user == request.user %}
@@ -509,7 +517,12 @@ setTimeout(function(){ var b=document.getElementById('fk-msg-banner'); if(b) b.r
 function fkToggleMute() {
   _fkMuted = !_fkMuted;
   document.querySelectorAll('[data-fk-vid]').forEach(function(v){ v.muted = _fkMuted; });
-  document.getElementById('fk-mute-icon').className = _fkMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
+  document.querySelectorAll('.fk-mute-icon').forEach(function(i){
+    i.className = (_fkMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up') + ' fk-mute-icon';
+  });
+  document.querySelectorAll('.fk-mute-label').forEach(function(s){
+    s.textContent = _fkMuted ? 'Sound' : 'Mute';
+  });
 }
 
 /* ── AUTO-PLAY via IntersectionObserver ── */
