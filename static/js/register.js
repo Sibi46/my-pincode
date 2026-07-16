@@ -135,7 +135,9 @@ function sendOTP(prefix) {
     }
 
     var btn    = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
-    var errDiv = document.getElementById(prefix + 'PhoneError');
+    var _errCandidate = document.getElementById(prefix + 'PhoneError');
+    // Only use the inline error div if it's inside a currently visible step
+    var errDiv = (_errCandidate && !_errCandidate.closest('.reg-step.hidden')) ? _errCandidate : null;
     if (errDiv) errDiv.style.display = 'none';
 
     btn.textContent = 'Checking…';
@@ -324,7 +326,7 @@ function regAjaxSubmit(form) {
 function attachLivePhoneCheck(phoneInputId, errorDivId, otpBtnClass) {
     var inp = document.getElementById(phoneInputId);
     var errDiv = document.getElementById(errorDivId);
-    if (!inp || !errDiv) return;
+    if (!inp) return;
 
     inp.addEventListener('input', function () {
         var phone = this.value.trim();
