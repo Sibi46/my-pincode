@@ -436,7 +436,7 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
           <span class="fk-mute-label">Sound</span>
         </button>
         <!-- Delete own -->
-        {% if flick.user == request.user %}
+        {% if flick.user == request.user or request.user.admin_role == 'super_admin' %}
         <form method="post" action="/flicks/{{ flick.pk }}/delete/" onsubmit="return confirm('Delete this flick?')" style="display:flex;justify-content:center">
           {% csrf_token %}
           <button type="submit" class="fk-delete-btn"><i class="fas fa-trash-alt"></i></button>

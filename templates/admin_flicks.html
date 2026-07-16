@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Manage Flicks — Admin{% endblock %}
+{% block content %}
+<div style="max-width:1100px;margin:32px auto;padding:0 16px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+    <div>
+      <h1 style="font-size:24px;font-weight:900;color:#111;margin:0 0 4px"><i class="fas fa-bolt" style="color:#7c3aed"></i> Manage Flicks</h1>
+      <p style="font-size:13px;color:#888;margin:0">{{ flicks.count }} total flicks</p>
+    </div>
+    <a href="/super-admin/" style="font-size:13px;color:#0a66c2;text-decoration:none"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:12px 16px;border-radius:10px;margin-bottom:16px;background:#e8f5e9;border-left:4px solid #2e7d32;color:#1b5e20;font-size:13px;font-weight:700">
+      <i class="fas fa-check-circle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if not flicks %}
+  <div style="text-align:center;padding:60px 20px;color:#bbb">
+    <div style="font-size:48px;margin-bottom:12px">⚡</div>
+    <p>No flicks posted yet.</p>
+  </div>
+  {% else %}
+  <div style="display:grid;gap:16px">
+    {% for flick in flicks %}
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;display:flex;gap:16px;align-items:flex-start">
+
+      <!-- Thumbnail -->
+      <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:#000;display:flex;align-items:center;justify-content:center">
+        {% if flick.image %}
+          <img src="{{ flick.image.url }}" style="width:100%;height:100%;object-fit:cover">
+        {% elif flick.video %}
+          <i class="fas fa-play-circle" style="font-size:28px;color:#fff"></i>
+        {% else %}
+          <i class="fas fa-bolt" style="font-size:28px;color:#7c3aed"></i>
+        {% endif %}
+      </div>
+
+      <!-- Info -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:2px">
+          {{ flick.user.get_full_name|default:flick.user.username }}
+          <span style="font-size:11px;color:#888;font-weight:400">({{ flick.user.phone }})</span>
+          {% if flick.is_promoted %}
+          <span style="background:#7c3aed;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px">⭐ {{ flick.advertise_plan|upper }}</span>
+          {% endif %}
+        </div>
+        {% if flick.title %}<div style="font-size:13px;font-weight:700;color:#333;margin-bottom:2px">{{ flick.title }}</div>{% endif %}
+        {% if flick.caption %}<div style="font-size:12px;color:#666;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:400px">{{ flick.caption }}</div>{% endif %}
+        <div style="font-size:11px;color:#aaa">{{ flick.created_at|date:"d M Y, H:i" }} &nbsp;·&nbsp; ❤️ {{ flick.like_count }} &nbsp;·&nbsp; 💬 {{ flick.comments.count }}</div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+
+        <!-- Set Advertise Plan -->
+        <form method="POST" style="display:flex;gap:6px;align-items:center">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="set_plan">
+          <input type="hidden" name="flick_id" value="{{ flick.pk }}">
+          <select name="plan" style="padding:6px 10px;border:1.5px solid #dde1ea;border-radius:8px;font-size:12px;font-weight:700;background:#fff;cursor:pointer">
+            <option value="" {% if not flick.advertise_plan %}selected{% endif %}>No Plan</option>
+            <option value="basic"    {% if flick.advertise_plan == 'basic'    %}selected{% endif %}>Basic</option>
+            <option value="premium"  {% if flick.advertise_plan == 'premium'  %}selected{% endif %}>Premium</option>
+            <option value="featured" {% if flick.advertise_plan == 'featured' %}selected{% endif %}>Featured</option>
+          </select>
+          <button type="submit" style="padding:6px 12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Set</button>
+        </form>
+
+        <!-- Delete -->
+        <form method="POST" onsubmit="return confirm('Delete this flick?')">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="flick_id" value="{{ flick.pk }}">
+          <button type="submit" style="width:100%;padding:6px 12px;background:#fce4ec;color:#c62828;border:1.5px solid #f48fb1;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </form>
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

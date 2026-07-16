@@ -1861,6 +1861,26 @@ def district_admin_required(view_func):
 # ─── SUPER ADMIN ──────────────────────────────────────────────────────────────
 
 @super_admin_required
+def admin_flicks(request):
+    from .models import Flick
+    flicks = Flick.objects.select_related('user').order_by('-created_at')
+    if request.method == 'POST':
+        action  = request.POST.get('action')
+        flick_id = request.POST.get('flick_id')
+        flick = get_object_or_404(Flick, pk=flick_id)
+        if action == 'delete':
+            flick.delete()
+            messages.success(request, 'Flick deleted.')
+        elif action == 'set_plan':
+            flick.advertise_plan = request.POST.get('plan', '')
+            flick.is_promoted    = (flick.advertise_plan != '')
+            flick.save()
+            messages.success(request, f'Plan updated to "{flick.advertise_plan or "No Plan"}".')
+        return redirect('admin_flicks')
+    return render(request, 'admin_flicks.html', {'flicks': flicks})
+
+
+@super_admin_required
 def super_admin_dashboard(request):
     total_users     = User.objects.count()
     total_jobs      = Job.objects.count()

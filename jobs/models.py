@@ -941,12 +941,15 @@ class Referral(models.Model):
 # ── FLICKS ────────────────────────────────────────────────────────────────────
 
 class Flick(models.Model):
+    PLAN_CHOICES = [('', 'No Plan'), ('basic', 'Basic'), ('premium', 'Premium'), ('featured', 'Featured')]
     user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flicks')
     title       = models.CharField(max_length=150, blank=True)
     caption     = models.TextField(blank=True)
     video       = models.FileField(upload_to='flicks/videos/', blank=True, null=True)
     image       = models.ImageField(upload_to='flicks/images/', blank=True, null=True)
     views       = models.PositiveIntegerField(default=0)
+    is_promoted = models.BooleanField(default=False)
+    advertise_plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='', blank=True)
     created_at  = models.DateTimeField(auto_now_add=True)
 
     class Meta:

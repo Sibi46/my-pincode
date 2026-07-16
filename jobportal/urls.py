@@ -111,6 +111,7 @@ urlpatterns = [
     path('super-admin/pincodes/<int:district_id>/',    views.manage_pincodes,       name='manage_pincodes_district'),
     path('super-admin/notifications/',                 views.manage_notifications,  name='manage_notifications'),
     path('super-admin/analytics/',                     views.national_analytics,    name='national_analytics'),
+    path('super-admin/flicks/',                        views.admin_flicks,          name='admin_flicks'),
 
     # ── STATE ADMIN ─────────────────────────────────────────
     path('state-admin/',                               views.state_admin_dashboard, name='state_admin_dashboard'),
