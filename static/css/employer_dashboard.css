@@ -1001,8 +1001,7 @@
   .dash-main { padding: 16px 12px; }
   /* Avatar menu */
   .dash-avatar-menu { right: 0; left: auto; }
-  /* Overlay when sidebar open */
-  .dash-sidebar-overlay { display: block !important; }
+  /* Overlay shown only when sidebar is open (JS controls display) */
 }
 
 @media (max-width: 480px) {
