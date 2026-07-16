@@ -1879,7 +1879,7 @@ def district_admin_required(view_func):
 
 @login_required
 def post_simple_ad(request):
-    from .models import AdPost
+    from .models import AdPost, AdSettings
     if request.method == 'POST':
         company_name = request.POST.get('company_name', '').strip()
         pincode      = request.POST.get('pincode', '').strip()
@@ -1899,7 +1899,9 @@ def post_simple_ad(request):
         )
         messages.success(request, 'Ad submitted! Admin will review and publish it shortly.')
         return redirect('my_simple_ads')
-    return render(request, 'post_simple_ad.html')
+    ads      = AdPost.objects.filter(user=request.user).prefetch_related('renewals')
+    settings = AdSettings.get()
+    return render(request, 'post_simple_ad.html', {'ads': ads, 'settings': settings})
 
 
 @login_required
