@@ -150,4 +150,5 @@ urlpatterns = [
     path('flicks/<int:pk>/like/',                      views.like_flick,                   name='like_flick'),
     path('flicks/<int:pk>/comment/',                   views.comment_flick,                name='comment_flick'),
     path('flicks/<int:pk>/delete/',                    views.delete_flick,                 name='delete_flick'),
+    path('flicks/<int:pk>/advertise/',                 views.flick_advertise,              name='flick_advertise'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

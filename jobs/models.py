@@ -940,17 +940,35 @@ class Referral(models.Model):
 
 # ── FLICKS ────────────────────────────────────────────────────────────────────
 
+class FlickAdSettings(models.Model):
+    upi_id       = models.CharField(max_length=100, default='mypincod@upi')
+    price        = models.DecimalField(max_digits=10, decimal_places=2, default=499)
+    duration_days = models.IntegerField(default=84)
+
+    class Meta:
+        verbose_name = 'Flick Ad Settings'
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return f"₹{self.price} / {self.duration_days} days — UPI: {self.upi_id}"
+
+
 class Flick(models.Model):
     PLAN_CHOICES = [('', 'No Plan'), ('basic', 'Basic'), ('premium', 'Premium'), ('featured', 'Featured')]
-    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flicks')
-    title       = models.CharField(max_length=150, blank=True)
-    caption     = models.TextField(blank=True)
-    video       = models.FileField(upload_to='flicks/videos/', blank=True, null=True)
-    image       = models.ImageField(upload_to='flicks/images/', blank=True, null=True)
-    views       = models.PositiveIntegerField(default=0)
-    is_promoted = models.BooleanField(default=False)
+    user           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flicks')
+    title          = models.CharField(max_length=150, blank=True)
+    caption        = models.TextField(blank=True)
+    video          = models.FileField(upload_to='flicks/videos/', blank=True, null=True)
+    image          = models.ImageField(upload_to='flicks/images/', blank=True, null=True)
+    views          = models.PositiveIntegerField(default=0)
+    is_promoted    = models.BooleanField(default=False)
     advertise_plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='', blank=True)
-    created_at  = models.DateTimeField(auto_now_add=True)
+    promoted_until = models.DateField(null=True, blank=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -963,6 +981,27 @@ class Flick(models.Model):
 
     def comment_count(self):
         return self.comments.count()
+
+    def is_active_promoted(self):
+        from django.utils import timezone
+        if self.promoted_until and self.promoted_until >= timezone.now().date():
+            return True
+        return self.is_promoted
+
+
+class FlickAdPayment(models.Model):
+    STATUS = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    flick          = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='ad_payments')
+    user           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flick_ad_payments')
+    transaction_id = models.CharField(max_length=100)
+    amount         = models.DecimalField(max_digits=10, decimal_places=2)
+    duration_days  = models.IntegerField(default=84)
+    status         = models.CharField(max_length=20, choices=STATUS, default='pending')
+    created_at     = models.DateTimeField(auto_now_add=True)
+    approved_at    = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.flick} — ₹{self.amount} [{self.status}]"
 
 
 class FlickLike(models.Model):

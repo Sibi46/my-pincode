@@ -435,6 +435,13 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
           <i class="fas fa-volume-mute fk-mute-icon"></i>
           <span class="fk-mute-label">Sound</span>
         </button>
+        <!-- Advertise own flick -->
+        {% if flick.user == request.user %}
+        <a href="/flicks/{{ flick.pk }}/advertise/" class="fk-act-btn" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:2px">
+          <i class="fas fa-bolt" style="color:#f59e0b"></i>
+          <span style="font-size:10px;color:#f59e0b">Boost</span>
+        </a>
+        {% endif %}
         <!-- Delete own -->
         {% if flick.user == request.user or request.user.admin_role == 'super_admin' %}
         <form method="post" action="/flicks/{{ flick.pk }}/delete/" onsubmit="return confirm('Delete this flick?')" style="display:flex;justify-content:center">
@@ -446,6 +453,11 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
 
       <!-- Bottom info -->
       <div class="fk-reel-info">
+        {% if flick.is_active_promoted %}
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,0.85);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:6px;backdrop-filter:blur(4px)">
+          <i class="fas fa-bolt"></i> Sponsored
+        </div>
+        {% endif %}
         <div class="fk-reel-user">
           <div class="fk-reel-avatar">{{ flick.user.get_full_name|default:flick.user.username|first|upper }}</div>
           <div>

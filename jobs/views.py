@@ -1862,10 +1862,42 @@ def district_admin_required(view_func):
 
 @super_admin_required
 def admin_flicks(request):
-    from .models import Flick
-    flicks = Flick.objects.select_related('user').order_by('-created_at')
+    from .models import Flick, FlickAdPayment, FlickAdSettings
+    from django.utils import timezone
+    flicks   = Flick.objects.select_related('user').order_by('-created_at')
+    payments = FlickAdPayment.objects.select_related('flick', 'user').filter(status='pending').order_by('-created_at')
+    settings = FlickAdSettings.get()
+
     if request.method == 'POST':
-        action  = request.POST.get('action')
+        action = request.POST.get('action')
+
+        if action == 'save_settings':
+            settings.upi_id        = request.POST.get('upi_id', settings.upi_id).strip()
+            settings.price         = request.POST.get('price', settings.price)
+            settings.duration_days = request.POST.get('duration_days', settings.duration_days)
+            settings.save()
+            messages.success(request, 'Settings saved.')
+            return redirect('admin_flicks')
+
+        if action in ('approve_payment', 'reject_payment'):
+            pay = get_object_or_404(FlickAdPayment, pk=request.POST.get('payment_id'))
+            if action == 'approve_payment':
+                pay.status      = 'approved'
+                pay.approved_at = timezone.now()
+                pay.save()
+                flick = pay.flick
+                flick.is_promoted    = True
+                flick.advertise_plan = 'basic'
+                flick.promoted_until = (timezone.now().date() +
+                                        timezone.timedelta(days=pay.duration_days))
+                flick.save()
+                messages.success(request, f'Payment approved. Flick promoted until {flick.promoted_until}.')
+            else:
+                pay.status = 'rejected'
+                pay.save()
+                messages.success(request, 'Payment rejected.')
+            return redirect('admin_flicks')
+
         flick_id = request.POST.get('flick_id')
         flick = get_object_or_404(Flick, pk=flick_id)
         if action == 'delete':
@@ -1877,7 +1909,44 @@ def admin_flicks(request):
             flick.save()
             messages.success(request, f'Plan updated to "{flick.advertise_plan or "No Plan"}".')
         return redirect('admin_flicks')
-    return render(request, 'admin_flicks.html', {'flicks': flicks})
+
+    return render(request, 'admin_flicks.html', {
+        'flicks': flicks,
+        'payments': payments,
+        'settings': settings,
+    })
+
+
+@login_required
+def flick_advertise(request, pk):
+    from .models import Flick, FlickAdPayment, FlickAdSettings
+    flick    = get_object_or_404(Flick, pk=pk, user=request.user)
+    settings = FlickAdSettings.get()
+    pending  = FlickAdPayment.objects.filter(flick=flick, status='pending').exists()
+
+    if request.method == 'POST':
+        txn_id = request.POST.get('transaction_id', '').strip()
+        if not txn_id:
+            messages.error(request, 'Please enter the UPI Transaction ID.')
+            return redirect('flick_advertise', pk=pk)
+        if pending:
+            messages.error(request, 'You already have a pending payment for this flick.')
+            return redirect('flicks_feed')
+        FlickAdPayment.objects.create(
+            flick=flick,
+            user=request.user,
+            transaction_id=txn_id,
+            amount=settings.price,
+            duration_days=settings.duration_days,
+        )
+        messages.success(request, 'Payment submitted! Admin will verify and activate your promotion shortly.')
+        return redirect('flicks_feed')
+
+    return render(request, 'flick_advertise.html', {
+        'flick': flick,
+        'settings': settings,
+        'pending': pending,
+    })
 
 
 @super_admin_required
@@ -2207,9 +2276,16 @@ def favicon(request):
 @login_required
 def flicks_feed(request):
     from .models import Flick, FlickLike
-    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments').order_by('-created_at')
+    from django.utils import timezone
+    today = timezone.now().date()
+    # promoted (paid active) first, then rest newest-first
+    flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments').extra(
+        select={'is_paid_active': "CASE WHEN promoted_until >= %s THEN 1 ELSE 0 END"},
+        select_params=[today],
+        order_by=['-is_paid_active', '-created_at'],
+    )
     liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
-    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids})
+    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids, 'today': today})
 
 
 @login_required
