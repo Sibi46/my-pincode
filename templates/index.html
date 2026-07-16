@@ -704,8 +704,7 @@ var olxAdCur = 0;
     {% if request.user.is_authenticated and request.user.is_employer %}
       <a href="/candidates/" class="bn-item"><i class="fas fa-users"></i><span>Candidates</span></a>
       <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
-      <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
-      <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
+<a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% elif request.user.is_authenticated %}
       <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
