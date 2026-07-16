@@ -119,6 +119,12 @@
       <i class="fas fa-bolt" style="color:#7c3aed"></i>
       <span>Flick Management</span>
     </a>
+    <a href="/super-admin/feedback/" class="ap-quick-card">
+      <i class="fas fa-comment-dots" style="color:#0a66c2"></i>
+      <span>Feedback
+        {% if open_complaints %}<br><small style="color:#c62828;font-weight:900">{{ open_complaints }} open</small>{% endif %}
+      </span>
+    </a>
   </div>
 </div>
 
@@ -179,6 +185,9 @@
       </a>
       <a href="/super-admin/flicks/" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#f5f3ff;color:#7c3aed;border:1.5px solid #ddd6fe;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">
         <i class="fas fa-bolt"></i> Flicks
+      </a>
+      <a href="/super-admin/feedback/" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#e8f0fe;color:#0a66c2;border:1.5px solid #bfdbfe;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">
+        <i class="fas fa-comment-dots"></i> Feedback
       </a>
     </div>
   </div>

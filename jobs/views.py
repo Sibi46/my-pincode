@@ -1861,6 +1861,29 @@ def district_admin_required(view_func):
 # ─── SUPER ADMIN ──────────────────────────────────────────────────────────────
 
 @super_admin_required
+def admin_feedback(request):
+    if request.method == 'POST':
+        complaint_id = request.POST.get('complaint_id')
+        complaint = get_object_or_404(Complaint, pk=complaint_id)
+        complaint.status     = request.POST.get('status', complaint.status)
+        complaint.resolution = request.POST.get('resolution', '').strip()
+        complaint.save()
+        messages.success(request, 'Feedback updated.')
+        return redirect('admin_feedback')
+    status_filter = request.GET.get('status', '')
+    qs = Complaint.objects.select_related('submitted_by').order_by('-created_at')
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    return render(request, 'admin_feedback.html', {
+        'complaints': qs,
+        'status_filter': status_filter,
+        'open_count':       Complaint.objects.filter(status='open').count(),
+        'in_review_count':  Complaint.objects.filter(status='in_review').count(),
+        'resolved_count':   Complaint.objects.filter(status='resolved').count(),
+    })
+
+
+@super_admin_required
 def admin_flicks(request):
     from .models import Flick, FlickAdPayment, FlickAdSettings
     from django.utils import timezone
