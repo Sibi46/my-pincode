@@ -314,8 +314,46 @@ function regAjaxSubmit(form) {
         });
 }
 
+// ── Live phone duplicate check (fires as user types, on 10th digit) ──────────
+function attachLivePhoneCheck(phoneInputId, errorDivId, otpBtnClass) {
+    var inp = document.getElementById(phoneInputId);
+    var errDiv = document.getElementById(errorDivId);
+    if (!inp || !errDiv) return;
+
+    inp.addEventListener('input', function () {
+        var phone = this.value.trim();
+        var btn = inp.closest('.otp-input-row') && inp.closest('.otp-input-row').querySelector('.otp-btn');
+
+        // Clear error & re-enable button until we know
+        errDiv.style.display = 'none';
+        if (btn) btn.disabled = false;
+
+        if (!/^\d{10}$/.test(phone)) return; // wait for full 10 digits
+
+        fetch('/api/check-phone/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
+            body: JSON.stringify({ phone: phone })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+            if (d.exists) {
+                errDiv.style.display = 'flex';
+                if (btn) { btn.disabled = true; btn.textContent = 'Send OTP'; }
+            } else {
+                errDiv.style.display = 'none';
+                if (btn) btn.disabled = false;
+            }
+        })
+        .catch(function () { /* silent — sendOTP will catch it */ });
+    });
+}
+
 // ── Password live-check (employer form) ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
+    // Attach live phone check to employer form
+    attachLivePhoneCheck('empPhone', 'empPhoneError');
+
     var p1 = document.getElementById('emp-pwd');
     var p2 = document.getElementById('emp-pwd2');
     var er = document.getElementById('emp-pwd-error');
