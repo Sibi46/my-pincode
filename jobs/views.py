@@ -912,6 +912,11 @@ def send_otp(request):
     if not phone or len(phone) != 10 or not phone.isdigit():
         return JsonResponse({'success': False, 'error': 'Enter a valid 10-digit mobile number.'})
 
+    User = get_user_model()
+    if User.objects.filter(phone=phone).exists():
+        return JsonResponse({'success': False, 'already_registered': True,
+                             'error': 'This phone number is already registered. Please sign in.'})
+
     otp = str(random.randint(100000, 999999))
 
     from django.conf import settings as _s

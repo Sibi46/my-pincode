@@ -182,6 +182,11 @@ function sendOTP(prefix) {
                     btn.classList.remove('sent');
                     btn.disabled = false;
                 }, 30000);
+            } else if (d.already_registered) {
+                btn.textContent = 'Send OTP';
+                btn.disabled = true;
+                if (errDiv) { errDiv.style.display = 'flex'; }
+                else { alert(d.error); }
             } else {
                 btn.textContent = 'Send OTP';
                 btn.disabled = false;
