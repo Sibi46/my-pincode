@@ -106,6 +106,7 @@ urlpatterns = [
     path('super-admin/job-roles/',                     views.manage_job_roles,      name='manage_job_roles'),
     path('super-admin/job-roles/<int:industry_id>/',   views.manage_job_roles,      name='manage_job_roles_industry'),
     path('super-admin/payment-plans/',                 views.manage_payment_plans,  name='manage_payment_plans'),
+    path('super-admin/ad-packages/',                   views.manage_ad_packages,    name='manage_ad_packages'),
     path('super-admin/discounts/',                     views.manage_discounts,      name='manage_discounts'),
     path('super-admin/pincodes/',                      views.manage_pincodes,       name='manage_pincodes'),
     path('super-admin/pincodes/<int:district_id>/',    views.manage_pincodes,       name='manage_pincodes_district'),

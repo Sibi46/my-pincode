@@ -2135,6 +2135,44 @@ def manage_job_roles(request, industry_id=None):
 
 
 @super_admin_required
+def manage_ad_packages(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'add':
+            AdPackage.objects.create(
+                name          = request.POST.get('name', '').strip(),
+                ad_type       = request.POST.get('ad_type', 'homepage_banner'),
+                duration_days = request.POST.get('duration_days', 30),
+                price         = request.POST.get('price', 0),
+                description   = request.POST.get('description', '').strip(),
+                size_specs    = request.POST.get('size_specs', '').strip(),
+                is_active     = True,
+            )
+            messages.success(request, 'Package created.')
+        elif action == 'toggle':
+            pkg = get_object_or_404(AdPackage, pk=request.POST.get('pk'))
+            pkg.is_active = not pkg.is_active
+            pkg.save()
+        elif action == 'delete':
+            pkg = get_object_or_404(AdPackage, pk=request.POST.get('pk'))
+            pkg.delete()
+            messages.success(request, 'Package deleted.')
+        elif action == 'edit':
+            pkg = get_object_or_404(AdPackage, pk=request.POST.get('pk'))
+            pkg.name          = request.POST.get('name', pkg.name).strip()
+            pkg.ad_type       = request.POST.get('ad_type', pkg.ad_type)
+            pkg.duration_days = request.POST.get('duration_days', pkg.duration_days)
+            pkg.price         = request.POST.get('price', pkg.price)
+            pkg.description   = request.POST.get('description', pkg.description).strip()
+            pkg.size_specs    = request.POST.get('size_specs', pkg.size_specs).strip()
+            pkg.save()
+            messages.success(request, 'Package updated.')
+        return redirect('manage_ad_packages')
+    packages = AdPackage.objects.order_by('ad_type', 'price')
+    return render(request, 'manage_ad_packages.html', {'packages': packages})
+
+
+@super_admin_required
 def manage_payment_plans(request):
     if request.method == 'POST':
         action = request.POST.get('action')
