@@ -30,9 +30,20 @@ def home(request):
     featured_job_ads   = ads_active.filter(package__ad_type='featured_job')[:6]
     sidebar_ad         = ads_active.filter(package__ad_type='sidebar').first()
     popup_ad           = ads_active.filter(package__ad_type='popup').first()
+    # track views for all active ads shown on home page
+    all_shown_pks = []
     if homepage_banners:
-        banner_pks = list(homepage_banners.values_list('pk', flat=True))
-        Advertisement.objects.filter(pk__in=banner_pks).update(views=F('views') + 1)
+        all_shown_pks += list(homepage_banners.values_list('pk', flat=True))
+    if featured_employers:
+        all_shown_pks += list(featured_employers.values_list('pk', flat=True))
+    if featured_job_ads:
+        all_shown_pks += list(featured_job_ads.values_list('pk', flat=True))
+    if sidebar_ad:
+        all_shown_pks.append(sidebar_ad.pk)
+    if popup_ad:
+        all_shown_pks.append(popup_ad.pk)
+    if all_shown_pks:
+        Advertisement.objects.filter(pk__in=all_shown_pks).update(views=F('views') + 1)
 
     # ── Approved advertiser banners ──────────────────────
     advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='')[:6]
