@@ -1937,6 +1937,7 @@ def admin_ad_posts(request):
     from .models import AdPost, AdRenewal, AdSettings
     from django.utils import timezone
     import datetime
+    settings = AdSettings.get()
     if request.method == 'POST':
         action = request.POST.get('action')
         # ── renewal actions ──────────────────────────────────────────────
@@ -1987,7 +1988,6 @@ def admin_ad_posts(request):
     tab            = request.GET.get('tab', 'ads')
     if status_filter:
         ads = ads.filter(status=status_filter)
-    settings = AdSettings.get()
     return render(request, 'admin_ad_posts.html', {
         'ads': ads,
         'renewals': renewals,
