@@ -193,16 +193,8 @@
                     {% csrf_token %}
                     <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
 
-                    <!-- ── Substep 1: Org Name + Owner + Mobile + Pincode + OTP ── -->
+                    <!-- ── Substep 1: Mobile number → check → OTP ── -->
                     <div id="emp-substep1">
-                        <div class="form-group full">
-                            <label id="emp-org-label"><i class="fas fa-building"></i> Company / Organization Name *</label>
-                            <input type="text" id="emp-org-input" name="org_name" placeholder="Enter your company name" required>
-                        </div>
-                        <div class="form-group full">
-                            <label><i class="fas fa-user"></i> Owner Name *</label>
-                            <input type="text" id="emp-owner-input" name="owner_name" placeholder="Enter owner / contact person name" required>
-                        </div>
                         <div class="form-group full">
                             <label><i class="fas fa-phone"></i> Mobile Number *</label>
                             <div class="otp-input-row">
@@ -210,10 +202,14 @@
                                 <input type="tel" id="empPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
                                 <button type="button" class="otp-btn" onclick="sendOTP('emp')">Send OTP</button>
                             </div>
-                        </div>
-                        <div class="form-group full">
-                            <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
-                            <input type="text" id="emp-pincode-input" name="emp_pincode" placeholder="Enter 6-digit area pincode" maxlength="6" inputmode="numeric" pattern="\d{6}" required>
+                            <!-- Already registered error -->
+                            <div id="empPhoneError" style="display:none;align-items:flex-start;gap:10px;margin-top:10px;padding:12px 14px;background:#fce4ec;border:1.5px solid #fca5a5;border-radius:10px">
+                                <i class="fas fa-exclamation-circle" style="color:#c62828;margin-top:1px;flex-shrink:0"></i>
+                                <div>
+                                    <div style="font-size:13px;font-weight:700;color:#c62828">This number is already registered.</div>
+                                    <div style="font-size:12px;color:#b71c1c;margin-top:3px">Please <a href="/login/" style="color:#0a66c2;font-weight:700">sign in</a> to your existing account.</div>
+                                </div>
+                            </div>
                         </div>
                         <div class="otp-box hidden" id="empOtpBox">
                             <label><i class="fas fa-shield-alt"></i> Enter 6-digit OTP</label>
@@ -232,9 +228,21 @@
                         </div>
                     </div>
 
-                    <!-- ── Substep 2: Password only (after OTP) ── -->
+                    <!-- ── Substep 2: Details + Password (after OTP) ── -->
                     <div id="emp-substep2" class="hidden">
                         <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                        <div class="form-group full">
+                            <label id="emp-org-label"><i class="fas fa-building"></i> Company / Organization Name *</label>
+                            <input type="text" id="emp-org-input" name="org_name" placeholder="Enter your company name" required>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-user"></i> Owner Name *</label>
+                            <input type="text" id="emp-owner-input" name="owner_name" placeholder="Enter owner / contact person name" required>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
+                            <input type="text" id="emp-pincode-input" name="emp_pincode" placeholder="Enter 6-digit area pincode" maxlength="6" inputmode="numeric" pattern="\d{6}" required>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label><i class="fas fa-lock"></i> Password *</label>

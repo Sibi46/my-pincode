@@ -134,36 +134,65 @@ function sendOTP(prefix) {
         return;
     }
 
-    var btn = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
-    btn.textContent = 'Sending…';
+    var btn    = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
+    var errDiv = document.getElementById(prefix + 'PhoneError');
+    if (errDiv) errDiv.style.display = 'none';
+
+    btn.textContent = 'Checking…';
     btn.disabled = true;
 
-    fetch('/api/send-otp/', {
+    // Check if phone already registered before sending OTP
+    fetch('/api/check-phone/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
         body: JSON.stringify({ phone: phone })
     })
     .then(function(r) { return r.json(); })
     .then(function(d) {
-        if (d.success) {
-            btn.textContent = 'Sent ✓';
-            btn.classList.add('sent');
-            var otpBox = document.getElementById(prefix + 'OtpBox');
-            if (otpBox) {
-                otpBox.classList.remove('hidden');
-                var first = otpBox.querySelector('.otp-digit');
-                if (first) setTimeout(function(){ first.focus(); }, 100);
-            }
-            setTimeout(function() {
-                btn.textContent = 'Resend';
-                btn.classList.remove('sent');
-                btn.disabled = false;
-            }, 30000);
-        } else {
+        if (d.exists) {
             btn.textContent = 'Send OTP';
             btn.disabled = false;
-            alert(d.error || 'Failed to send OTP. Please try again.');
+            if (errDiv) {
+                errDiv.style.display = 'flex';
+            } else {
+                alert('This phone number is already registered. Please sign in.');
+            }
+            return;
         }
+        // Not registered — send OTP
+        btn.textContent = 'Sending…';
+        fetch('/api/send-otp/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
+            body: JSON.stringify({ phone: phone })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.success) {
+                btn.textContent = 'Sent ✓';
+                btn.classList.add('sent');
+                var otpBox = document.getElementById(prefix + 'OtpBox');
+                if (otpBox) {
+                    otpBox.classList.remove('hidden');
+                    var first = otpBox.querySelector('.otp-digit');
+                    if (first) setTimeout(function(){ first.focus(); }, 100);
+                }
+                setTimeout(function() {
+                    btn.textContent = 'Resend';
+                    btn.classList.remove('sent');
+                    btn.disabled = false;
+                }, 30000);
+            } else {
+                btn.textContent = 'Send OTP';
+                btn.disabled = false;
+                alert(d.error || 'Failed to send OTP. Please try again.');
+            }
+        })
+        .catch(function() {
+            btn.textContent = 'Send OTP';
+            btn.disabled = false;
+            alert('Network error. Please check your connection and try again.');
+        });
     })
     .catch(function() {
         btn.textContent = 'Send OTP';
