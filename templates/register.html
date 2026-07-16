@@ -202,13 +202,25 @@
                                 <input type="tel" id="empPhone" placeholder="Enter 10-digit mobile number" maxlength="10">
                                 <button type="button" class="otp-btn" onclick="sendOTP('emp')">Send OTP</button>
                             </div>
-                            <!-- Already registered error -->
-                            <div id="empPhoneError" style="display:none;align-items:flex-start;gap:10px;margin-top:10px;padding:12px 14px;background:#fce4ec;border:1.5px solid #fca5a5;border-radius:10px">
-                                <i class="fas fa-exclamation-circle" style="color:#c62828;margin-top:1px;flex-shrink:0"></i>
-                                <div>
-                                    <div style="font-size:13px;font-weight:700;color:#c62828">This number is already registered.</div>
-                                    <div style="font-size:12px;color:#b71c1c;margin-top:3px">Please <a href="/login/" style="color:#0a66c2;font-weight:700">sign in</a> to your existing account.</div>
+                            <!-- Already registered — inline sign-in -->
+                            <div id="empPhoneError" style="display:none;flex-direction:column;gap:10px;margin-top:12px;padding:16px;background:#f0f7ff;border:1.5px solid #bfdbfe;border-radius:12px">
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <i class="fas fa-info-circle" style="color:#0a66c2;font-size:15px"></i>
+                                    <span style="font-size:13px;font-weight:700;color:#0a47a1">This number is already registered. Enter your password to sign in.</span>
                                 </div>
+                                <div style="position:relative">
+                                    <input type="password" id="empInlinePassword" placeholder="Enter your password"
+                                        style="width:100%;padding:11px 44px 11px 14px;border:1.5px solid #bfdbfe;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;background:#fff">
+                                    <i class="fas fa-eye" id="empPwdToggle" onclick="toggleInlinePwd()"
+                                        style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#888;cursor:pointer;font-size:15px"></i>
+                                </div>
+                                <div id="empInlineLoginError" style="display:none;font-size:12px;color:#c62828;font-weight:700">
+                                    <i class="fas fa-exclamation-circle"></i> <span id="empInlineLoginErrorMsg"></span>
+                                </div>
+                                <button type="button" id="empInlineLoginBtn" onclick="doInlineLogin()"
+                                    style="width:100%;padding:12px;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+                                    <i class="fas fa-sign-in-alt"></i> Sign In
+                                </button>
                             </div>
                         </div>
                         <div class="otp-box hidden" id="empOtpBox">
@@ -607,6 +619,57 @@
     </style>
 
     <script src="{% static 'js/register.js' %}?v=8"></script>
+<script>
+function doInlineLogin() {
+    var phone = document.getElementById('empPhone').value.trim();
+    var pwd   = document.getElementById('empInlinePassword').value;
+    var btn   = document.getElementById('empInlineLoginBtn');
+    var errEl = document.getElementById('empInlineLoginError');
+    var errMsg= document.getElementById('empInlineLoginErrorMsg');
+
+    if (!pwd) { errMsg.textContent = 'Enter your password.'; errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Signing in…';
+
+    fetch('/api/phone-login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '' },
+        body: JSON.stringify({ phone: phone, password: pwd })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.success) {
+            btn.innerHTML = '<i class="fas fa-check"></i> Signed in!';
+            window.location.href = d.redirect;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            errMsg.textContent = d.error || 'Wrong password. Try again.';
+            errEl.style.display = 'block';
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+        errMsg.textContent = 'Network error. Try again.';
+        errEl.style.display = 'block';
+    });
+}
+
+function toggleInlinePwd() {
+    var inp = document.getElementById('empInlinePassword');
+    var ico = document.getElementById('empPwdToggle');
+    if (inp.type === 'password') { inp.type = 'text'; ico.className = 'fas fa-eye-slash'; }
+    else { inp.type = 'password'; ico.className = 'fas fa-eye'; }
+}
+
+// Allow Enter key in password field
+document.addEventListener('DOMContentLoaded', function() {
+    var pwdInp = document.getElementById('empInlinePassword');
+    if (pwdInp) pwdInp.addEventListener('keydown', function(e) { if (e.key === 'Enter') doInlineLogin(); });
+});
+</script>
     <script src="{% static 'js/ac_roles.js' %}?v=1"></script>
     <script src="{% static 'js/pincode_lookup.js' %}?v=1"></script>
 <script>
