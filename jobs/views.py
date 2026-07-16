@@ -1872,6 +1872,74 @@ def district_admin_required(view_func):
 # ─── SUPER ADMIN ──────────────────────────────────────────────────────────────
 
 @super_admin_required
+@login_required
+def post_simple_ad(request):
+    from .models import AdPost
+    if request.method == 'POST':
+        company_name = request.POST.get('company_name', '').strip()
+        pincode      = request.POST.get('pincode', '').strip()
+        description  = request.POST.get('description', '').strip()
+        website      = request.POST.get('website', '').strip()
+        image        = request.FILES.get('image')
+        if not company_name or not description or not image:
+            messages.error(request, 'Company name, description and image are required.')
+            return redirect('post_simple_ad')
+        AdPost.objects.create(
+            user=request.user,
+            company_name=company_name,
+            pincode=pincode,
+            description=description,
+            website=website,
+            image=image,
+        )
+        messages.success(request, 'Ad submitted! Admin will review and publish it shortly.')
+        return redirect('my_simple_ads')
+    return render(request, 'post_simple_ad.html')
+
+
+@login_required
+def my_simple_ads(request):
+    from .models import AdPost
+    ads = AdPost.objects.filter(user=request.user)
+    return render(request, 'my_simple_ads.html', {'ads': ads})
+
+
+@super_admin_required
+def admin_ad_posts(request):
+    from .models import AdPost
+    from django.utils import timezone
+    if request.method == 'POST':
+        ad = get_object_or_404(AdPost, pk=request.POST.get('ad_id'))
+        action = request.POST.get('action')
+        if action == 'approve':
+            ad.status      = 'approved'
+            ad.approved_at = timezone.now()
+            ad.reject_note = ''
+            ad.save()
+            messages.success(request, f'"{ad.company_name}" approved and now live.')
+        elif action == 'reject':
+            ad.status      = 'rejected'
+            ad.reject_note = request.POST.get('reject_note', '').strip()
+            ad.save()
+            messages.success(request, f'"{ad.company_name}" rejected.')
+        elif action == 'delete':
+            ad.delete()
+            messages.success(request, 'Ad deleted.')
+        return redirect('admin_ad_posts')
+    ads = AdPost.objects.select_related('user').order_by('-created_at')
+    pending_count  = ads.filter(status='pending').count()
+    approved_count = ads.filter(status='approved').count()
+    status_filter  = request.GET.get('status', '')
+    if status_filter:
+        ads = ads.filter(status=status_filter)
+    return render(request, 'admin_ad_posts.html', {
+        'ads': ads,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'status_filter': status_filter,
+    })
+
+
 def admin_feedback(request):
     if request.method == 'POST':
         complaint_id = request.POST.get('complaint_id')

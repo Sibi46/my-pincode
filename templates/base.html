@@ -44,10 +44,10 @@
                     <a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>
                     <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 {% endif %}
-                {% if request.user.advertiser %}
-                    <a href="/advertiser/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
+                {% if request.user.ad_posts.exists %}
+                    <a href="/ads/my-ads/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
                 {% else %}
-                    <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+                    <a href="/ads/post/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 {% endif %}
                 {% if request.user.is_staff %}
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
@@ -76,10 +76,10 @@
                 <a href="/jobseeker/dashboard/">Dashboard</a>
                 <a href="/jobseeker/profile/">My Profile</a>
             {% endif %}
-            {% if request.user.advertiser %}
-                <a href="/advertiser/dashboard/">My Ads</a>
+            {% if request.user.ad_posts.exists %}
+                <a href="/ads/my-ads/">My Ads</a>
             {% else %}
-                <a href="/advertise/">Advertise</a>
+                <a href="/ads/post/">Advertise</a>
             {% endif %}
             <a href="/messages/">Messages</a>
             <a href="/logout/">Logout</a>
@@ -313,6 +313,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
           <a href="/super-admin/flicks/" class="afc"><i class="fas fa-bolt"></i><span>Flicks</span></a>
           <a href="/super-admin/feedback/" class="afc"><i class="fas fa-comment-dots"></i><span>Feedback</span></a>
           <a href="/super-admin/ad-packages/" class="afc"><i class="fas fa-box-open"></i><span>Ad Packages</span></a>
+          <a href="/super-admin/ad-posts/" class="afc"><i class="fas fa-bullhorn"></i><span>Ad Management</span></a>
         </div>
         <div class="admin-feature-group">
           <div class="afg-title"><i class="fas fa-users"></i> User Management</div>

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}My Ads — MY PINCOD{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:32px auto;padding:0 16px 60px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-size:22px;font-weight:900;color:#111;margin:0 0 4px"><i class="fas fa-bullhorn" style="color:#f3a000"></i> My Ads</h1>
+      <p style="font-size:13px;color:#888;margin:0">{{ ads.count }} ad(s) submitted</p>
+    </div>
+    <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
+      <i class="fas fa-plus"></i> Post New Ad
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:12px 16px;border-radius:10px;margin-bottom:16px;background:#e8f5e9;border-left:4px solid #2e7d32;color:#1b5e20;font-size:13px;font-weight:700">
+      <i class="fas fa-check-circle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if not ads %}
+  <div style="text-align:center;padding:60px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
+    <div style="font-size:48px;margin-bottom:12px">📢</div>
+    <h4 style="font-size:16px;font-weight:700;color:#444;margin-bottom:8px">No ads posted yet</h4>
+    <p style="font-size:13px;color:#888;margin-bottom:20px">Post your first ad and reach thousands of users</p>
+    <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:12px 28px;background:#0a66c2;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">
+      <i class="fas fa-plus"></i> Post an Ad
+    </a>
+  </div>
+
+  {% else %}
+  <div style="display:flex;flex-direction:column;gap:16px">
+    {% for ad in ads %}
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+
+      <div style="display:flex;align-items:stretch">
+        <!-- Image -->
+        <div style="width:110px;flex-shrink:0;overflow:hidden;background:#f5f7fa">
+          <img src="{{ ad.image.url }}" style="width:110px;height:100%;object-fit:cover;display:block">
+        </div>
+
+        <!-- Info -->
+        <div style="flex:1;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
+              {% if ad.status == 'approved' %}background:#e8f5e9;color:#2e7d32
+              {% elif ad.status == 'pending' %}background:#fff8e1;color:#f57f17
+              {% else %}background:#fce4ec;color:#c62828{% endif %}">
+              <i class="fas {% if ad.status == 'approved' %}fa-check-circle{% elif ad.status == 'pending' %}fa-hourglass-half{% else %}fa-times-circle{% endif %}"></i>
+              {{ ad.get_status_display }}
+            </span>
+            {% if ad.pincode %}
+            <span style="font-size:11px;background:#f0f9ff;color:#0369a1;padding:3px 10px;border-radius:20px;font-weight:700">
+              <i class="fas fa-map-marker-alt"></i> {{ ad.pincode }}
+            </span>
+            {% endif %}
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">{{ ad.company_name }}</div>
+          <div style="font-size:12px;color:#666;line-height:1.5">{{ ad.description|truncatechars:120 }}</div>
+          {% if ad.status == 'rejected' and ad.reject_note %}
+          <div style="font-size:12px;color:#c62828;margin-top:6px;font-weight:600">
+            <i class="fas fa-info-circle"></i> Reason: {{ ad.reject_note }}
+          </div>
+          {% endif %}
+          <div style="font-size:11px;color:#aaa;margin-top:6px">
+            <i class="fas fa-clock"></i> Submitted {{ ad.created_at|date:"d M Y" }}
+            {% if ad.status == 'approved' and ad.views %}&nbsp;·&nbsp; <i class="fas fa-eye"></i> {{ ad.views }} views{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if ad.status == 'pending' %}
+      <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#fffbeb;font-size:12px;color:#92400e">
+        <i class="fas fa-hourglass-half"></i> Your ad is under review. It will go live once approved by admin.
+      </div>
+      {% elif ad.status == 'approved' %}
+      <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#f0fdf4;font-size:12px;color:#166534;font-weight:700">
+        <i class="fas fa-circle" style="font-size:8px"></i> Live — visible to all MY PINCOD users
+        {% if ad.website %}&nbsp;·&nbsp; <a href="{{ ad.website }}" target="_blank" style="color:#0a66c2;font-weight:700">Visit Link <i class="fas fa-external-link-alt"></i></a>{% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

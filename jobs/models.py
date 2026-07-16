@@ -1026,3 +1026,24 @@ class FlickComment(models.Model):
         return f"{self.user.username}: {self.text[:40]}"
 
 
+# ── SIMPLE ADS ────────────────────────────────────────────────────────────────
+
+class AdPost(models.Model):
+    STATUS = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    user         = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ad_posts')
+    company_name = models.CharField(max_length=200)
+    pincode      = models.CharField(max_length=10, blank=True)
+    description  = models.TextField()
+    image        = models.ImageField(upload_to='ad_posts/')
+    website      = models.URLField(blank=True)
+    status       = models.CharField(max_length=20, choices=STATUS, default='pending')
+    reject_note  = models.TextField(blank=True)
+    views        = models.PositiveIntegerField(default=0)
+    created_at   = models.DateTimeField(auto_now_add=True)
+    approved_at  = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.company_name} [{self.status}]"

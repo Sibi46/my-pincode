@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Ad Management — Admin{% endblock %}
+{% block content %}
+<div style="max-width:1000px;margin:32px auto;padding:0 16px 60px">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">
+    <div>
+      <h1 style="font-size:22px;font-weight:900;color:#111;margin:0 0 4px"><i class="fas fa-bullhorn" style="color:#0a66c2"></i> Ad Management</h1>
+      <p style="font-size:13px;color:#888;margin:0">Review and approve user-submitted advertisements</p>
+    </div>
+    <a href="/super-admin/" style="font-size:13px;color:#0a66c2;text-decoration:none"><i class="fas fa-arrow-left"></i> Dashboard</a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:12px 16px;border-radius:10px;margin-bottom:16px;background:#e8f5e9;border-left:4px solid #2e7d32;color:#1b5e20;font-size:13px;font-weight:700">
+      <i class="fas fa-check-circle"></i> {{ msg }}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+    <a href="?" style="padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;{% if not status_filter %}background:#0a66c2;color:#fff{% else %}background:#f0f0f0;color:#555{% endif %}">
+      All
+    </a>
+    <a href="?status=pending" style="padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;{% if status_filter == 'pending' %}background:#f59e0b;color:#fff{% else %}background:#fff8e1;color:#92400e{% endif %}">
+      Pending {% if pending_count %}<span style="background:rgba(0,0,0,.15);border-radius:10px;padding:1px 7px;font-size:11px">{{ pending_count }}</span>{% endif %}
+    </a>
+    <a href="?status=approved" style="padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;{% if status_filter == 'approved' %}background:#22c55e;color:#fff{% else %}background:#f0fdf4;color:#166534{% endif %}">
+      Approved {% if approved_count %}<span style="background:rgba(0,0,0,.15);border-radius:10px;padding:1px 7px;font-size:11px">{{ approved_count }}</span>{% endif %}
+    </a>
+    <a href="?status=rejected" style="padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none;{% if status_filter == 'rejected' %}background:#ef4444;color:#fff{% else %}background:#fce4ec;color:#c62828{% endif %}">
+      Rejected
+    </a>
+  </div>
+
+  {% if not ads %}
+  <div style="text-align:center;padding:60px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;color:#aaa">
+    <div style="font-size:48px;margin-bottom:12px">📢</div>
+    <p>No ads found.</p>
+  </div>
+
+  {% else %}
+  <div style="display:flex;flex-direction:column;gap:16px">
+    {% for ad in ads %}
+    <div style="background:#fff;border:1.5px solid {% if ad.status == 'pending' %}#fde68a{% elif ad.status == 'approved' %}#bbf7d0{% else %}#fecaca{% endif %};border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+
+      <div style="display:flex;align-items:stretch;flex-wrap:wrap">
+        <!-- Image -->
+        <a href="{{ ad.image.url }}" target="_blank" style="display:block;width:130px;flex-shrink:0;overflow:hidden;background:#f5f7fa">
+          <img src="{{ ad.image.url }}" style="width:130px;height:100%;min-height:100px;object-fit:cover;display:block">
+        </a>
+
+        <!-- Info -->
+        <div style="flex:1;padding:16px 18px;min-width:200px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
+              {% if ad.status == 'approved' %}background:#e8f5e9;color:#2e7d32
+              {% elif ad.status == 'pending' %}background:#fff8e1;color:#f57f17
+              {% else %}background:#fce4ec;color:#c62828{% endif %}">
+              {{ ad.get_status_display }}
+            </span>
+            {% if ad.pincode %}
+            <span style="font-size:11px;background:#f0f9ff;color:#0369a1;padding:3px 10px;border-radius:20px;font-weight:700">
+              <i class="fas fa-map-marker-alt"></i> {{ ad.pincode }}
+            </span>
+            {% endif %}
+          </div>
+          <div style="font-size:16px;font-weight:800;color:#111;margin-bottom:4px">{{ ad.company_name }}</div>
+          <div style="font-size:12px;color:#555;line-height:1.6;margin-bottom:8px">{{ ad.description }}</div>
+          <div style="font-size:11px;color:#aaa;display:flex;flex-wrap:wrap;gap:10px">
+            <span><i class="fas fa-user"></i> {{ ad.user.get_full_name|default:ad.user.username }} ({{ ad.user.phone }})</span>
+            <span><i class="fas fa-clock"></i> {{ ad.created_at|date:"d M Y, H:i" }}</span>
+            {% if ad.website %}<span><a href="{{ ad.website }}" target="_blank" style="color:#0a66c2"><i class="fas fa-external-link-alt"></i> {{ ad.website|truncatechars:40 }}</a></span>{% endif %}
+            {% if ad.views %}<span><i class="fas fa-eye"></i> {{ ad.views }} views</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div style="padding:12px 18px;border-top:1px solid #f0f0f0;background:#fafafa;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        {% if ad.status != 'approved' %}
+        <form method="POST" style="display:inline">
+          {% csrf_token %}
+          <input type="hidden" name="ad_id" value="{{ ad.pk }}">
+          <input type="hidden" name="action" value="approve">
+          <button type="submit" style="padding:8px 18px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+            <i class="fas fa-check"></i> Approve & Publish
+          </button>
+        </form>
+        {% endif %}
+
+        {% if ad.status != 'rejected' %}
+        <button onclick="showReject({{ ad.pk }})"
+          style="padding:8px 16px;background:#fce4ec;color:#c62828;border:1.5px solid #fca5a5;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+          <i class="fas fa-times"></i> Reject
+        </button>
+        {% endif %}
+
+        {% if ad.status == 'approved' %}
+        <span style="font-size:12px;color:#2e7d32;font-weight:700"><i class="fas fa-circle" style="font-size:8px"></i> Live since {{ ad.approved_at|date:"d M Y" }}</span>
+        {% endif %}
+
+        {% if ad.reject_note %}
+        <span style="font-size:12px;color:#c62828;font-style:italic">Reason: {{ ad.reject_note }}</span>
+        {% endif %}
+
+        <form method="POST" style="display:inline;margin-left:auto" onsubmit="return confirm('Delete this ad permanently?')">
+          {% csrf_token %}
+          <input type="hidden" name="ad_id" value="{{ ad.pk }}">
+          <input type="hidden" name="action" value="delete">
+          <button type="submit" style="padding:6px 12px;background:#f5f5f5;color:#888;border:none;border-radius:8px;font-size:12px;cursor:pointer">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </form>
+      </div>
+
+      <!-- Reject modal for this ad -->
+      <div id="rejectBox-{{ ad.pk }}" style="display:none;padding:14px 18px;border-top:1px solid #f0f0f0;background:#fff5f5">
+        <form method="POST" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          {% csrf_token %}
+          <input type="hidden" name="ad_id" value="{{ ad.pk }}">
+          <input type="hidden" name="action" value="reject">
+          <input type="text" name="reject_note" placeholder="Reason for rejection (optional)"
+            style="flex:1;min-width:200px;padding:8px 12px;border:1.5px solid #fca5a5;border-radius:8px;font-size:13px;outline:none">
+          <button type="submit" style="padding:8px 16px;background:#c62828;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+            Confirm Reject
+          </button>
+          <button type="button" onclick="document.getElementById('rejectBox-{{ ad.pk }}').style.display='none'"
+            style="padding:8px 14px;background:#f5f5f5;color:#555;border:none;border-radius:8px;font-size:13px;cursor:pointer">
+            Cancel
+          </button>
+        </form>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+function showReject(pk) {
+  document.getElementById('rejectBox-' + pk).style.display = 'block';
+}
+</script>
+{% endblock %}
