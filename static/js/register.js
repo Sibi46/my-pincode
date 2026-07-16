@@ -156,6 +156,7 @@ function sendOTP(prefix) {
                 errDiv.style.display = 'flex';
             } else {
                 alert('This phone number is already registered. Please sign in.');
+                window.location.href = '/login/';
             }
             return;
         }
@@ -186,7 +187,7 @@ function sendOTP(prefix) {
                 btn.textContent = 'Send OTP';
                 btn.disabled = true;
                 if (errDiv) { errDiv.style.display = 'flex'; }
-                else { alert(d.error); }
+                else { alert(d.error); window.location.href = '/login/'; }
             } else {
                 btn.textContent = 'Send OTP';
                 btn.disabled = false;
