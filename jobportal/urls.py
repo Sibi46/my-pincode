@@ -112,6 +112,8 @@ urlpatterns = [
     # ── SIMPLE ADS ──────────────────────────────────────────────────────────
     path('ads/post/',                                  views.post_simple_ad,        name='post_simple_ad'),
     path('ads/my-ads/',                                views.my_simple_ads,         name='my_simple_ads'),
+    path('ads/<int:pk>/renew/',                        views.renew_ad,              name='renew_ad'),
+    path('super-admin/ad-settings/',                   views.admin_ad_settings,     name='admin_ad_settings'),
     path('super-admin/discounts/',                     views.manage_discounts,      name='manage_discounts'),
     path('super-admin/pincodes/',                      views.manage_pincodes,       name='manage_pincodes'),
     path('super-admin/pincodes/<int:district_id>/',    views.manage_pincodes,       name='manage_pincodes_district'),

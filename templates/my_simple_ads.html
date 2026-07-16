@@ -25,7 +25,7 @@
   <div style="text-align:center;padding:60px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
     <div style="font-size:48px;margin-bottom:12px">📢</div>
     <h4 style="font-size:16px;font-weight:700;color:#444;margin-bottom:8px">No ads posted yet</h4>
-    <p style="font-size:13px;color:#888;margin-bottom:20px">Post your first ad and reach thousands of users</p>
+    <p style="font-size:13px;color:#888;margin-bottom:20px">Post your first ad — 1 month free after admin approval</p>
     <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:12px 28px;background:#0a66c2;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">
       <i class="fas fa-plus"></i> Post an Ad
     </a>
@@ -34,7 +34,9 @@
   {% else %}
   <div style="display:flex;flex-direction:column;gap:16px">
     {% for ad in ads %}
-    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+
+    {% with is_live=ad.is_live is_expired=ad.is_expired pending_ren=ad.pending_renewal %}
+    <div style="background:#fff;border:1.5px solid {% if is_live %}#bbf7d0{% elif is_expired %}#fca5a5{% elif ad.status == 'pending' %}#fde68a{% else %}#fecaca{% endif %};border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">
 
       <div style="display:flex;align-items:stretch">
         <!-- Image -->
@@ -45,45 +47,82 @@
         <!-- Info -->
         <div style="flex:1;padding:16px 18px">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
-              {% if ad.status == 'approved' %}background:#e8f5e9;color:#2e7d32
-              {% elif ad.status == 'pending' %}background:#fff8e1;color:#f57f17
-              {% else %}background:#fce4ec;color:#c62828{% endif %}">
-              <i class="fas {% if ad.status == 'approved' %}fa-check-circle{% elif ad.status == 'pending' %}fa-hourglass-half{% else %}fa-times-circle{% endif %}"></i>
-              {{ ad.get_status_display }}
-            </span>
+            {% if is_live %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#e8f5e9;color:#2e7d32">
+                <i class="fas fa-circle" style="font-size:7px"></i> Live
+              </span>
+            {% elif is_expired %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fce4ec;color:#c62828">
+                <i class="fas fa-times-circle"></i> Expired
+              </span>
+            {% elif ad.status == 'pending' %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fff8e1;color:#f57f17">
+                <i class="fas fa-hourglass-half"></i> Pending Review
+              </span>
+            {% else %}
+              <span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#fce4ec;color:#c62828">
+                <i class="fas fa-times-circle"></i> Rejected
+              </span>
+            {% endif %}
             {% if ad.pincode %}
             <span style="font-size:11px;background:#f0f9ff;color:#0369a1;padding:3px 10px;border-radius:20px;font-weight:700">
               <i class="fas fa-map-marker-alt"></i> {{ ad.pincode }}
             </span>
             {% endif %}
           </div>
+
           <div style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">{{ ad.company_name }}</div>
           <div style="font-size:12px;color:#666;line-height:1.5">{{ ad.description|truncatechars:120 }}</div>
+
           {% if ad.status == 'rejected' and ad.reject_note %}
           <div style="font-size:12px;color:#c62828;margin-top:6px;font-weight:600">
             <i class="fas fa-info-circle"></i> Reason: {{ ad.reject_note }}
           </div>
           {% endif %}
-          <div style="font-size:11px;color:#aaa;margin-top:6px">
-            <i class="fas fa-clock"></i> Submitted {{ ad.created_at|date:"d M Y" }}
-            {% if ad.status == 'approved' and ad.views %}&nbsp;·&nbsp; <i class="fas fa-eye"></i> {{ ad.views }} views{% endif %}
+
+          <div style="font-size:11px;color:#aaa;margin-top:6px;display:flex;flex-wrap:wrap;gap:10px">
+            <span><i class="fas fa-clock"></i> Submitted {{ ad.created_at|date:"d M Y" }}</span>
+            {% if is_live and ad.expires_at %}
+              <span style="color:#166534;font-weight:700"><i class="fas fa-calendar-check"></i> Valid till {{ ad.expires_at|date:"d M Y" }}</span>
+            {% elif is_expired and ad.expires_at %}
+              <span style="color:#c62828;font-weight:700"><i class="fas fa-calendar-times"></i> Expired {{ ad.expires_at|date:"d M Y" }}</span>
+            {% endif %}
+            {% if ad.views %}<span><i class="fas fa-eye"></i> {{ ad.views }} views</span>{% endif %}
           </div>
         </div>
       </div>
 
+      <!-- Footer bar -->
       {% if ad.status == 'pending' %}
       <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#fffbeb;font-size:12px;color:#92400e">
-        <i class="fas fa-hourglass-half"></i> Your ad is under review. It will go live once approved by admin.
+        <i class="fas fa-hourglass-half"></i> Your ad is under review. It will go live for 1 month once approved by admin.
       </div>
-      {% elif ad.status == 'approved' %}
-      <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#f0fdf4;font-size:12px;color:#166534;font-weight:700">
-        <i class="fas fa-circle" style="font-size:8px"></i> Live — visible to all MY PINCOD users
-        {% if ad.website %}&nbsp;·&nbsp; <a href="{{ ad.website }}" target="_blank" style="color:#0a66c2;font-weight:700">Visit Link <i class="fas fa-external-link-alt"></i></a>{% endif %}
+
+      {% elif is_live %}
+      <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#f0fdf4;font-size:12px;color:#166534;font-weight:700;display:flex;align-items:center;flex-wrap:wrap;gap:12px">
+        <span><i class="fas fa-circle" style="font-size:8px"></i> Live — visible to all MY PINCOD users</span>
+        {% if ad.website %}<a href="{{ ad.website }}" target="_blank" style="color:#0a66c2;font-weight:700">Visit Link <i class="fas fa-external-link-alt"></i></a>{% endif %}
+      </div>
+
+      {% elif is_expired %}
+      <div style="padding:10px 18px;border-top:1px solid #f0f0f0;background:#fff5f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <span style="font-size:12px;color:#c62828;font-weight:700">
+          <i class="fas fa-calendar-times"></i> Ad expired — renew to make it live again
+        </span>
+        {% if pending_ren %}
+          <span style="font-size:12px;background:#fff8e1;color:#92400e;padding:6px 14px;border-radius:20px;font-weight:700;border:1.5px solid #fde68a">
+            <i class="fas fa-hourglass-half"></i> Renewal under review
+          </span>
+        {% else %}
+          <a href="/ads/{{ ad.pk }}/renew/" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:#e65100;color:#fff;border-radius:20px;font-size:13px;font-weight:700;text-decoration:none">
+            <i class="fas fa-redo"></i> Renew — ₹{{ settings.renewal_price }}
+          </a>
+        {% endif %}
       </div>
       {% endif %}
 
     </div>
+    {% endwith %}
     {% endfor %}
   </div>
   {% endif %}

@@ -1028,6 +1028,22 @@ class FlickComment(models.Model):
 
 # ── SIMPLE ADS ────────────────────────────────────────────────────────────────
 
+class AdSettings(models.Model):
+    upi_id        = models.CharField(max_length=100, blank=True)
+    renewal_price = models.PositiveIntegerField(default=199)
+
+    class Meta:
+        verbose_name = 'Ad Settings'
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return 'Ad Settings'
+
+
 class AdPost(models.Model):
     STATUS = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
     user         = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ad_posts')
@@ -1041,9 +1057,48 @@ class AdPost(models.Model):
     views        = models.PositiveIntegerField(default=0)
     created_at   = models.DateTimeField(auto_now_add=True)
     approved_at  = models.DateTimeField(null=True, blank=True)
+    expires_at   = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.company_name} [{self.status}]"
+
+    @property
+    def is_live(self):
+        from django.utils import timezone
+        if self.status != 'approved':
+            return False
+        if not self.expires_at:
+            return True
+        return self.expires_at >= timezone.now().date()
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        if self.status != 'approved' or not self.expires_at:
+            return False
+        return self.expires_at < timezone.now().date()
+
+    @property
+    def pending_renewal(self):
+        return self.renewals.filter(status='pending').exists()
+
+
+class AdRenewal(models.Model):
+    STATUS = [('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')]
+    ad             = models.ForeignKey(AdPost, on_delete=models.CASCADE, related_name='renewals')
+    transaction_id = models.CharField(max_length=200)
+    screenshot     = models.ImageField(upload_to='ad_renewals/')
+    amount         = models.PositiveIntegerField()
+    status         = models.CharField(max_length=20, choices=STATUS, default='pending')
+    reject_note    = models.TextField(blank=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+    approved_at    = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.ad.company_name} renewal [{self.status}]"

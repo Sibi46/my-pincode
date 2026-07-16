@@ -1899,24 +1899,70 @@ def post_simple_ad(request):
 
 @login_required
 def my_simple_ads(request):
-    from .models import AdPost
-    ads = AdPost.objects.filter(user=request.user)
-    return render(request, 'my_simple_ads.html', {'ads': ads})
+    from .models import AdPost, AdSettings
+    ads      = AdPost.objects.filter(user=request.user).prefetch_related('renewals')
+    settings = AdSettings.get()
+    return render(request, 'my_simple_ads.html', {'ads': ads, 'settings': settings})
+
+
+@login_required
+def renew_ad(request, pk):
+    from .models import AdPost, AdRenewal, AdSettings
+    ad = get_object_or_404(AdPost, pk=pk, user=request.user)
+    settings = AdSettings.get()
+    if request.method == 'POST':
+        transaction_id = request.POST.get('transaction_id', '').strip()
+        screenshot     = request.FILES.get('screenshot')
+        if not transaction_id or not screenshot:
+            messages.error(request, 'Transaction ID and screenshot are required.')
+            return redirect('renew_ad', pk=pk)
+        AdRenewal.objects.create(
+            ad=ad,
+            transaction_id=transaction_id,
+            screenshot=screenshot,
+            amount=settings.renewal_price,
+        )
+        messages.success(request, 'Renewal request submitted! Admin will verify and extend your ad.')
+        return redirect('my_simple_ads')
+    return render(request, 'renew_ad.html', {'ad': ad, 'settings': settings})
 
 
 @super_admin_required
 def admin_ad_posts(request):
-    from .models import AdPost
+    from .models import AdPost, AdRenewal, AdSettings
     from django.utils import timezone
+    import datetime
     if request.method == 'POST':
-        ad = get_object_or_404(AdPost, pk=request.POST.get('ad_id'))
         action = request.POST.get('action')
+        # ── renewal actions ──────────────────────────────────────────────
+        if action in ('approve_renewal', 'reject_renewal'):
+            renewal = get_object_or_404(AdRenewal, pk=request.POST.get('renewal_id'))
+            if action == 'approve_renewal':
+                renewal.status      = 'approved'
+                renewal.approved_at = timezone.now()
+                renewal.save()
+                ad = renewal.ad
+                today = timezone.now().date()
+                base = max(ad.expires_at, today) if ad.expires_at else today
+                ad.expires_at = base + datetime.timedelta(days=30)
+                ad.status     = 'approved'
+                ad.save()
+                messages.success(request, f'Renewal approved. Ad live until {ad.expires_at}.')
+            else:
+                renewal.status      = 'rejected'
+                renewal.reject_note = request.POST.get('reject_note', '').strip()
+                renewal.save()
+                messages.success(request, 'Renewal rejected.')
+            return redirect('admin_ad_posts')
+        # ── ad actions ───────────────────────────────────────────────────
+        ad = get_object_or_404(AdPost, pk=request.POST.get('ad_id'))
         if action == 'approve':
             ad.status      = 'approved'
             ad.approved_at = timezone.now()
+            ad.expires_at  = timezone.now().date() + datetime.timedelta(days=30)
             ad.reject_note = ''
             ad.save()
-            messages.success(request, f'"{ad.company_name}" approved and now live.')
+            messages.success(request, f'"{ad.company_name}" approved — live for 30 days.')
         elif action == 'reject':
             ad.status      = 'rejected'
             ad.reject_note = request.POST.get('reject_note', '').strip()
@@ -1926,18 +1972,40 @@ def admin_ad_posts(request):
             ad.delete()
             messages.success(request, 'Ad deleted.')
         return redirect('admin_ad_posts')
-    ads = AdPost.objects.select_related('user').order_by('-created_at')
+
+    ads = AdPost.objects.select_related('user').prefetch_related('renewals').order_by('-created_at')
+    renewals       = AdRenewal.objects.select_related('ad__user').filter(status='pending').order_by('-created_at')
     pending_count  = ads.filter(status='pending').count()
     approved_count = ads.filter(status='approved').count()
+    renewal_count  = renewals.count()
     status_filter  = request.GET.get('status', '')
+    tab            = request.GET.get('tab', 'ads')
     if status_filter:
         ads = ads.filter(status=status_filter)
+    settings = AdSettings.get()
     return render(request, 'admin_ad_posts.html', {
         'ads': ads,
+        'renewals': renewals,
         'pending_count': pending_count,
         'approved_count': approved_count,
+        'renewal_count': renewal_count,
         'status_filter': status_filter,
+        'tab': tab,
+        'settings': settings,
     })
+
+
+@super_admin_required
+def admin_ad_settings(request):
+    from .models import AdSettings
+    settings = AdSettings.get()
+    if request.method == 'POST':
+        settings.upi_id        = request.POST.get('upi_id', '').strip()
+        settings.renewal_price = int(request.POST.get('renewal_price') or 199)
+        settings.save()
+        messages.success(request, 'Ad settings saved.')
+        return redirect('admin_ad_posts')
+    return redirect('admin_ad_posts')
 
 
 def admin_feedback(request):
