@@ -90,9 +90,53 @@
     </div>
   </form>
 
-  <div style="text-align:center;margin-top:16px">
-    <a href="/ads/my-ads/" style="font-size:13px;color:#0a66c2;text-decoration:none"><i class="fas fa-list"></i> View My Submitted Ads</a>
+  {% if ads %}
+  <div style="margin-top:32px">
+    <h2 style="font-size:16px;font-weight:800;color:#111;margin:0 0 14px"><i class="fas fa-list" style="color:#0a66c2"></i> My Posted Ads</h2>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      {% for ad in ads %}
+      {% with is_live=ad.is_live is_expired=ad.is_expired %}
+      <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);
+        border:2px solid {% if is_live %}#22c55e{% elif is_expired %}#f87171{% elif ad.status == 'pending' %}#fbbf24{% else %}#f87171{% endif %}">
+
+        <!-- Status bar -->
+        <div style="padding:8px 14px;font-size:12px;font-weight:800;
+          {% if is_live %}background:#16a34a;color:#fff
+          {% elif is_expired %}background:#dc2626;color:#fff
+          {% elif ad.status == 'pending' %}background:#d97706;color:#fff
+          {% else %}background:#dc2626;color:#fff{% endif %}">
+          {% if is_live %}<i class="fas fa-check-circle"></i> Admin Approved — Live{% if ad.expires_at %} · Till {{ ad.expires_at|date:"d M Y" }}{% endif %}
+          {% elif is_expired %}<i class="fas fa-times-circle"></i> Expired{% if ad.expires_at %} {{ ad.expires_at|date:"d M Y" }}{% endif %}
+          {% elif ad.status == 'pending' %}<i class="fas fa-hourglass-half"></i> Waiting for Admin Approval
+          {% else %}<i class="fas fa-times-circle"></i> Rejected{% endif %}
+        </div>
+
+        <!-- Content -->
+        <div style="display:flex;align-items:stretch">
+          <img src="{{ ad.image.url }}" style="width:80px;flex-shrink:0;object-fit:cover">
+          <div style="flex:1;padding:10px 12px">
+            <div style="font-size:14px;font-weight:800;color:#111;margin-bottom:2px">{{ ad.company_name }}</div>
+            <div style="font-size:12px;color:#666;margin-bottom:6px">{{ ad.description|truncatechars:80 }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+              {% if ad.views %}<span style="font-size:11px;color:#0369a1;font-weight:700"><i class="fas fa-eye"></i> {{ ad.views }} views</span>{% endif %}
+              {% if is_expired %}
+                <a href="/ads/{{ ad.pk }}/renew/" style="font-size:11px;background:#e65100;color:#fff;padding:4px 10px;border-radius:12px;text-decoration:none;font-weight:700">
+                  <i class="fas fa-redo"></i> Renew ₹{{ settings.renewal_price }}
+                </a>
+              {% endif %}
+              {% if ad.status == 'rejected' and ad.reject_note %}
+                <span style="font-size:11px;color:#c62828;font-weight:600">Reason: {{ ad.reject_note }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
   </div>
+  {% endif %}
 
 </div>
 
