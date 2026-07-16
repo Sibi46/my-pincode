@@ -439,7 +439,7 @@ var olxAdCur = 0;
     </div>
 
     <!-- Steps -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;max-width:780px;margin-left:auto;margin-right:auto">
+    <div id="adv-steps-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;max-width:780px;margin-left:auto;margin-right:auto">
 
       <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
         <div style="width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">1</div>
@@ -467,7 +467,8 @@ var olxAdCur = 0;
     <!-- Connector arrows (desktop only) -->
     <style>
     @media(max-width:600px){
-      #adv-steps-grid{grid-template-columns:1fr !important}
+      #adv-steps-grid{grid-template-columns:1fr !important;gap:14px !important}
+      #adv-steps-grid > div{padding:20px 16px !important}
     }
     </style>
 
@@ -706,7 +707,6 @@ var olxAdCur = 0;
       <a href="/messages/" class="bn-item"><i class="fas fa-comment-dots"></i><span>Messages</span></a>
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% elif request.user.is_authenticated %}
-      <a href="/jobseeker/dashboard/" class="bn-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
       <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% else %}

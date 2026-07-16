@@ -576,9 +576,8 @@ input, select, textarea { font: inherit; }
   .new-cert-grid { grid-template-columns: 1fr; }
   .sp-tabs { gap: .25rem; }
   .sp-tab { padding: .45rem .65rem; font-size: .78rem; }
-  .sp-topnav { display: none; }
+  .sp-topbar { display: none; }
   .sp-section { padding: 1.25rem; }
-  .sp-user span { display: none; }
 }
 
 /* ── Salary pay-period pills ─────────────────────────────────────────── */

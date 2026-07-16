@@ -200,7 +200,10 @@ def register_process(request):
     login(request, user, backend='jobs.backends.PhoneOrEmailBackend')
     request.session['show_referral_popup'] = True
 
-    redirect_url = '/flicks/'
+    if user_type in User.EMPLOYER_TYPES:
+        redirect_url = '/employer/dashboard/'
+    else:
+        redirect_url = '/jobseeker/dashboard/'
 
     if is_ajax:
         return JsonResponse({'success': True, 'redirect': redirect_url})
@@ -903,6 +906,16 @@ def send_otp(request):
     from django.conf import settings as _s
     api_key  = _s.TWO_FACTOR_API_KEY
     template = _s.TWO_FACTOR_OTP_TEMPLATE
+
+    # Dev fallback: if no API key, skip SMS and print OTP to console
+    if not api_key:
+        print(f'\n[DEV OTP] Phone: {phone}  OTP: {otp}\n', flush=True)
+        request.session['otp']          = otp
+        request.session['otp_phone']    = phone
+        request.session['otp_verified'] = False
+        request.session.modified = True
+        return JsonResponse({'success': True})
+
     url = f'https://2factor.in/API/V1/{api_key}/SMS/{phone}/{otp}/{template}'
 
     try:
