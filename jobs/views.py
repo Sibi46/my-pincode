@@ -1339,6 +1339,7 @@ def advertiser_dashboard(request):
 
 @login_required
 def create_advertisement(request):
+    return redirect('post_simple_ad')
     try:
         adv = request.user.advertiser
     except Advertiser.DoesNotExist:

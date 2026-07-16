@@ -45,7 +45,7 @@
       </p>
     </div>
     {% if adv.status == 'approved' %}
-    <a href="{% url 'create_advertisement' %}" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
+    <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
       <i class="fas fa-plus"></i> Create New Ad
     </a>
     {% endif %}
@@ -234,7 +234,7 @@
     <h4 style="font-size:16px;font-weight:700;color:#444;margin-bottom:8px">No advertisements yet</h4>
     <p style="font-size:13px;color:#888;margin-bottom:20px">Create your first ad to start reaching thousands of members</p>
     {% if adv.status == 'approved' %}
-    <a href="{% url 'create_advertisement' %}" style="display:inline-flex;align-items:center;gap:7px;padding:12px 28px;background:#0a66c2;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">
+    <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:12px 28px;background:#0a66c2;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">
       <i class="fas fa-plus"></i> Create First Ad
     </a>
     {% endif %}
