@@ -1328,17 +1328,17 @@ def advertiser_dashboard(request):
     except Advertiser.DoesNotExist:
         messages.info(request, 'Please register as an advertiser first.')
         return redirect('advertiser_register')
-    ads = adv.ads.select_related('package').order_by('-created_at')
-    total_views  = sum(a.views  for a in ads)
-    total_clicks = sum(a.clicks for a in ads)
-    active_count = ads.filter(status='active').count()
-    expiring     = [a for a in ads if a.is_expiring_soon()]
+    from .models import AdPost, AdSettings
+    simple_ads   = AdPost.objects.filter(user=request.user).prefetch_related('renewals').order_by('-created_at')
+    ad_settings  = AdSettings.get()
+    total_views  = sum(a.views or 0 for a in simple_ads)
+    active_count = sum(1 for a in simple_ads if a.is_live)
     packages     = AdPackage.objects.filter(is_active=True)
     return render(request, 'advertiser_dashboard.html', {
-        'adv': adv, 'ads': ads,
-        'total_views': total_views, 'total_clicks': total_clicks,
-        'active_count': active_count, 'expiring': expiring,
-        'packages': packages,
+        'adv': adv, 'ads': simple_ads,
+        'total_views': total_views, 'total_clicks': 0,
+        'active_count': active_count, 'expiring': [],
+        'packages': packages, 'settings': ad_settings,
     })
 
 
