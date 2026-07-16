@@ -29,9 +29,14 @@
         <input type="text" name="upi_id" value="{{ settings.upi_id }}" placeholder="yourname@upi"
           style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none">
       </div>
-      <div style="min-width:160px">
-        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">Renewal Price (₹ / 30 days)</label>
+      <div style="min-width:140px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">Renewal Price (₹)</label>
         <input type="number" name="renewal_price" value="{{ settings.renewal_price }}" min="0"
+          style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none">
+      </div>
+      <div style="min-width:140px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px">Active Days per Renewal</label>
+        <input type="number" name="renewal_days" value="{{ settings.renewal_days }}" min="1"
           style="width:100%;padding:9px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none">
       </div>
       <button type="submit" style="padding:9px 20px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">
@@ -40,7 +45,7 @@
     </form>
     {% if settings.upi_id %}
     <div style="font-size:12px;color:#2e7d32;margin-top:10px;font-weight:700">
-      <i class="fas fa-check-circle"></i> Active UPI: <span style="color:#0a66c2">{{ settings.upi_id }}</span> &nbsp;·&nbsp; ₹{{ settings.renewal_price }} / 30 days
+      <i class="fas fa-check-circle"></i> Active UPI: <span style="color:#0a66c2">{{ settings.upi_id }}</span> &nbsp;·&nbsp; ₹{{ settings.renewal_price }} / {{ settings.renewal_days }} days
     </div>
     {% endif %}
   </div>
@@ -105,7 +110,7 @@
           <input type="hidden" name="renewal_id" value="{{ r.pk }}">
           <input type="hidden" name="action" value="approve_renewal">
           <button type="submit" style="padding:8px 18px;background:#22c55e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
-            <i class="fas fa-check"></i> Approve — Extend 30 Days
+            <i class="fas fa-check"></i> Approve — Extend {{ settings.renewal_days }} Days
           </button>
         </form>
 

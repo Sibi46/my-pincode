@@ -1031,6 +1031,7 @@ class FlickComment(models.Model):
 class AdSettings(models.Model):
     upi_id        = models.CharField(max_length=100, blank=True)
     renewal_price = models.PositiveIntegerField(default=199)
+    renewal_days  = models.PositiveIntegerField(default=30)
 
     class Meta:
         verbose_name = 'Ad Settings'

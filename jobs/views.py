@@ -1944,7 +1944,7 @@ def admin_ad_posts(request):
                 ad = renewal.ad
                 today = timezone.now().date()
                 base = max(ad.expires_at, today) if ad.expires_at else today
-                ad.expires_at = base + datetime.timedelta(days=30)
+                ad.expires_at = base + datetime.timedelta(days=settings.renewal_days)
                 ad.status     = 'approved'
                 ad.save()
                 messages.success(request, f'Renewal approved. Ad live until {ad.expires_at}.')
@@ -1959,7 +1959,7 @@ def admin_ad_posts(request):
         if action == 'approve':
             ad.status      = 'approved'
             ad.approved_at = timezone.now()
-            ad.expires_at  = timezone.now().date() + datetime.timedelta(days=30)
+            ad.expires_at  = timezone.now().date() + datetime.timedelta(days=settings.renewal_days)
             ad.reject_note = ''
             ad.save()
             messages.success(request, f'"{ad.company_name}" approved — live for 30 days.')
@@ -2002,6 +2002,7 @@ def admin_ad_settings(request):
     if request.method == 'POST':
         settings.upi_id        = request.POST.get('upi_id', '').strip()
         settings.renewal_price = int(request.POST.get('renewal_price') or 199)
+        settings.renewal_days  = int(request.POST.get('renewal_days') or 30)
         settings.save()
         messages.success(request, 'Ad settings saved.')
         return redirect('admin_ad_posts')
