@@ -1872,7 +1872,6 @@ def district_admin_required(view_func):
 
 # ─── SUPER ADMIN ──────────────────────────────────────────────────────────────
 
-@super_admin_required
 @login_required
 def post_simple_ad(request):
     from .models import AdPost
