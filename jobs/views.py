@@ -2960,9 +2960,40 @@ def save_candidate(request, user_id):
 # ── PROFILE REDIRECT ──────────────────────────────────────────────────────────
 @login_required
 def profile_redirect(request):
-    if request.user.is_employer():
-        return redirect('employer_dashboard')
-    return redirect('seeker_profile')
+    return redirect('profile_edit')
+
+
+@login_required
+def profile_edit(request):
+    user = request.user
+    # get sub-profile if exists
+    seeker = getattr(user, 'seeker', None)
+    company = getattr(user, 'company', None)
+
+    if request.method == 'POST':
+        p = request.POST
+        f = request.FILES
+        user.first_name = p.get('first_name', '').strip()
+        user.last_name  = p.get('last_name', '').strip()
+        user.email      = p.get('email', '').strip()
+        user.phone      = p.get('phone', '').strip()
+        user.whatsapp   = p.get('whatsapp', '').strip()
+        user.city       = p.get('city', '').strip()
+        user.pincode    = p.get('pincode', '').strip()
+        user.address    = p.get('address', '').strip()
+        user.save()
+
+        if seeker and 'photo' in f:
+            seeker.photo = f['photo']
+            seeker.save()
+
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('profile_edit')
+
+    return render(request, 'profile_edit.html', {
+        'seeker': seeker,
+        'company': company,
+    })
 
 
 # ── CANDIDATE SEARCH ──────────────────────────────────────────────────────────
