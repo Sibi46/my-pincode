@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}{{ condition.name }} – Healthy Food Guide{% endblock %}
+{% block content %}
+<style>
+  .hc-hero{background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);color:#fff;padding:2.5rem 1rem 2rem;text-align:center}
+  .hc-hero .icon{font-size:3.5rem}
+  .hc-hero h1{margin:.5rem 0 .25rem;font-size:1.8rem}
+  .hc-hero p{opacity:.85;max-width:600px;margin:0 auto}
+  .hc-nav{display:flex;flex-wrap:wrap;gap:.5rem;padding:1rem;background:#f0fdf4;border-bottom:1px solid #bbf7d0;justify-content:center}
+  .hc-nav a{font-size:.8rem;padding:.35rem .75rem;background:#16a34a;color:#fff;border-radius:999px;text-decoration:none}
+  .hc-nav a:hover{background:#15803d}
+  .hc-wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+  .hc-section{margin-bottom:2rem}
+  .hc-section h2{font-size:1.2rem;color:#16a34a;border-left:4px solid #16a34a;padding-left:.75rem;margin-bottom:1rem}
+  .hc-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1.25rem}
+  .hc-box-red{background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:1.25rem}
+  .food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem}
+  .food-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:#1e293b;transition:.2s}
+  .food-card:hover{box-shadow:0 4px 12px rgba(22,163,74,.2);transform:translateY(-2px)}
+  .food-card img{width:100%;height:90px;object-fit:cover}
+  .food-card .fc-name{padding:.5rem;font-size:.85rem;font-weight:600;text-align:center}
+  .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+  .recipe-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:#1e293b}
+  .recipe-card img{width:100%;height:130px;object-fit:cover}
+  .recipe-card .rc-body{padding:.75rem}
+  .recipe-card .rc-badge{font-size:.7rem;background:#16a34a;color:#fff;padding:.2rem .5rem;border-radius:999px;display:inline-block;margin-bottom:.4rem}
+  .recipe-card .rc-name{font-weight:700;font-size:.95rem;margin-bottom:.3rem}
+  .recipe-card .rc-meta{font-size:.75rem;color:#64748b}
+  .video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+  .video-card{border-radius:10px;overflow:hidden;background:#000;position:relative}
+  .video-card iframe{width:100%;height:140px;border:0;display:block}
+  .video-card .vc-info{background:#1e293b;color:#fff;padding:.6rem .75rem;font-size:.82rem}
+  .video-card .vc-cat{font-size:.7rem;color:#86efac;margin-bottom:.2rem}
+  .faq-item{border-bottom:1px solid #e2e8f0;padding:.75rem 0}
+  .faq-q{cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#1e293b}
+  .faq-q span{color:#16a34a;font-size:1.2rem}
+  .faq-a{display:none;padding:.5rem 0 0;color:#475569;line-height:1.6}
+  .faq-a.open{display:block}
+  @media(max-width:600px){.hc-hero h1{font-size:1.4rem}}
+</style>
+
+<div class="hc-hero">
+  <div class="icon">{{ condition.icon }}</div>
+  <h1>{{ condition.name }}</h1>
+  <p>{{ condition.overview|truncatewords:25 }}</p>
+</div>
+
+<div class="hc-nav">
+  <a href="#overview">Overview</a>
+  <a href="#foods-eat">Foods to Eat</a>
+  <a href="#foods-limit">Foods to Limit</a>
+  <a href="#fruits">Fruits</a>
+  <a href="#vegetables">Vegetables</a>
+  <a href="#herbs">Herbs & Spices</a>
+  <a href="#cooking">Cooking Methods</a>
+  <a href="#timing">Meal Timing</a>
+  <a href="#portion">Portions</a>
+  <a href="#recipes">Recipes</a>
+  <a href="#videos">Videos</a>
+  <a href="#faq">FAQ</a>
+</div>
+
+<div class="hc-wrap">
+
+  <div class="hc-section" id="overview">
+    <h2>Overview</h2>
+    <div class="hc-box">{{ condition.overview|linebreaks }}</div>
+  </div>
+
+  <div class="hc-section" id="foods-eat">
+    <h2>Foods to Eat</h2>
+    <div class="hc-box">{{ condition.foods_to_eat|linebreaks }}</div>
+    {% if foods %}
+    <div class="food-grid" style="margin-top:1rem">
+      {% for f in foods %}
+      <a class="food-card" href="/health/foods/{{ f.slug }}/">
+        {% if f.image %}<img src="{{ f.image.url }}" alt="{{ f.name }}">{% else %}<div style="height:90px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem">🥗</div>{% endif %}
+        <div class="fc-name">{{ f.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="hc-section" id="foods-limit">
+    <h2>Foods to Limit</h2>
+    <div class="hc-box-red">{{ condition.foods_to_limit|linebreaks }}</div>
+  </div>
+
+  <div class="hc-section" id="fruits">
+    <h2>Fruits</h2>
+    <div class="hc-box">{{ condition.fruits_info|linebreaks }}</div>
+    {% if fruits %}
+    <div class="food-grid" style="margin-top:1rem">
+      {% for f in fruits %}
+      <a class="food-card" href="/health/fruits/{{ f.slug }}/">
+        {% if f.image %}<img src="{{ f.image.url }}" alt="{{ f.name }}">{% else %}<div style="height:90px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem">🍎</div>{% endif %}
+        <div class="fc-name">{{ f.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="hc-section" id="vegetables">
+    <h2>Vegetables</h2>
+    <div class="hc-box">{{ condition.vegetables_info|linebreaks }}</div>
+    {% if vegetables %}
+    <div class="food-grid" style="margin-top:1rem">
+      {% for v in vegetables %}
+      <a class="food-card" href="/health/vegetables/{{ v.slug }}/">
+        {% if v.image %}<img src="{{ v.image.url }}" alt="{{ v.name }}">{% else %}<div style="height:90px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem">🥦</div>{% endif %}
+        <div class="fc-name">{{ v.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="hc-section" id="herbs">
+    <h2>Herbs &amp; Spices</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="hc-box"><strong style="color:#16a34a">Herbs</strong><br>{{ condition.herbs_info|linebreaks }}</div>
+      <div class="hc-box"><strong style="color:#16a34a">Spices</strong><br>{{ condition.spices_info|linebreaks }}</div>
+    </div>
+    {% if herbs %}
+    <div class="food-grid" style="margin-top:1rem">
+      {% for h in herbs %}
+      <a class="food-card" href="/health/herbs/{{ h.slug }}/">
+        {% if h.image %}<img src="{{ h.image.url }}" alt="{{ h.name }}">{% else %}<div style="height:90px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem">🌿</div>{% endif %}
+        <div class="fc-name">{{ h.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="hc-section" id="cooking">
+    <h2>Cooking Methods</h2>
+    <div class="hc-box">{{ condition.cooking_methods|linebreaks }}</div>
+  </div>
+
+  <div class="hc-section" id="timing">
+    <h2>Meal Timing</h2>
+    <div class="hc-box">{{ condition.meal_timing|linebreaks }}</div>
+  </div>
+
+  <div class="hc-section" id="portion">
+    <h2>Portion Guidance</h2>
+    <div class="hc-box">{{ condition.portion_guidance|linebreaks }}</div>
+  </div>
+
+  {% if recipes %}
+  <div class="hc-section" id="recipes">
+    <h2>Recommended Recipes</h2>
+    <div class="recipe-grid">
+      {% for r in recipes %}
+      <a class="recipe-card" href="/health/recipes/{{ r.slug }}/">
+        {% if r.image %}<img src="{{ r.image.url }}" alt="{{ r.name }}">{% else %}<div style="height:130px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2.5rem">🍽️</div>{% endif %}
+        <div class="rc-body">
+          <span class="rc-badge">{{ r.get_category_display }}</span>
+          <div class="rc-name">{{ r.name }}</div>
+          <div class="rc-meta">⏱ {{ r.total_time }} min &nbsp;|&nbsp; 🔥 {{ r.calories }} kcal</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if videos %}
+  <div class="hc-section" id="videos">
+    <h2>Video Guide</h2>
+    <div class="video-grid">
+      {% for v in videos %}
+      <div class="video-card">
+        <iframe src="{{ v.embed_url }}" allowfullscreen loading="lazy" title="{{ v.title }}"></iframe>
+        <div class="vc-info">
+          <div class="vc-cat">{{ v.get_category_display }}</div>
+          {{ v.title }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if faq %}
+  <div class="hc-section" id="faq">
+    <h2>Frequently Asked Questions</h2>
+    {% for item in faq %}
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('span').textContent=this.nextElementSibling.classList.contains('open')?'−':'+' ">
+        {{ item.q }}<span>+</span>
+      </div>
+      <div class="faq-a">{{ item.a }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

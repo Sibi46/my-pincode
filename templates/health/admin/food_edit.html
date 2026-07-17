@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Food – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem}
+  .form-group{margin-bottom:1.2rem}
+  .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus{border-color:#0a66c2}
+  .form-group textarea{min-height:80px;resize:vertical}
+  .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.25rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0a66c2}
+  .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .section-sep{border:0;border-top:1px solid #f1f5f9;margin:1.25rem 0}
+  .section-label{font-size:.75rem;font-weight:700;color:#0a66c2;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+</style>
+
+<div class="adm-header">
+  <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Food{% endif %}</h1>
+  <a href="/health/admin/foods/">← Back to Foods</a>
+</div>
+
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+      <div class="section-label">Basic Info</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" value="{{ obj.name|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Slug *</label>
+          <input type="text" name="slug" value="{{ obj.slug|default:'' }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Scientific Name</label>
+          <input type="text" name="scientific_name" value="{{ obj.scientific_name|default:'' }}">
+        </div>
+        <div class="form-group">
+          <label>Image</label>
+          <input type="file" name="image" accept="image/*">
+          {% if obj.image %}<p class="hint">Current: {{ obj.image.name }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description">{{ obj.description|default:'' }}</textarea>
+      </div>
+
+      <hr class="section-sep">
+      <div class="section-label">Health Info</div>
+      <div class="form-group">
+        <label>Nutrition Facts</label>
+        <textarea name="nutrition_facts">{{ obj.nutrition_facts|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Benefits</label>
+        <textarea name="benefits">{{ obj.benefits|default:'' }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Suitable For</label>
+          <textarea name="suitable_for" style="min-height:60px">{{ obj.suitable_for|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Avoid If</label>
+          <textarea name="avoid_if" style="min-height:60px">{{ obj.avoid_if|default:'' }}</textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Best Time to Eat</label>
+          <input type="text" name="best_time" value="{{ obj.best_time|default:'' }}">
+        </div>
+        <div class="form-group">
+          <label>Serving Size</label>
+          <input type="text" name="serving_size" value="{{ obj.serving_size|default:'' }}">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cooking Methods</label>
+        <textarea name="cooking_methods" style="min-height:60px">{{ obj.cooking_methods|default:'' }}</textarea>
+      </div>
+      <div class="check-row" style="margin-bottom:1rem">
+        <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
+        <label for="is_featured">Featured</label>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn-cancel" href="/health/admin/foods/">Cancel</a>
+        <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Food{% endif %}</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

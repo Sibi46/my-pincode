@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block title %}{{ food.name }} – Healthy Food Guide{% endblock %}
+{% block content %}
+<style>
+  .fd-wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+  .fd-hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-bottom:2rem}
+  .fd-hero img{width:100%;border-radius:14px;max-height:320px;object-fit:cover}
+  .fd-hero .no-img{width:100%;height:250px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:5rem}
+  .fd-info h1{font-size:1.6rem;margin:0 0 .25rem;color:#15803d}
+  .fd-info .sci-name{font-style:italic;color:#64748b;font-size:.9rem;margin-bottom:1rem}
+  .fd-fav{background:none;border:2px solid #e2e8f0;border-radius:999px;padding:.45rem 1rem;cursor:pointer;font-size:.9rem;color:#64748b;display:flex;align-items:center;gap:.4rem;margin-bottom:1.2rem}
+  .fd-fav.active{border-color:#dc2626;color:#dc2626}
+  .fd-section{margin-bottom:1.75rem}
+  .fd-section h3{font-size:1rem;color:#16a34a;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+  .nutrition-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem}
+  .nut-cell{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem;text-align:center}
+  .nut-cell .val{font-size:1.1rem;font-weight:700;color:#16a34a}
+  .nut-cell .lbl{font-size:.72rem;color:#475569;margin-top:.1rem}
+  .pill-green{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:.25rem .7rem;font-size:.8rem;margin:.2rem}
+  .pill-red{display:inline-block;background:#fee2e2;color:#991b1b;border-radius:999px;padding:.25rem .7rem;font-size:.8rem;margin:.2rem}
+  .info-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+  .info-badge{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .9rem;font-size:.85rem}
+  .info-badge strong{display:block;color:#16a34a;font-size:.75rem;margin-bottom:.1rem}
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem}
+  .related-card{text-decoration:none;color:#1e293b;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
+  .related-card img{width:100%;height:90px;object-fit:cover}
+  .related-card .rc-name{padding:.5rem;font-size:.82rem;font-weight:600;text-align:center}
+  @media(max-width:600px){.fd-hero{grid-template-columns:1fr}}
+</style>
+
+<div class="fd-wrap">
+  <div class="fd-hero">
+    <div>
+      {% if food.image %}<img src="{{ food.image.url }}" alt="{{ food.name }}">{% else %}<div class="no-img">🥗</div>{% endif %}
+    </div>
+    <div class="fd-info">
+      <h1>{{ food.name }}</h1>
+      {% if food.scientific_name %}<div class="sci-name">{{ food.scientific_name }}</div>{% endif %}
+
+      <button class="fd-fav {% if is_fav %}active{% endif %}" id="favBtn" onclick="toggleFav({{ food.pk }},'food')">
+        <span id="favIcon">{% if is_fav %}❤️{% else %}🤍{% endif %}</span>
+        <span id="favText">{% if is_fav %}Saved{% else %}Save{% endif %}</span>
+      </button>
+
+      <div class="info-row">
+        {% if food.best_time %}<div class="info-badge"><strong>Best Time</strong>{{ food.best_time }}</div>{% endif %}
+        {% if food.serving_size %}<div class="info-badge"><strong>Serving</strong>{{ food.serving_size }}</div>{% endif %}
+      </div>
+
+      {% if food.description %}
+      <p style="color:#475569;line-height:1.6;font-size:.93rem">{{ food.description }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if food.nutrition_facts %}
+  <div class="fd-section">
+    <h3>📊 Nutrition Facts</h3>
+    <div class="hc-box" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem">
+      {{ food.nutrition_facts|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if food.benefits %}
+  <div class="fd-section">
+    <h3>✅ Health Benefits</h3>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem;color:#166534">
+      {{ food.benefits|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if food.suitable_for %}
+  <div class="fd-section">
+    <h3>💚 Suitable For</h3>
+    {% for cond in food.suitable_for.split|default:'' %}
+    <span class="pill-green">{{ cond }}</span>
+    {% endfor %}
+    <div style="margin-top:.5rem;color:#475569;font-size:.9rem">{{ food.suitable_for }}</div>
+  </div>
+  {% endif %}
+
+  {% if food.avoid_if %}
+  <div class="fd-section">
+    <h3>⚠️ Avoid If</h3>
+    <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:10px;padding:1rem;color:#991b1b">
+      {{ food.avoid_if|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if food.cooking_methods %}
+  <div class="fd-section">
+    <h3>🍳 Cooking Methods</h3>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem">
+      {{ food.cooking_methods|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if related %}
+  <div class="fd-section">
+    <h3>🔗 Related Foods</h3>
+    <div class="related-grid">
+      {% for r in related %}
+      <a class="related-card" href="/health/foods/{{ r.slug }}/">
+        {% if r.image %}<img src="{{ r.image.url }}" alt="{{ r.name }}">{% else %}<div style="height:90px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem">🥗</div>{% endif %}
+        <div class="rc-name">{{ r.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function getCookie(name){const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');return v?v[2]:null}
+function toggleFav(id,type){
+  const btn=document.getElementById('favBtn');
+  const icon=document.getElementById('favIcon');
+  const txt=document.getElementById('favText');
+  fetch('/health/favorites/toggle/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({type,id})})
+  .then(r=>r.json()).then(d=>{
+    if(d.status==='added'){btn.classList.add('active');icon.textContent='❤️';txt.textContent='Saved'}
+    else{btn.classList.remove('active');icon.textContent='🤍';txt.textContent='Save'}
+  })
+}
+</script>
+{% endblock %}

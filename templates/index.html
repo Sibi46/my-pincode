@@ -215,6 +215,7 @@ a{text-decoration:none;color:inherit}
       </form>
     </div>
     <div class="nav-links">
+      <a href="/health/" style="color:#16a34a;font-weight:700;border:1.5px solid #16a34a;padding:6px 12px;border-radius:8px;font-size:13px"><i class="fas fa-leaf"></i> Health</a>
       {% if not request.user.is_authenticated or request.user.is_employer %}
       <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
       {% endif %}
@@ -236,6 +237,7 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
   <div class="mob-menu" id="mobMenu">
+    <a href="/health/" style="color:#16a34a;font-weight:700"><i class="fas fa-leaf"></i> Healthy Food Guide</a>
     {% if not request.user.is_authenticated or request.user.is_employer %}
     <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
     {% endif %}

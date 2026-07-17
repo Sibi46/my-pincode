@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Recipe – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:860px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem}
+  .form-group{margin-bottom:1.2rem}
+  .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#0a66c2}
+  .form-group textarea{min-height:80px;resize:vertical}
+  .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.25rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0a66c2}
+  .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .section-sep{border:0;border-top:1px solid #f1f5f9;margin:1.25rem 0}
+  .section-label{font-size:.75rem;font-weight:700;color:#0a66c2;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+</style>
+
+<div class="adm-header">
+  <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Recipe{% endif %}</h1>
+  <a href="/health/admin/recipes/">← Back to Recipes</a>
+</div>
+
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+      <div class="section-label">Basic Info</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" value="{{ obj.name|default:'' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Slug *</label>
+          <input type="text" name="slug" value="{{ obj.slug|default:'' }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select name="category">
+            {% for cat in categories %}
+            <option value="{{ cat.0 }}" {% if obj.category == cat.0 %}selected{% endif %}>{{ cat.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select name="difficulty">
+            {% for d in difficulties %}
+            <option value="{{ d.0 }}" {% if obj.difficulty == d.0 %}selected{% endif %}>{{ d.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Image</label>
+        <input type="file" name="image" accept="image/*">
+        {% if obj.image %}<p class="hint">Current: {{ obj.image.name }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description">{{ obj.description|default:'' }}</textarea>
+      </div>
+
+      <hr class="section-sep">
+      <div class="section-label">Ingredients & Steps</div>
+      <div class="form-group">
+        <label>Ingredients (one per line)</label>
+        <textarea name="ingredients" style="min-height:120px">{{ obj.ingredients|default:'' }}</textarea>
+        <p class="hint">Enter one ingredient per line, e.g. "2 cups brown rice"</p>
+      </div>
+      <div class="form-group">
+        <label>Steps (one per line)</label>
+        <textarea name="steps" style="min-height:120px">{{ obj.steps|default:'' }}</textarea>
+        <p class="hint">Enter each step on a new line</p>
+      </div>
+
+      <hr class="section-sep">
+      <div class="section-label">Nutrition & Timing</div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Prep Time (min)</label>
+          <input type="number" name="prep_time" value="{{ obj.prep_time|default:'' }}" min="0">
+        </div>
+        <div class="form-group">
+          <label>Cook Time (min)</label>
+          <input type="number" name="cook_time" value="{{ obj.cook_time|default:'' }}" min="0">
+        </div>
+        <div class="form-group">
+          <label>Servings</label>
+          <input type="number" name="servings" value="{{ obj.servings|default:'' }}" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Calories (per serving)</label>
+          <input type="number" name="calories" value="{{ obj.calories|default:'' }}" min="0">
+        </div>
+        <div class="form-group">
+          <label>Nutrition Info</label>
+          <input type="text" name="nutrition" value="{{ obj.nutrition|default:'' }}" placeholder="e.g. Protein: 12g, Fat: 5g">
+        </div>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
+        <label for="is_featured">Featured</label>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn-cancel" href="/health/admin/recipes/">Cancel</a>
+        <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Recipe{% endif %}</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Health Guide Settings – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.75rem}
+  .form-group{margin-bottom:1.4rem}
+  .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em}
+  .form-group input,.form-group textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.65rem .9rem;font-size:.92rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input[type=password]{letter-spacing:.08em}
+  .form-group input:focus,.form-group textarea:focus{border-color:#0a66c2;box-shadow:0 0 0 2px rgba(10,102,194,.1)}
+  .form-group textarea{min-height:100px;resize:vertical}
+  .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.3rem;line-height:1.4}
+  .form-group .key-warning{background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:.5rem .75rem;font-size:.78rem;color:#92400e;margin-top:.4rem}
+  .section-sep{border:0;border-top:1px solid #f1f5f9;margin:1.5rem 0}
+  .section-label{font-size:.75rem;font-weight:700;color:#0a66c2;text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.65rem 1.6rem;cursor:pointer;font-weight:700;font-size:.92rem}
+  .btn-save:hover{background:#0958a8}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.65rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .saved-msg{background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:.65rem 1rem;color:#166534;font-size:.88rem;display:none}
+</style>
+
+<div class="adm-header">
+  <h1>⚙️ Health Guide Settings</h1>
+  <a href="/health/admin/">← Admin Dashboard</a>
+</div>
+
+<div class="form-wrap">
+  <form method="post" action="">
+    {% csrf_token %}
+    <div class="form-card">
+
+      <div class="section-label">AI Configuration</div>
+      <div class="form-group">
+        <label>Gemini API Key</label>
+        <input type="password" name="gemini_api_key" value="{{ settings.gemini_api_key|default:'' }}" placeholder="AIza...">
+        <div class="key-warning">⚠️ Keep this key secret. It is used for the AI Food Assistant chatbot.</div>
+      </div>
+      <div class="form-group">
+        <label>AI System Prompt</label>
+        <textarea name="ai_system_prompt" style="min-height:140px">{{ settings.ai_system_prompt|default:'' }}</textarea>
+        <p class="hint">Instructions that define the AI chatbot's persona and scope. E.g. "You are a helpful food and nutrition assistant for Indian users. Answer only food-related health questions..."</p>
+      </div>
+
+      <hr class="section-sep">
+      <div class="section-label">Site Content</div>
+      <div class="form-group">
+        <label>Daily Health Tip</label>
+        <textarea name="daily_tip" style="min-height:80px">{{ settings.daily_tip|default:'' }}</textarea>
+        <p class="hint">Shown on the homepage or health guide landing page</p>
+      </div>
+      <div class="form-group">
+        <label>Site Tagline</label>
+        <input type="text" name="site_tagline" value="{{ settings.site_tagline|default:'' }}" placeholder="e.g. Eat Smart. Live Healthy.">
+        <p class="hint">Short tagline shown in the Health Guide header</p>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn-cancel" href="/health/admin/">Cancel</a>
+        <button class="btn-save" type="submit">Save Settings</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

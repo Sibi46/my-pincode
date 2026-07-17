@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from jobs import views
@@ -162,4 +162,5 @@ urlpatterns = [
     path('flicks/<int:pk>/advertise/',                 views.flick_advertise,              name='flick_advertise'),
     path('flicks/<int:pk>/report/',                    views.report_flick,                 name='report_flick'),
     path('super-admin/flick-reports/',                 views.admin_flick_reports,          name='admin_flick_reports'),
+    path('health/', include('health.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}My Saved Items – Health Guide{% endblock %}
+{% block content %}
+<style>
+  .fav-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:2rem 1rem;text-align:center}
+  .fav-header h1{margin:0 0 .25rem;font-size:1.7rem}
+  .fav-wrap{max-width:1000px;margin:0 auto;padding:1.5rem 1rem}
+  .fav-section{margin-bottom:2.5rem}
+  .fav-section h2{font-size:1.1rem;color:#16a34a;border-left:4px solid #16a34a;padding-left:.75rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .fav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem}
+  .fav-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;position:relative}
+  .fav-card img{width:100%;height:110px;object-fit:cover}
+  .fav-card .no-img{height:110px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+  .fav-card .card-body{padding:.7rem}
+  .fav-card .card-name{font-weight:600;font-size:.88rem;color:#1e293b;margin-bottom:.4rem}
+  .remove-btn{width:100%;background:#fee2e2;color:#dc2626;border:0;padding:.4rem;cursor:pointer;font-size:.78rem;font-weight:600}
+  .remove-btn:hover{background:#dc2626;color:#fff}
+  .fav-empty{background:#f8fafc;border:2px dashed #e2e8f0;border-radius:12px;padding:2rem;text-align:center;color:#94a3b8}
+  .vid-thumb{height:110px;background:#0f172a;position:relative}
+  .vid-thumb img{width:100%;height:100%;object-fit:cover}
+  .vid-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:rgba(22,163,74,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff}
+</style>
+
+<div class="fav-header">
+  <h1>❤️ My Saved Items</h1>
+  <p style="opacity:.85">Your personal health guide collection</p>
+</div>
+
+<div class="fav-wrap">
+
+  {% if data.foods %}
+  <div class="fav-section">
+    <h2>🥗 Foods ({{ data.foods|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.foods %}
+      <div class="fav-card" id="fav-food-{{ item.pk }}">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🥗</div>{% endif %}
+        <div class="card-body">
+          <div class="card-name"><a href="/health/foods/{{ item.slug }}/" style="color:inherit;text-decoration:none">{{ item.name }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'food',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if data.fruits %}
+  <div class="fav-section">
+    <h2>🍎 Fruits ({{ data.fruits|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.fruits %}
+      <div class="fav-card" id="fav-fruit-{{ item.pk }}">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🍎</div>{% endif %}
+        <div class="card-body">
+          <div class="card-name"><a href="/health/fruits/{{ item.slug }}/" style="color:inherit;text-decoration:none">{{ item.name }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'fruit',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if data.vegetables %}
+  <div class="fav-section">
+    <h2>🥦 Vegetables ({{ data.vegetables|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.vegetables %}
+      <div class="fav-card" id="fav-veg-{{ item.pk }}">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🥦</div>{% endif %}
+        <div class="card-body">
+          <div class="card-name"><a href="/health/vegetables/{{ item.slug }}/" style="color:inherit;text-decoration:none">{{ item.name }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'vegetable',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if data.herbs %}
+  <div class="fav-section">
+    <h2>🌿 Herbs ({{ data.herbs|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.herbs %}
+      <div class="fav-card" id="fav-herb-{{ item.pk }}">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🌿</div>{% endif %}
+        <div class="card-body">
+          <div class="card-name"><a href="/health/herbs/{{ item.slug }}/" style="color:inherit;text-decoration:none">{{ item.name }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'herb',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if data.recipes %}
+  <div class="fav-section">
+    <h2>🍽️ Recipes ({{ data.recipes|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.recipes %}
+      <div class="fav-card" id="fav-recipe-{{ item.pk }}">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🍽️</div>{% endif %}
+        <div class="card-body">
+          <div class="card-name"><a href="/health/recipes/{{ item.slug }}/" style="color:inherit;text-decoration:none">{{ item.name }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'recipe',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if data.videos %}
+  <div class="fav-section">
+    <h2>🎬 Videos ({{ data.videos|length }})</h2>
+    <div class="fav-grid">
+      {% for item in data.videos %}
+      <div class="fav-card" id="fav-video-{{ item.pk }}">
+        <div class="vid-thumb">
+          {% if item.thumb_url %}<img src="{{ item.thumb_url }}" alt="{{ item.title }}">{% endif %}
+          <div class="vid-play">▶</div>
+        </div>
+        <div class="card-body">
+          <div class="card-name"><a href="{{ item.youtube_url }}" target="_blank" style="color:inherit;text-decoration:none">{{ item.title }}</a></div>
+        </div>
+        <button class="remove-btn" onclick="removeFav({{ item.pk }},'video',this.closest('.fav-card'))">✕ Remove</button>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not data.foods and not data.fruits and not data.vegetables and not data.herbs and not data.recipes and not data.videos %}
+  <div class="fav-empty">
+    <div style="font-size:3rem;margin-bottom:.5rem">❤️</div>
+    <p style="font-size:1rem;margin:0">No saved items yet.</p>
+    <p style="font-size:.85rem;margin:.5rem 0 0">Tap the save button on any food, recipe, or video to add it here.</p>
+    <a href="/health/" style="color:#16a34a;font-size:.9rem;margin-top:.75rem;display:inline-block">Browse Health Guide</a>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+function getCookie(name){const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');return v?v[2]:null}
+function removeFav(id,type,card){
+  fetch('/health/favorites/toggle/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({type,id})})
+  .then(r=>r.json()).then(()=>{card.style.opacity='0';card.style.transform='scale(.9)';card.style.transition='.2s';setTimeout(()=>card.remove(),200)})
+}
+</script>
+{% endblock %}

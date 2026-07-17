@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Condition – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem}
+  .form-group{margin-bottom:1.25rem}
+  .form-group label{display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#0a66c2;box-shadow:0 0 0 2px rgba(10,102,194,.1)}
+  .form-group textarea{min-height:90px;resize:vertical}
+  .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.3rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0a66c2}
+  .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700;font-size:.9rem}
+  .btn-save:hover{background:#0958a8}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .section-sep{border:0;border-top:1px solid #f1f5f9;margin:1.5rem 0}
+  .section-label{font-size:.75rem;font-weight:700;color:#0a66c2;text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem}
+</style>
+
+<div class="adm-header">
+  <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Condition{% endif %}</h1>
+  <a href="/health/admin/conditions/">← Back to Conditions</a>
+</div>
+
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+
+      <div class="section-label">Basic Info</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" name="name" value="{{ obj.name|default:'' }}" required placeholder="e.g. Diabetes">
+        </div>
+        <div class="form-group">
+          <label>Slug *</label>
+          <input type="text" name="slug" value="{{ obj.slug|default:'' }}" required placeholder="e.g. diabetes">
+          <p class="hint">URL-friendly, lowercase, hyphens only</p>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Icon (Emoji)</label>
+          <input type="text" name="icon" value="{{ obj.icon|default:'' }}" placeholder="e.g. 🩺">
+        </div>
+        <div class="form-group">
+          <label>Image</label>
+          <input type="file" name="image" accept="image/*">
+          {% if obj.image %}<p class="hint">Current: {{ obj.image.name }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Order</label>
+          <input type="number" name="order" value="{{ obj.order|default:'0' }}" min="0">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:.2rem">
+          <div class="check-row">
+            <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
+            <label for="is_featured">Featured on homepage</label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-sep">
+      <div class="section-label">Content</div>
+
+      <div class="form-group">
+        <label>Overview</label>
+        <textarea name="overview">{{ obj.overview|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Foods to Eat</label>
+        <textarea name="foods_to_eat">{{ obj.foods_to_eat|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Foods to Limit</label>
+        <textarea name="foods_to_limit">{{ obj.foods_to_limit|default:'' }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fruits Info</label>
+          <textarea name="fruits_info">{{ obj.fruits_info|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Vegetables Info</label>
+          <textarea name="vegetables_info">{{ obj.vegetables_info|default:'' }}</textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Herbs Info</label>
+          <textarea name="herbs_info">{{ obj.herbs_info|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Spices Info</label>
+          <textarea name="spices_info">{{ obj.spices_info|default:'' }}</textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cooking Methods</label>
+        <textarea name="cooking_methods">{{ obj.cooking_methods|default:'' }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Meal Timing</label>
+          <textarea name="meal_timing" style="min-height:70px">{{ obj.meal_timing|default:'' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Portion Guidance</label>
+          <textarea name="portion_guidance" style="min-height:70px">{{ obj.portion_guidance|default:'' }}</textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>FAQ (JSON format)</label>
+        <textarea name="faq" style="min-height:120px;font-family:monospace;font-size:.82rem">{{ obj.faq|default:'[{"q": "Question?", "a": "Answer."}]' }}</textarea>
+        <p class="hint">Format: [{"q": "Question?", "a": "Answer."}, ...]</p>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn-cancel" href="/health/admin/conditions/">Cancel</a>
+        <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Create Condition{% endif %}</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Shopping List – Health Guide{% endblock %}
+{% block content %}
+<style>
+  .sl-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:1.75rem 1rem;text-align:center}
+  .sl-header h1{margin:0;font-size:1.6rem}
+  .sl-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
+  .plan-select-form{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin-bottom:1.75rem;display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+  .plan-select-form label{font-weight:600;color:#374151;white-space:nowrap}
+  .plan-select-form select{flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem;font-size:.9rem;outline:none;min-width:200px}
+  .plan-select-form select:focus{border-color:#16a34a}
+  .plan-select-form button{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:.5rem 1.2rem;cursor:pointer;font-weight:600}
+  .sl-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+  .sl-actions h2{margin:0;font-size:1rem;color:#16a34a}
+  .print-btn{background:#fff;border:2px solid #16a34a;color:#16a34a;border-radius:8px;padding:.4rem .9rem;cursor:pointer;font-weight:600;font-size:.85rem}
+  .print-btn:hover{background:#16a34a;color:#fff}
+  .check-all-btn{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:8px;padding:.4rem .8rem;cursor:pointer;font-size:.82rem}
+  .shop-list{list-style:none;padding:0;margin:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden}
+  .shop-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:.15s}
+  .shop-item:last-child{border:0}
+  .shop-item:hover{background:#f8fafc}
+  .shop-item input[type=checkbox]{width:18px;height:18px;accent-color:#16a34a;flex-shrink:0;cursor:pointer}
+  .shop-item label{flex:1;cursor:pointer;font-size:.92rem;color:#1e293b}
+  .shop-item.checked label{text-decoration:line-through;color:#94a3b8}
+  .empty-state{text-align:center;padding:3rem;color:#64748b}
+  @media print{
+    .sl-header,.plan-select-form,.sl-actions,.print-btn,.check-all-btn,.navbar{display:none!important}
+    .shop-list{border:none}
+    .shop-item{padding:.4rem 0;border-bottom:1px solid #ddd}
+    input[type=checkbox]{display:none}
+    label::before{content:'☐  '}
+    .shop-item.checked label::before{content:'☑  '}
+  }
+</style>
+
+<div class="sl-header">
+  <h1>🛒 Shopping List</h1>
+  <p style="opacity:.85;margin:.25rem 0 0">Generate your grocery list from a meal plan</p>
+</div>
+
+<div class="sl-wrap">
+  <form method="get" action="/health/shopping-list/" class="plan-select-form">
+    <label>Select Plan:</label>
+    <select name="plan">
+      <option value="">— Choose a plan —</option>
+      {% for p in plans %}
+      <option value="{{ p.pk }}" {% if plan and plan.pk == p.pk %}selected{% endif %}>{{ p.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Generate</button>
+  </form>
+
+  {% if plan %}
+  <div class="sl-actions">
+    <h2>🛒 {{ plan.name }} – Ingredients</h2>
+    <div style="display:flex;gap:.5rem">
+      <button class="check-all-btn" onclick="checkAll()">Check All</button>
+      <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+    </div>
+  </div>
+
+  {% if items %}
+  <ul class="shop-list" id="shopList">
+    {% for item in items %}
+    <li class="shop-item" id="si{{ forloop.counter }}" onclick="toggleItem({{ forloop.counter }})">
+      <input type="checkbox" id="cb{{ forloop.counter }}" onchange="toggleItem({{ forloop.counter }},true)">
+      <label for="cb{{ forloop.counter }}">{{ item }}</label>
+    </li>
+    {% endfor %}
+  </ul>
+  <p style="color:#64748b;font-size:.82rem;margin-top:1rem;text-align:center">{{ items|length }} ingredient{{ items|length|pluralize }}</p>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:3rem">🛒</div>
+    <p>No ingredients found for this plan. Add recipes to your plan first.</p>
+  </div>
+  {% endif %}
+
+  {% elif plans %}
+  <div class="empty-state">
+    <div style="font-size:3rem">📋</div>
+    <p>Select a meal plan above to generate your shopping list.</p>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div style="font-size:3rem">📅</div>
+    <p>No meal plans yet. <a href="/health/planner/" style="color:#16a34a">Create a plan</a> first.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function toggleItem(n,fromCb){
+  const li=document.getElementById('si'+n);
+  const cb=document.getElementById('cb'+n);
+  if(!fromCb)cb.checked=!cb.checked;
+  li.classList.toggle('checked',cb.checked);
+}
+function checkAll(){
+  document.querySelectorAll('.shop-item').forEach((li,i)=>{
+    const cb=li.querySelector('input');
+    cb.checked=true;li.classList.add('checked');
+  });
+}
+</script>
+{% endblock %}

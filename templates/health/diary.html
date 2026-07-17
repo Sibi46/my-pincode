@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Food Diary – {{ diary_date }} – Health Guide{% endblock %}
+{% block content %}
+<style>
+  .diary-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:1.5rem 1rem;text-align:center}
+  .diary-header h1{margin:0 0 .5rem;font-size:1.6rem}
+  .date-nav{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:.75rem}
+  .date-nav a{color:#fff;opacity:.85;text-decoration:none;font-size:1.4rem;padding:.2rem .5rem}
+  .date-nav a:hover{opacity:1}
+  .date-picker{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:.4rem .75rem;color:#fff;font-size:.95rem;cursor:pointer;outline:none}
+  .date-picker::-webkit-calendar-picker-indicator{filter:invert(1)}
+  .diary-wrap{max-width:860px;margin:0 auto;padding:1.5rem 1rem;display:grid;gap:1.5rem}
+  .meal-section{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden}
+  .meal-header{background:#f0fdf4;border-bottom:1px solid #bbf7d0;padding:.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between}
+  .meal-header .meal-title{font-weight:700;color:#15803d;font-size:1rem}
+  .meal-header .meal-cal{font-size:.82rem;color:#64748b}
+  .meal-entries{padding:.75rem 1.1rem}
+  .entry-row{display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid #f1f5f9;font-size:.9rem}
+  .entry-row:last-child{border:0}
+  .entry-name{color:#1e293b;font-weight:500}
+  .entry-meta{color:#64748b;font-size:.8rem}
+  .add-entry-form{padding:.75rem 1.1rem;background:#fafafa;border-top:1px solid #f1f5f9}
+  .add-entry-form .form-row{display:flex;gap:.5rem;flex-wrap:wrap}
+  .add-entry-form input[type=text],.add-entry-form input[type=number]{border:1px solid #e2e8f0;border-radius:8px;padding:.45rem .7rem;font-size:.85rem;outline:none}
+  .add-entry-form input:focus{border-color:#16a34a}
+  .add-entry-form .food-name{flex:2;min-width:120px}
+  .add-entry-form .qty{flex:1;min-width:70px}
+  .add-entry-form .cal{flex:1;min-width:70px}
+  .add-entry-form button{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:.45rem .9rem;cursor:pointer;font-size:.85rem;font-weight:600}
+  .water-section{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.25rem}
+  .water-section h3{color:#0369a1;margin:0 0 .75rem;font-size:1rem}
+  .water-glasses{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.75rem}
+  .glass{font-size:1.6rem;cursor:pointer;opacity:.25;transition:.15s;border:0;background:none;padding:0}
+  .glass.filled{opacity:1}
+  .water-count{font-size:1rem;font-weight:700;color:#0369a1}
+  .notes-section{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.25rem}
+  .notes-section h3{color:#16a34a;margin:0 0 .75rem;font-size:1rem}
+  .notes-section textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.65rem;font-size:.9rem;resize:vertical;outline:none;box-sizing:border-box}
+  .notes-section textarea:focus{border-color:#16a34a}
+  .notes-section button{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:.45rem 1rem;cursor:pointer;font-size:.85rem;margin-top:.5rem}
+  .recent-dates{background:#f8fafc;border-top:1px solid #e2e8f0;padding:1rem}
+  .recent-dates h4{color:#16a34a;margin:0 0 .75rem;font-size:.9rem}
+  .recent-list{display:flex;flex-wrap:wrap;gap:.5rem}
+  .recent-list a{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:.35rem .75rem;font-size:.82rem;text-decoration:none;color:#475569}
+  .recent-list a:hover,.recent-list a.today{border-color:#16a34a;color:#16a34a}
+</style>
+
+<div class="diary-header">
+  <h1>📔 Food Diary</h1>
+  <div class="date-nav">
+    <a href="/health/diary/?date={{ diary_date|date:'Y-m-d'|add:'-1' }}" title="Previous day">‹</a>
+    <form method="get" action="/health/diary/" style="display:inline">
+      <input class="date-picker" type="date" name="date" value="{{ diary_date|date:'Y-m-d' }}" onchange="this.form.submit()">
+    </form>
+    {% if diary_date != today %}
+    <a href="/health/diary/?date={{ today|date:'Y-m-d' }}" title="Next day">›</a>
+    {% else %}
+    <span style="opacity:.3;font-size:1.4rem;padding:.2rem .5rem">›</span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="diary-wrap">
+  {% for meal_type in meal_types %}
+  {% with meal_key=meal_type.0 meal_label=meal_type.1 %}
+  <div class="meal-section">
+    <div class="meal-header">
+      <div class="meal-title">
+        {% if meal_key == 'breakfast' %}🌅{% elif meal_key == 'lunch' %}☀️{% elif meal_key == 'dinner' %}🌙{% else %}🍪{% endif %}
+        {{ meal_label }}
+      </div>
+      <div class="meal-cal">
+        {% for entry in entries %}{% if entry.meal_type == meal_key %}{{ entry.calories|default:0 }} kcal{% endif %}{% endfor %}
+      </div>
+    </div>
+    <div class="meal-entries">
+      {% for entry in entries %}
+      {% if entry.meal_type == meal_key %}
+      <div class="entry-row">
+        <span class="entry-name">{{ entry.food_name }}</span>
+        <span class="entry-meta">{{ entry.quantity }} &nbsp;|&nbsp; {{ entry.calories|default:'—' }} kcal</span>
+      </div>
+      {% endif %}
+      {% empty %}
+      <p style="color:#94a3b8;font-size:.85rem;margin:.25rem 0">No entries yet</p>
+      {% endfor %}
+    </div>
+    <div class="add-entry-form">
+      <form method="post" action="/health/diary/save/">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_entry">
+        <input type="hidden" name="date" value="{{ diary_date|date:'Y-m-d' }}">
+        <input type="hidden" name="meal_type" value="{{ meal_key }}">
+        <div class="form-row">
+          <input type="text" name="food_name" placeholder="Food name" class="food-name" required>
+          <input type="text" name="quantity" placeholder="Qty (e.g. 1 cup)" class="qty">
+          <input type="number" name="calories" placeholder="Calories" class="cal" min="0">
+          <button type="submit">+ Add</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endwith %}
+  {% endfor %}
+
+  <div class="water-section">
+    <h3>💧 Water Intake</h3>
+    <div class="water-glasses" id="glassRow">
+      {% for i in "123456789012" %}
+      <button class="glass {% if diary.water_glasses >= forloop.counter %}filled{% endif %}"
+              id="glass{{ forloop.counter }}"
+              onclick="setWater({{ forloop.counter }})">💧</button>
+      {% endfor %}
+    </div>
+    <div>
+      <span class="water-count" id="waterCount">{{ diary.water_glasses|default:0 }}</span>
+      <span style="color:#64748b;font-size:.85rem"> / 12 glasses</span>
+    </div>
+    <form method="post" action="/health/diary/save/" id="waterForm">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="update_water">
+      <input type="hidden" name="date" value="{{ diary_date|date:'Y-m-d' }}">
+      <input type="hidden" name="water_glasses" id="waterInput" value="{{ diary.water_glasses|default:0 }}">
+    </form>
+  </div>
+
+  <div class="notes-section">
+    <h3>📝 Notes</h3>
+    <form method="post" action="/health/diary/save/">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="update_notes">
+      <input type="hidden" name="date" value="{{ diary_date|date:'Y-m-d' }}">
+      <textarea name="notes" rows="3" placeholder="How did you feel today? Any observations...">{{ diary.notes|default:'' }}</textarea>
+      <button type="submit">Save Notes</button>
+    </form>
+  </div>
+</div>
+
+{% if recent %}
+<div class="recent-dates">
+  <div style="max-width:860px;margin:0 auto">
+    <h4>Recent Diary Dates</h4>
+    <div class="recent-list">
+      {% for d in recent %}
+      <a href="/health/diary/?date={{ d|date:'Y-m-d' }}" {% if d == today %}class="today"{% endif %}>{{ d|date:'M j' }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<script>
+function setWater(n){
+  document.getElementById('waterInput').value=n;
+  document.getElementById('waterCount').textContent=n;
+  for(let i=1;i<=12;i++){
+    document.getElementById('glass'+i).classList.toggle('filled',i<=n);
+  }
+  document.getElementById('waterForm').submit();
+}
+</script>
+{% endblock %}

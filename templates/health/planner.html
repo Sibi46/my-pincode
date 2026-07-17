@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Meal Planner – Health Guide{% endblock %}
+{% block content %}
+<style>
+  .planner-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:1.75rem 1rem;text-align:center}
+  .planner-header h1{margin:0;font-size:1.6rem}
+  .planner-wrap{max-width:1060px;margin:0 auto;padding:1.5rem 1rem}
+  .section-title{font-size:1rem;font-weight:700;color:#16a34a;margin-bottom:1rem;border-left:4px solid #16a34a;padding-left:.6rem}
+  .plan-cards{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:2rem}
+  .plan-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:.85rem 1.1rem;cursor:pointer;text-decoration:none;color:#1e293b;transition:.15s;min-width:150px}
+  .plan-card:hover{border-color:#16a34a}
+  .plan-card.active{border-color:#16a34a;background:#f0fdf4}
+  .plan-card .plan-name{font-weight:700;font-size:.95rem}
+  .plan-card .plan-meta{font-size:.78rem;color:#64748b;margin-top:.2rem}
+  .create-form{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin-bottom:2rem}
+  .create-form h3{margin:0 0 1rem;color:#16a34a;font-size:.95rem}
+  .create-form .form-row{display:flex;gap:.5rem;flex-wrap:wrap}
+  .create-form input{border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .8rem;font-size:.9rem;outline:none;flex:1;min-width:160px}
+  .create-form input:focus{border-color:#16a34a}
+  .create-form button{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:.5rem 1.1rem;cursor:pointer;font-weight:600}
+  .weekly-grid{overflow-x:auto;margin-bottom:2rem}
+  .weekly-table{width:100%;border-collapse:collapse;min-width:600px;font-size:.85rem}
+  .weekly-table th{background:#16a34a;color:#fff;padding:.6rem .75rem;text-align:center;font-weight:600}
+  .weekly-table th.day-col{background:#15803d}
+  .weekly-table td{border:1px solid #e2e8f0;padding:.6rem .75rem;vertical-align:top;min-width:120px}
+  .weekly-table tr:hover td{background:#f0fdf4}
+  .cell-content{font-size:.82rem;color:#374151;line-height:1.4;margin-bottom:.3rem}
+  .edit-cell-btn{font-size:.72rem;color:#16a34a;background:none;border:1px solid #bbf7d0;border-radius:4px;padding:.15rem .4rem;cursor:pointer}
+  .edit-cell-btn:hover{background:#16a34a;color:#fff}
+  .day-label{font-weight:700;color:#15803d;white-space:nowrap}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:#fff;border-radius:14px;padding:1.5rem;max-width:420px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+  .modal h3{margin:0 0 1rem;color:#16a34a}
+  .modal select,.modal input{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .75rem;font-size:.9rem;margin-bottom:.75rem;outline:none;box-sizing:border-box}
+  .modal select:focus,.modal input:focus{border-color:#16a34a}
+  .modal-btns{display:flex;gap:.5rem;justify-content:flex-end}
+  .modal-btns button{border:0;border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-weight:600}
+  .btn-cancel{background:#e2e8f0;color:#475569}
+  .btn-save{background:#16a34a;color:#fff}
+</style>
+
+<div class="planner-header">
+  <h1>📅 Meal Planner</h1>
+  <p style="opacity:.85;margin:.25rem 0 0">Plan your weekly healthy meals</p>
+</div>
+
+<div class="planner-wrap">
+
+  {% if plans %}
+  <div>
+    <div class="section-title">Your Plans</div>
+    <div class="plan-cards">
+      {% for plan in plans %}
+      <a class="plan-card {% if active and active.pk == plan.pk %}active{% endif %}"
+         href="/health/planner/?plan={{ plan.pk }}">
+        <div class="plan-name">{{ plan.name }}</div>
+        <div class="plan-meta">{{ plan.start_date|date:'M j' }} – {{ plan.end_date|date:'M j, Y' }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="create-form">
+    <h3>+ Create New Plan</h3>
+    <form method="post" action="/health/planner/create/">
+      {% csrf_token %}
+      <div class="form-row">
+        <input type="text" name="name" placeholder="Plan name (e.g. July Week 1)" required>
+        <input type="date" name="start_date" required>
+        <button type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+
+  {% if active %}
+  <div class="section-title">{{ active.name }} – Weekly View</div>
+  <div class="weekly-grid">
+    <table class="weekly-table">
+      <thead>
+        <tr>
+          <th class="day-col">Day</th>
+          {% for mt in meal_types %}
+          <th>{{ mt.1 }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for day_info in active.week_days %}
+        <tr>
+          <td class="day-label">{{ day_info.label }}<br><span style="font-weight:400;font-size:.75rem;color:#64748b">{{ day_info.date|date:'M j' }}</span></td>
+          {% for mt in meal_types %}
+          {% with key=day_info.date|date:'Y-m-d'|add:'_'|add:mt.0 %}
+          <td>
+            {% if items|dict_get:key %}
+            <div class="cell-content">{{ items|dict_get:key }}</div>
+            {% else %}
+            <div class="cell-content" style="color:#94a3b8">—</div>
+            {% endif %}
+            <button class="edit-cell-btn" onclick="openEdit('{{ day_info.date|date:'Y-m-d' }}','{{ mt.0 }}','{{ active.pk }}',this.previousElementSibling.textContent.trim())">✏️ Edit</button>
+          </td>
+          {% endwith %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>Edit Meal</h3>
+    <form method="post" action="/health/planner/update-cell/">
+      {% csrf_token %}
+      <input type="hidden" name="plan_id" id="modalPlanId">
+      <input type="hidden" name="date" id="modalDate">
+      <input type="hidden" name="meal_type" id="modalMealType">
+      <label style="font-size:.85rem;color:#475569;display:block;margin-bottom:.35rem">Choose Recipe</label>
+      <select name="recipe_id" id="modalRecipe">
+        <option value="">— Select a recipe —</option>
+        {% for r in recipes %}
+        <option value="{{ r.pk }}">{{ r.name }}</option>
+        {% endfor %}
+      </select>
+      <label style="font-size:.85rem;color:#475569;display:block;margin-bottom:.35rem">Or enter custom text</label>
+      <input type="text" name="custom_text" id="modalCustom" placeholder="e.g. Dal Rice + Salad">
+      <div class="modal-btns">
+        <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-save">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEdit(date,mealType,planId,current){
+  document.getElementById('modalDate').value=date;
+  document.getElementById('modalMealType').value=mealType;
+  document.getElementById('modalPlanId').value=planId;
+  document.getElementById('modalCustom').value=current==='—'?'':current;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open')}
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal()})
+</script>
+{% endblock %}

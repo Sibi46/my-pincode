@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Video – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem}
+  .form-group{margin-bottom:1.2rem}
+  .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#0a66c2}
+  .form-group textarea{min-height:80px;resize:vertical}
+  .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.25rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0a66c2}
+  .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+</style>
+
+<div class="adm-header">
+  <h1>{% if obj %}Edit Video{% else %}Add New Video{% endif %}</h1>
+  <a href="/health/admin/videos/">← Back to Videos</a>
+</div>
+
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" name="title" value="{{ obj.title|default:'' }}" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>YouTube URL *</label>
+          <input type="url" name="youtube_url" value="{{ obj.youtube_url|default:'' }}" required placeholder="https://youtube.com/watch?v=...">
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select name="category">
+            {% for cat in categories %}
+            <option value="{{ cat.0 }}" {% if obj.category == cat.0 %}selected{% endif %}>{{ cat.1 }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description">{{ obj.description|default:'' }}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Thumbnail Image (optional)</label>
+        <input type="file" name="thumbnail" accept="image/*">
+        {% if obj.thumb_url %}<p class="hint">Current thumbnail: <a href="{{ obj.thumb_url }}" target="_blank" style="color:#0a66c2">View</a></p>{% endif %}
+        <p class="hint">Leave blank to use YouTube auto-thumbnail</p>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
+        <label for="is_featured">Featured</label>
+      </div>
+      <div class="form-actions">
+        <a class="btn-cancel" href="/health/admin/videos/">Cancel</a>
+        <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Video{% endif %}</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

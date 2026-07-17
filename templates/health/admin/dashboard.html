@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Health Guide Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+  .adm-header h1{margin:0;font-size:1.5rem}
+  .adm-wrap{max-width:1060px;margin:0 auto;padding:1.5rem 1rem}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+  .stat-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;text-align:center;transition:.2s}
+  .stat-card a{text-decoration:none;color:inherit;display:block}
+  .stat-card:hover{box-shadow:0 4px 12px rgba(10,102,194,.15);border-color:#0a66c2}
+  .stat-icon{font-size:2rem;margin-bottom:.5rem}
+  .stat-val{font-size:2rem;font-weight:800;color:#0a66c2}
+  .stat-lbl{font-size:.82rem;color:#64748b;margin-top:.2rem;font-weight:600}
+  .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+  .module-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem}
+  .module-card h3{margin:0;font-size:.95rem;color:#0a66c2;display:flex;align-items:center;gap:.5rem}
+  .module-links{display:flex;flex-direction:column;gap:.4rem}
+  .module-links a{font-size:.85rem;color:#475569;text-decoration:none;padding:.35rem .5rem;border-radius:6px;background:#f8fafc}
+  .module-links a:hover{background:#dbeafe;color:#0a66c2}
+  .section-title{font-size:1rem;font-weight:700;color:#0a66c2;margin-bottom:1rem;border-left:4px solid #0a66c2;padding-left:.6rem}
+</style>
+
+<div class="adm-header">
+  <h1>🏥 Health Guide Admin</h1>
+  <a href="/health/" style="color:#fff;opacity:.85;font-size:.9rem">← Back to Health Guide</a>
+</div>
+
+<div class="adm-wrap">
+  <div class="section-title">Overview</div>
+  <div class="stats-grid">
+    <div class="stat-card"><a href="/health/admin/conditions/"><div class="stat-icon">🏥</div><div class="stat-val">{{ cond_count }}</div><div class="stat-lbl">Conditions</div></a></div>
+    <div class="stat-card"><a href="/health/admin/foods/"><div class="stat-icon">🥗</div><div class="stat-val">{{ food_count }}</div><div class="stat-lbl">Foods</div></a></div>
+    <div class="stat-card"><a href="/health/admin/fruits/"><div class="stat-icon">🍎</div><div class="stat-val">{{ fruit_count }}</div><div class="stat-lbl">Fruits</div></a></div>
+    <div class="stat-card"><a href="/health/admin/vegetables/"><div class="stat-icon">🥦</div><div class="stat-val">{{ veg_count }}</div><div class="stat-lbl">Vegetables</div></a></div>
+    <div class="stat-card"><a href="/health/admin/herbs/"><div class="stat-icon">🌿</div><div class="stat-val">{{ herb_count }}</div><div class="stat-lbl">Herbs</div></a></div>
+    <div class="stat-card"><a href="/health/admin/recipes/"><div class="stat-icon">🍽️</div><div class="stat-val">{{ recipe_count }}</div><div class="stat-lbl">Recipes</div></a></div>
+    <div class="stat-card"><a href="/health/admin/videos/"><div class="stat-icon">🎬</div><div class="stat-val">{{ video_count }}</div><div class="stat-lbl">Videos</div></a></div>
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val">{{ user_count }}</div><div class="stat-lbl">Users</div></div>
+  </div>
+
+  <div class="section-title">Manage Modules</div>
+  <div class="module-grid">
+    <div class="module-card">
+      <h3>🏥 Health Conditions</h3>
+      <div class="module-links">
+        <a href="/health/admin/conditions/">View All</a>
+        <a href="/health/admin/conditions/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🥗 Foods</h3>
+      <div class="module-links">
+        <a href="/health/admin/foods/">View All</a>
+        <a href="/health/admin/foods/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🍎 Fruits</h3>
+      <div class="module-links">
+        <a href="/health/admin/fruits/">View All</a>
+        <a href="/health/admin/fruits/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🥦 Vegetables</h3>
+      <div class="module-links">
+        <a href="/health/admin/vegetables/">View All</a>
+        <a href="/health/admin/vegetables/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🌿 Herbs</h3>
+      <div class="module-links">
+        <a href="/health/admin/herbs/">View All</a>
+        <a href="/health/admin/herbs/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🍽️ Recipes</h3>
+      <div class="module-links">
+        <a href="/health/admin/recipes/">View All</a>
+        <a href="/health/admin/recipes/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>🎬 Videos</h3>
+      <div class="module-links">
+        <a href="/health/admin/videos/">View All</a>
+        <a href="/health/admin/videos/add/">Add New</a>
+      </div>
+    </div>
+    <div class="module-card">
+      <h3>⚙️ Settings</h3>
+      <div class="module-links">
+        <a href="/health/admin/settings/">Site Settings</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

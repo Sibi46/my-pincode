@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Health Videos{% endblock %}
+{% block content %}
+<style>
+  .hl-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:2rem 1rem;text-align:center}
+  .hl-header h1{margin:0 0 .5rem;font-size:1.7rem}
+  .cat-tabs{display:flex;flex-wrap:wrap;gap:.5rem;padding:1rem;background:#f0fdf4;border-bottom:1px solid #bbf7d0;justify-content:center}
+  .cat-tab{text-decoration:none;padding:.4rem .9rem;border-radius:999px;font-size:.85rem;background:#e2e8f0;color:#475569}
+  .cat-tab.active,.cat-tab:hover{background:#16a34a;color:#fff}
+  .hl-wrap{max-width:1000px;margin:0 auto;padding:1.5rem 1rem}
+  .vid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+  .vid-card{border-radius:12px;overflow:hidden;background:#1e293b;text-decoration:none;display:block;transition:.2s}
+  .vid-card:hover{box-shadow:0 4px 16px rgba(22,163,74,.3);transform:translateY(-3px)}
+  .vid-thumb{position:relative;width:100%;padding-top:56.25%;background:#0f172a}
+  .vid-thumb img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+  .play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;background:rgba(22,163,74,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+  .vid-info{padding:.75rem;background:#1e293b;color:#fff}
+  .vid-cat{font-size:.7rem;color:#86efac;margin-bottom:.3rem}
+  .vid-title{font-size:.88rem;font-weight:600;line-height:1.4}
+  .hl-empty{text-align:center;padding:3rem;color:#64748b}
+</style>
+
+<div class="hl-header">
+  <h1>🎬 Health Video Guide</h1>
+  <p style="opacity:.85">Watch and learn about healthy eating</p>
+</div>
+
+<div class="cat-tabs">
+  <a class="cat-tab {% if not category %}active{% endif %}" href="/health/videos/">All</a>
+  {% for cat in categories %}
+  <a class="cat-tab {% if category == cat.0 %}active{% endif %}" href="/health/videos/?category={{ cat.0 }}">{{ cat.1 }}</a>
+  {% endfor %}
+</div>
+
+<div class="hl-wrap">
+  {% if videos %}
+  <div class="vid-grid">
+    {% for video in videos %}
+    <a class="vid-card" href="{{ video.youtube_url }}" target="_blank" rel="noopener">
+      <div class="vid-thumb">
+        {% if video.thumb_url %}
+        <img src="{{ video.thumb_url }}" alt="{{ video.title }}">
+        {% else %}
+        <div style="position:absolute;inset:0;background:#0f172a"></div>
+        {% endif %}
+        <div class="play-btn">▶</div>
+      </div>
+      <div class="vid-info">
+        <div class="vid-cat">{{ video.get_category_display }}</div>
+        <div class="vid-title">{{ video.title }}</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="hl-empty">
+    <div style="font-size:3rem">🎬</div>
+    <p>No videos found{% if category %} in this category{% endif %}.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

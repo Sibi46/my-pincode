@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}{{ fruit.name }} – Healthy Fruits Guide{% endblock %}
+{% block content %}
+<style>
+  .fd-wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+  .fd-hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-bottom:2rem}
+  .fd-hero img{width:100%;border-radius:14px;max-height:320px;object-fit:cover}
+  .fd-hero .no-img{width:100%;height:250px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:5rem}
+  .fd-info h1{font-size:1.6rem;margin:0 0 1rem;color:#15803d}
+  .diabetes-badge{display:inline-block;padding:.6rem 1.25rem;border-radius:10px;font-weight:700;font-size:1rem;margin-bottom:1rem}
+  .diabetes-safe{background:#dcfce7;color:#166534;border:2px solid #16a34a}
+  .diabetes-limit{background:#fef3c7;color:#92400e;border:2px solid #f59e0b}
+  .fd-fav{background:none;border:2px solid #e2e8f0;border-radius:999px;padding:.45rem 1rem;cursor:pointer;font-size:.9rem;color:#64748b;display:flex;align-items:center;gap:.4rem;margin-bottom:1rem}
+  .fd-fav.active{border-color:#dc2626;color:#dc2626}
+  .info-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+  .info-badge{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .9rem;font-size:.85rem}
+  .info-badge strong{display:block;color:#16a34a;font-size:.75rem}
+  .fd-section{margin-bottom:1.75rem}
+  .fd-section h3{font-size:1rem;color:#16a34a;font-weight:700;margin-bottom:.75rem}
+  .diabetes-note{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem;color:#78350f;font-size:.9rem;margin-bottom:1.5rem}
+  @media(max-width:600px){.fd-hero{grid-template-columns:1fr}}
+</style>
+
+<div class="fd-wrap">
+  <div class="fd-hero">
+    <div>
+      {% if fruit.image %}<img src="{{ fruit.image.url }}" alt="{{ fruit.name }}">{% else %}<div class="no-img">🍎</div>{% endif %}
+    </div>
+    <div class="fd-info">
+      <h1>{{ fruit.name }}</h1>
+
+      <div class="diabetes-badge {% if fruit.diabetes_safe %}diabetes-safe{% else %}diabetes-limit{% endif %}">
+        {% if fruit.diabetes_safe %}✅ Safe for Diabetes{% else %}⚠️ Limit for Diabetes{% endif %}
+      </div>
+
+      {% if fruit.diabetes_note %}
+      <div class="diabetes-note">{{ fruit.diabetes_note }}</div>
+      {% endif %}
+
+      <button class="fd-fav {% if is_fav %}active{% endif %}" id="favBtn" onclick="toggleFav({{ fruit.pk }},'fruit')">
+        <span id="favIcon">{% if is_fav %}❤️{% else %}🤍{% endif %}</span>
+        <span id="favText">{% if is_fav %}Saved{% else %}Save{% endif %}</span>
+      </button>
+
+      <div class="info-row">
+        {% if fruit.best_time %}<div class="info-badge"><strong>Best Time</strong>{{ fruit.best_time }}</div>{% endif %}
+        {% if fruit.serving_size %}<div class="info-badge"><strong>Serving</strong>{{ fruit.serving_size }}</div>{% endif %}
+      </div>
+
+      {% if fruit.description %}
+      <p style="color:#475569;line-height:1.6;font-size:.93rem">{{ fruit.description }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if fruit.nutrition %}
+  <div class="fd-section">
+    <h3>📊 Nutrition Facts</h3>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem">
+      {{ fruit.nutrition|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if fruit.benefits %}
+  <div class="fd-section">
+    <h3>✅ Health Benefits</h3>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem;color:#166534">
+      {{ fruit.benefits|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function getCookie(name){const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');return v?v[2]:null}
+function toggleFav(id,type){
+  const btn=document.getElementById('favBtn');
+  const icon=document.getElementById('favIcon');
+  const txt=document.getElementById('favText');
+  fetch('/health/favorites/toggle/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({type,id})})
+  .then(r=>r.json()).then(d=>{
+    if(d.status==='added'){btn.classList.add('active');icon.textContent='❤️';txt.textContent='Saved'}
+    else{btn.classList.remove('active');icon.textContent='🤍';txt.textContent='Save'}
+  })
+}
+</script>
+{% endblock %}

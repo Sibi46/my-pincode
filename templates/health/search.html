@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Search: {{ q }} – Health Guide{% endblock %}
+{% block content %}
+<style>
+  .search-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:2rem 1rem;text-align:center}
+  .search-header h1{margin:0 0 .75rem;font-size:1.6rem}
+  .search-bar{display:flex;max-width:560px;margin:0 auto;background:#fff;border-radius:999px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .search-bar input{flex:1;border:0;padding:.75rem 1.1rem;font-size:.95rem;outline:none;color:#1e293b}
+  .search-bar button{background:#16a34a;color:#fff;border:0;padding:.75rem 1.4rem;cursor:pointer;font-size:1rem}
+  .search-wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+  .result-section{margin-bottom:2.5rem}
+  .result-section h2{font-size:1rem;font-weight:700;color:#16a34a;border-left:4px solid #16a34a;padding-left:.65rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .result-section h2 .count{background:#16a34a;color:#fff;font-size:.7rem;padding:.15rem .45rem;border-radius:999px}
+  .result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem}
+  .result-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:#1e293b;transition:.2s}
+  .result-card:hover{border-color:#16a34a;box-shadow:0 2px 10px rgba(22,163,74,.15)}
+  .result-card img{width:100%;height:100px;object-fit:cover}
+  .result-card .no-img{height:100px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:2rem}
+  .result-card .card-body{padding:.6rem .75rem}
+  .result-card .card-name{font-weight:600;font-size:.88rem}
+  .result-card .card-type{font-size:.72rem;color:#64748b;margin-top:.15rem}
+  .no-results{text-align:center;padding:4rem 1rem;color:#64748b}
+  .total-line{color:#475569;font-size:.9rem;margin-bottom:1.5rem}
+</style>
+
+<div class="search-header">
+  <h1>🔍 Search Results</h1>
+  <form method="get" action="/health/search/">
+    <div class="search-bar">
+      <input type="text" name="q" value="{{ q|default:'' }}" placeholder="Search health guide...">
+      <button type="submit">🔍</button>
+    </div>
+  </form>
+</div>
+
+<div class="search-wrap">
+  {% if q %}
+  {% with total=results.conditions|length|add:results.foods|length|add:results.fruits|length|add:results.vegetables|length|add:results.herbs|length|add:results.recipes|length %}
+  <p class="total-line">Found <strong>{{ total }}</strong> result{{ total|pluralize }} for <strong>"{{ q }}"</strong></p>
+  {% endwith %}
+
+  {% if results.conditions %}
+  <div class="result-section">
+    <h2>🏥 Health Conditions <span class="count">{{ results.conditions|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.conditions %}
+      <a class="result-card" href="/health/conditions/{{ item.slug }}/">
+        <div class="no-img">{{ item.icon }}</div>
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">Condition</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results.foods %}
+  <div class="result-section">
+    <h2>🥗 Foods <span class="count">{{ results.foods|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.foods %}
+      <a class="result-card" href="/health/foods/{{ item.slug }}/">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🥗</div>{% endif %}
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">Food</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results.fruits %}
+  <div class="result-section">
+    <h2>🍎 Fruits <span class="count">{{ results.fruits|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.fruits %}
+      <a class="result-card" href="/health/fruits/{{ item.slug }}/">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🍎</div>{% endif %}
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">Fruit</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results.vegetables %}
+  <div class="result-section">
+    <h2>🥦 Vegetables <span class="count">{{ results.vegetables|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.vegetables %}
+      <a class="result-card" href="/health/vegetables/{{ item.slug }}/">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🥦</div>{% endif %}
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">Vegetable</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results.herbs %}
+  <div class="result-section">
+    <h2>🌿 Herbs <span class="count">{{ results.herbs|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.herbs %}
+      <a class="result-card" href="/health/herbs/{{ item.slug }}/">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🌿</div>{% endif %}
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">Herb</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if results.recipes %}
+  <div class="result-section">
+    <h2>🍽️ Recipes <span class="count">{{ results.recipes|length }}</span></h2>
+    <div class="result-grid">
+      {% for item in results.recipes %}
+      <a class="result-card" href="/health/recipes/{{ item.slug }}/">
+        {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div class="no-img">🍽️</div>{% endif %}
+        <div class="card-body"><div class="card-name">{{ item.name }}</div><div class="card-type">{{ item.get_category_display }}</div></div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not results.conditions and not results.foods and not results.fruits and not results.vegetables and not results.herbs and not results.recipes %}
+  <div class="no-results">
+    <div style="font-size:3rem">🔍</div>
+    <p>No results found for <strong>"{{ q }}"</strong></p>
+    <p style="font-size:.85rem">Try searching with different keywords</p>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="no-results">
+    <div style="font-size:3rem">🔍</div>
+    <p>Enter a search term to find foods, fruits, herbs, and recipes.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

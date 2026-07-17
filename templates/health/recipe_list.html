@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Healthy Recipes{% endblock %}
+{% block content %}
+<style>
+  .hl-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:2rem 1rem;text-align:center}
+  .hl-header h1{margin:0 0 .5rem;font-size:1.7rem}
+  .hl-search{display:flex;max-width:500px;margin:1rem auto 0;background:#fff;border-radius:999px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .hl-search input{flex:1;border:0;padding:.7rem 1rem;font-size:.95rem;outline:none}
+  .hl-search button{background:#16a34a;color:#fff;border:0;padding:.7rem 1.2rem;cursor:pointer}
+  .cat-tabs{display:flex;flex-wrap:wrap;gap:.5rem;padding:1rem;background:#f0fdf4;border-bottom:1px solid #bbf7d0;justify-content:center}
+  .cat-tab{text-decoration:none;padding:.4rem .9rem;border-radius:999px;font-size:.85rem;background:#e2e8f0;color:#475569;border:2px solid transparent}
+  .cat-tab.active,.cat-tab:hover{background:#16a34a;color:#fff;border-color:#16a34a}
+  .hl-wrap{max-width:1000px;margin:0 auto;padding:1.5rem 1rem}
+  .hl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1rem}
+  .recipe-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;text-decoration:none;color:#1e293b;transition:.2s}
+  .recipe-card:hover{box-shadow:0 4px 16px rgba(22,163,74,.25);transform:translateY(-3px)}
+  .recipe-card img{width:100%;height:150px;object-fit:cover}
+  .recipe-card .no-img{height:150px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:3rem}
+  .recipe-card .rc-body{padding:.9rem}
+  .rc-badge{font-size:.7rem;background:#16a34a;color:#fff;padding:.2rem .5rem;border-radius:999px;display:inline-block;margin-bottom:.4rem}
+  .rc-name{font-weight:700;font-size:.95rem;margin-bottom:.5rem}
+  .rc-meta{display:flex;gap:.75rem;font-size:.78rem;color:#64748b;flex-wrap:wrap}
+  .hl-empty{text-align:center;padding:3rem;color:#64748b}
+</style>
+
+<div class="hl-header">
+  <h1>🍽️ Healthy Recipes</h1>
+  <p style="opacity:.85">Nutritious meals for every occasion</p>
+  <form method="get" action="">
+    <div class="hl-search">
+      <input type="text" name="q" placeholder="Search recipes..." value="{{ q|default:'' }}">
+      <input type="hidden" name="category" value="{{ category|default:'' }}">
+      <button type="submit">🔍</button>
+    </div>
+  </form>
+</div>
+
+<div class="cat-tabs">
+  <a class="cat-tab {% if not category %}active{% endif %}" href="/health/recipes/">All</a>
+  {% for cat in categories %}
+  <a class="cat-tab {% if category == cat.0 %}active{% endif %}" href="/health/recipes/?category={{ cat.0 }}{% if q %}&q={{ q }}{% endif %}">{{ cat.1 }}</a>
+  {% endfor %}
+</div>
+
+<div class="hl-wrap">
+  {% if recipes %}
+  <div class="hl-grid">
+    {% for recipe in recipes %}
+    <a class="recipe-card" href="/health/recipes/{{ recipe.slug }}/">
+      {% if recipe.image %}<img src="{{ recipe.image.url }}" alt="{{ recipe.name }}">{% else %}<div class="no-img">🍽️</div>{% endif %}
+      <div class="rc-body">
+        <span class="rc-badge">{{ recipe.get_category_display }}</span>
+        <div class="rc-name">{{ recipe.name }}</div>
+        <div class="rc-meta">
+          <span>⏱ {{ recipe.prep_time|default:'?' }}+{{ recipe.cook_time|default:'?' }}m</span>
+          <span>🔥 {{ recipe.calories|default:'?' }} kcal</span>
+          <span>⚡ {{ recipe.difficulty|default:'Easy' }}</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="hl-empty">
+    <div style="font-size:3rem">🍽️</div>
+    <p>No recipes found{% if q %} for "{{ q }}"{% endif %}.</p>
+    {% if q or category %}<a href="/health/recipes/" style="color:#16a34a">Clear filters</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
