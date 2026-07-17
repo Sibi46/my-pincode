@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}{{ journal.title }} — Health Journal{% endblock %}
+{% block content %}
+<style>
+.jd-wrap{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+.jd-back{display:inline-flex;align-items:center;gap:6px;color:#666;font-size:13px;text-decoration:none;margin-bottom:20px}
+.jd-back:hover{color:#16a34a}
+.jd-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;margin-bottom:12px}
+.jd-title{font-size:26px;font-weight:900;color:#111;line-height:1.3;margin:0 0 12px}
+.jd-meta{font-size:13px;color:#888;margin-bottom:20px}
+.jd-img{width:100%;border-radius:14px;object-fit:cover;max-height:360px;margin-bottom:24px}
+.jd-content{font-size:15px;line-height:1.8;color:#333}
+.jd-content p{margin:0 0 16px}
+.jd-video{margin:28px 0;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#000}
+.jd-video iframe{width:100%;height:100%;border:none}
+.jd-related{margin-top:40px;padding-top:28px;border-top:1.5px solid #f1f3f5}
+.jd-related h3{font-size:16px;font-weight:800;color:#333;margin:0 0 16px}
+.jd-rel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.jd-rel-card{background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:10px;padding:14px;text-decoration:none;color:#333;display:block}
+.jd-rel-card:hover{border-color:#16a34a;background:#f0fdf4}
+.jd-rel-card strong{display:block;font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.4}
+.jd-rel-card span{font-size:11px;color:#888}
+@media(max-width:540px){.jd-rel-grid{grid-template-columns:1fr}.jd-title{font-size:20px}}
+</style>
+
+<div class="jd-wrap">
+  <a href="/health/journal/" class="jd-back"><i class="fas fa-arrow-left"></i> Health Journal</a>
+
+  <span class="jd-badge">{{ journal.get_category_display }}</span>
+  <h1 class="jd-title">{{ journal.title }}</h1>
+  <div class="jd-meta">
+    <i class="fas fa-calendar-alt"></i> {{ journal.published_at|date:"d F Y"|default:"" }}
+  </div>
+
+  {% if journal.image %}
+    <img src="{{ journal.image.url }}" alt="{{ journal.title }}" class="jd-img">
+  {% endif %}
+
+  <div class="jd-content">
+    {% for para in journal.content.splitlines %}
+      {% if para.strip %}
+        <p>{{ para }}</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if journal.embed_url %}
+    <div class="jd-video">
+      <iframe src="{{ journal.embed_url }}" allowfullscreen loading="lazy"></iframe>
+    </div>
+  {% endif %}
+
+  {% if related %}
+    <div class="jd-related">
+      <h3>Related Articles</h3>
+      <div class="jd-rel-grid">
+        {% for r in related %}
+          <a href="/health/journal/{{ r.slug }}/" class="jd-rel-card">
+            <strong>{{ r.title }}</strong>
+            <span>{{ r.get_category_display }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

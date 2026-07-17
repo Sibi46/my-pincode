@@ -90,6 +90,9 @@ class Fruit(models.Model):
     best_time         = models.CharField(max_length=150, blank=True)
     diabetes_safe     = models.BooleanField(default=True)
     diabetes_note     = models.CharField(max_length=300, blank=True)
+    condition_advice  = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":true,"note":"..."},...}')
+    natural_treatment = models.TextField(blank=True)
+    video_url         = models.URLField(blank=True, help_text='YouTube URL')
     is_featured       = models.BooleanField(default=False)
     conditions        = models.ManyToManyField(HealthCondition, blank=True, related_name='fruits')
     created_at        = models.DateTimeField(auto_now_add=True)
@@ -102,18 +105,21 @@ class Fruit(models.Model):
 
 
 class Vegetable(models.Model):
-    name            = models.CharField(max_length=100)
-    slug            = models.SlugField(unique=True)
-    image           = models.ImageField(upload_to='health/vegetables/', blank=True, null=True)
-    description     = models.TextField(blank=True)
-    nutrition       = models.TextField(blank=True)
-    benefits        = models.TextField(blank=True)
-    cooking_methods = models.TextField(blank=True)
-    best_time       = models.CharField(max_length=150, blank=True)
-    serving_size    = models.CharField(max_length=150, blank=True)
-    is_featured     = models.BooleanField(default=False)
-    conditions      = models.ManyToManyField(HealthCondition, blank=True, related_name='vegetables')
-    created_at      = models.DateTimeField(auto_now_add=True)
+    name              = models.CharField(max_length=100)
+    slug              = models.SlugField(unique=True)
+    image             = models.ImageField(upload_to='health/vegetables/', blank=True, null=True)
+    description       = models.TextField(blank=True)
+    nutrition         = models.TextField(blank=True)
+    benefits          = models.TextField(blank=True)
+    cooking_methods   = models.TextField(blank=True)
+    best_time         = models.CharField(max_length=150, blank=True)
+    serving_size      = models.CharField(max_length=150, blank=True)
+    condition_advice  = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":true,"note":"..."},...}')
+    natural_treatment = models.TextField(blank=True)
+    video_url         = models.URLField(blank=True, help_text='YouTube URL')
+    is_featured       = models.BooleanField(default=False)
+    conditions        = models.ManyToManyField(HealthCondition, blank=True, related_name='vegetables')
+    created_at        = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['name']
@@ -123,18 +129,21 @@ class Vegetable(models.Model):
 
 
 class Herb(models.Model):
-    name               = models.CharField(max_length=100)
-    slug               = models.SlugField(unique=True)
-    image              = models.ImageField(upload_to='health/herbs/', blank=True, null=True)
-    description        = models.TextField(blank=True)
-    traditional_uses   = models.TextField(blank=True)
+    name                = models.CharField(max_length=100)
+    slug                = models.SlugField(unique=True)
+    image               = models.ImageField(upload_to='health/herbs/', blank=True, null=True)
+    description         = models.TextField(blank=True)
+    traditional_uses    = models.TextField(blank=True)
     scientific_evidence = models.TextField(blank=True)
-    preparation        = models.TextField(blank=True)
-    benefits           = models.TextField(blank=True)
-    precautions        = models.TextField(blank=True)
-    is_featured        = models.BooleanField(default=False)
-    conditions         = models.ManyToManyField(HealthCondition, blank=True, related_name='herbs')
-    created_at         = models.DateTimeField(auto_now_add=True)
+    preparation         = models.TextField(blank=True)
+    benefits            = models.TextField(blank=True)
+    precautions         = models.TextField(blank=True)
+    condition_advice    = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":true,"note":"..."},...}')
+    natural_treatment   = models.TextField(blank=True)
+    video_url           = models.URLField(blank=True, help_text='YouTube URL')
+    is_featured         = models.BooleanField(default=False)
+    conditions          = models.ManyToManyField(HealthCondition, blank=True, related_name='herbs')
+    created_at          = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['name']
@@ -166,6 +175,7 @@ class Recipe(models.Model):
     cook_time    = models.PositiveIntegerField(null=True, blank=True, help_text='Minutes')
     servings     = models.PositiveIntegerField(default=2)
     difficulty   = models.CharField(max_length=10, choices=DIFFICULTY, default='easy')
+    video_url    = models.URLField(blank=True, help_text='YouTube cooking video URL')
     is_featured  = models.BooleanField(default=False)
     conditions   = models.ManyToManyField(HealthCondition, blank=True, related_name='recipes')
     created_at   = models.DateTimeField(auto_now_add=True)
@@ -310,3 +320,41 @@ class MealPlanItem(models.Model):
 
     def __str__(self):
         return f"{self.date} {self.meal_type}: {self.recipe or self.custom}"
+
+
+class HealthJournal(models.Model):
+    CATEGORY = [
+        ('nutrition',  'Nutrition'),
+        ('lifestyle',  'Lifestyle'),
+        ('condition',  'Health Conditions'),
+        ('recipe',     'Recipes'),
+        ('herbs',      'Herbs & Natural Remedies'),
+        ('fitness',    'Fitness & Exercise'),
+    ]
+    title        = models.CharField(max_length=200)
+    slug         = models.SlugField(unique=True)
+    image        = models.ImageField(upload_to='health/journals/', blank=True, null=True)
+    category     = models.CharField(max_length=20, choices=CATEGORY, default='nutrition')
+    summary      = models.TextField(blank=True, help_text='Short description shown on listing page')
+    content      = models.TextField(help_text='Full article content')
+    video_url    = models.URLField(blank=True, help_text='Optional YouTube video')
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-published_at', '-created_at']
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def youtube_id(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return m.group(1) if m else ''
+
+    @property
+    def embed_url(self):
+        vid = self.youtube_id
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''

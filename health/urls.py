@@ -86,4 +86,13 @@ urlpatterns = [
     path('admin/videos/<int:pk>/delete/', views.hadmin_video_delete, name='hadmin_video_delete'),
 
     path('admin/settings/',             views.hadmin_settings,      name='hadmin_settings'),
+
+    path('admin/journals/',              views.hadmin_journals,       name='hadmin_journals'),
+    path('admin/journals/add/',          views.hadmin_journal_edit,   name='hadmin_journal_add'),
+    path('admin/journals/<int:pk>/',     views.hadmin_journal_edit,   name='hadmin_journal_edit'),
+    path('admin/journals/<int:pk>/delete/', views.hadmin_journal_delete, name='hadmin_journal_delete'),
+
+    # Journal user pages
+    path('journal/',                     views.journal_list,          name='health_journal_list'),
+    path('journal/<slug:slug>/',         views.journal_detail,        name='health_journal_detail'),
 ]

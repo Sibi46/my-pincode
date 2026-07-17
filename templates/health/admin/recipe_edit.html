@@ -112,6 +112,11 @@
           <input type="text" name="nutrition" value="{{ obj.nutrition|default:'' }}" placeholder="e.g. Protein: 12g, Fat: 5g">
         </div>
       </div>
+      <div class="form-group">
+        <label><i class="fab fa-youtube" style="color:#e53e3e"></i> Cooking Video URL (YouTube)</label>
+        <input type="url" name="video_url" value="{{ obj.video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
+        <p class="hint">Add a YouTube video showing how to cook this recipe</p>
+      </div>
       <div class="check-row">
         <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
         <label for="is_featured">Featured</label>

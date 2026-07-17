@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Health Journal — MY PINCOD{% endblock %}
+{% block content %}
+<style>
+.jl-hero{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:36px 20px;text-align:center}
+.jl-hero h1{font-size:26px;font-weight:900;margin:0 0 8px}
+.jl-hero p{font-size:14px;opacity:.9;margin:0}
+.jl-wrap{max-width:960px;margin:0 auto;padding:28px 16px 60px}
+.jl-cats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.jl-cat{padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;border:1.5px solid #e5e7eb;color:#555;text-decoration:none;background:#fff}
+.jl-cat:hover,.jl-cat.active{background:#16a34a;color:#fff;border-color:#16a34a}
+.jl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.jl-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:.2s}
+.jl-card:hover{border-color:#16a34a;box-shadow:0 4px 20px rgba(22,163,74,.1);transform:translateY(-2px)}
+.jl-card-img{width:100%;height:160px;object-fit:cover;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:40px}
+.jl-card-img img{width:100%;height:160px;object-fit:cover}
+.jl-card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:8px}
+.jl-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.jl-title{font-size:15px;font-weight:800;color:#111;line-height:1.4;margin:0}
+.jl-summary{font-size:12px;color:#666;line-height:1.5;flex:1}
+.jl-meta{font-size:11px;color:#aaa}
+.jl-empty{text-align:center;padding:60px 20px;color:#aaa}
+</style>
+
+<div class="jl-hero">
+  <h1><i class="fas fa-book-open"></i> Health Journal</h1>
+  <p>Expert articles on nutrition, natural remedies, and healthy living</p>
+</div>
+
+<div class="jl-wrap">
+  <div class="jl-cats">
+    <a href="/health/journal/" class="jl-cat {% if not active_cat %}active{% endif %}">All</a>
+    {% for val,label in categories %}
+      <a href="/health/journal/?cat={{ val }}" class="jl-cat {% if active_cat == val %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  {% if journals %}
+    <div class="jl-grid">
+      {% for j in journals %}
+        <a href="/health/journal/{{ j.slug }}/" class="jl-card">
+          <div class="jl-card-img">
+            {% if j.image %}<img src="{{ j.image.url }}" alt="{{ j.title }}">{% else %}📰{% endif %}
+          </div>
+          <div class="jl-card-body">
+            <span class="jl-badge">{{ j.get_category_display }}</span>
+            <div class="jl-title">{{ j.title }}</div>
+            {% if j.summary %}<div class="jl-summary">{{ j.summary|truncatewords:20 }}</div>{% endif %}
+            <div class="jl-meta">{{ j.published_at|date:"d M Y"|default:"" }}</div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="jl-empty">
+      <i class="fas fa-book-open" style="font-size:40px;margin-bottom:12px;display:block;opacity:.3"></i>
+      No articles published yet. Check back soon!
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

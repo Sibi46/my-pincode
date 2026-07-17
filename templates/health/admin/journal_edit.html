@@ -1,0 +1,86 @@
+{% extends 'health/admin/base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Journal{% endblock %}
+{% block content %}
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+  <a href="{% url 'hadmin_journals' %}" style="color:#666;font-size:13px"><i class="fas fa-arrow-left"></i> Back</a>
+  <h2 style="margin:0;font-size:18px;font-weight:800">{% if obj %}Edit{% else %}Add{% endif %} Journal Article</h2>
+</div>
+{% if messages %}{% for m in messages %}<div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#15803d;font-weight:700">{{ m }}</div>{% endfor %}{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">
+
+  <!-- Left: Main content -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px">Title *</label>
+      <input type="text" name="title" value="{{ obj.title|default:'' }}" required placeholder="Journal article title" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:14px;box-sizing:border-box" oninput="autoSlug(this.value)">
+
+      <div style="margin-top:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px">Slug (URL)</label>
+        <input type="text" name="slug" id="slugField" value="{{ obj.slug|default:'' }}" placeholder="auto-generated" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box;color:#888">
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px">Category *</label>
+        <select name="category" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+          {% for val,label in categories %}
+            <option value="{{ val }}" {% if obj.category == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-top:12px">
+        <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px">Summary <span style="font-weight:400;color:#aaa">(shown on listing page)</span></label>
+        <textarea name="summary" rows="3" placeholder="Short 2-3 line description..." style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box">{{ obj.summary|default:'' }}</textarea>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px">Full Article Content *</label>
+      <textarea name="content" rows="16" placeholder="Write the full article here. Each paragraph on a new line." style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit;line-height:1.6">{{ obj.content|default:'' }}</textarea>
+    </div>
+  </div>
+
+  <!-- Right: Meta -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:10px">Cover Image</label>
+      {% if obj.image %}
+        <img src="{{ obj.image.url }}" style="width:100%;border-radius:8px;margin-bottom:10px;object-fit:cover;max-height:180px">
+      {% endif %}
+      <input type="file" name="image" accept="image/*" style="font-size:13px;width:100%">
+    </div>
+
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px">
+      <label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:6px"><i class="fab fa-youtube" style="color:#e53e3e"></i> YouTube Video (optional)</label>
+      <input type="url" name="video_url" value="{{ obj.video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..." style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+    </div>
+
+    <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:20px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+        <input type="checkbox" name="is_published" {% if obj.is_published %}checked{% endif %} style="width:18px;height:18px;accent-color:#16a34a">
+        <span style="font-size:13px;font-weight:700;color:#333">Publish this article</span>
+      </label>
+      <p style="font-size:12px;color:#aaa;margin:6px 0 0">Unchecked = Draft (not visible to users)</p>
+    </div>
+
+    <button type="submit" style="width:100%;padding:13px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer"><i class="fas fa-save"></i> Save Journal</button>
+    {% if obj %}
+    <a href="{% url 'hadmin_journal_delete' obj.pk %}" onclick="return confirm('Delete this journal?')" style="display:block;text-align:center;padding:10px;background:#fff;color:#e53e3e;border:1.5px solid #fca5a5;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none"><i class="fas fa-trash"></i> Delete</a>
+    {% endif %}
+  </div>
+</div>
+</form>
+
+<script>
+function autoSlug(val) {
+  const s = document.getElementById('slugField');
+  if (!s.dataset.manual) {
+    s.value = val.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  }
+}
+document.getElementById('slugField').addEventListener('input', function(){ this.dataset.manual = '1'; });
+</script>
+{% endblock %}

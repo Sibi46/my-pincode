@@ -1,85 +1,98 @@
 {% extends 'base.html' %}
+{% load health_extras %}
 {% block title %}{% if obj %}Edit{% else %}Add{% endif %} Vegetable – Admin{% endblock %}
 {% block content %}
 <style>
-  .adm-header{background:linear-gradient(135deg,#0a66c2,#0958a8);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header{background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
   .adm-header h1{margin:0;font-size:1.3rem}
   .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
-  .form-wrap{max-width:800px;margin:0 auto;padding:1.5rem 1rem}
-  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem}
+  .form-wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem;margin-bottom:16px}
+  .form-card h3{margin:0 0 16px;font-size:14px;font-weight:800;color:#16a34a;text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5px solid #e5e7eb;padding-bottom:10px}
   .form-group{margin-bottom:1.2rem}
   .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.03em}
   .form-group input,.form-group textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
-  .form-group input:focus,.form-group textarea:focus{border-color:#0a66c2}
+  .form-group input:focus,.form-group textarea:focus{border-color:#16a34a}
   .form-group textarea{min-height:80px;resize:vertical}
   .form-group .hint{font-size:.75rem;color:#94a3b8;margin-top:.25rem}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
   .check-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem}
-  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#0a66c2}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#16a34a}
   .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
   .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
-  .btn-save{background:#0a66c2;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-save{background:#16a34a;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
   .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .ca-table{width:100%;border-collapse:collapse;font-size:13px}
+  .ca-table th{padding:8px 12px;background:#f9fafb;font-weight:700;color:#555;text-align:left;border-bottom:1.5px solid #e5e7eb}
+  .ca-table td{padding:8px 12px;border-bottom:1px solid #f1f3f5;vertical-align:middle}
+  .ca-select{padding:5px 10px;border:1px solid #dde1ea;border-radius:6px;font-size:12px}
+  .ca-note{width:100%;padding:5px 10px;border:1px solid #dde1ea;border-radius:6px;font-size:12px}
 </style>
-
 <div class="adm-header">
   <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Vegetable{% endif %}</h1>
   <a href="/health/admin/vegetables/">← Back to Vegetables</a>
 </div>
-
 <div class="form-wrap">
   <form method="post" action="" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="form-card">
+      <h3><i class="fas fa-carrot"></i> Basic Info</h3>
       <div class="form-row">
-        <div class="form-group">
-          <label>Name *</label>
-          <input type="text" name="name" value="{{ obj.name|default:'' }}" required>
-        </div>
-        <div class="form-group">
-          <label>Slug *</label>
-          <input type="text" name="slug" value="{{ obj.slug|default:'' }}" required>
-        </div>
+        <div class="form-group"><label>Name *</label><input type="text" name="name" value="{{ obj.name|default:'' }}" required></div>
+        <div class="form-group"><label>Slug</label><input type="text" name="slug" value="{{ obj.slug|default:'' }}"></div>
       </div>
       <div class="form-group">
         <label>Image</label>
+        {% if obj.image %}<img src="{{ obj.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">{% endif %}
         <input type="file" name="image" accept="image/*">
-        {% if obj.image %}<p class="hint">Current: {{ obj.image.name }}</p>{% endif %}
       </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea name="description">{{ obj.description|default:'' }}</textarea>
-      </div>
-      <div class="form-group">
-        <label>Nutrition</label>
-        <textarea name="nutrition">{{ obj.nutrition|default:'' }}</textarea>
-      </div>
-      <div class="form-group">
-        <label>Benefits</label>
-        <textarea name="benefits">{{ obj.benefits|default:'' }}</textarea>
-      </div>
-      <div class="form-group">
-        <label>Cooking Methods</label>
-        <textarea name="cooking_methods" style="min-height:60px">{{ obj.cooking_methods|default:'' }}</textarea>
-      </div>
+      <div class="form-group"><label>Description</label><textarea name="description">{{ obj.description|default:'' }}</textarea></div>
+      <div class="form-group"><label>Nutrition Facts</label><textarea name="nutrition" style="min-height:60px">{{ obj.nutrition|default:'' }}</textarea></div>
+      <div class="form-group"><label>Benefits</label><textarea name="benefits">{{ obj.benefits|default:'' }}</textarea></div>
+      <div class="form-group"><label>Cooking Methods</label><textarea name="cooking_methods" style="min-height:60px">{{ obj.cooking_methods|default:'' }}</textarea></div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Best Time</label>
-          <input type="text" name="best_time" value="{{ obj.best_time|default:'' }}">
-        </div>
-        <div class="form-group">
-          <label>Serving Size</label>
-          <input type="text" name="serving_size" value="{{ obj.serving_size|default:'' }}">
-        </div>
+        <div class="form-group"><label>Serving Size</label><input type="text" name="serving_size" value="{{ obj.serving_size|default:'' }}"></div>
+        <div class="form-group"><label>Best Time</label><input type="text" name="best_time" value="{{ obj.best_time|default:'' }}"></div>
       </div>
       <div class="check-row">
         <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
-        <label for="is_featured">Featured</label>
+        <label for="is_featured">Featured on Home Page</label>
       </div>
-      <div class="form-actions">
-        <a class="btn-cancel" href="/health/admin/vegetables/">Cancel</a>
-        <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Vegetable{% endif %}</button>
-      </div>
+    </div>
+
+    <div class="form-card">
+      <h3><i class="fas fa-heartbeat"></i> Condition-wise Advice</h3>
+      <p style="font-size:12px;color:#888;margin:0 0 12px">Set eat/avoid advice for each health condition</p>
+      <table class="ca-table">
+        <thead><tr><th style="width:180px">Condition</th><th style="width:150px">Can Eat?</th><th>Advice / Note</th></tr></thead>
+        <tbody>
+          {% for c in conditions %}
+          <tr>
+            <td><strong>{{ c.icon }} {{ c.name }}</strong></td>
+            <td>
+              <select name="ca_can_{{ c.slug }}" class="ca-select">
+                <option value="">-- select --</option>
+                <option value="yes" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "yes" %}selected{% endif %}{% endif %}>✅ Yes</option>
+                <option value="moderate" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "moderate" %}selected{% endif %}{% endif %}>⚠️ Moderate</option>
+                <option value="no" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "no" %}selected{% endif %}{% endif %}>❌ Avoid</option>
+              </select>
+            </td>
+            <td><input type="text" name="ca_note_{{ c.slug }}" class="ca-note" value="{% if advice|get_item:c.slug %}{{ advice|get_item:c.slug|get_item:'note' }}{% endif %}" placeholder="Advice note..."></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="form-card">
+      <h3><i class="fas fa-leaf"></i> Natural Treatment & Video</h3>
+      <div class="form-group"><label>Natural Treatment / How to Use</label><textarea name="natural_treatment" style="min-height:100px" placeholder="e.g. Drink bitter gourd juice every morning on empty stomach...">{{ obj.natural_treatment|default:'' }}</textarea></div>
+      <div class="form-group"><label><i class="fab fa-youtube" style="color:#e53e3e"></i> YouTube Video URL</label><input type="url" name="video_url" value="{{ obj.video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..."></div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn-cancel" href="/health/admin/vegetables/">Cancel</a>
+      <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Vegetable{% endif %}</button>
     </div>
   </form>
 </div>

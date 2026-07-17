@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import (
     HealthSettings, HealthCondition, Food, Fruit, Vegetable,
     Herb, Recipe, Video, Favorite, FoodDiary, FoodDiaryEntry,
-    MealPlan, MealPlanItem,
+    MealPlan, MealPlanItem, HealthJournal,
 )
 
 
@@ -472,14 +472,15 @@ def health_search(request):
 @super_admin_required
 def hadmin_dashboard(request):
     return render(request, 'health/admin/dashboard.html', {
-        'cond_count':  HealthCondition.objects.count(),
-        'food_count':  Food.objects.count(),
-        'fruit_count': Fruit.objects.count(),
-        'veg_count':   Vegetable.objects.count(),
-        'herb_count':  Herb.objects.count(),
-        'recipe_count': Recipe.objects.count(),
-        'video_count': Video.objects.count(),
-        'user_count':  Favorite.objects.values('user').distinct().count(),
+        'cond_count':    HealthCondition.objects.count(),
+        'food_count':    Food.objects.count(),
+        'fruit_count':   Fruit.objects.count(),
+        'veg_count':     Vegetable.objects.count(),
+        'herb_count':    Herb.objects.count(),
+        'recipe_count':  Recipe.objects.count(),
+        'video_count':   Video.objects.count(),
+        'journal_count': HealthJournal.objects.count(),
+        'user_count':    Favorite.objects.values('user').distinct().count(),
     })
 
 
@@ -603,12 +604,23 @@ def hadmin_fruits(request):
 @super_admin_required
 def hadmin_fruit_edit(request, pk=None):
     obj = get_object_or_404(Fruit, pk=pk) if pk else None
+    conditions = HealthCondition.objects.all()
     if request.method == 'POST':
         fields = ['name','slug','description','nutrition','benefits',
-                  'serving_size','best_time','diabetes_note']
+                  'serving_size','best_time','diabetes_note',
+                  'natural_treatment','video_url']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured']   = 'is_featured' in request.POST
         data['diabetes_safe'] = 'diabetes_safe' in request.POST
+        # Build condition_advice JSON from POST
+        import json as _json
+        advice = {}
+        for c in conditions:
+            can_eat = request.POST.get(f'ca_can_{c.slug}', '')
+            note    = request.POST.get(f'ca_note_{c.slug}', '').strip()
+            if can_eat or note:
+                advice[c.slug] = {'can_eat': can_eat, 'note': note, 'name': c.name, 'icon': c.icon}
+        data['condition_advice'] = _json.dumps(advice, ensure_ascii=False)
         if not data['slug']:
             data['slug'] = slugify(data['name'])
         if obj:
@@ -624,7 +636,12 @@ def hadmin_fruit_edit(request, pk=None):
             obj.save()
         messages.success(request, 'Saved.')
         return redirect('hadmin_fruits')
-    return render(request, 'health/admin/fruit_edit.html', {'obj': obj})
+    import json as _json
+    advice = {}
+    if obj and obj.condition_advice:
+        try: advice = _json.loads(obj.condition_advice)
+        except: advice = {}
+    return render(request, 'health/admin/fruit_edit.html', {'obj': obj, 'conditions': conditions, 'advice': advice})
 
 
 @super_admin_required
@@ -643,11 +660,21 @@ def hadmin_vegetables(request):
 @super_admin_required
 def hadmin_vegetable_edit(request, pk=None):
     obj = get_object_or_404(Vegetable, pk=pk) if pk else None
+    conditions = HealthCondition.objects.all()
     if request.method == 'POST':
         fields = ['name','slug','description','nutrition','benefits',
-                  'cooking_methods','best_time','serving_size']
+                  'cooking_methods','best_time','serving_size',
+                  'natural_treatment','video_url']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured'] = 'is_featured' in request.POST
+        import json as _json
+        advice = {}
+        for c in conditions:
+            can_eat = request.POST.get(f'ca_can_{c.slug}', '')
+            note    = request.POST.get(f'ca_note_{c.slug}', '').strip()
+            if can_eat or note:
+                advice[c.slug] = {'can_eat': can_eat, 'note': note, 'name': c.name, 'icon': c.icon}
+        data['condition_advice'] = _json.dumps(advice, ensure_ascii=False)
         if not data['slug']:
             data['slug'] = slugify(data['name'])
         if obj:
@@ -663,7 +690,12 @@ def hadmin_vegetable_edit(request, pk=None):
             obj.save()
         messages.success(request, 'Saved.')
         return redirect('hadmin_vegetables')
-    return render(request, 'health/admin/vegetable_edit.html', {'obj': obj})
+    import json as _json
+    advice = {}
+    if obj and obj.condition_advice:
+        try: advice = _json.loads(obj.condition_advice)
+        except: advice = {}
+    return render(request, 'health/admin/vegetable_edit.html', {'obj': obj, 'conditions': conditions, 'advice': advice})
 
 
 @super_admin_required
@@ -682,11 +714,21 @@ def hadmin_herbs(request):
 @super_admin_required
 def hadmin_herb_edit(request, pk=None):
     obj = get_object_or_404(Herb, pk=pk) if pk else None
+    conditions = HealthCondition.objects.all()
     if request.method == 'POST':
         fields = ['name','slug','description','traditional_uses',
-                  'scientific_evidence','preparation','benefits','precautions']
+                  'scientific_evidence','preparation','benefits','precautions',
+                  'natural_treatment','video_url']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured'] = 'is_featured' in request.POST
+        import json as _json
+        advice = {}
+        for c in conditions:
+            can_eat = request.POST.get(f'ca_can_{c.slug}', '')
+            note    = request.POST.get(f'ca_note_{c.slug}', '').strip()
+            if can_eat or note:
+                advice[c.slug] = {'can_eat': can_eat, 'note': note, 'name': c.name, 'icon': c.icon}
+        data['condition_advice'] = _json.dumps(advice, ensure_ascii=False)
         if not data['slug']:
             data['slug'] = slugify(data['name'])
         if obj:
@@ -702,7 +744,12 @@ def hadmin_herb_edit(request, pk=None):
             obj.save()
         messages.success(request, 'Saved.')
         return redirect('hadmin_herbs')
-    return render(request, 'health/admin/herb_edit.html', {'obj': obj})
+    import json as _json
+    advice = {}
+    if obj and obj.condition_advice:
+        try: advice = _json.loads(obj.condition_advice)
+        except: advice = {}
+    return render(request, 'health/admin/herb_edit.html', {'obj': obj, 'conditions': conditions, 'advice': advice})
 
 
 @super_admin_required
@@ -723,7 +770,7 @@ def hadmin_recipe_edit(request, pk=None):
     obj = get_object_or_404(Recipe, pk=pk) if pk else None
     if request.method == 'POST':
         fields = ['name','slug','category','description','ingredients','steps',
-                  'nutrition','difficulty']
+                  'nutrition','difficulty','video_url']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured'] = 'is_featured' in request.POST
         for int_field in ['calories','prep_time','cook_time','servings']:
@@ -807,3 +854,66 @@ def hadmin_settings(request):
         messages.success(request, 'Settings saved.')
         return redirect('hadmin_settings')
     return render(request, 'health/admin/settings.html', {'settings': settings})
+
+
+# ── JOURNAL ADMIN ─────────────────────────────────────────────────────────────
+
+@super_admin_required
+def hadmin_journals(request):
+    return render(request, 'health/admin/journal_list.html',
+                  {'items': HealthJournal.objects.all()})
+
+
+@super_admin_required
+def hadmin_journal_edit(request, pk=None):
+    obj = get_object_or_404(HealthJournal, pk=pk) if pk else None
+    if request.method == 'POST':
+        from django.utils import timezone
+        fields = ['title', 'slug', 'category', 'summary', 'content', 'video_url']
+        data = {f: request.POST.get(f, '') for f in fields}
+        data['is_published'] = 'is_published' in request.POST
+        if not data['slug']:
+            data['slug'] = slugify(data['title'])
+        if data['is_published'] and (not obj or not obj.published_at):
+            data['published_at'] = timezone.now()
+        if obj:
+            for k, v in data.items():
+                setattr(obj, k, v)
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        else:
+            obj = HealthJournal(**data)
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        messages.success(request, 'Journal saved.')
+        return redirect('hadmin_journals')
+    return render(request, 'health/admin/journal_edit.html', {
+        'obj': obj, 'categories': HealthJournal.CATEGORY,
+    })
+
+
+@super_admin_required
+def hadmin_journal_delete(request, pk):
+    get_object_or_404(HealthJournal, pk=pk).delete()
+    messages.success(request, 'Deleted.')
+    return redirect('hadmin_journals')
+
+
+# ── JOURNAL USER VIEWS ────────────────────────────────────────────────────────
+
+def journal_list(request):
+    category = request.GET.get('cat', '')
+    qs = HealthJournal.objects.filter(is_published=True)
+    if category:
+        qs = qs.filter(category=category)
+    return render(request, 'health/journal_list.html', {
+        'journals': qs, 'categories': HealthJournal.CATEGORY, 'active_cat': category,
+    })
+
+
+def journal_detail(request, slug):
+    journal = get_object_or_404(HealthJournal, slug=slug, is_published=True)
+    related = HealthJournal.objects.filter(is_published=True, category=journal.category).exclude(pk=journal.pk)[:3]
+    return render(request, 'health/journal_detail.html', {'journal': journal, 'related': related})
