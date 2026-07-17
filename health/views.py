@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
     HealthSettings, HealthCondition, Food, Fruit, Vegetable,
@@ -193,6 +194,7 @@ def health_chat(request):
     return render(request, 'health/chat.html')
 
 
+@csrf_exempt
 def health_chat_api(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
@@ -205,29 +207,36 @@ def health_chat_api(request):
     if not message:
         return JsonResponse({'error': 'Empty message'}, status=400)
 
-    settings = HealthSettings.get()
-    api_key  = settings.gemini_api_key
+    from django.conf import settings as django_settings
+    hs      = HealthSettings.get()
+    api_key = hs.groq_api_key or getattr(django_settings, 'GROQ_API_KEY', '')
 
     if not api_key:
         return JsonResponse({'reply': (
             "AI assistant is not configured yet. "
-            "Please ask the admin to add the Gemini API key in Health Settings.\n\n"
+            "Please ask the admin to add the Groq API key in Health Settings.\n\n"
             "⚠️ This is educational information only, not medical advice."
         )})
 
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        model  = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = f"{settings.ai_system_prompt}\n\nUser: {message}"
-        resp   = model.generate_content(prompt)
-        reply  = resp.text
+        from groq import Groq
+        client   = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model='llama-3.1-8b-instant',
+            messages=[
+                {'role': 'system', 'content': hs.ai_system_prompt},
+                {'role': 'user',   'content': message},
+            ],
+            max_tokens=500,
+            temperature=0.7,
+        )
+        reply = response.choices[0].message.content
     except ImportError:
         reply = ("AI library not installed on server. "
-                 "Run: pip install google-generativeai\n\n"
+                 "Run: pip install groq\n\n"
                  "⚠️ This is educational information only, not medical advice.")
     except Exception as e:
-        reply = (f"AI is temporarily unavailable. Please try again later.\n\n"
+        reply = ("AI is temporarily unavailable. Please try again later.\n\n"
                  "⚠️ This is educational information only, not medical advice.")
 
     return JsonResponse({'reply': reply})
@@ -790,6 +799,7 @@ def hadmin_settings(request):
     settings = HealthSettings.get()
     if request.method == 'POST':
         settings.gemini_api_key   = request.POST.get('gemini_api_key', '').strip()
+        settings.groq_api_key     = request.POST.get('groq_api_key', '').strip()
         settings.ai_system_prompt = request.POST.get('ai_system_prompt', '').strip()
         settings.daily_tip        = request.POST.get('daily_tip', '').strip()
         settings.site_tagline     = request.POST.get('site_tagline', '').strip()

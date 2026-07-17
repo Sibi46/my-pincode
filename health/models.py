@@ -6,6 +6,7 @@ User = settings.AUTH_USER_MODEL
 
 class HealthSettings(models.Model):
     gemini_api_key  = models.CharField(max_length=200, blank=True)
+    groq_api_key    = models.CharField(max_length=200, blank=True)
     ai_system_prompt = models.TextField(default=(
         "You are a friendly healthy food guide assistant for MY PINCOD. "
         "Answer only food and nutrition questions. Give clear, simple answers in easy English. "
