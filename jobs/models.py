@@ -1026,6 +1026,31 @@ class FlickComment(models.Model):
         return f"{self.user.username}: {self.text[:40]}"
 
 
+class FlickReport(models.Model):
+    REASONS = [
+        ('inappropriate', 'Inappropriate Content'),
+        ('spam',          'Spam or Misleading'),
+        ('violence',      'Violence or Dangerous'),
+        ('harassment',    'Harassment or Bullying'),
+        ('misinformation','False Information'),
+        ('other',         'Other'),
+    ]
+    STATUS = [('pending', 'Pending'), ('reviewed', 'Reviewed'), ('dismissed', 'Dismissed')]
+    flick      = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='reports')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flick_reports')
+    reason     = models.CharField(max_length=20, choices=REASONS)
+    note       = models.TextField(blank=True)
+    status     = models.CharField(max_length=20, choices=STATUS, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('flick', 'user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} reported {self.flick} — {self.reason}"
+
+
 # ── SIMPLE ADS ────────────────────────────────────────────────────────────────
 
 class AdSettings(models.Model):

@@ -449,6 +449,15 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
           <button type="submit" class="fk-delete-btn"><i class="fas fa-trash-alt"></i></button>
         </form>
         {% endif %}
+        <!-- Report (only for others' flicks) -->
+        {% if flick.user != request.user and request.user.is_authenticated %}
+        <button class="fk-act-btn fk-report-btn" id="fk-rep-{{ flick.pk }}"
+          onclick="fkOpenReport({{ flick.pk }})"
+          style="color:#ff4444">
+          <i class="fas fa-flag"></i>
+          <span style="font-size:10px">Report</span>
+        </button>
+        {% endif %}
       </div>
 
       <!-- Bottom info -->
@@ -698,5 +707,114 @@ document.addEventListener('play', function(e) {
     if (v !== e.target) v.pause();
   });
 }, true);
+/* ── REPORT MODAL ── */
+#fk-report-overlay {
+  display:none;position:fixed;inset:0;z-index:2000;
+  background:rgba(0,0,0,.7);align-items:center;justify-content:center;padding:20px;
+}
+#fk-report-overlay.open { display:flex; }
+#fk-report-box {
+  background:#1a1a1a;border-radius:16px;width:100%;max-width:360px;
+  padding:24px;color:#fff;
+}
+#fk-report-box h3 { font-size:16px;font-weight:800;margin:0 0 6px;color:#ff4444; }
+#fk-report-box p  { font-size:12px;color:#aaa;margin:0 0 16px; }
+.fk-reason-btn {
+  display:block;width:100%;text-align:left;padding:11px 14px;
+  background:#2a2a2a;border:1.5px solid #333;color:#fff;
+  border-radius:10px;margin-bottom:8px;font-size:13px;cursor:pointer;transition:.2s;
+}
+.fk-reason-btn:hover,.fk-reason-btn.selected { background:#ff4444;border-color:#ff4444; }
+#fk-report-note {
+  width:100%;background:#2a2a2a;border:1.5px solid #333;border-radius:10px;
+  color:#fff;padding:10px 12px;font-size:13px;font-family:inherit;
+  resize:none;outline:none;box-sizing:border-box;margin-bottom:12px;
+}
+#fk-report-submit {
+  width:100%;padding:12px;background:#ff4444;color:#fff;border:none;
+  border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;
+}
+#fk-report-cancel {
+  width:100%;padding:10px;background:none;color:#aaa;border:none;
+  font-size:13px;cursor:pointer;margin-top:6px;
+}
+</style>
+
+<!-- Report Modal -->
+<div id="fk-report-overlay">
+  <div id="fk-report-box">
+    <h3><i class="fas fa-flag"></i> Report Flick</h3>
+    <p>Why are you reporting this?</p>
+    <div id="fk-reason-list">
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'inappropriate')">🚫 Inappropriate Content</button>
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'spam')">📢 Spam or Misleading</button>
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'violence')">⚠️ Violence or Dangerous</button>
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'harassment')">😡 Harassment or Bullying</button>
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'misinformation')">❌ False Information</button>
+      <button class="fk-reason-btn" onclick="fkSelectReason(this,'other')">🔖 Other</button>
+    </div>
+    <textarea id="fk-report-note" rows="2" placeholder="Add details (optional)..."></textarea>
+    <button id="fk-report-submit" onclick="fkSubmitReport()">Submit Report</button>
+    <button id="fk-report-cancel" onclick="fkCloseReport()">Cancel</button>
+  </div>
+</div>
+
+<script>
+var _fkReportPk = null;
+var _fkReportReason = '';
+
+function fkOpenReport(pk) {
+  _fkReportPk = pk;
+  _fkReportReason = '';
+  document.querySelectorAll('.fk-reason-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.getElementById('fk-report-note').value = '';
+  document.getElementById('fk-report-overlay').classList.add('open');
+}
+function fkCloseReport() {
+  document.getElementById('fk-report-overlay').classList.remove('open');
+  _fkReportPk = null;
+  _fkReportReason = '';
+}
+function fkSelectReason(btn, reason) {
+  document.querySelectorAll('.fk-reason-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  _fkReportReason = reason;
+}
+function fkSubmitReport() {
+  if (!_fkReportReason) {
+    alert('Please select a reason.');
+    return;
+  }
+  var note = document.getElementById('fk-report-note').value.trim();
+  var fd = new FormData();
+  fd.append('reason', _fkReportReason);
+  fd.append('note', note);
+  fd.append('csrfmiddlewaretoken', _fcsrf);
+  fetch('/flicks/' + _fkReportPk + '/report/', { method:'POST', body:fd })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      fkCloseReport();
+      var btn = document.getElementById('fk-rep-' + _fkReportPk);
+      if (d.success) {
+        if (btn) { btn.querySelector('i').className = 'fas fa-flag'; btn.style.opacity = '.5'; btn.disabled = true; }
+        fkToast('✅ Reported. We will review this.');
+      } else if (d.already) {
+        fkToast('⚠️ You already reported this flick.');
+      } else {
+        fkToast('❌ ' + (d.error || 'Could not report.'));
+      }
+    });
+}
+function fkToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:9999;white-space:nowrap;';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 3000);
+}
+// Close overlay on backdrop click
+document.getElementById('fk-report-overlay').addEventListener('click', function(e){
+  if (e.target === this) fkCloseReport();
+});
 </script>
 {% endblock %}

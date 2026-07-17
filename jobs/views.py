@@ -2096,6 +2096,58 @@ def admin_flicks(request):
 
 
 @login_required
+def report_flick(request, pk):
+    from .models import Flick, FlickReport
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    flick  = get_object_or_404(Flick, pk=pk)
+    reason = request.POST.get('reason', '').strip()
+    note   = request.POST.get('note', '').strip()
+    if not reason:
+        return JsonResponse({'success': False, 'error': 'Reason required'})
+    if flick.user == request.user:
+        return JsonResponse({'success': False, 'error': 'Cannot report your own flick'})
+    obj, created = FlickReport.objects.get_or_create(
+        flick=flick, user=request.user,
+        defaults={'reason': reason, 'note': note}
+    )
+    if not created:
+        return JsonResponse({'success': False, 'already': True, 'error': 'Already reported'})
+    return JsonResponse({'success': True})
+
+
+@super_admin_required
+def admin_flick_reports(request):
+    from .models import FlickReport, Flick
+    if request.method == 'POST':
+        action    = request.POST.get('action')
+        report_id = request.POST.get('report_id')
+        report    = get_object_or_404(FlickReport, pk=report_id)
+        if action == 'delete_flick':
+            report.flick.delete()
+            messages.success(request, 'Flick deleted.')
+        elif action == 'dismiss':
+            report.status = 'dismissed'
+            report.save()
+            messages.success(request, 'Report dismissed.')
+        elif action == 'reviewed':
+            report.status = 'reviewed'
+            report.save()
+            messages.success(request, 'Marked as reviewed.')
+        return redirect('admin_flick_reports')
+
+    status_filter = request.GET.get('status', 'pending')
+    qs = FlickReport.objects.select_related('flick', 'flick__user', 'user').order_by('-created_at')
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    return render(request, 'admin_flick_reports.html', {
+        'reports':       qs,
+        'status_filter': status_filter,
+        'pending_count': FlickReport.objects.filter(status='pending').count(),
+    })
+
+
+@login_required
 def flick_advertise(request, pk):
     from .models import Flick, FlickAdPayment, FlickAdSettings
     flick    = get_object_or_404(Flick, pk=pk, user=request.user)
