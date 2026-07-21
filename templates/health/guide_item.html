@@ -99,11 +99,11 @@
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('advice',this)">🏥 Health Advice</button>
-    {% if item.recipe_content or item.recipe_video_url %}<button class="tab-btn" onclick="showTab('recipe',this)">🍽️ Recipe</button>{% endif %}
-    {% if item.growing_content or item.growing_video_url or growing_images %}<button class="tab-btn" onclick="showTab('growing',this)">🌱 How to Grow</button>{% endif %}
-    {% if item.journal_content %}<button class="tab-btn" onclick="showTab('journal',this)">📰 Journal</button>{% endif %}
-    {% if item.natural_treatment %}<button class="tab-btn" onclick="showTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
+    <button class="tab-btn active" onclick="showGuideTab('advice',this)">🏥 Health Advice</button>
+    {% if item.recipe_content or item.recipe_video_url %}<button class="tab-btn" onclick="showGuideTab('recipe',this)">🍽️ Recipe</button>{% endif %}
+    {% if item.growing_content or item.growing_video_url or growing_images %}<button class="tab-btn" onclick="showGuideTab('growing',this)">🌱 How to Grow</button>{% endif %}
+    {% if item.journal_content %}<button class="tab-btn" onclick="showGuideTab('journal',this)">📰 Journal</button>{% endif %}
+    {% if item.natural_treatment %}<button class="tab-btn" onclick="showGuideTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
   </div>
 
   <!-- Advice Tab -->
@@ -200,7 +200,7 @@
 </div>
 
 <script>
-function showTab(name, btn) {
+function showGuideTab(name, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
