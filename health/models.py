@@ -106,7 +106,7 @@ class Fruit(models.Model):
     @property
     def video_embed(self):
         import re
-        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
         return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
 
 
@@ -136,7 +136,7 @@ class Vegetable(models.Model):
     @property
     def video_embed(self):
         import re
-        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
         return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
 
 
@@ -166,7 +166,7 @@ class Herb(models.Model):
     @property
     def video_embed(self):
         import re
-        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
         return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
 
 
@@ -369,7 +369,7 @@ class HealthJournal(models.Model):
     @property
     def youtube_id(self):
         import re
-        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
         return m.group(1) if m else ''
 
     @property
@@ -440,7 +440,7 @@ class FoodItem(models.Model):
 
     def _yt_id(self, url):
         import re
-        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', url or '')
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', url or '')
         return m.group(1) if m else ''
 
     @property
