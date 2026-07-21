@@ -282,7 +282,7 @@
           <div class="pj-field full">
             <label><i class="fas fa-align-left"></i> Job Description *</label>
             <textarea name="description" id="f-desc" rows="6" placeholder="Describe the role, responsibilities, and what a typical day looks like…" required></textarea>
-            <div class="char-count"><span id="desc-count">0</span> characters</div>
+            <div class="char-count"><span id="desc-count">0</span>/150</div>
           </div>
 
         </div>
@@ -810,7 +810,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const descEl  = document.getElementById('f-desc');
   const countEl = document.getElementById('desc-count');
   if (descEl) {
-    descEl.addEventListener('input', function() { countEl.textContent = this.value.length; });
+    function updateDescCount() {
+      var len = descEl.value.length;
+      countEl.textContent = len;
+      countEl.parentElement.style.color = len >= 150 ? '#16a34a' : len > 120 ? '#f59e0b' : '#64748b';
+    }
+    descEl.addEventListener('input', updateDescCount);
+    updateDescCount();
   }
 
   /* ── Language checkboxes → hidden ── */
