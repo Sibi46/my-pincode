@@ -125,6 +125,29 @@
         <i class="fas fa-cog"></i> Django Admin
       </a>
 
+      <div class="ap-nav-section">Health Guide</div>
+      <a href="/health/admin/" class="ap-nav-link {% if '/health/admin' in request.path %}active{% endif %}">
+        <i class="fas fa-heartbeat"></i> Dashboard
+      </a>
+      <a href="/health/admin/guide/categories/" class="ap-nav-link {% if '/health/admin/guide/categories' in request.path %}active{% endif %}">
+        <i class="fas fa-th-large"></i> Food Guide
+      </a>
+      <a href="/health/admin/fruits/" class="ap-nav-link {% if '/health/admin/fruits' in request.path %}active{% endif %}">
+        <i class="fas fa-apple-alt"></i> Fruits
+      </a>
+      <a href="/health/admin/vegetables/" class="ap-nav-link {% if '/health/admin/vegetables' in request.path %}active{% endif %}">
+        <i class="fas fa-carrot"></i> Vegetables
+      </a>
+      <a href="/health/admin/herbs/" class="ap-nav-link {% if '/health/admin/herbs' in request.path %}active{% endif %}">
+        <i class="fas fa-leaf"></i> Herbs
+      </a>
+      <a href="/health/admin/journals/" class="ap-nav-link {% if '/health/admin/journals' in request.path %}active{% endif %}">
+        <i class="fas fa-newspaper"></i> Journal
+      </a>
+      <a href="/health/admin/settings/" class="ap-nav-link {% if '/health/admin/settings' in request.path %}active{% endif %}">
+        <i class="fas fa-cog"></i> Health Settings
+      </a>
+
       {% elif request.user.admin_role == 'state_admin' %}
       <div class="ap-nav-section">Overview</div>
       <a href="/state-admin/" class="ap-nav-link {% if request.path == '/state-admin/' %}active{% endif %}">

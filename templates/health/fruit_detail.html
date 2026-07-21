@@ -2,86 +2,185 @@
 {% block title %}{{ fruit.name }} – Healthy Fruits Guide{% endblock %}
 {% block content %}
 <style>
-  .fd-wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
-  .fd-hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-bottom:2rem}
-  .fd-hero img{width:100%;border-radius:14px;max-height:320px;object-fit:cover}
-  .fd-hero .no-img{width:100%;height:250px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:5rem}
-  .fd-info h1{font-size:1.6rem;margin:0 0 1rem;color:#15803d}
-  .diabetes-badge{display:inline-block;padding:.6rem 1.25rem;border-radius:10px;font-weight:700;font-size:1rem;margin-bottom:1rem}
-  .diabetes-safe{background:#dcfce7;color:#166534;border:2px solid #16a34a}
-  .diabetes-limit{background:#fef3c7;color:#92400e;border:2px solid #f59e0b}
-  .fd-fav{background:none;border:2px solid #e2e8f0;border-radius:999px;padding:.45rem 1rem;cursor:pointer;font-size:.9rem;color:#64748b;display:flex;align-items:center;gap:.4rem;margin-bottom:1rem}
-  .fd-fav.active{border-color:#dc2626;color:#dc2626}
-  .info-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
-  .info-badge{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.5rem .9rem;font-size:.85rem}
-  .info-badge strong{display:block;color:#16a34a;font-size:.75rem}
-  .fd-section{margin-bottom:1.75rem}
-  .fd-section h3{font-size:1rem;color:#16a34a;font-weight:700;margin-bottom:.75rem}
-  .diabetes-note{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem;color:#78350f;font-size:.9rem;margin-bottom:1.5rem}
-  @media(max-width:600px){.fd-hero{grid-template-columns:1fr}}
+.det-wrap{max-width:860px;margin:0 auto;padding:1.5rem 1rem 3rem}
+
+/* Hero */
+.det-hero{display:grid;grid-template-columns:340px 1fr;gap:2rem;align-items:start;margin-bottom:2rem}
+.det-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:16px}
+.det-noimg{width:100%;aspect-ratio:4/3;border-radius:16px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:6rem}
+.det-info h1{font-size:1.8rem;font-weight:900;color:#15803d;margin:0 0 .75rem;line-height:1.2}
+.det-badge{display:inline-flex;align-items:center;gap:6px;padding:.45rem 1rem;border-radius:30px;font-weight:700;font-size:.85rem;margin-bottom:.75rem}
+.badge-safe{background:#dcfce7;color:#166534;border:2px solid #16a34a}
+.badge-limit{background:#fef3c7;color:#92400e;border:2px solid #f59e0b}
+.det-fav{background:none;border:2px solid #e2e8f0;border-radius:999px;padding:.4rem 1rem;cursor:pointer;font-size:.88rem;color:#64748b;display:inline-flex;align-items:center;gap:.4rem;margin-bottom:.75rem;transition:.2s}
+.det-fav.active{border-color:#dc2626;color:#dc2626}
+.info-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.chip{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.4rem .75rem;font-size:.82rem;line-height:1.3}
+.chip strong{display:block;color:#15803d;font-size:.72rem;text-transform:uppercase;letter-spacing:.3px}
+.det-desc{color:#475569;line-height:1.6;font-size:.93rem;margin-top:.5rem}
+
+/* Sections */
+.det-section{margin-bottom:1.5rem;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb}
+.det-sec-head{display:flex;align-items:center;gap:.6rem;padding:.85rem 1.2rem;font-weight:800;font-size:.95rem;cursor:pointer;user-select:none;background:#f8fafc}
+.det-sec-head .sec-icon{font-size:1.2rem}
+.det-sec-head .sec-arrow{margin-left:auto;transition:transform .25s;font-size:.8rem;color:#94a3b8}
+.det-sec-body{padding:1.2rem;background:#fff;border-top:1px solid #e5e7eb}
+.det-sec-body p,.det-sec-body div{font-size:.9rem;color:#374151;line-height:1.7}
+
+/* Video section */
+.vid-embed{position:relative;padding-bottom:56.25%;height:0;border-radius:10px;overflow:hidden;background:#000}
+.vid-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
+/* Condition advice */
+.advice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem}
+.advice-card{border-radius:10px;padding:.85rem 1rem;border:1px solid}
+.advice-yes{background:#f0fdf4;border-color:#86efac;color:#166534}
+.advice-no{background:#fff1f2;border-color:#fca5a5;color:#991b1b}
+.advice-card .cond-name{font-weight:800;font-size:.85rem;margin-bottom:.35rem}
+.advice-card .cond-note{font-size:.82rem;line-height:1.5}
+
+/* Diabetes note */
+.diab-note{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:.85rem 1rem;color:#78350f;font-size:.88rem;margin-bottom.75rem}
+
+@media(max-width:640px){
+  .det-hero{grid-template-columns:1fr}
+  .det-info h1{font-size:1.4rem}
+}
 </style>
 
-<div class="fd-wrap">
-  <div class="fd-hero">
+<div class="det-wrap">
+  <a href="/health/fruits/" style="font-size:.85rem;color:#16a34a;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:1rem">&#8592; Back to Fruits</a>
+
+  <!-- Hero -->
+  <div class="det-hero">
     <div>
-      {% if fruit.image %}<img src="{{ fruit.image.url }}" alt="{{ fruit.name }}">{% else %}<div class="no-img">🍎</div>{% endif %}
+      {% if fruit.image %}<img class="det-img" src="{{ fruit.image.url }}" alt="{{ fruit.name }}">
+      {% else %}<div class="det-noimg">🍎</div>{% endif %}
     </div>
-    <div class="fd-info">
+    <div class="det-info">
       <h1>{{ fruit.name }}</h1>
 
-      <div class="diabetes-badge {% if fruit.diabetes_safe %}diabetes-safe{% else %}diabetes-limit{% endif %}">
+      <div class="det-badge {% if fruit.diabetes_safe %}badge-safe{% else %}badge-limit{% endif %}">
         {% if fruit.diabetes_safe %}✅ Safe for Diabetes{% else %}⚠️ Limit for Diabetes{% endif %}
-      </div>
+      </div><br>
 
-      {% if fruit.diabetes_note %}
-      <div class="diabetes-note">{{ fruit.diabetes_note }}</div>
-      {% endif %}
-
-      <button class="fd-fav {% if is_fav %}active{% endif %}" id="favBtn" onclick="toggleFav({{ fruit.pk }},'fruit')">
+      <button class="det-fav {% if is_fav %}active{% endif %}" id="favBtn" onclick="toggleFav({{ fruit.pk }},'fruit')">
         <span id="favIcon">{% if is_fav %}❤️{% else %}🤍{% endif %}</span>
         <span id="favText">{% if is_fav %}Saved{% else %}Save{% endif %}</span>
       </button>
 
-      <div class="info-row">
-        {% if fruit.best_time %}<div class="info-badge"><strong>Best Time</strong>{{ fruit.best_time }}</div>{% endif %}
-        {% if fruit.serving_size %}<div class="info-badge"><strong>Serving</strong>{{ fruit.serving_size }}</div>{% endif %}
+      <div class="info-chips">
+        {% if fruit.best_time %}<div class="chip"><strong>Best Time</strong>{{ fruit.best_time }}</div>{% endif %}
+        {% if fruit.serving_size %}<div class="chip"><strong>Serving</strong>{{ fruit.serving_size }}</div>{% endif %}
       </div>
 
-      {% if fruit.description %}
-      <p style="color:#475569;line-height:1.6;font-size:.93rem">{{ fruit.description }}</p>
-      {% endif %}
+      {% if fruit.description %}<p class="det-desc">{{ fruit.description }}</p>{% endif %}
     </div>
   </div>
 
+  {% if fruit.diabetes_note %}
+  <div class="diab-note">💡 <strong>Diabetes Note:</strong> {{ fruit.diabetes_note }}</div>
+  {% endif %}
+
+  <!-- Nutrition -->
   {% if fruit.nutrition %}
-  <div class="fd-section">
-    <h3>📊 Nutrition Facts</h3>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem">
+  <div class="det-section">
+    <div class="det-sec-head" onclick="toggleSec(this)">
+      <span class="sec-icon">📊</span> Nutrition Facts
+      <span class="sec-arrow">▼</span>
+    </div>
+    <div class="det-sec-body">
       {{ fruit.nutrition|linebreaks }}
     </div>
   </div>
   {% endif %}
 
+  <!-- Benefits -->
   {% if fruit.benefits %}
-  <div class="fd-section">
-    <h3>✅ Health Benefits</h3>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem;color:#166534">
+  <div class="det-section">
+    <div class="det-sec-head" onclick="toggleSec(this)" style="background:#f0fdf4">
+      <span class="sec-icon">✅</span> Health Benefits
+      <span class="sec-arrow">▼</span>
+    </div>
+    <div class="det-sec-body">
       {{ fruit.benefits|linebreaks }}
     </div>
   </div>
   {% endif %}
+
+  <!-- Natural Treatment -->
+  {% if fruit.natural_treatment %}
+  <div class="det-section">
+    <div class="det-sec-head" onclick="toggleSec(this)" style="background:#faf5ff">
+      <span class="sec-icon">🌿</span> Natural Treatment
+      <span class="sec-arrow">▼</span>
+    </div>
+    <div class="det-sec-body">
+      {{ fruit.natural_treatment|linebreaks }}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Video -->
+  {% if fruit.video_embed %}
+  <div class="det-section">
+    <div class="det-sec-head" onclick="toggleSec(this)" style="background:#eff6ff">
+      <span class="sec-icon">▶️</span> Watch Video
+      <span class="sec-arrow">▼</span>
+    </div>
+    <div class="det-sec-body">
+      <div class="vid-embed">
+        <iframe src="{{ fruit.video_embed }}" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Condition Advice -->
+  {% if fruit.condition_advice %}
+  <div class="det-section">
+    <div class="det-sec-head" onclick="toggleSec(this)" style="background:#fef3c7">
+      <span class="sec-icon">🩺</span> Condition-wise Advice
+      <span class="sec-arrow">▼</span>
+    </div>
+    <div class="det-sec-body" id="condAdviceBox">
+      <div class="advice-grid" id="adviceGrid"></div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    try{
+      var data = JSON.parse('{{ fruit.condition_advice|escapejs }}');
+      var grid = document.getElementById('adviceGrid');
+      Object.entries(data).forEach(function([cond, info]){
+        var can = info.can_eat !== false;
+        var card = document.createElement('div');
+        card.className = 'advice-card ' + (can ? 'advice-yes' : 'advice-no');
+        card.innerHTML = '<div class="cond-name">'+(can?'✅ ':'❌ ')+cond.charAt(0).toUpperCase()+cond.slice(1)+'</div>'
+          +'<div class="cond-note">'+(info.note||'')+'</div>';
+        grid.appendChild(card);
+      });
+    }catch(e){}
+  })();
+  </script>
+  {% endif %}
+
 </div>
 
 <script>
+function toggleSec(head){
+  var body = head.nextElementSibling;
+  var arrow = head.querySelector('.sec-arrow');
+  if(body.style.display==='none'){body.style.display='block';arrow.style.transform='rotate(0deg)'}
+  else{body.style.display='none';arrow.style.transform='rotate(-90deg)'}
+}
 function getCookie(name){const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');return v?v[2]:null}
 function toggleFav(id,type){
   const btn=document.getElementById('favBtn');
-  const icon=document.getElementById('favIcon');
-  const txt=document.getElementById('favText');
   fetch('/health/favorites/toggle/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},body:JSON.stringify({type,id})})
   .then(r=>r.json()).then(d=>{
-    if(d.status==='added'){btn.classList.add('active');icon.textContent='❤️';txt.textContent='Saved'}
-    else{btn.classList.remove('active');icon.textContent='🤍';txt.textContent='Save'}
+    if(d.status==='added'){btn.classList.add('active');btn.querySelector('#favIcon').textContent='❤️';btn.querySelector('#favText').textContent='Saved'}
+    else{btn.classList.remove('active');btn.querySelector('#favIcon').textContent='🤍';btn.querySelector('#favText').textContent='Save'}
   })
 }
 </script>

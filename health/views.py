@@ -31,21 +31,11 @@ def super_admin_required(view_func):
 # ── HOME ──────────────────────────────────────────────────────────────────────
 
 def health_home(request):
-    settings    = HealthSettings.get()
-    conditions  = HealthCondition.objects.filter(is_featured=True)[:6]
-    all_conds   = HealthCondition.objects.all()[:12]
-    foods       = Food.objects.filter(is_featured=True)[:8]
-    fruits      = Fruit.objects.filter(is_featured=True)[:6]
-    recipes     = Recipe.objects.filter(is_featured=True)[:6]
-    videos      = Video.objects.filter(is_featured=True)[:4]
+    settings   = HealthSettings.get()
+    categories = FoodCategory.objects.filter(is_active=True).order_by('order', 'name')
     return render(request, 'health/home.html', {
         'settings': settings,
-        'conditions': conditions,
-        'all_conditions': all_conds,
-        'featured_foods': foods,
-        'featured_fruits': fruits,
-        'featured_recipes': recipes,
-        'featured_videos': videos,
+        'categories': categories,
     })
 
 

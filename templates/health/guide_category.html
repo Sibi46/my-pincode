@@ -2,50 +2,77 @@
 {% block title %}{{ category.name }} – Food Guide{% endblock %}
 {% block content %}
 <style>
-  .gc-hero{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:2rem 1rem;text-align:center}
-  .gc-hero h1{margin:0 0 .4rem;font-size:1.8rem}
-  .gc-hero p{margin:0;opacity:.85;font-size:.95rem}
-  .gc-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
-  .breadcrumb{font-size:.82rem;color:#64748b;margin-bottom:1.25rem}
-  .breadcrumb a{color:#059669;text-decoration:none}
-  .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
-  .item-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:.2s;display:flex;flex-direction:column}
-  .item-card:hover{box-shadow:0 4px 20px rgba(5,150,105,.15);transform:translateY(-2px);border-color:#059669}
-  .item-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f1faf5}
-  .item-no-img{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
-  .item-body{padding:.75rem}
-  .item-body h3{margin:0 0 .25rem;font-size:.95rem;font-weight:700;color:#111}
-  .item-body p{margin:0;font-size:.78rem;color:#64748b;line-height:1.35}
-  .star{color:#f59e0b;font-size:.75rem}
-  .gc-empty{text-align:center;padding:3rem;color:#94a3b8}
+.gc-hero{background:linear-gradient(135deg,#14532d,#16a34a);color:#fff;padding:0}
+.gc-hero-inner{max-width:1100px;margin:0 auto;padding:2rem 1rem;display:flex;align-items:center;gap:1.25rem}
+.gc-hero-img{width:80px;height:80px;border-radius:14px;object-fit:cover;border:3px solid rgba(255,255,255,.3);flex-shrink:0}
+.gc-hero-icon{width:80px;height:80px;border-radius:14px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:3rem;flex-shrink:0}
+.gc-hero-info h1{margin:0 0 4px;font-size:1.6rem;font-weight:900}
+.gc-hero-info p{margin:0;font-size:.88rem;opacity:.82}
+
+.gc-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.gc-back{display:inline-flex;align-items:center;gap:5px;font-size:.85rem;color:#16a34a;text-decoration:none;margin-bottom:1.25rem}
+
+.items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.25rem}
+
+.item-card{display:block;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:.2s}
+.item-card:hover{box-shadow:0 6px 24px rgba(21,128,61,.18);transform:translateY(-3px);border-color:#16a34a}
+
+.item-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.item-card-icon{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;font-size:3.5rem}
+
+.item-card-body{padding:.85rem 1rem}
+.item-card-body h3{margin:0 0 3px;font-size:.95rem;font-weight:800;color:#111}
+.item-card-body p{margin:0;font-size:.78rem;color:#64748b;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item-featured{display:inline-flex;align-items:center;gap:3px;font-size:.72rem;color:#f59e0b;font-weight:700;margin-top:.35rem}
+.view-btn{display:block;text-align:center;margin-top:.6rem;padding:.35rem 0;background:#f0fdf4;border-radius:8px;font-size:.8rem;font-weight:700;color:#16a34a}
+
+.gc-empty{text-align:center;padding:4rem 1rem;color:#94a3b8}
+
+@media(max-width:480px){
+  .items-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .gc-hero-info h1{font-size:1.3rem}
+}
 </style>
+
 <div class="gc-hero">
-  <h1>{{ category.icon }} {{ category.name }}</h1>
-  {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+  <div class="gc-hero-inner">
+    {% if category.image %}
+    <img class="gc-hero-img" src="{{ category.image.url }}" alt="{{ category.name }}">
+    {% else %}
+    <div class="gc-hero-icon">{{ category.icon }}</div>
+    {% endif %}
+    <div class="gc-hero-info">
+      <h1>{{ category.name }}</h1>
+      {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+    </div>
+  </div>
 </div>
+
 <div class="gc-wrap">
-  <div class="breadcrumb"><a href="/health/">Health</a> › <a href="/health/guide/">Food Guide</a> › {{ category.name }}</div>
+  <a class="gc-back" href="/health/">&#8592; Back to Health Guide</a>
+
   {% if items %}
   <div class="items-grid">
     {% for item in items %}
     <a class="item-card" href="/health/guide/{{ category.slug }}/{{ item.slug }}/">
       {% if item.image %}
-      <img class="item-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+      <img class="item-card-img" src="{{ item.image.url }}" alt="{{ item.name }}">
       {% else %}
-      <div class="item-no-img">{{ category.icon }}</div>
+      <div class="item-card-icon">{{ category.icon }}</div>
       {% endif %}
-      <div class="item-body">
+      <div class="item-card-body">
         <h3>{{ item.name }}</h3>
-        {% if item.is_featured %}<span class="star">⭐ Featured</span>{% endif %}
-        {% if item.description %}<p>{{ item.description|truncatechars:55 }}</p>{% endif %}
+        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+        {% if item.is_featured %}<div class="item-featured">⭐ Featured</div>{% endif %}
+        <span class="view-btn">View Details →</span>
       </div>
     </a>
     {% endfor %}
   </div>
   {% else %}
   <div class="gc-empty">
-    <div style="font-size:3rem;margin-bottom:.75rem">{{ category.icon }}</div>
-    <p>No items in this category yet. Check back soon!</p>
+    <div style="font-size:3.5rem;margin-bottom:.75rem">{{ category.icon }}</div>
+    <p>No items in this category yet.</p>
   </div>
   {% endif %}
 </div>

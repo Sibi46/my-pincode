@@ -2,258 +2,69 @@
 {% block title %}Healthy Food Guide — MY PINCOD{% endblock %}
 {% block content %}
 <style>
-:root{--green:#16a34a;--green-light:#f0fdf4;--green-mid:#dcfce7;--orange:#ea580c;--blue:#0a66c2}
-.h-hero{background:linear-gradient(135deg,#14532d 0%,#166534 50%,#15803d 100%);padding:48px 20px 40px;text-align:center;color:#fff}
-.h-hero h1{font-size:clamp(22px,4vw,36px);font-weight:900;margin:0 0 8px}
-.h-hero p{font-size:15px;opacity:.85;margin:0 0 28px}
-.h-search-box{display:flex;max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.25)}
-.h-search-box input{flex:1;border:none;padding:14px 18px;font-size:15px;outline:none;color:#111}
-.h-search-box button{background:#f3a000;color:#fff;border:none;padding:0 24px;font-size:16px;cursor:pointer}
-.h-quick{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
-.h-quick a{background:rgba(255,255,255,.15);color:#fff;padding:7px 16px;border-radius:20px;font-size:13px;text-decoration:none;transition:.2s;border:1px solid rgba(255,255,255,.3)}
-.h-quick a:hover{background:rgba(255,255,255,.28)}
-.h-sec{padding:48px 20px}
-.h-sec-alt{background:#f8fafb}
-.h-wrap{max-width:1100px;margin:0 auto}
-.h-title{text-align:center;margin-bottom:32px}
-.h-title h2{font-size:22px;font-weight:900;color:#111;margin:0 0 6px}
-.h-title p{font-size:14px;color:#666;margin:0}
-.cond-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.cond-card{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;text-decoration:none;transition:.2s}
-.cond-card:hover{border-color:#16a34a;box-shadow:0 4px 16px rgba(22,163,74,.12);transform:translateY(-2px)}
-.cond-icon{font-size:28px;flex-shrink:0}
-.cond-name{font-size:14px;font-weight:700;color:#111}
-.cond-sub{font-size:11px;color:#888;margin-top:2px}
-.food-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
-.food-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;text-decoration:none;transition:.2s;display:block}
-.food-card:hover{border-color:#16a34a;box-shadow:0 4px 16px rgba(22,163,74,.12);transform:translateY(-2px)}
-.food-card img{width:100%;height:120px;object-fit:cover}
-.food-card-body{padding:10px 12px}
-.food-card-body h4{font-size:13px;font-weight:700;color:#111;margin:0 0 3px}
-.food-card-body p{font-size:11px;color:#888;margin:0}
-.food-card-placeholder{width:100%;height:120px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);display:flex;align-items:center;justify-content:center;font-size:36px}
-.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-.recipe-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;text-decoration:none;display:block;transition:.2s}
-.recipe-card:hover{border-color:#16a34a;box-shadow:0 4px 16px rgba(22,163,74,.12);transform:translateY(-2px)}
-.recipe-card img{width:100%;height:150px;object-fit:cover}
-.recipe-placeholder{width:100%;height:150px;background:linear-gradient(135deg,#fef3c7,#fde68a);display:flex;align-items:center;justify-content:center;font-size:40px}
-.recipe-card-body{padding:14px}
-.recipe-card-body h4{font-size:14px;font-weight:700;color:#111;margin:0 0 6px}
-.recipe-meta{display:flex;gap:10px;flex-wrap:wrap}
-.recipe-meta span{font-size:11px;color:#888;display:flex;align-items:center;gap:4px}
-.r-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#dcfce7;color:#166534;margin-bottom:6px}
-.tip-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #bbf7d0;border-radius:16px;padding:24px;text-align:center;margin-bottom:0}
-.tip-box .tip-icon{font-size:36px;margin-bottom:8px}
-.tip-box p{font-size:15px;color:#166534;font-weight:600;margin:0;line-height:1.6}
-.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
-.module-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:24px;text-align:center;text-decoration:none;transition:.2s;display:block}
-.module-card:hover{border-color:#16a34a;box-shadow:0 4px 16px rgba(22,163,74,.12);transform:translateY(-2px)}
-.module-icon{font-size:36px;margin-bottom:10px}
-.module-card h3{font-size:15px;font-weight:800;color:#111;margin:0 0 5px}
-.module-card p{font-size:12px;color:#888;margin:0}
-.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
-.video-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;overflow:hidden;text-decoration:none;display:block;transition:.2s}
-.video-card:hover{border-color:#16a34a;box-shadow:0 4px 16px rgba(22,163,74,.12)}
-.video-thumb{position:relative;padding-top:56.25%;background:#111;overflow:hidden}
-.video-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.video-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.video-play i{font-size:42px;color:rgba(255,255,255,.9);text-shadow:0 2px 8px rgba(0,0,0,.5)}
-.video-card-body{padding:12px}
-.video-card-body h4{font-size:13px;font-weight:700;color:#111;margin:0 0 4px}
-.video-card-body p{font-size:11px;color:#888;margin:0}
-.user-features{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.uf-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px;text-align:center;text-decoration:none;transition:.2s;display:block}
-.uf-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1)}
-.uf-icon{font-size:28px;margin-bottom:8px}
-.uf-card h4{font-size:13px;font-weight:700;color:#111;margin:0 0 3px}
-.uf-card p{font-size:11px;color:#888;margin:0}
-@media(max-width:600px){
-  .cond-grid{grid-template-columns:repeat(2,1fr)}
-  .food-grid{grid-template-columns:repeat(2,1fr)}
-  .module-grid{grid-template-columns:repeat(2,1fr)}
-  .user-features{grid-template-columns:repeat(2,1fr)}
+.hg-hero{background:linear-gradient(135deg,#14532d 0%,#166534 60%,#15803d 100%);padding:44px 20px 36px;text-align:center;color:#fff}
+.hg-hero h1{font-size:clamp(22px,4vw,34px);font-weight:900;margin:0 0 8px}
+.hg-hero p{font-size:14px;opacity:.82;margin:0}
+
+.hg-wrap{max-width:1100px;margin:0 auto;padding:2rem 1rem 3rem}
+
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.25rem}
+
+.cat-card{display:block;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;transition:.2s}
+.cat-card:hover{box-shadow:0 6px 24px rgba(21,128,61,.18);transform:translateY(-3px);border-color:#16a34a}
+
+.cat-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+.cat-card-icon{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;font-size:4.5rem}
+
+.cat-card-body{padding:.9rem 1rem}
+.cat-card-body h3{margin:0 0 3px;font-size:1rem;font-weight:800;color:#111}
+.cat-card-body p{margin:0;font-size:.8rem;color:#64748b;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat-item-count{display:inline-block;margin-top:.45rem;font-size:.75rem;font-weight:700;color:#16a34a}
+
+.hg-empty{text-align:center;padding:4rem 1rem;color:#94a3b8}
+.hg-empty .empty-icon{font-size:4rem;margin-bottom:.75rem}
+.hg-empty p{font-size:1rem;margin:0}
+
+@media(max-width:480px){
+  .cat-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
+  .cat-card-body{padding:.7rem .8rem}
+  .cat-card-body h3{font-size:.9rem}
 }
 </style>
 
-<!-- Hero -->
-<div class="h-hero">
-  <div style="font-size:48px;margin-bottom:12px">🥗</div>
+<div class="hg-hero">
+  <div style="font-size:3rem;margin-bottom:10px">🥗</div>
   <h1>Healthy Food Guide</h1>
+  {% if settings.site_tagline %}
   <p>{{ settings.site_tagline }}</p>
-  <form class="h-search-box" action="/health/search/" method="get">
-    <input type="text" name="q" placeholder="Search food, condition, recipe, herb…" autocomplete="off">
-    <button type="submit"><i class="fas fa-search"></i></button>
-  </form>
-  <div class="h-quick">
-    <a href="/health/condition/diabetes/">🩸 Diabetes</a>
-    <a href="/health/condition/blood-pressure/">💓 Blood Pressure</a>
-    <a href="/health/condition/heart-health/">❤️ Heart Health</a>
-    <a href="/health/condition/obesity/">⚖️ Obesity</a>
-    <a href="/health/fruits/">🍎 Fruits</a>
-    <a href="/health/recipes/">🍳 Recipes</a>
-    <a href="/health/chat/">🤖 AI Chat</a>
-  </div>
+  {% else %}
+  <p>Click a category to explore what's good for your health</p>
+  {% endif %}
 </div>
 
-{% if settings.daily_tip %}
-<div class="h-sec" style="padding:24px 20px">
-  <div class="h-wrap">
-    <div class="tip-box">
-      <div class="tip-icon">💡</div>
-      <p><strong>Today's Tip:</strong> {{ settings.daily_tip }}</p>
-    </div>
+<div class="hg-wrap">
+  {% if categories %}
+  <div class="cat-grid">
+    {% for cat in categories %}
+    <a class="cat-card" href="/health/guide/{{ cat.slug }}/">
+      {% if cat.image %}
+      <img class="cat-card-img" src="{{ cat.image.url }}" alt="{{ cat.name }}">
+      {% else %}
+      <div class="cat-card-icon">{{ cat.icon }}</div>
+      {% endif %}
+      <div class="cat-card-body">
+        <h3>{{ cat.icon }} {{ cat.name }}</h3>
+        {% if cat.description %}<p>{{ cat.description }}</p>{% endif %}
+        <span class="cat-item-count">{{ cat.items.count }} items →</span>
+      </div>
+    </a>
+    {% endfor %}
   </div>
-</div>
-{% endif %}
-
-<!-- Health Conditions -->
-<div class="h-sec h-sec-alt">
-  <div class="h-wrap">
-    <div class="h-title">
-      <h2>🩺 Health Conditions</h2>
-      <p>Find the right foods for your health condition</p>
-    </div>
-    <div class="cond-grid">
-      {% for c in all_conditions %}
-      <a href="/health/condition/{{ c.slug }}/" class="cond-card">
-        <span class="cond-icon">{{ c.icon }}</span>
-        <div>
-          <div class="cond-name">{{ c.name }}</div>
-          <div class="cond-sub">Food guide</div>
-        </div>
-      </a>
-      {% empty %}
-      <a href="/health/condition/diabetes/" class="cond-card"><span class="cond-icon">🩸</span><div><div class="cond-name">Diabetes</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/blood-pressure/" class="cond-card"><span class="cond-icon">💓</span><div><div class="cond-name">Blood Pressure</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/cholesterol/" class="cond-card"><span class="cond-icon">🫀</span><div><div class="cond-name">Cholesterol</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/fatty-liver/" class="cond-card"><span class="cond-icon">🫁</span><div><div class="cond-name">Fatty Liver</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/arthritis/" class="cond-card"><span class="cond-icon">🦴</span><div><div class="cond-name">Arthritis</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/thyroid/" class="cond-card"><span class="cond-icon">🔬</span><div><div class="cond-name">Thyroid</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/pcos/" class="cond-card"><span class="cond-icon">🌸</span><div><div class="cond-name">PCOS</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/obesity/" class="cond-card"><span class="cond-icon">⚖️</span><div><div class="cond-name">Obesity</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/kidney-health/" class="cond-card"><span class="cond-icon">🫘</span><div><div class="cond-name">Kidney Health</div><div class="cond-sub">Food guide</div></div></a>
-      <a href="/health/condition/heart-health/" class="cond-card"><span class="cond-icon">❤️</span><div><div class="cond-name">Heart Health</div><div class="cond-sub">Food guide</div></div></a>
-      {% endfor %}
-    </div>
+  {% else %}
+  <div class="hg-empty">
+    <div class="empty-icon">🌱</div>
+    <p>Food categories are being added. Check back soon!</p>
   </div>
+  {% endif %}
 </div>
-
-<!-- Modules -->
-<div class="h-sec">
-  <div class="h-wrap">
-    <div class="h-title">
-      <h2>📚 Explore Modules</h2>
-      <p>Your complete healthy eating library</p>
-    </div>
-    <div class="module-grid">
-      <a href="/health/foods/" class="module-card"><div class="module-icon">🥬</div><h3>Food Library</h3><p>Complete food database</p></a>
-      <a href="/health/fruits/" class="module-card"><div class="module-icon">🍎</div><h3>Fruits</h3><p>Benefits & nutrition</p></a>
-      <a href="/health/vegetables/" class="module-card"><div class="module-icon">🥦</div><h3>Vegetables</h3><p>CRUD & cooking methods</p></a>
-      <a href="/health/herbs/" class="module-card"><div class="module-icon">🌿</div><h3>Herbs & Spices</h3><p>Tulsi, Neem, Turmeric…</p></a>
-      <a href="/health/recipes/" class="module-card"><div class="module-icon">🍳</div><h3>Recipes</h3><p>Healthy meal ideas</p></a>
-      <a href="/health/videos/" class="module-card"><div class="module-icon">▶️</div><h3>Videos</h3><p>Watch & learn</p></a>
-    </div>
-  </div>
-</div>
-
-<!-- Featured Foods -->
-{% if featured_foods %}
-<div class="h-sec h-sec-alt">
-  <div class="h-wrap">
-    <div class="h-title"><h2>⭐ Featured Foods</h2><p>Handpicked healthy foods</p></div>
-    <div class="food-grid">
-      {% for food in featured_foods %}
-      <a href="/health/foods/{{ food.slug }}/" class="food-card">
-        {% if food.image %}<img src="{{ food.image.url }}" alt="{{ food.name }}">
-        {% else %}<div class="food-card-placeholder">🥬</div>{% endif %}
-        <div class="food-card-body">
-          <h4>{{ food.name }}</h4>
-          <p>{{ food.description|truncatechars:50 }}</p>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- Featured Recipes -->
-{% if featured_recipes %}
-<div class="h-sec">
-  <div class="h-wrap">
-    <div class="h-title"><h2>🍳 Healthy Recipes</h2><p>Easy, nutritious meals</p></div>
-    <div class="recipe-grid">
-      {% for recipe in featured_recipes %}
-      <a href="/health/recipes/{{ recipe.slug }}/" class="recipe-card">
-        {% if recipe.image %}<img src="{{ recipe.image.url }}" alt="{{ recipe.name }}">
-        {% else %}<div class="recipe-placeholder">🍳</div>{% endif %}
-        <div class="recipe-card-body">
-          <div class="r-badge">{{ recipe.get_category_display }}</div>
-          <h4>{{ recipe.name }}</h4>
-          <div class="recipe-meta">
-            {% if recipe.prep_time %}<span><i class="fas fa-clock"></i> {{ recipe.total_time }} min</span>{% endif %}
-            {% if recipe.calories %}<span><i class="fas fa-fire"></i> {{ recipe.calories }} cal</span>{% endif %}
-            <span><i class="fas fa-signal"></i> {{ recipe.get_difficulty_display }}</span>
-          </div>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-    <div style="text-align:center;margin-top:24px">
-      <a href="/health/recipes/" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:#16a34a;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">View All Recipes →</a>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- Videos -->
-{% if featured_videos %}
-<div class="h-sec h-sec-alt">
-  <div class="h-wrap">
-    <div class="h-title"><h2>▶️ Health Videos</h2><p>Watch expert tips</p></div>
-    <div class="video-grid">
-      {% for v in featured_videos %}
-      <a href="/health/videos/?cat={{ v.category }}" class="video-card">
-        <div class="video-thumb">
-          <img src="{{ v.thumb_url }}" alt="{{ v.title }}">
-          <div class="video-play"><i class="fab fa-youtube" style="color:#ff0000"></i></div>
-        </div>
-        <div class="video-card-body">
-          <h4>{{ v.title }}</h4>
-          <p>{{ v.get_category_display }}</p>
-        </div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-{% endif %}
-
-<!-- User Features -->
-<div class="h-sec">
-  <div class="h-wrap">
-    <div class="h-title"><h2>🌟 Your Health Tools</h2><p>Track your healthy journey</p></div>
-    <div class="user-features">
-      <a href="{% if request.user.is_authenticated %}/health/favorites/{% else %}/login/?next=/health/favorites/{% endif %}" class="uf-card">
-        <div class="uf-icon">❤️</div><h4>Favorites</h4><p>Save foods & recipes</p>
-      </a>
-      <a href="{% if request.user.is_authenticated %}/health/diary/{% else %}/login/?next=/health/diary/{% endif %}" class="uf-card">
-        <div class="uf-icon">📔</div><h4>Food Diary</h4><p>Log your daily meals</p>
-      </a>
-      <a href="{% if request.user.is_authenticated %}/health/planner/{% else %}/login/?next=/health/planner/{% endif %}" class="uf-card">
-        <div class="uf-icon">📅</div><h4>Meal Planner</h4><p>Plan your week</p>
-      </a>
-      <a href="{% if request.user.is_authenticated %}/health/shopping-list/{% else %}/login/?next=/health/shopping-list/{% endif %}" class="uf-card">
-        <div class="uf-icon">🛒</div><h4>Shopping List</h4><p>Auto from recipes</p>
-      </a>
-      <a href="{% if request.user.is_authenticated %}/health/progress/{% else %}/login/?next=/health/progress/{% endif %}" class="uf-card">
-        <div class="uf-icon">📊</div><h4>Progress</h4><p>Track your streak</p>
-      </a>
-      <a href="/health/chat/" class="uf-card" style="border-color:#7c3aed">
-        <div class="uf-icon">🤖</div><h4>AI Assistant</h4><p>Ask food questions</p>
-      </a>
-    </div>
-  </div>
-</div>
-
 {% endblock %}

@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+﻿{% extends 'health/admin/base.html' %}
 {% block title %}Food Guide – Categories{% endblock %}
-{% block content %}
+{% block hadmin_content %}
 <style>
   .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
   .adm-header h1{margin:0;font-size:1.3rem}
@@ -25,19 +25,17 @@
   <a href="/health/admin/">← Admin Home</a>
 </div>
 <div class="adm-wrap">
-  {% if messages %}<div style="margin-bottom:1rem">{% for m in messages %}<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:.6rem 1rem;color:#065f46;font-size:.9rem">{{ m }}</div>{% endfor %}</div>{% endif %}
   <div class="toolbar">
     <a class="btn-add" href="/health/admin/guide/categories/add/">+ Add Category</a>
   </div>
   <table>
     <thead>
-      <tr><th>Image</th><th>Icon</th><th>Name</th><th>Items</th><th>Order</th><th>Status</th><th>Actions</th></tr>
+      <tr><th>Image</th><th>Name</th><th>Items</th><th>Order</th><th>Status</th><th>Actions</th></tr>
     </thead>
     <tbody>
       {% for cat in items %}
       <tr>
-        <td>{% if cat.image %}<img class="cat-img" src="{{ cat.image.url }}">{% else %}<div class="cat-img" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem">{{ cat.icon }}</div>{% endif %}</td>
-        <td style="font-size:1.5rem">{{ cat.icon }}</td>
+        <td>{% if cat.image %}<img class="cat-img" src="{{ cat.image.url }}">{% else %}<div class="cat-img" style="display:flex;align-items:center;justify-content:center;background:#f1f5f9;color:#94a3b8;font-size:.7rem">No img</div>{% endif %}</td>
         <td><strong>{{ cat.name }}</strong><br><small style="color:#94a3b8">/health/guide/{{ cat.slug }}/</small></td>
         <td>{{ cat.item_count }}</td>
         <td>{{ cat.order }}</td>
@@ -55,3 +53,5 @@
   </table>
 </div>
 {% endblock %}
+
+

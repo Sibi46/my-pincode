@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+﻿{% extends 'health/admin/base.html' %}
 {% load health_extras %}
 {% block title %}{% if obj %}Edit{% else %}Add{% endif %} Guide Item – Admin{% endblock %}
-{% block content %}
+{% block hadmin_content %}
 <style>
   .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
   .adm-header h1{margin:0;font-size:1.3rem}
@@ -146,4 +146,19 @@
     </div>
   </form>
 </div>
+<script>
+document.querySelector('input[name="name"]').addEventListener('input', function(){
+  var slugField = document.querySelector('input[name="slug"]');
+  if (!slugField._edited) {
+    slugField.value = this.value.toLowerCase().trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+});
+document.querySelector('input[name="slug"]').addEventListener('input', function(){
+  this._edited = true;
+});
+</script>
 {% endblock %}
+

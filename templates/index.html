@@ -261,54 +261,79 @@ a{text-decoration:none;color:inherit}
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
-    <h1>Business, Opportunity, Job at Near You</h1>
-    <p class="hero-sub">Find Jobs Near You. &nbsp;•&nbsp; Hire People Near You. &nbsp;•&nbsp; India's PIN-code based hyperlocal job portal.</p>
+    <div class="hero-badge"><i class="fas fa-map-pin"></i> India's #1 PIN-code Based Job Portal</div>
+    <h1>Find Jobs &amp; Opportunities<br><span class="hero-highlight">Near Your PIN Code</span></h1>
+    <p class="hero-sub">Connect with local employers • Hire local talent • Grow your business nearby</p>
 
-    <form class="hero-search" action="/jobs/" method="get">
-      <div class="hs-wrap">
-        <div class="hs-field">
-          <i class="fas fa-briefcase"></i>
+    <form class="hero-form" action="/jobs/" method="get">
+      <div class="hf-box">
+        <div class="hf-field">
+          <div class="hf-icon"><i class="fas fa-briefcase"></i></div>
           <input type="text" name="q" placeholder="Job title, skill or keyword…" autocomplete="off">
         </div>
-        <div class="hs-sep"></div>
-        <div class="hs-field hs-pin">
-          <i class="fas fa-map-pin"></i>
-          <input type="text" name="pincode" placeholder="PIN code" maxlength="6" autocomplete="off">
+        <div class="hf-divider"></div>
+        <div class="hf-field hf-pin">
+          <div class="hf-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <input type="text" name="pincode" placeholder="Enter PIN code" maxlength="6" inputmode="numeric" autocomplete="off">
         </div>
-        <button type="submit"><i class="fas fa-search"></i><span> Search</span></button>
+        <button type="submit" class="hf-btn"><i class="fas fa-search"></i> Search Jobs</button>
       </div>
     </form>
 
+    <div class="hero-quick">
+      <span class="hq-label">Popular:</span>
+      <a href="/jobs/?q=driver" class="hq-tag">Driver</a>
+      <a href="/jobs/?q=cook" class="hq-tag">Cook</a>
+      <a href="/jobs/?q=security" class="hq-tag">Security Guard</a>
+      <a href="/jobs/?q=sales" class="hq-tag">Sales</a>
+      <a href="/jobs/?q=accountant" class="hq-tag">Accountant</a>
+    </div>
   </div>
+
 </section>
 
 <style>
-.hero{background:linear-gradient(135deg,#0d47a1 0%,#1565c0 40%,#0a66c2 100%);padding:36px 20px 32px;text-align:center}
-.hero-inner{max-width:680px;margin:0 auto}
-.hero h1{font-size:clamp(16px,3vw,22px);font-weight:800;color:#fff;line-height:1.3;margin-bottom:6px}
-.hero-sub{font-size:13px;color:rgba(255,255,255,.78);margin-bottom:20px;white-space:nowrap}
-.hero-search{margin-bottom:0}
-.hs-wrap{display:flex;align-items:center;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.22);padding:4px}
-.hs-field{display:flex;align-items:center;gap:8px;flex:1;padding:4px 10px}
-.hs-field i{color:#0a66c2;font-size:14px;flex-shrink:0}
-.hs-field input{width:100%;border:none;outline:none;font-size:14px;color:#111;background:transparent}
-.hs-field input::placeholder{color:#bbb}
-.hs-pin{flex:0 0 110px;border-left:1px solid #e5e7eb}
-.hs-sep{width:1px;height:24px;background:#e5e7eb;flex-shrink:0}
-.hero-search button{background:#f3a000;color:#fff;border:none;padding:10px 16px;font-size:14px;font-weight:800;cursor:pointer;border-radius:8px;white-space:nowrap;flex-shrink:0;transition:.2s;display:flex;align-items:center;gap:5px}
-.hero-search button:hover{background:#e09000}
-.hero-search button span{display:inline}
-@media(max-width:580px){
-  .hero{padding:22px 14px 20px}
-  .hero h1{font-size:15px}
-  .hero-sub{font-size:12px;white-space:normal}
-  .hs-wrap{padding:3px;border-radius:10px}
-  .hs-field{padding:3px 8px;gap:5px}
-  .hs-field i{font-size:12px}
-  .hs-field input{font-size:13px}
-  .hs-pin{flex:0 0 80px}
-  .hero-search button{padding:9px 11px;font-size:13px;border-radius:7px}
-  .hero-search button span{display:none}
+.hero{background:linear-gradient(135deg,#0d47a1 0%,#0a66c2 60%,#1976d2 100%);padding:52px 20px 0;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+.hero-inner{max-width:760px;margin:0 auto;padding-bottom:40px;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:30px;margin-bottom:20px;letter-spacing:.3px}
+.hero h1{font-size:clamp(26px,4.5vw,44px);font-weight:900;color:#fff;line-height:1.2;margin-bottom:12px;letter-spacing:-.5px}
+.hero-highlight{color:#ffd54f;display:inline-block}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:28px;line-height:1.6}
+
+/* Search Box */
+.hero-form{margin-bottom:16px}
+.hf-box{display:flex;align-items:center;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.28);padding:6px 6px 6px 0}
+.hf-field{display:flex;align-items:center;flex:1;padding:4px 4px 4px 16px;gap:10px}
+.hf-icon{width:36px;height:36px;border-radius:10px;background:#eff6ff;color:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.hf-field input{width:100%;border:none;outline:none;font-size:15px;color:#111;background:transparent;font-family:inherit}
+.hf-field input::placeholder{color:#aab}
+.hf-divider{width:1px;height:40px;background:#e5e7eb;flex-shrink:0;margin:0 4px}
+.hf-pin{flex:0 0 170px}
+.hf-btn{background:linear-gradient(135deg,#f3a000,#e08800);color:#fff;border:none;padding:12px 22px;font-size:15px;font-weight:800;cursor:pointer;border-radius:10px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:8px;transition:.2s;margin:2px}
+.hf-btn:hover{background:linear-gradient(135deg,#e09000,#c97a00);transform:translateY(-1px)}
+
+/* Quick tags */
+.hero-quick{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.hq-label{font-size:12px;color:rgba(255,255,255,.6);font-weight:600}
+.hq-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;transition:.2s}
+.hq-tag:hover{background:rgba(255,255,255,.25);color:#fff}
+
+
+@media(max-width:640px){
+  .hero{padding:32px 14px 0}
+  .hero h1{font-size:22px}
+  .hero-sub{font-size:13px}
+  .hf-box{flex-direction:column;border-radius:12px;padding:8px;gap:4px;align-items:stretch}
+  .hf-field{padding:8px 12px}
+  .hf-divider{display:none}
+  .hf-pin{flex:1}
+  .hf-btn{border-radius:8px;justify-content:center;padding:13px}
+  .hero-quick{gap:6px}
+  .hero-badge{font-size:11px;padding:5px 12px}
+}
+@media(max-width:380px){
+  .hq-tag:nth-child(n+5){display:none}
 }
 </style>
 

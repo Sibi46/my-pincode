@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+﻿{% extends 'health/admin/base.html' %}
 {% block title %}{% if obj %}Edit{% else %}Add{% endif %} Category – Guide Admin{% endblock %}
-{% block content %}
+{% block hadmin_content %}
 <style>
   .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
   .adm-header h1{margin:0;font-size:1.3rem}
@@ -35,7 +35,6 @@
         <div class="form-group"><label>Slug (auto-fills)</label><input type="text" name="slug" value="{{ obj.slug|default:'' }}"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Icon (emoji)</label><input type="text" name="icon" value="{{ obj.icon|default:'🥗' }}" maxlength="4" style="font-size:1.5rem"></div>
         <div class="form-group"><label>Order (lower = first)</label><input type="number" name="order" value="{{ obj.order|default:'0' }}" min="0"></div>
       </div>
       <div class="form-group">
@@ -49,6 +48,20 @@
         <label for="is_active">Active (visible to users)</label>
       </div>
     </div>
+    <script>
+    document.querySelector('input[name="name"]').addEventListener('input', function(){
+      var slugField = document.querySelector('input[name="slug"]');
+      if (!slugField._edited) {
+        slugField.value = this.value.toLowerCase().trim()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-');
+      }
+    });
+    document.querySelector('input[name="slug"]').addEventListener('input', function(){
+      this._edited = true;
+    });
+    </script>
     <div class="form-actions">
       <a class="btn-cancel" href="/health/admin/guide/categories/">Cancel</a>
       <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Create Category{% endif %}</button>
@@ -56,3 +69,4 @@
   </form>
 </div>
 {% endblock %}
+

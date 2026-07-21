@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+﻿{% extends 'health/admin/base.html' %}
 {% block title %}Food Guide – Items{% endblock %}
-{% block content %}
+{% block hadmin_content %}
 <style>
   .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
   .adm-header h1{margin:0;font-size:1.3rem}
@@ -26,7 +26,6 @@
   <a href="/health/admin/">← Admin Home</a>
 </div>
 <div class="adm-wrap">
-  {% if messages %}<div style="margin-bottom:1rem">{% for m in messages %}<div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:.6rem 1rem;color:#065f46;font-size:.9rem">{{ m }}</div>{% endfor %}</div>{% endif %}
   <div class="toolbar">
     <div class="filter-bar">
       <a href="/health/admin/guide/items/" class="{% if not active_cat %}active{% endif %}">All</a>
@@ -60,3 +59,5 @@
   </table>
 </div>
 {% endblock %}
+
+

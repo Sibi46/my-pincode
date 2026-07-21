@@ -103,6 +103,12 @@ class Fruit(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def video_embed(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
+
 
 class Vegetable(models.Model):
     name              = models.CharField(max_length=100)
@@ -127,6 +133,12 @@ class Vegetable(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def video_embed(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
+
 
 class Herb(models.Model):
     name                = models.CharField(max_length=100)
@@ -150,6 +162,12 @@ class Herb(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def video_embed(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return f'https://www.youtube.com/embed/{m.group(1)}' if m else ''
 
 
 class Recipe(models.Model):

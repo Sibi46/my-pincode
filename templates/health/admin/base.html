@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .ha-layout{display:flex;min-height:calc(100vh - 60px)}
+  .ha-sidebar{width:220px;flex-shrink:0;background:#0f172a;display:flex;flex-direction:column;position:sticky;top:0;height:calc(100vh - 60px);overflow-y:auto}
+  .ha-sidebar-logo{padding:1rem 1rem .75rem;border-bottom:1px solid #1e293b;display:flex;align-items:center;gap:.6rem}
+  .ha-sidebar-logo span{font-size:.85rem;font-weight:800;color:#fff;letter-spacing:.03em}
+  .ha-nav-section{padding:.75rem .75rem .25rem;font-size:.65rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.08em}
+  .ha-nav-link{display:flex;align-items:center;gap:.6rem;padding:.55rem 1rem;color:#94a3b8;text-decoration:none;font-size:.82rem;font-weight:500;border-left:3px solid transparent;transition:.15s}
+  .ha-nav-link:hover{color:#fff;background:#1e293b;border-left-color:#334155}
+  .ha-nav-link.active{color:#fff;background:#1e293b;border-left-color:#059669}
+  .ha-nav-link .icon{width:18px;text-align:center;font-size:.9rem;flex-shrink:0}
+  .ha-sidebar-footer{margin-top:auto;padding:.75rem;border-top:1px solid #1e293b}
+  .ha-sidebar-footer a{display:block;color:#475569;text-decoration:none;font-size:.78rem;padding:.4rem .5rem;border-radius:6px}
+  .ha-sidebar-footer a:hover{color:#94a3b8;background:#1e293b}
+  .ha-main{flex:1;min-width:0;background:#f8fafc}
+  @media(max-width:768px){
+    .ha-sidebar{width:220px;position:fixed;z-index:200;transform:translateX(-100%);transition:.25s}
+    .ha-sidebar.open{transform:translateX(0)}
+    .ha-toggle{display:flex!important}
+  }
+  .ha-toggle{display:none;position:fixed;bottom:1rem;left:1rem;z-index:300;background:#059669;color:#fff;border:0;border-radius:50%;width:46px;height:46px;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.3);align-items:center;justify-content:center}
+</style>
+
+<div class="ha-layout">
+  <aside class="ha-sidebar" id="haSidebar">
+    <div class="ha-sidebar-logo">
+      <span>🏥 Health Admin</span>
+    </div>
+
+    <div class="ha-nav-section">Overview</div>
+    <a class="ha-nav-link" href="/health/admin/"><span class="icon">📊</span>Dashboard</a>
+
+    <div class="ha-nav-section">Food Guide</div>
+    <a class="ha-nav-link" href="/health/admin/guide/categories/"><span class="icon">🗂️</span>Categories</a>
+    <a class="ha-nav-link" href="/health/admin/guide/items/"><span class="icon">🌱</span>Items</a>
+
+    <div class="ha-nav-section">Individual</div>
+    <a class="ha-nav-link" href="/health/admin/fruits/"><span class="icon">🍎</span>Fruits</a>
+    <a class="ha-nav-link" href="/health/admin/vegetables/"><span class="icon">🥦</span>Vegetables</a>
+    <a class="ha-nav-link" href="/health/admin/herbs/"><span class="icon">🌱</span>Herbs</a>
+
+    <div class="ha-nav-section">System</div>
+    <a class="ha-nav-link" href="/health/admin/settings/"><span class="icon">⚙️</span>Settings</a>
+
+    <div class="ha-sidebar-footer">
+      <a href="/health/">🌐 View Health Guide</a>
+      <a href="/">🏠 Back to Site</a>
+    </div>
+  </aside>
+
+  <main class="ha-main">
+    {% if messages %}
+    <div style="padding:.75rem 1rem 0">
+      {% for m in messages %}
+      <div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:.55rem 1rem;color:#065f46;font-size:.88rem;margin-bottom:.5rem">{{ m }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block hadmin_content %}{% endblock %}
+  </main>
+</div>
+
+<button class="ha-toggle" onclick="document.getElementById('haSidebar').classList.toggle('open')">☰</button>
+
+<script>
+(function(){
+  var path = window.location.pathname;
+  document.querySelectorAll('.ha-nav-link').forEach(function(a){
+    var href = a.getAttribute('href');
+    if (!href) return;
+    if (href === '/health/admin/' || href === '/health/admin') {
+      if (path === '/health/admin/' || path === '/health/admin') a.classList.add('active');
+    } else if (path.startsWith(href)) {
+      a.classList.add('active');
+    }
+  });
+})();
+document.addEventListener('click', function(e){
+  var sb = document.getElementById('haSidebar');
+  if (sb.classList.contains('open') && !sb.contains(e.target) && !e.target.closest('.ha-toggle'))
+    sb.classList.remove('open');
+});
+</script>
+{% endblock %}

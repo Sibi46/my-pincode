@@ -1,11 +1,10 @@
-{% extends 'health/admin/base.html' %}
+﻿{% extends 'health/admin/base.html' %}
 {% block title %}Health Journals{% endblock %}
-{% block content %}
+{% block hadmin_content %}
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
   <h2 style="margin:0;font-size:18px;font-weight:800"><i class="fas fa-book-open"></i> Health Journals</h2>
   <a href="{% url 'hadmin_journal_add' %}" style="background:#16a34a;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none"><i class="fas fa-plus"></i> Add Journal</a>
 </div>
-{% if messages %}{% for m in messages %}<div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#15803d;font-weight:700">{{ m }}</div>{% endfor %}{% endif %}
 <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;overflow:hidden">
   <table style="width:100%;border-collapse:collapse;font-size:13px">
     <thead style="background:#f9fafb">
@@ -43,3 +42,5 @@
   </table>
 </div>
 {% endblock %}
+
+
