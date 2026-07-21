@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load health_extras %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Guide Item – Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:960px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem;margin-bottom:16px}
+  .form-card h3{margin:0 0 16px;font-size:13px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5px solid #e5e7eb;padding-bottom:10px}
+  .form-group{margin-bottom:1.1rem}
+  .form-group label{display:block;font-size:.78rem;font-weight:700;color:#374151;margin-bottom:.3rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.55rem .8rem;font-size:.88rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:#059669}
+  .form-group textarea{min-height:80px;resize:vertical}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
+  .check-row input[type=checkbox]{width:17px;height:17px;accent-color:#059669}
+  .check-row label{font-size:.88rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#059669;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+  .ca-table{width:100%;border-collapse:collapse;font-size:13px}
+  .ca-table th{padding:8px 12px;background:#f9fafb;font-weight:700;color:#555;text-align:left;border-bottom:1.5px solid #e5e7eb}
+  .ca-table td{padding:8px 12px;border-bottom:1px solid #f1f3f5;vertical-align:middle}
+  .ca-select{padding:5px 10px;border:1px solid #dde1ea;border-radius:6px;font-size:12px}
+  .ca-note{width:100%;padding:5px 10px;border:1px solid #dde1ea;border-radius:6px;font-size:12px}
+  .growing-grid{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.5rem}
+  .growing-thumb{position:relative;width:80px}
+  .growing-thumb img{width:80px;height:80px;object-fit:cover;border-radius:8px}
+  .growing-thumb label{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:.72rem;color:#dc2626;cursor:pointer}
+</style>
+<div class="adm-header">
+  <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Guide Item{% endif %}</h1>
+  <a href="/health/admin/guide/items/">← Back to Items</a>
+</div>
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Info -->
+    <div class="form-card">
+      <h3>Basic Info</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category *</label>
+          <select name="category_id" required>
+            <option value="">-- Select Category --</option>
+            {% for cat in categories %}
+            <option value="{{ cat.pk }}" {% if obj and obj.category_id == cat.pk %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group"><label>Name *</label><input type="text" name="name" value="{{ obj.name|default:'' }}" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Slug (auto-fills)</label><input type="text" name="slug" value="{{ obj.slug|default:'' }}"></div>
+        <div class="form-group"><label>Order</label><input type="number" name="order" value="{{ obj.order|default:'0' }}" min="0"></div>
+      </div>
+      <div class="form-group">
+        <label>Item Image</label>
+        {% if obj.image %}<img src="{{ obj.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">{% endif %}
+        <input type="file" name="image" accept="image/*">
+      </div>
+      <div class="form-group"><label>Short Description</label><textarea name="description">{{ obj.description|default:'' }}</textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Nutrition Info</label><textarea name="nutrition" style="min-height:65px">{{ obj.nutrition|default:'' }}</textarea></div>
+        <div class="form-group"><label>Benefits</label><textarea name="benefits" style="min-height:65px">{{ obj.benefits|default:'' }}</textarea></div>
+      </div>
+      <div class="check-row">
+        <input type="checkbox" name="is_featured" id="is_featured" {% if obj.is_featured %}checked{% endif %}>
+        <label for="is_featured">Featured Item</label>
+      </div>
+    </div>
+
+    <!-- Condition Advice -->
+    <div class="form-card">
+      <h3>Condition-wise Advice (Can Eat / Avoid)</h3>
+      <p style="font-size:12px;color:#888;margin:0 0 12px">Set advice for each health condition so users know if this item is safe for them</p>
+      <table class="ca-table">
+        <thead><tr><th style="width:180px">Condition</th><th style="width:150px">Can Eat?</th><th>Advice / Note</th></tr></thead>
+        <tbody>
+          {% for c in conditions %}
+          <tr>
+            <td><strong>{{ c.icon }} {{ c.name }}</strong></td>
+            <td>
+              <select name="ca_can_{{ c.slug }}" class="ca-select">
+                <option value="">-- select --</option>
+                <option value="yes" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "yes" %}selected{% endif %}{% endif %}>✅ Yes — Can Eat</option>
+                <option value="moderate" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "moderate" %}selected{% endif %}{% endif %}>⚠️ Moderate</option>
+                <option value="no" {% if advice|get_item:c.slug %}{% if advice|get_item:c.slug|get_item:"can_eat" == "no" %}selected{% endif %}{% endif %}>❌ Avoid</option>
+              </select>
+            </td>
+            <td><input type="text" name="ca_note_{{ c.slug }}" class="ca-note" value="{% if advice|get_item:c.slug %}{{ advice|get_item:c.slug|get_item:'note' }}{% endif %}" placeholder="e.g. Eat 1 cup per day only..."></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recipe -->
+    <div class="form-card">
+      <h3>Recipe / How to Eat</h3>
+      <div class="form-group"><label>Recipe Content</label><textarea name="recipe_content" style="min-height:120px" placeholder="Ingredients, preparation steps, how to eat...">{{ obj.recipe_content|default:'' }}</textarea></div>
+      <div class="form-group"><label>Recipe YouTube Video URL</label><input type="url" name="recipe_video_url" value="{{ obj.recipe_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..."></div>
+    </div>
+
+    <!-- Growing -->
+    <div class="form-card">
+      <h3>How to Grow</h3>
+      <div class="form-group"><label>Growing Instructions / Content</label><textarea name="growing_content" style="min-height:120px" placeholder="Season, soil, watering, care tips, harvest time...">{{ obj.growing_content|default:'' }}</textarea></div>
+      <div class="form-group"><label>Growing YouTube Video URL</label><input type="url" name="growing_video_url" value="{{ obj.growing_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..."></div>
+      <div class="form-group">
+        <label>Growing Photos (can upload multiple)</label>
+        <input type="file" name="growing_images" accept="image/*" multiple>
+        {% if growing_images %}
+        <div class="growing-grid" style="margin-top:.75rem">
+          {% for gi in growing_images %}
+          <div class="growing-thumb">
+            <img src="{{ gi.image.url }}" alt="{{ gi.caption }}">
+            <label><input type="checkbox" name="delete_growing_image" value="{{ gi.pk }}"> Delete</label>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Journal -->
+    <div class="form-card">
+      <h3>Journal / Articles</h3>
+      <div class="form-group"><label>Journal Content</label><textarea name="journal_content" style="min-height:120px" placeholder="Research-backed articles, health stories, cultural significance...">{{ obj.journal_content|default:'' }}</textarea></div>
+    </div>
+
+    <!-- Natural Treatment -->
+    <div class="form-card">
+      <h3>Natural Treatment</h3>
+      <div class="form-group"><label>Natural Remedy Instructions</label><textarea name="natural_treatment" style="min-height:120px" placeholder="How to use this as a natural remedy or medicine...">{{ obj.natural_treatment|default:'' }}</textarea></div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn-cancel" href="/health/admin/guide/items/">Cancel</a>
+      <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Add Item{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

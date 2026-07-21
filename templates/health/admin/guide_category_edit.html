@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{% if obj %}Edit{% else %}Add{% endif %} Category – Guide Admin{% endblock %}
+{% block content %}
+<style>
+  .adm-header{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+  .adm-header h1{margin:0;font-size:1.3rem}
+  .adm-header a{color:#fff;opacity:.85;font-size:.85rem;text-decoration:none}
+  .form-wrap{max-width:700px;margin:0 auto;padding:1.5rem 1rem}
+  .form-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:1.5rem;margin-bottom:16px}
+  .form-card h3{margin:0 0 16px;font-size:14px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5px solid #e5e7eb;padding-bottom:10px}
+  .form-group{margin-bottom:1.2rem}
+  .form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.03em}
+  .form-group input,.form-group textarea{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem .85rem;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit}
+  .form-group input:focus,.form-group textarea:focus{border-color:#059669}
+  .form-group textarea{min-height:80px;resize:vertical}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .check-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem}
+  .check-row input[type=checkbox]{width:18px;height:18px;accent-color:#059669}
+  .check-row label{font-size:.9rem;color:#374151;margin:0;font-weight:500;text-transform:none;letter-spacing:0}
+  .form-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+  .btn-save{background:#059669;color:#fff;border:0;border-radius:8px;padding:.6rem 1.5rem;cursor:pointer;font-weight:700}
+  .btn-cancel{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:8px;padding:.6rem 1.2rem;text-decoration:none;font-size:.9rem}
+</style>
+<div class="adm-header">
+  <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Category{% endif %}</h1>
+  <a href="/health/admin/guide/categories/">← Back to Categories</a>
+</div>
+<div class="form-wrap">
+  <form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+      <h3>Category Info</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Name *</label><input type="text" name="name" value="{{ obj.name|default:'' }}" required></div>
+        <div class="form-group"><label>Slug (auto-fills)</label><input type="text" name="slug" value="{{ obj.slug|default:'' }}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Icon (emoji)</label><input type="text" name="icon" value="{{ obj.icon|default:'🥗' }}" maxlength="4" style="font-size:1.5rem"></div>
+        <div class="form-group"><label>Order (lower = first)</label><input type="number" name="order" value="{{ obj.order|default:'0' }}" min="0"></div>
+      </div>
+      <div class="form-group">
+        <label>Category Image</label>
+        {% if obj.image %}<img src="{{ obj.image.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block">{% endif %}
+        <input type="file" name="image" accept="image/*">
+      </div>
+      <div class="form-group"><label>Description</label><textarea name="description">{{ obj.description|default:'' }}</textarea></div>
+      <div class="check-row">
+        <input type="checkbox" name="is_active" id="is_active" {% if obj == None or obj.is_active %}checked{% endif %}>
+        <label for="is_active">Active (visible to users)</label>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a class="btn-cancel" href="/health/admin/guide/categories/">Cancel</a>
+      <button class="btn-save" type="submit">{% if obj %}Save Changes{% else %}Create Category{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

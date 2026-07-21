@@ -358,3 +358,99 @@ class HealthJournal(models.Model):
     def embed_url(self):
         vid = self.youtube_id
         return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+
+# ── FOOD GUIDE — CATEGORY + ITEM SYSTEM ──────────────────────────────────────
+
+class FoodCategory(models.Model):
+    name        = models.CharField(max_length=100)
+    slug        = models.SlugField(unique=True)
+    image       = models.ImageField(upload_to='health/guide/categories/', blank=True, null=True)
+    icon        = models.CharField(max_length=10, default='🥗')
+    description = models.TextField(blank=True)
+    order       = models.PositiveIntegerField(default=0)
+    is_active   = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+        verbose_name_plural = 'Food Categories'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def item_count(self):
+        return self.items.count()
+
+
+class FoodItem(models.Model):
+    category          = models.ForeignKey(FoodCategory, on_delete=models.CASCADE, related_name='items')
+    name              = models.CharField(max_length=150)
+    slug              = models.SlugField(unique=True)
+    image             = models.ImageField(upload_to='health/guide/items/', blank=True, null=True)
+    description       = models.TextField(blank=True)
+
+    # Condition-wise advice
+    condition_advice  = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":"yes","note":"..."}, ...}')
+
+    # How to eat / Recipe
+    recipe_content    = models.TextField(blank=True, help_text='How to eat / cook content')
+    recipe_video_url  = models.URLField(blank=True, help_text='YouTube cooking/how-to-eat video')
+
+    # Growing guide
+    growing_content   = models.TextField(blank=True, help_text='How to grow at home')
+    growing_video_url = models.URLField(blank=True, help_text='YouTube growing guide video')
+
+    # Journal / health article
+    journal_content   = models.TextField(blank=True, help_text='Health article / journal content for this item')
+
+    # Natural food info
+    nutrition         = models.TextField(blank=True)
+    benefits          = models.TextField(blank=True)
+    natural_treatment = models.TextField(blank=True, help_text='Natural remedy / medicinal use')
+
+    is_featured  = models.BooleanField(default=False)
+    order        = models.PositiveIntegerField(default=0)
+    created_at   = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'name']
+
+    def __str__(self):
+        return f"{self.category.name} / {self.name}"
+
+    def _yt_id(self, url):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})', url or '')
+        return m.group(1) if m else ''
+
+    @property
+    def recipe_embed(self):
+        vid = self._yt_id(self.recipe_video_url)
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def growing_embed(self):
+        vid = self._yt_id(self.growing_video_url)
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    def get_condition_advice(self):
+        import json
+        try:
+            return json.loads(self.condition_advice) if self.condition_advice else {}
+        except Exception:
+            return {}
+
+
+class FoodItemGrowingImage(models.Model):
+    item    = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='growing_images')
+    image   = models.ImageField(upload_to='health/guide/growing/')
+    caption = models.CharField(max_length=200, blank=True)
+    order   = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.item.name} growing image"

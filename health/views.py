@@ -12,6 +12,7 @@ from .models import (
     HealthSettings, HealthCondition, Food, Fruit, Vegetable,
     Herb, Recipe, Video, Favorite, FoodDiary, FoodDiaryEntry,
     MealPlan, MealPlanItem, HealthJournal,
+    FoodCategory, FoodItem, FoodItemGrowingImage,
 )
 
 
@@ -472,15 +473,17 @@ def health_search(request):
 @super_admin_required
 def hadmin_dashboard(request):
     return render(request, 'health/admin/dashboard.html', {
-        'cond_count':    HealthCondition.objects.count(),
-        'food_count':    Food.objects.count(),
-        'fruit_count':   Fruit.objects.count(),
-        'veg_count':     Vegetable.objects.count(),
-        'herb_count':    Herb.objects.count(),
-        'recipe_count':  Recipe.objects.count(),
-        'video_count':   Video.objects.count(),
-        'journal_count': HealthJournal.objects.count(),
-        'user_count':    Favorite.objects.values('user').distinct().count(),
+        'cond_count':     HealthCondition.objects.count(),
+        'food_count':     Food.objects.count(),
+        'fruit_count':    Fruit.objects.count(),
+        'veg_count':      Vegetable.objects.count(),
+        'herb_count':     Herb.objects.count(),
+        'recipe_count':   Recipe.objects.count(),
+        'video_count':    Video.objects.count(),
+        'journal_count':  HealthJournal.objects.count(),
+        'guide_cat_count': FoodCategory.objects.count(),
+        'guide_item_count': FoodItem.objects.count(),
+        'user_count':     Favorite.objects.values('user').distinct().count(),
     })
 
 
@@ -917,3 +920,149 @@ def journal_detail(request, slug):
     journal = get_object_or_404(HealthJournal, slug=slug, is_published=True)
     related = HealthJournal.objects.filter(is_published=True, category=journal.category).exclude(pk=journal.pk)[:3]
     return render(request, 'health/journal_detail.html', {'journal': journal, 'related': related})
+
+
+# ── FOOD GUIDE ADMIN ──────────────────────────────────────────────────────────
+
+@super_admin_required
+def hadmin_guide_categories(request):
+    return render(request, 'health/admin/guide_category_list.html',
+                  {'items': FoodCategory.objects.all()})
+
+
+@super_admin_required
+def hadmin_guide_category_edit(request, pk=None):
+    obj = get_object_or_404(FoodCategory, pk=pk) if pk else None
+    if request.method == 'POST':
+        name        = request.POST.get('name', '').strip()
+        slug_val    = request.POST.get('slug', '').strip() or slugify(name)
+        icon        = request.POST.get('icon', '🥗').strip()
+        description = request.POST.get('description', '').strip()
+        order       = int(request.POST.get('order', 0) or 0)
+        is_active   = 'is_active' in request.POST
+        if obj:
+            obj.name = name; obj.slug = slug_val; obj.icon = icon
+            obj.description = description; obj.order = order; obj.is_active = is_active
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        else:
+            obj = FoodCategory(name=name, slug=slug_val, icon=icon,
+                               description=description, order=order, is_active=is_active)
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        messages.success(request, 'Category saved.')
+        return redirect('hadmin_guide_categories')
+    return render(request, 'health/admin/guide_category_edit.html', {'obj': obj})
+
+
+@super_admin_required
+def hadmin_guide_category_delete(request, pk):
+    get_object_or_404(FoodCategory, pk=pk).delete()
+    messages.success(request, 'Category deleted.')
+    return redirect('hadmin_guide_categories')
+
+
+@super_admin_required
+def hadmin_guide_items(request):
+    cat_id     = request.GET.get('cat', '')
+    categories = FoodCategory.objects.all()
+    qs         = FoodItem.objects.select_related('category').all()
+    if cat_id:
+        qs = qs.filter(category_id=cat_id)
+    return render(request, 'health/admin/guide_item_list.html',
+                  {'items': qs, 'categories': categories, 'active_cat': cat_id})
+
+
+@super_admin_required
+def hadmin_guide_item_edit(request, pk=None):
+    obj            = get_object_or_404(FoodItem, pk=pk) if pk else None
+    categories     = FoodCategory.objects.filter(is_active=True)
+    conditions     = HealthCondition.objects.all()
+    growing_images = obj.growing_images.all() if obj else []
+
+    if request.method == 'POST':
+        cat_id   = request.POST.get('category_id')
+        category = get_object_or_404(FoodCategory, pk=cat_id) if cat_id else None
+        fields   = ['name', 'slug', 'description', 'recipe_content', 'recipe_video_url',
+                    'growing_content', 'growing_video_url', 'journal_content',
+                    'nutrition', 'benefits', 'natural_treatment']
+        data = {f: request.POST.get(f, '') for f in fields}
+        data['is_featured'] = 'is_featured' in request.POST
+        data['order']       = int(request.POST.get('order', 0) or 0)
+        data['category']    = category
+        import json as _json
+        advice = {}
+        for c in conditions:
+            can_eat = request.POST.get(f'ca_can_{c.slug}', '')
+            note    = request.POST.get(f'ca_note_{c.slug}', '').strip()
+            if can_eat or note:
+                advice[c.slug] = {'can_eat': can_eat, 'note': note, 'name': c.name, 'icon': c.icon}
+        data['condition_advice'] = _json.dumps(advice, ensure_ascii=False)
+        if not data['slug']:
+            data['slug'] = slugify(data['name'])
+        if obj:
+            for k, v in data.items():
+                setattr(obj, k, v)
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        else:
+            obj = FoodItem(**data)
+            if 'image' in request.FILES:
+                obj.image = request.FILES['image']
+            obj.save()
+        for img_file in request.FILES.getlist('growing_images'):
+            FoodItemGrowingImage.objects.create(item=obj, image=img_file)
+        del_ids = request.POST.getlist('delete_growing_image')
+        if del_ids:
+            FoodItemGrowingImage.objects.filter(pk__in=del_ids, item=obj).delete()
+        messages.success(request, 'Item saved.')
+        return redirect('hadmin_guide_items')
+
+    import json as _json
+    advice = {}
+    if obj and obj.condition_advice:
+        try:
+            advice = _json.loads(obj.condition_advice)
+        except Exception:
+            advice = {}
+    return render(request, 'health/admin/guide_item_edit.html', {
+        'obj': obj, 'categories': categories, 'conditions': conditions,
+        'advice': advice, 'growing_images': growing_images,
+    })
+
+
+@super_admin_required
+def hadmin_guide_item_delete(request, pk):
+    get_object_or_404(FoodItem, pk=pk).delete()
+    messages.success(request, 'Item deleted.')
+    return redirect('hadmin_guide_items')
+
+
+# ── FOOD GUIDE USER VIEWS ─────────────────────────────────────────────────────
+
+def guide_home(request):
+    categories = FoodCategory.objects.filter(is_active=True)
+    return render(request, 'health/guide_home.html', {'categories': categories})
+
+
+def guide_category(request, slug):
+    category = get_object_or_404(FoodCategory, slug=slug, is_active=True)
+    items    = FoodItem.objects.filter(category=category).order_by('order', 'name')
+    return render(request, 'health/guide_category.html', {'category': category, 'items': items})
+
+
+def guide_item(request, cat_slug, item_slug):
+    category       = get_object_or_404(FoodCategory, slug=cat_slug)
+    item           = get_object_or_404(FoodItem, slug=item_slug, category=category)
+    conditions     = HealthCondition.objects.all()
+    advice         = item.get_condition_advice()
+    growing_images = item.growing_images.all().order_by('order')
+    related        = FoodItem.objects.filter(category=category).exclude(pk=item.pk)[:4]
+    return render(request, 'health/guide_item.html', {
+        'category': category, 'item': item,
+        'conditions': conditions, 'advice': advice,
+        'growing_images': growing_images, 'related': related,
+    })

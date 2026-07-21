@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load health_extras %}
+{% block title %}{{ item.name }} – {{ category.name }} – Food Guide{% endblock %}
+{% block content %}
+<style>
+  .gi-hero{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:0}
+  .gi-hero-inner{max-width:1100px;margin:0 auto;padding:1.5rem 1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+  .gi-hero-img{width:120px;height:120px;object-fit:cover;border-radius:16px;border:3px solid rgba(255,255,255,.3);flex-shrink:0}
+  .gi-hero-info h1{margin:0 0 .3rem;font-size:1.6rem}
+  .gi-hero-info p{margin:0;opacity:.85;font-size:.9rem}
+  .gi-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+  .breadcrumb{font-size:.82rem;color:#64748b;margin-bottom:1rem}
+  .breadcrumb a{color:#059669;text-decoration:none}
+
+  /* Tabs */
+  .tabs{display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:1.5rem;overflow-x:auto}
+  .tab-btn{padding:.7rem 1.2rem;cursor:pointer;border:0;background:none;font-size:.88rem;font-weight:600;color:#64748b;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tab-btn.active{color:#059669;border-bottom-color:#059669}
+  .tab-pane{display:none}
+  .tab-pane.active{display:block}
+
+  /* Info cards */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+  @media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+  .info-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem}
+  .info-card h4{margin:0 0 .6rem;font-size:.85rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.03em}
+  .info-card p{margin:0;font-size:.88rem;color:#374151;line-height:1.6;white-space:pre-line}
+
+  /* Condition table */
+  .ca-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem}
+  .ca-section h4{margin:0 0 .75rem;font-size:.85rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.03em}
+  .ca-list{display:flex;flex-direction:column;gap:.5rem}
+  .ca-row{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem;border-radius:8px;background:#f8fafc}
+  .ca-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
+  .ca-name{font-weight:700;font-size:.85rem;color:#111;margin-bottom:2px}
+  .ca-note{font-size:.8rem;color:#64748b}
+  .ca-badge{padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin-left:auto;white-space:nowrap;flex-shrink:0}
+  .ca-yes{background:#d1fae5;color:#065f46}
+  .ca-mod{background:#fef3c7;color:#92400e}
+  .ca-no{background:#fee2e2;color:#991b1b}
+  .ca-empty{color:#94a3b8;font-size:.85rem;padding:.5rem}
+
+  /* Video embed */
+  .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin-bottom:1rem}
+  .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%}
+
+  /* Growing images */
+  .growing-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
+  .growing-gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0}
+
+  /* Content areas */
+  .content-text{font-size:.9rem;color:#374151;line-height:1.7;white-space:pre-line;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem}
+
+  /* Related */
+  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
+  .related-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;transition:.15s}
+  .related-card:hover{border-color:#059669}
+  .related-card img{width:100%;aspect-ratio:1;object-fit:cover}
+  .related-card div{padding:.5rem;font-size:.82rem;font-weight:600;color:#111}
+</style>
+
+<div class="gi-hero">
+  <div class="gi-hero-inner">
+    {% if item.image %}
+    <img class="gi-hero-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+    {% endif %}
+    <div class="gi-hero-info">
+      <h1>{{ item.name }}</h1>
+      <p>{{ category.icon }} {{ category.name }}{% if item.description %} — {{ item.description|truncatechars:100 }}{% endif %}</p>
+    </div>
+  </div>
+</div>
+
+<div class="gi-wrap">
+  <div class="breadcrumb">
+    <a href="/health/">Health</a> ›
+    <a href="/health/guide/">Food Guide</a> ›
+    <a href="/health/guide/{{ category.slug }}/">{{ category.name }}</a> ›
+    {{ item.name }}
+  </div>
+
+  <!-- Quick info row -->
+  {% if item.nutrition or item.benefits %}
+  <div class="info-grid">
+    {% if item.nutrition %}
+    <div class="info-card">
+      <h4>Nutrition</h4>
+      <p>{{ item.nutrition }}</p>
+    </div>
+    {% endif %}
+    {% if item.benefits %}
+    <div class="info-card">
+      <h4>Benefits</h4>
+      <p>{{ item.benefits }}</p>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('advice',this)">🏥 Health Advice</button>
+    {% if item.recipe_content or item.recipe_video_url %}<button class="tab-btn" onclick="showTab('recipe',this)">🍽️ Recipe</button>{% endif %}
+    {% if item.growing_content or item.growing_video_url or growing_images %}<button class="tab-btn" onclick="showTab('growing',this)">🌱 How to Grow</button>{% endif %}
+    {% if item.journal_content %}<button class="tab-btn" onclick="showTab('journal',this)">📰 Journal</button>{% endif %}
+    {% if item.natural_treatment %}<button class="tab-btn" onclick="showTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
+  </div>
+
+  <!-- Advice Tab -->
+  <div id="tab-advice" class="tab-pane active">
+    <div class="ca-section">
+      <h4>Condition-wise Advice</h4>
+      {% if advice %}
+      <div class="ca-list">
+        {% for c in conditions %}
+        {% with ca=advice|get_item:c.slug %}
+        {% if ca %}
+        <div class="ca-row">
+          <div class="ca-icon">{{ c.icon }}</div>
+          <div style="flex:1">
+            <div class="ca-name">{{ c.name }}</div>
+            {% if ca|get_item:"note" %}<div class="ca-note">{{ ca|get_item:"note" }}</div>{% endif %}
+          </div>
+          {% with val=ca|get_item:"can_eat" %}
+          {% if val == "yes" %}<span class="ca-badge ca-yes">✅ Can Eat</span>
+          {% elif val == "moderate" %}<span class="ca-badge ca-mod">⚠️ Moderate</span>
+          {% elif val == "no" %}<span class="ca-badge ca-no">❌ Avoid</span>{% endif %}
+          {% endwith %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="ca-empty">No condition advice added yet for this item.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recipe Tab -->
+  <div id="tab-recipe" class="tab-pane">
+    {% if item.recipe_video_url %}
+    <div class="video-wrap">
+      <iframe src="{{ item.recipe_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    {% endif %}
+    {% if item.recipe_content %}
+    <div class="content-text">{{ item.recipe_content }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Growing Tab -->
+  <div id="tab-growing" class="tab-pane">
+    {% if item.growing_video_url %}
+    <div class="video-wrap">
+      <iframe src="{{ item.growing_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    {% endif %}
+    {% if item.growing_content %}
+    <div class="content-text">{{ item.growing_content }}</div>
+    {% endif %}
+    {% if growing_images %}
+    <div class="growing-gallery">
+      {% for gi in growing_images %}
+      <img src="{{ gi.image.url }}" alt="{{ gi.caption|default:item.name }}">
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Journal Tab -->
+  <div id="tab-journal" class="tab-pane">
+    {% if item.journal_content %}
+    <div class="content-text">{{ item.journal_content }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Natural Treatment Tab -->
+  <div id="tab-natural" class="tab-pane">
+    {% if item.natural_treatment %}
+    <div class="content-text">{{ item.natural_treatment }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Related items -->
+  {% if related %}
+  <div style="margin-top:2rem">
+    <h3 style="font-size:1rem;font-weight:700;color:#059669;margin-bottom:.25rem">More in {{ category.name }}</h3>
+    <div class="related-grid">
+      {% for rel in related %}
+      <a class="related-card" href="/health/guide/{{ category.slug }}/{{ rel.slug }}/">
+        {% if rel.image %}<img src="{{ rel.image.url }}" alt="{{ rel.name }}">
+        {% else %}<div style="aspect-ratio:1;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:2rem">{{ category.icon }}</div>{% endif %}
+        <div>{{ rel.name }}</div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

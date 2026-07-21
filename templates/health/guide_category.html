@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} – Food Guide{% endblock %}
+{% block content %}
+<style>
+  .gc-hero{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:2rem 1rem;text-align:center}
+  .gc-hero h1{margin:0 0 .4rem;font-size:1.8rem}
+  .gc-hero p{margin:0;opacity:.85;font-size:.95rem}
+  .gc-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
+  .breadcrumb{font-size:.82rem;color:#64748b;margin-bottom:1.25rem}
+  .breadcrumb a{color:#059669;text-decoration:none}
+  .items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+  .item-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;transition:.2s;display:flex;flex-direction:column}
+  .item-card:hover{box-shadow:0 4px 20px rgba(5,150,105,.15);transform:translateY(-2px);border-color:#059669}
+  .item-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f1faf5}
+  .item-no-img{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
+  .item-body{padding:.75rem}
+  .item-body h3{margin:0 0 .25rem;font-size:.95rem;font-weight:700;color:#111}
+  .item-body p{margin:0;font-size:.78rem;color:#64748b;line-height:1.35}
+  .star{color:#f59e0b;font-size:.75rem}
+  .gc-empty{text-align:center;padding:3rem;color:#94a3b8}
+</style>
+<div class="gc-hero">
+  <h1>{{ category.icon }} {{ category.name }}</h1>
+  {% if category.description %}<p>{{ category.description }}</p>{% endif %}
+</div>
+<div class="gc-wrap">
+  <div class="breadcrumb"><a href="/health/">Health</a> › <a href="/health/guide/">Food Guide</a> › {{ category.name }}</div>
+  {% if items %}
+  <div class="items-grid">
+    {% for item in items %}
+    <a class="item-card" href="/health/guide/{{ category.slug }}/{{ item.slug }}/">
+      {% if item.image %}
+      <img class="item-img" src="{{ item.image.url }}" alt="{{ item.name }}">
+      {% else %}
+      <div class="item-no-img">{{ category.icon }}</div>
+      {% endif %}
+      <div class="item-body">
+        <h3>{{ item.name }}</h3>
+        {% if item.is_featured %}<span class="star">⭐ Featured</span>{% endif %}
+        {% if item.description %}<p>{{ item.description|truncatechars:55 }}</p>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="gc-empty">
+    <div style="font-size:3rem;margin-bottom:.75rem">{{ category.icon }}</div>
+    <p>No items in this category yet. Check back soon!</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

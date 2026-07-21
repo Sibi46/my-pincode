@@ -95,4 +95,20 @@ urlpatterns = [
     # Journal user pages
     path('journal/',                     views.journal_list,          name='health_journal_list'),
     path('journal/<slug:slug>/',         views.journal_detail,        name='health_journal_detail'),
+
+    # Food Guide admin
+    path('admin/guide/categories/',           views.hadmin_guide_categories,     name='hadmin_guide_categories'),
+    path('admin/guide/categories/add/',       views.hadmin_guide_category_edit,  name='hadmin_guide_category_add'),
+    path('admin/guide/categories/<int:pk>/',  views.hadmin_guide_category_edit,  name='hadmin_guide_category_edit'),
+    path('admin/guide/categories/<int:pk>/delete/', views.hadmin_guide_category_delete, name='hadmin_guide_category_delete'),
+
+    path('admin/guide/items/',                views.hadmin_guide_items,          name='hadmin_guide_items'),
+    path('admin/guide/items/add/',            views.hadmin_guide_item_edit,      name='hadmin_guide_item_add'),
+    path('admin/guide/items/<int:pk>/',       views.hadmin_guide_item_edit,      name='hadmin_guide_item_edit'),
+    path('admin/guide/items/<int:pk>/delete/', views.hadmin_guide_item_delete,   name='hadmin_guide_item_delete'),
+
+    # Food Guide user pages
+    path('guide/',                            views.guide_home,                  name='guide_home'),
+    path('guide/<slug:slug>/',                views.guide_category,              name='guide_category'),
+    path('guide/<slug:cat_slug>/<slug:item_slug>/', views.guide_item,            name='guide_item'),
 ]
