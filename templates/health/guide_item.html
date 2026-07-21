@@ -51,6 +51,10 @@
   /* Content areas */
   .content-text{font-size:.9rem;color:#374151;line-height:1.7;white-space:pre-line;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem}
 
+  /* YouTube link button */
+  .yt-link-btn{display:inline-flex;align-items:center;gap:.6rem;background:#ff0000;color:#fff;padding:.85rem 1.5rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;margin-bottom:1rem;transition:.2s}
+  .yt-link-btn:hover{background:#cc0000;color:#fff}
+
   /* Related */
   .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
   .related-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;transition:.15s}
@@ -140,9 +144,15 @@
   <!-- Recipe Tab -->
   <div id="tab-recipe" class="tab-pane">
     {% if item.recipe_video_url %}
-    <div class="video-wrap">
-      <iframe src="{{ item.recipe_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
+      {% if 'shorts/' in item.recipe_video_url %}
+      <a href="{{ item.recipe_video_url }}" target="_blank" rel="noopener" class="yt-link-btn">
+        <span style="font-size:1.4rem">▶</span> Watch on YouTube
+      </a>
+      {% else %}
+      <div class="video-wrap">
+        <iframe src="{{ item.recipe_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      {% endif %}
     {% endif %}
     {% if item.recipe_content %}
     <div class="content-text">{{ item.recipe_content }}</div>
@@ -152,9 +162,15 @@
   <!-- Growing Tab -->
   <div id="tab-growing" class="tab-pane">
     {% if item.growing_video_url %}
-    <div class="video-wrap">
-      <iframe src="{{ item.growing_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
+      {% if 'shorts/' in item.growing_video_url %}
+      <a href="{{ item.growing_video_url }}" target="_blank" rel="noopener" class="yt-link-btn">
+        <span style="font-size:1.4rem">▶</span> Watch on YouTube
+      </a>
+      {% else %}
+      <div class="video-wrap">
+        <iframe src="{{ item.growing_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      {% endif %}
     {% endif %}
     {% if item.growing_content %}
     <div class="content-text">{{ item.growing_content }}</div>

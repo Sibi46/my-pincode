@@ -98,16 +98,20 @@
   {% endif %}
 
   <!-- Video -->
-  {% if veg.video_embed %}
+  {% if veg.video_url %}
   <div class="det-section">
     <div class="det-sec-head" onclick="toggleSec(this)" style="background:#eff6ff">
       <span class="sec-icon">▶️</span> Watch Video
       <span class="sec-arrow">▼</span>
     </div>
     <div class="det-sec-body">
+      {% if veg.video_embed %}
       <div class="vid-embed">
         <iframe src="{{ veg.video_embed }}" allowfullscreen loading="lazy"></iframe>
       </div>
+      {% else %}
+      <a href="{{ veg.video_url }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.6rem;background:#ff0000;color:#fff;padding:.75rem 1.25rem;border-radius:8px;text-decoration:none;font-weight:700">▶ Watch on YouTube</a>
+      {% endif %}
     </div>
   </div>
   {% endif %}
