@@ -415,14 +415,17 @@ class FoodItem(models.Model):
     # How to eat / Recipe
     recipe_content    = models.TextField(blank=True, help_text='How to eat / cook content')
     recipe_video_url  = models.URLField(blank=True, help_text='YouTube cooking/how-to-eat video')
+    recipe_video      = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
 
     # Growing guide
     growing_content   = models.TextField(blank=True, help_text='How to grow at home')
     growing_video_url = models.URLField(blank=True, help_text='YouTube growing guide video')
+    growing_video     = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
 
     # Journal / health article
     journal_content   = models.TextField(blank=True, help_text='Health article / journal content for this item')
     journal_video_url = models.URLField(blank=True, help_text='YouTube journal/article video')
+    journal_video     = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
 
     # Natural food info
     nutrition         = models.TextField(blank=True)

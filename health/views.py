@@ -997,11 +997,19 @@ def hadmin_guide_item_edit(request, pk=None):
                 setattr(obj, k, v)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
+            for vfield in ('recipe_video', 'growing_video', 'journal_video'):
+                if vfield in request.FILES:
+                    setattr(obj, vfield, request.FILES[vfield])
+                elif request.POST.get(f'clear_{vfield}'):
+                    setattr(obj, vfield, None)
             obj.save()
         else:
             obj = FoodItem(**data)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
+            for vfield in ('recipe_video', 'growing_video', 'journal_video'):
+                if vfield in request.FILES:
+                    setattr(obj, vfield, request.FILES[vfield])
             obj.save()
         for img_file in request.FILES.getlist('growing_images'):
             FoodItemGrowingImage.objects.create(item=obj, image=img_file)
