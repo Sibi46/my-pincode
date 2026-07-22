@@ -976,7 +976,7 @@ def hadmin_guide_item_edit(request, pk=None):
         cat_id   = request.POST.get('category_id')
         category = get_object_or_404(FoodCategory, pk=cat_id) if cat_id else None
         fields   = ['name', 'slug', 'description', 'recipe_content', 'recipe_video_url',
-                    'growing_content', 'growing_video_url', 'journal_content',
+                    'growing_content', 'growing_video_url', 'journal_content', 'journal_video_url',
                     'nutrition', 'benefits', 'natural_treatment']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured'] = 'is_featured' in request.POST

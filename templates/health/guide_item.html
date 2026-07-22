@@ -40,9 +40,15 @@
   .ca-no{background:#fee2e2;color:#991b1b}
   .ca-empty{color:#94a3b8;font-size:.85rem;padding:.5rem}
 
-  /* Video embed */
-  .video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin-bottom:1rem}
-  .video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%}
+  /* Reels-style video */
+  .reel-outer{display:flex;justify-content:center;margin-bottom:1.25rem}
+  .reel-shell{position:relative;width:100%;max-width:360px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 8px 32px rgba(0,0,0,.22)}
+  .reel-shell iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+  .reel-thumb{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
+  .reel-thumb img{width:100%;height:100%;object-fit:cover;opacity:.88}
+  .reel-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;background:rgba(255,0,0,.88);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+  .reel-play::after{content:'';border:solid transparent 12px;border-left:solid #fff 22px;margin-left:7px}
+  .reel-label{position:absolute;bottom:.9rem;left:0;right:0;text-align:center;color:#fff;font-size:.78rem;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.6);letter-spacing:.03em}
 
   /* Growing images */
   .growing-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
@@ -106,7 +112,7 @@
     <button class="tab-btn active" onclick="showGuideTab('advice',this)">🏥 Health Advice</button>
     {% if item.recipe_content or item.recipe_video_url %}<button class="tab-btn" onclick="showGuideTab('recipe',this)">🍽️ Recipe</button>{% endif %}
     {% if item.growing_content or item.growing_video_url or growing_images %}<button class="tab-btn" onclick="showGuideTab('growing',this)">🌱 How to Grow</button>{% endif %}
-    {% if item.journal_content %}<button class="tab-btn" onclick="showGuideTab('journal',this)">📰 Journal</button>{% endif %}
+    {% if item.journal_content or item.journal_video_url %}<button class="tab-btn" onclick="showGuideTab('journal',this)">📰 Journal</button>{% endif %}
     {% if item.natural_treatment %}<button class="tab-btn" onclick="showGuideTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
   </div>
 
@@ -144,15 +150,22 @@
   <!-- Recipe Tab -->
   <div id="tab-recipe" class="tab-pane">
     {% if item.recipe_video_url %}
-      {% if 'shorts/' in item.recipe_video_url %}
-      <a href="{{ item.recipe_video_url }}" target="_blank" rel="noopener" class="yt-link-btn">
-        <span style="font-size:1.4rem">▶</span> Watch on YouTube
-      </a>
-      {% else %}
-      <div class="video-wrap">
-        <iframe src="{{ item.recipe_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <div class="reel-outer">
+      <div class="reel-shell">
+        {% if 'shorts/' in item.recipe_video_url %}
+        <a href="{{ item.recipe_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
+          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
+          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
+        </a>
+        {% else %}
+        <div class="reel-thumb" onclick="playReel(this,'{{ item.recipe_embed }}')">
+          <img src="https://img.youtube.com/vi/{{ item.recipe_video_id }}/hqdefault.jpg" alt="Recipe Video">
+          <div class="reel-play"></div>
+          <div class="reel-label">🍽️ Recipe Video — tap to play</div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
+    </div>
     {% endif %}
     {% if item.recipe_content %}
     <div class="content-text">{{ item.recipe_content }}</div>
@@ -162,15 +175,22 @@
   <!-- Growing Tab -->
   <div id="tab-growing" class="tab-pane">
     {% if item.growing_video_url %}
-      {% if 'shorts/' in item.growing_video_url %}
-      <a href="{{ item.growing_video_url }}" target="_blank" rel="noopener" class="yt-link-btn">
-        <span style="font-size:1.4rem">▶</span> Watch on YouTube
-      </a>
-      {% else %}
-      <div class="video-wrap">
-        <iframe src="{{ item.growing_embed }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <div class="reel-outer">
+      <div class="reel-shell">
+        {% if 'shorts/' in item.growing_video_url %}
+        <a href="{{ item.growing_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
+          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
+          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
+        </a>
+        {% else %}
+        <div class="reel-thumb" onclick="playReel(this,'{{ item.growing_embed }}')">
+          <img src="https://img.youtube.com/vi/{{ item.growing_video_id }}/hqdefault.jpg" alt="Growing Video">
+          <div class="reel-play"></div>
+          <div class="reel-label">🌱 Growing Guide — tap to play</div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
+    </div>
     {% endif %}
     {% if item.growing_content %}
     <div class="content-text">{{ item.growing_content }}</div>
@@ -186,6 +206,24 @@
 
   <!-- Journal Tab -->
   <div id="tab-journal" class="tab-pane">
+    {% if item.journal_video_url %}
+    <div class="reel-outer">
+      <div class="reel-shell">
+        {% if 'shorts/' in item.journal_video_url %}
+        <a href="{{ item.journal_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
+          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
+          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
+        </a>
+        {% else %}
+        <div class="reel-thumb" onclick="playReel(this,'{{ item.journal_embed }}')">
+          <img src="https://img.youtube.com/vi/{{ item.journal_video_id }}/hqdefault.jpg" alt="Journal Video">
+          <div class="reel-play"></div>
+          <div class="reel-label">📰 Journal Video — tap to play</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
     {% if item.journal_content %}
     <div class="content-text">{{ item.journal_content }}</div>
     {% endif %}
@@ -224,6 +262,10 @@ function showGuideTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
+}
+function playReel(thumb, embedUrl) {
+  var shell = thumb.parentElement;
+  shell.innerHTML = '<iframe src="' + embedUrl + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"></iframe>';
 }
 </script>
 {% endblock %}

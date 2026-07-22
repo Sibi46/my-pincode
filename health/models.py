@@ -422,6 +422,7 @@ class FoodItem(models.Model):
 
     # Journal / health article
     journal_content   = models.TextField(blank=True, help_text='Health article / journal content for this item')
+    journal_video_url = models.URLField(blank=True, help_text='YouTube journal/article video')
 
     # Natural food info
     nutrition         = models.TextField(blank=True)
@@ -444,13 +445,30 @@ class FoodItem(models.Model):
         return m.group(1) if m else ''
 
     @property
+    def recipe_video_id(self):
+        return self._yt_id(self.recipe_video_url)
+
+    @property
     def recipe_embed(self):
-        vid = self._yt_id(self.recipe_video_url)
+        vid = self.recipe_video_id
         return f'https://www.youtube.com/embed/{vid}' if vid else ''
 
     @property
+    def growing_video_id(self):
+        return self._yt_id(self.growing_video_url)
+
+    @property
     def growing_embed(self):
-        vid = self._yt_id(self.growing_video_url)
+        vid = self.growing_video_id
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def journal_video_id(self):
+        return self._yt_id(self.journal_video_url)
+
+    @property
+    def journal_embed(self):
+        vid = self.journal_video_id
         return f'https://www.youtube.com/embed/{vid}' if vid else ''
 
     def get_condition_advice(self):

@@ -140,6 +140,11 @@
     <div class="form-card">
       <h3>Journal / Articles</h3>
       <div class="form-group"><label>Journal Content</label><textarea name="journal_content" style="min-height:120px" placeholder="Research-backed articles, health stories, cultural significance...">{{ obj.journal_content|default:'' }}</textarea></div>
+      <div class="form-group">
+        <label>Journal YouTube Video URL</label>
+        <input type="url" name="journal_video_url" id="journal_video_url" value="{{ obj.journal_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
+        <div id="journal_yt_preview" style="margin-top:.75rem"></div>
+      </div>
     </div>
 
     <!-- Natural Treatment -->
@@ -194,6 +199,7 @@ function renderYtPreview(inputId, previewId) {
 }
 renderYtPreview('recipe_video_url', 'recipe_yt_preview');
 renderYtPreview('growing_video_url', 'growing_yt_preview');
+renderYtPreview('journal_video_url', 'journal_yt_preview');
 </script>
 {% endblock %}
 
