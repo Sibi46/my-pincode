@@ -413,19 +413,23 @@ class FoodItem(models.Model):
     condition_advice  = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":"yes","note":"..."}, ...}')
 
     # How to eat / Recipe
-    recipe_content    = models.TextField(blank=True, help_text='How to eat / cook content')
-    recipe_video_url  = models.URLField(blank=True, help_text='YouTube cooking/how-to-eat video')
-    recipe_video      = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    recipe_content         = models.TextField(blank=True, help_text='How to eat / cook content')
+    recipe_video_url       = models.URLField(blank=True, help_text='YouTube cooking/how-to-eat video')
+    recipe_video           = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    recipe_youtube_channel = models.CharField(max_length=200, blank=True, help_text='YouTube channel name for recipe video')
 
     # Growing guide
     growing_content   = models.TextField(blank=True, help_text='How to grow at home')
     growing_video_url = models.URLField(blank=True, help_text='YouTube growing guide video')
     growing_video     = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    growing_youtube_channel = models.CharField(max_length=200, blank=True, help_text='YouTube channel name for growing video')
 
     # Journal / health article
-    journal_content   = models.TextField(blank=True, help_text='Health article / journal content for this item')
-    journal_video_url = models.URLField(blank=True, help_text='YouTube journal/article video')
-    journal_video     = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    journal_content         = models.TextField(blank=True, help_text='Health article / journal content for this item')
+    journal_video_url       = models.URLField(blank=True, help_text='YouTube journal/article video')
+    journal_video           = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    journal_youtube_channel = models.CharField(max_length=200, blank=True, help_text='YouTube channel name for journal video')
+    journal_author          = models.CharField(max_length=200, blank=True, help_text='Author / writer of journal article')
 
     # Natural food info
     nutrition         = models.TextField(blank=True)
