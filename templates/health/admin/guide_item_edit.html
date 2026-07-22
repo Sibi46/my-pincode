@@ -104,14 +104,22 @@
     <div class="form-card">
       <h3>Recipe / How to Eat</h3>
       <div class="form-group"><label>Recipe Content</label><textarea name="recipe_content" style="min-height:120px" placeholder="Ingredients, preparation steps, how to eat...">{{ obj.recipe_content|default:'' }}</textarea></div>
-      <div class="form-group"><label>Recipe YouTube Video URL</label><input type="url" name="recipe_video_url" value="{{ obj.recipe_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..."></div>
+      <div class="form-group">
+        <label>Recipe YouTube Video URL</label>
+        <input type="url" name="recipe_video_url" id="recipe_video_url" value="{{ obj.recipe_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
+        <div id="recipe_yt_preview" style="margin-top:.75rem"></div>
+      </div>
     </div>
 
     <!-- Growing -->
     <div class="form-card">
       <h3>How to Grow</h3>
       <div class="form-group"><label>Growing Instructions / Content</label><textarea name="growing_content" style="min-height:120px" placeholder="Season, soil, watering, care tips, harvest time...">{{ obj.growing_content|default:'' }}</textarea></div>
-      <div class="form-group"><label>Growing YouTube Video URL</label><input type="url" name="growing_video_url" value="{{ obj.growing_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..."></div>
+      <div class="form-group">
+        <label>Growing YouTube Video URL</label>
+        <input type="url" name="growing_video_url" id="growing_video_url" value="{{ obj.growing_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
+        <div id="growing_yt_preview" style="margin-top:.75rem"></div>
+      </div>
       <div class="form-group">
         <label>Growing Photos (can upload multiple)</label>
         <input type="file" name="growing_images" accept="image/*" multiple>
@@ -159,6 +167,33 @@ document.querySelector('input[name="name"]').addEventListener('input', function(
 document.querySelector('input[name="slug"]').addEventListener('input', function(){
   this._edited = true;
 });
+
+function ytIdFromUrl(url) {
+  var m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function renderYtPreview(inputId, previewId) {
+  var input = document.getElementById(inputId);
+  var box = document.getElementById(previewId);
+  function update() {
+    var vid = ytIdFromUrl(input.value.trim());
+    if (!vid) { box.innerHTML = ''; return; }
+    var isShorts = input.value.includes('shorts/');
+    if (isShorts) {
+      box.innerHTML = '<a href="' + input.value + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:#ff0000;color:#fff;padding:.55rem 1rem;border-radius:8px;text-decoration:none;font-weight:700;font-size:.85rem">▶ Shorts – Watch on YouTube</a>';
+    } else {
+      box.innerHTML = '<div style="position:relative;width:100%;max-width:400px;border-radius:10px;overflow:hidden;background:#000;cursor:pointer" onclick="this.innerHTML=\'<iframe src=\\"https://www.youtube.com/embed/' + vid + '?autoplay=1\\" style=\\"position:absolute;top:0;left:0;width:100%;height:100%;border:0\\" allowfullscreen allow=\\"autoplay\\"></iframe>\'">'
+        + '<img src="https://img.youtube.com/vi/' + vid + '/hqdefault.jpg" style="width:100%;display:block;opacity:.95">'
+        + '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;background:rgba(255,0,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center">'
+        + '<div style="border:solid transparent 10px;border-left:solid #fff 20px;margin-left:6px"></div>'
+        + '</div></div>';
+    }
+  }
+  input.addEventListener('input', update);
+  update();
+}
+renderYtPreview('recipe_video_url', 'recipe_yt_preview');
+renderYtPreview('growing_video_url', 'growing_yt_preview');
 </script>
 {% endblock %}
 
