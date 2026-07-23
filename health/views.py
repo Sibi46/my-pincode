@@ -32,11 +32,15 @@ def super_admin_required(view_func):
 # ── HOME ──────────────────────────────────────────────────────────────────────
 
 def health_home(request):
-    settings   = HealthSettings.get()
-    categories = FoodCategory.objects.filter(is_active=True).order_by('order', 'name')
+    settings = HealthSettings.get()
+    items = (FoodItem.objects
+             .filter(category__is_active=True)
+             .select_related('category')
+             .prefetch_related('recipe_videos', 'growing_videos')
+             .order_by('category__order', 'order', 'name'))
     return render(request, 'health/home.html', {
         'settings': settings,
-        'categories': categories,
+        'items': items,
     })
 
 
