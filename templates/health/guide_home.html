@@ -164,6 +164,9 @@
     height: 100%; display: flex; flex-direction: column;
     align-items: center; justify-content: center; color: #555; gap: .65rem;
   }
+  #reelMuteBtn{position:fixed;bottom:80px;right:14px;z-index:500;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s}
+  #reelMuteBtn:hover{background:rgba(0,0,0,.88)}
+  #reelTapInd{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);font-size:2.4rem;color:#fff;opacity:0;pointer-events:none;z-index:600;transition:opacity .2s,transform .2s;background:rgba(0,0,0,.5);border-radius:50%;width:72px;height:72px;display:flex;align-items:center;justify-content:center}
 </style>
 
 <!-- Top image chip row -->
@@ -196,7 +199,7 @@
         <div class="reel-play"></div><span>Watch on YouTube</span>
       </a>
       {% else %}
-      <div class="reel-thumb" onclick="playSlide(this,'{{ item.advice_embed }}')">
+      <div class="reel-thumb" data-embed="{{ item.advice_embed }}">
         <img src="https://img.youtube.com/vi/{{ item.advice_video_id }}/hqdefault.jpg" alt="">
         <div class="reel-play"></div>
       </div>
@@ -225,7 +228,7 @@
         <div class="reel-play"></div><span>Watch on YouTube</span>
       </a>
       {% elif rv.embed_url %}
-      <div class="reel-thumb" onclick="playSlide(this,'{{ rv.embed_url }}')">
+      <div class="reel-thumb" data-embed="{{ rv.embed_url }}">
         <img src="https://img.youtube.com/vi/{{ rv.video_id }}/hqdefault.jpg" alt="">
         <div class="reel-play"></div>
       </div>
@@ -254,7 +257,7 @@
         <div class="reel-play"></div><span>Watch on YouTube</span>
       </a>
       {% elif gv.embed_url %}
-      <div class="reel-thumb" onclick="playSlide(this,'{{ gv.embed_url }}')">
+      <div class="reel-thumb" data-embed="{{ gv.embed_url }}">
         <img src="https://img.youtube.com/vi/{{ gv.video_id }}/hqdefault.jpg" alt="">
         <div class="reel-play"></div>
       </div>
@@ -283,7 +286,7 @@
         <div class="reel-play"></div><span>Watch on YouTube</span>
       </a>
       {% else %}
-      <div class="reel-thumb" onclick="playSlide(this,'{{ item.natural_treatment_embed }}')">
+      <div class="reel-thumb" data-embed="{{ item.natural_treatment_embed }}">
         <img src="https://img.youtube.com/vi/{{ item.natural_treatment_video_id }}/hqdefault.jpg" alt="">
         <div class="reel-play"></div>
       </div>
@@ -312,7 +315,7 @@
         <div class="reel-play"></div><span>Watch on YouTube</span>
       </a>
       {% else %}
-      <div class="reel-thumb" onclick="playSlide(this,'{{ item.journal_embed }}')">
+      <div class="reel-thumb" data-embed="{{ item.journal_embed }}">
         <img src="https://img.youtube.com/vi/{{ item.journal_video_id }}/hqdefault.jpg" alt="">
         <div class="reel-play"></div>
       </div>
@@ -353,37 +356,83 @@
 
 </div><!-- /reel-feed -->
 
+<button id="reelMuteBtn" title="Mute/Unmute">🔇</button>
+<div id="reelTapInd"></div>
+
 <script>
-function playSlide(thumb, embedUrl) {
-  var slide = thumb.parentElement;
-  thumb.remove();
-  var iframe = document.createElement('iframe');
-  iframe.src = embedUrl + '?autoplay=1';
-  iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-  iframe.setAttribute('allowfullscreen','');
-  slide.insertBefore(iframe, slide.querySelector('.reel-overlay'));
-}
-
-/* Scroll chip into view matching the item of visible slide */
 (function(){
-  var feed = document.getElementById('reelFeed');
-  var chips = document.querySelectorAll('.item-chip');
-  if (!feed || !chips.length) return;
+  var isMuted=true,currentSlide=null,isPlaying=false;
+  var feed=document.getElementById('reelFeed'); if(!feed) return;
 
-  var slides = feed.querySelectorAll('.reel-slide');
-  /* build map: slide index → chip href */
-  var observer = new IntersectionObserver(function(entries){
+  function ytCmd(f,fn){try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:[]}),'*');}catch(e){}}
+
+  function loadSlide(slide){
+    var th=slide.querySelector('.reel-thumb');
+    if(!th||th.style.display==='none') return;
+    var url=th.dataset.embed; if(!url) return;
+    th.style.display='none';
+    var f=document.createElement('iframe');
+    f.src=url+(url.indexOf('?')>=0?'&':'?')+'autoplay=1&mute=1&enablejsapi=1&playsinline=1';
+    f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+    f.setAttribute('allowfullscreen','');
+    slide.insertBefore(f,th.nextSibling);
+    if(!isMuted) f.addEventListener('load',function(){setTimeout(function(){ytCmd(f,'unMute');},500);});
+  }
+
+  function playSlide(slide){
+    loadSlide(slide);
+    var f=slide.querySelector('iframe'); if(f) ytCmd(f,'playVideo');
+    var v=slide.querySelector('video'); if(v){v.muted=isMuted;v.play().catch(function(){});}
+    isPlaying=true;
+  }
+
+  function pauseSlide(slide){
+    var f=slide.querySelector('iframe'); if(f) ytCmd(f,'pauseVideo');
+    var v=slide.querySelector('video'); if(v) v.pause();
+    isPlaying=false;
+  }
+
+  function flashInd(icon){
+    var ind=document.getElementById('reelTapInd'); if(!ind) return;
+    ind.textContent=icon; ind.style.opacity='1'; ind.style.transform='translate(-50%,-50%) scale(1)';
+    clearTimeout(ind._t); ind._t=setTimeout(function(){ind.style.opacity='0';ind.style.transform='translate(-50%,-50%) scale(0.7)';},700);
+  }
+
+  var obs=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
-      if (e.intersectionRatio < 0.5) return;
-      var overlay = e.target.querySelector('.reel-item-link');
-      if (!overlay) return;
-      var href = overlay.getAttribute('href');
-      chips.forEach(function(c){ c.querySelector('.item-chip-img, .item-chip-ph') && c.querySelector('.item-chip-img,.item-chip-ph').style && (c.querySelector('.item-chip-img,.item-chip-ph').style.borderColor = c.getAttribute('href') === href ? '#059669' : ''); });
-      var match = document.querySelector('.item-chip[href="'+href+'"]');
-      if (match) match.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+      if(e.intersectionRatio>=0.5){
+        if(currentSlide&&currentSlide!==e.target) pauseSlide(currentSlide);
+        currentSlide=e.target; playSlide(currentSlide);
+        var link=e.target.querySelector('.reel-item-link');
+        if(link){
+          var href=link.getAttribute('href');
+          document.querySelectorAll('.item-chip').forEach(function(c){
+            var act=c.getAttribute('href')===href;
+            var img=c.querySelector('.item-chip-img,.item-chip-ph'); if(img) img.style.borderColor=act?'#059669':'';
+            var nm=c.querySelector('.item-chip-name'); if(nm) nm.style.color=act?'#4ade80':'';
+          });
+          var m=document.querySelector('.item-chip[href="'+href+'"]');
+          if(m) m.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+        }
+      }
     });
-  }, {root: feed, threshold: 0.5});
-  slides.forEach(function(s){ observer.observe(s); });
+  },{root:feed,threshold:0.5});
+  feed.querySelectorAll('.reel-slide').forEach(function(s){obs.observe(s);});
+
+  feed.addEventListener('click',function(e){
+    if(!currentSlide) return;
+    if(e.target.closest('a,button')) return;
+    if(e.target.closest('.reel-thumb')){playSlide(currentSlide);return;}
+    if(isPlaying){pauseSlide(currentSlide);flashInd('⏸');}
+    else{playSlide(currentSlide);flashInd('▶');}
+  });
+
+  var mb=document.getElementById('reelMuteBtn');
+  if(mb) mb.addEventListener('click',function(e){
+    e.stopPropagation(); isMuted=!isMuted; mb.textContent=isMuted?'🔇':'🔊';
+    feed.querySelectorAll('iframe').forEach(function(f){ytCmd(f,isMuted?'mute':'unMute');});
+    feed.querySelectorAll('video').forEach(function(v){v.muted=isMuted;});
+  });
 })();
 </script>
 {% endblock %}
