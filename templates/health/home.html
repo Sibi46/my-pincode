@@ -353,6 +353,11 @@
 
   var slides=Array.from(feed.querySelectorAll('.reel-slide'));
 
+  function ytIdFromUrl(url){
+    var m=(url||'').match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    return m?m[1]:'';
+  }
+
   /* ── Build thumbnail grid from reel slides ── */
   slides.forEach(function(slide, idx){
     if(slide.classList.contains('no-video-slide')) return;
@@ -360,9 +365,18 @@
     card.className='vg-card';
     card.dataset.idx=idx;
 
+    var imgSrc='';
+    // 1. YouTube embed thumbnail
     var thumbImg=slide.querySelector('.reel-thumb img');
-    var itemImg=slide.querySelector('.reel-item-link img');
-    var imgSrc=thumbImg?thumbImg.src:(itemImg?itemImg.src:'');
+    if(thumbImg) imgSrc=thumbImg.src;
+    // 2. Shorts link → extract video_id for thumbnail
+    if(!imgSrc){
+      var sl=slide.querySelector('.shorts-link');
+      if(sl){ var vid=ytIdFromUrl(sl.getAttribute('href')||''); if(vid) imgSrc='https://img.youtube.com/vi/'+vid+'/hqdefault.jpg'; }
+    }
+    // 3. Fallback: uploaded video — use item image
+    if(!imgSrc){ var ii=slide.querySelector('.reel-item-link img'); if(ii) imgSrc=ii.src; }
+
     if(imgSrc){ var im=document.createElement('img'); im.src=imgSrc; im.alt=''; card.appendChild(im); }
 
     var pi=document.createElement('div'); pi.className='vg-play-icon'; card.appendChild(pi);
@@ -457,10 +471,10 @@
     feed.style.display='block';
     if(backBtn){backBtn.style.display='flex';}
     if(muteBtn){muteBtn.style.display='flex';}
-    requestAnimationFrame(function(){
-      var target=slides[idx];
-      if(target) target.scrollIntoView({behavior:'instant',block:'start'});
-    });
+    // scroll after layout reflow; each slide = feed height
+    setTimeout(function(){
+      feed.scrollTop = idx * feed.clientHeight;
+    }, 30);
   }
 
   function closeReel(){
