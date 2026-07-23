@@ -163,7 +163,18 @@
     height: 100%; display: flex; flex-direction: column;
     align-items: center; justify-content: center; color: #555; gap: .65rem;
   }
-  #reelMuteBtn{position:fixed;bottom:80px;right:14px;z-index:500;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.25rem;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s}
+  /* ── Video grid (default view) ── */
+  #videoGrid{height:calc(100svh - 122px);overflow-y:auto;background:#000;display:grid;grid-template-columns:1fr 1fr;gap:2px;-webkit-overflow-scrolling:touch}
+  #videoGrid::-webkit-scrollbar{display:none}
+  .vg-card{position:relative;aspect-ratio:9/16;overflow:hidden;cursor:pointer;background:#111;display:block}
+  .vg-card img{width:100%;height:100%;object-fit:cover;opacity:.88;transition:opacity .15s}
+  .vg-card:hover img{opacity:1}
+  .vg-play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;background:rgba(220,0,0,.85);border-radius:50%;display:flex;align-items:center;justify-content:center}
+  .vg-play-icon::after{content:'';border:solid transparent 7px;border-left:solid #fff 13px;margin-left:4px}
+  .vg-card-overlay{position:absolute;bottom:0;left:0;right:0;padding:.55rem .5rem .45rem;background:linear-gradient(transparent,rgba(0,0,0,.88));color:#fff}
+  .vg-name{font-size:.72rem;font-weight:800;display:block;margin-top:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #reelBackBtn{position:fixed;top:68px;left:12px;z-index:900;display:none;align-items:center;gap:.35rem;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:22px;padding:.4rem .85rem;font-size:.82rem;font-weight:700;cursor:pointer;backdrop-filter:blur(6px)}
+  #reelMuteBtn{position:fixed;bottom:80px;right:14px;z-index:500;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.22);color:#fff;font-size:1.25rem;cursor:pointer;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s}
   #reelMuteBtn:hover{background:rgba(0,0,0,.88)}
   #reelTapInd{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);font-size:2.4rem;color:#fff;opacity:0;pointer-events:none;z-index:600;transition:opacity .2s,transform .2s;background:rgba(0,0,0,.5);border-radius:50%;width:72px;height:72px;display:flex;align-items:center;justify-content:center}
 </style>
@@ -182,8 +193,11 @@
   {% endfor %}
 </div>
 
+<button id="reelBackBtn" onclick="closeReel()">‹ Back</button>
+<div id="videoGrid"></div>
+
 <!-- Full-screen reel feed: ALL videos from ALL items -->
-<div class="reel-feed" id="reelFeed">
+<div class="reel-feed" id="reelFeed" style="display:none">
 
   {% for item in items %}
   {% with item_url="/health/guide/"|add:item.category.slug|add:"/"|add:item.slug|add:"/" %}
@@ -330,9 +344,41 @@
 
 <script>
 (function(){
-  var isMuted=true,currentSlide=null,isPlaying=false;
-  var feed=document.getElementById('reelFeed'); if(!feed) return;
+  var isMuted=true, currentSlide=null, isPlaying=false;
+  var feed=document.getElementById('reelFeed');
+  var grid=document.getElementById('videoGrid');
+  var backBtn=document.getElementById('reelBackBtn');
+  var muteBtn=document.getElementById('reelMuteBtn');
+  if(!feed||!grid) return;
 
+  var slides=Array.from(feed.querySelectorAll('.reel-slide'));
+
+  /* ── Build thumbnail grid from reel slides ── */
+  slides.forEach(function(slide, idx){
+    if(slide.classList.contains('no-video-slide')) return;
+    var card=document.createElement('div');
+    card.className='vg-card';
+    card.dataset.idx=idx;
+
+    var thumbImg=slide.querySelector('.reel-thumb img');
+    var itemImg=slide.querySelector('.reel-item-link img');
+    var imgSrc=thumbImg?thumbImg.src:(itemImg?itemImg.src:'');
+    if(imgSrc){ var im=document.createElement('img'); im.src=imgSrc; im.alt=''; card.appendChild(im); }
+
+    var pi=document.createElement('div'); pi.className='vg-play-icon'; card.appendChild(pi);
+
+    var ov=document.createElement('div'); ov.className='vg-card-overlay';
+    var tagEl=slide.querySelector('.reel-tag');
+    if(tagEl){ var tc=tagEl.cloneNode(true); ov.appendChild(tc); }
+    var titEl=slide.querySelector('.reel-title');
+    if(titEl){ var nm=document.createElement('div'); nm.className='vg-name'; nm.textContent=titEl.textContent.trim(); ov.appendChild(nm); }
+    card.appendChild(ov);
+
+    card.addEventListener('click',function(){ openReel(parseInt(this.dataset.idx)); });
+    grid.appendChild(card);
+  });
+
+  /* ── Reel controls ── */
   function ytCmd(f,fn){try{f.contentWindow.postMessage(JSON.stringify({event:'command',func:fn,args:[]}),'*');}catch(e){}}
 
   function loadSlide(slide){
@@ -348,14 +394,14 @@
     if(!isMuted) f.addEventListener('load',function(){setTimeout(function(){ytCmd(f,'unMute');},500);});
   }
 
-  function playSlide(slide){
+  function doPlaySlide(slide){
     loadSlide(slide);
     var f=slide.querySelector('iframe'); if(f) ytCmd(f,'playVideo');
     var v=slide.querySelector('video'); if(v){v.muted=isMuted;v.play().catch(function(){});}
     isPlaying=true;
   }
 
-  function pauseSlide(slide){
+  function doPauseSlide(slide){
     var f=slide.querySelector('iframe'); if(f) ytCmd(f,'pauseVideo');
     var v=slide.querySelector('video'); if(v) v.pause();
     isPlaying=false;
@@ -367,11 +413,12 @@
     clearTimeout(ind._t); ind._t=setTimeout(function(){ind.style.opacity='0';ind.style.transform='translate(-50%,-50%) scale(0.7)';},700);
   }
 
+  /* IntersectionObserver — auto-play as you scroll */
   var obs=new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.intersectionRatio>=0.5){
-        if(currentSlide&&currentSlide!==e.target) pauseSlide(currentSlide);
-        currentSlide=e.target; playSlide(currentSlide);
+        if(currentSlide&&currentSlide!==e.target) doPauseSlide(currentSlide);
+        currentSlide=e.target; doPlaySlide(currentSlide);
         var link=e.target.querySelector('.reel-item-link');
         if(link){
           var href=link.getAttribute('href');
@@ -386,22 +433,46 @@
       }
     });
   },{root:feed,threshold:0.5});
-  feed.querySelectorAll('.reel-slide').forEach(function(s){obs.observe(s);});
+  slides.forEach(function(s){obs.observe(s);});
 
+  /* Center tap → pause/play */
   feed.addEventListener('click',function(e){
     if(!currentSlide) return;
     if(e.target.closest('a,button')) return;
-    if(e.target.closest('.reel-thumb')){playSlide(currentSlide);return;}
-    if(isPlaying){pauseSlide(currentSlide);flashInd('⏸');}
-    else{playSlide(currentSlide);flashInd('▶');}
+    if(e.target.closest('.reel-thumb')){doPlaySlide(currentSlide);return;}
+    if(isPlaying){doPauseSlide(currentSlide);flashInd('⏸');}
+    else{doPlaySlide(currentSlide);flashInd('▶');}
   });
 
-  var mb=document.getElementById('reelMuteBtn');
-  if(mb) mb.addEventListener('click',function(e){
-    e.stopPropagation(); isMuted=!isMuted; mb.textContent=isMuted?'🔇':'🔊';
+  /* Mute button */
+  if(muteBtn) muteBtn.addEventListener('click',function(e){
+    e.stopPropagation(); isMuted=!isMuted; muteBtn.textContent=isMuted?'🔇':'🔊';
     feed.querySelectorAll('iframe').forEach(function(f){ytCmd(f,isMuted?'mute':'unMute');});
     feed.querySelectorAll('video').forEach(function(v){v.muted=isMuted;});
   });
+
+  /* ── Open / close reel ── */
+  function openReel(idx){
+    grid.style.display='none';
+    feed.style.display='block';
+    if(backBtn){backBtn.style.display='flex';}
+    if(muteBtn){muteBtn.style.display='flex';}
+    requestAnimationFrame(function(){
+      var target=slides[idx];
+      if(target) target.scrollIntoView({behavior:'instant',block:'start'});
+    });
+  }
+
+  function closeReel(){
+    if(currentSlide) doPauseSlide(currentSlide);
+    currentSlide=null; isPlaying=false;
+    feed.style.display='none';
+    if(backBtn){backBtn.style.display='none';}
+    if(muteBtn){muteBtn.style.display='none';}
+    grid.style.display='grid';
+  }
+
+  window.closeReel=closeReel;
 })();
 </script>
 {% endblock %}
