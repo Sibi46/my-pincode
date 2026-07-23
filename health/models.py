@@ -434,10 +434,15 @@ class FoodItem(models.Model):
     journal_youtube_channel = models.CharField(max_length=200, blank=True, help_text='YouTube channel name for journal video')
     journal_author          = models.CharField(max_length=200, blank=True, help_text='Author / writer of journal article')
 
+    # Natural Treatment
+    natural_treatment             = models.TextField(blank=True, help_text='Natural remedy / medicinal use')
+    natural_treatment_video_url   = models.URLField(blank=True)
+    natural_treatment_video       = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    natural_treatment_youtube_channel = models.CharField(max_length=200, blank=True)
+
     # Natural food info
     nutrition         = models.TextField(blank=True)
     benefits          = models.TextField(blank=True)
-    natural_treatment = models.TextField(blank=True, help_text='Natural remedy / medicinal use')
 
     is_featured  = models.BooleanField(default=False)
     order        = models.PositiveIntegerField(default=0)
@@ -489,6 +494,19 @@ class FoodItem(models.Model):
     def journal_embed(self):
         vid = self.journal_video_id
         return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def natural_treatment_video_id(self):
+        return self._yt_id(self.natural_treatment_video_url)
+
+    @property
+    def natural_treatment_embed(self):
+        vid = self.natural_treatment_video_id
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def natural_treatment_is_shorts(self):
+        return 'shorts/' in (self.natural_treatment_video_url or '')
 
     def get_condition_advice(self):
         import json

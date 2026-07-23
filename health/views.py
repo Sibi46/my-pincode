@@ -983,7 +983,8 @@ def hadmin_guide_item_edit(request, pk=None):
                     'recipe_content', 'recipe_video_url', 'recipe_youtube_channel',
                     'growing_content', 'growing_video_url', 'growing_youtube_channel',
                     'journal_content', 'journal_video_url', 'journal_youtube_channel', 'journal_author',
-                    'nutrition', 'benefits', 'natural_treatment']
+                    'nutrition', 'benefits',
+                    'natural_treatment', 'natural_treatment_video_url', 'natural_treatment_youtube_channel']
         data = {f: request.POST.get(f, '') for f in fields}
         data['is_featured'] = 'is_featured' in request.POST
         data['order']       = int(request.POST.get('order', 0) or 0)
@@ -1003,7 +1004,7 @@ def hadmin_guide_item_edit(request, pk=None):
                 setattr(obj, k, v)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
-            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video'):
+            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video', 'natural_treatment_video'):
                 if vfield in request.FILES:
                     setattr(obj, vfield, request.FILES[vfield])
                 elif request.POST.get(f'clear_{vfield}'):
@@ -1013,7 +1014,7 @@ def hadmin_guide_item_edit(request, pk=None):
             obj = FoodItem(**data)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
-            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video'):
+            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video', 'natural_treatment_video'):
                 if vfield in request.FILES:
                     setattr(obj, vfield, request.FILES[vfield])
             obj.save()

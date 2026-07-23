@@ -250,8 +250,27 @@
 
     <!-- Natural Treatment -->
     <div class="form-card">
-      <h3>Natural Treatment</h3>
+      <h3>🌿 Natural Treatment</h3>
       <div class="form-group"><label>Natural Remedy Instructions</label><textarea name="natural_treatment" style="min-height:120px" placeholder="How to use this as a natural remedy or medicine...">{{ obj.natural_treatment|default:'' }}</textarea></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Upload Video File <span style="font-weight:400;color:#94a3b8">(MP4/WebM/MOV)</span></label>
+          {% if obj.natural_treatment_video %}
+          <div style="margin-bottom:.5rem"><video src="{{ obj.natural_treatment_video.url }}" controls style="max-width:220px;border-radius:8px"></video></div>
+          <label class="check-row" style="color:#dc2626;font-size:.78rem"><input type="checkbox" name="clear_natural_treatment_video"> Remove current video</label>
+          {% endif %}
+          <input type="file" name="natural_treatment_video" accept="video/*">
+        </div>
+        <div class="form-group">
+          <label>YouTube Channel Name</label>
+          <input type="text" name="natural_treatment_youtube_channel" value="{{ obj.natural_treatment_youtube_channel|default:'' }}" placeholder="e.g. Health Tips Tamil">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>YouTube Video URL</label>
+        <input type="url" name="natural_treatment_video_url" id="natural_treatment_video_url" value="{{ obj.natural_treatment_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=..." oninput="renderYtPreview('natural_treatment_video_url','nt_yt_preview')">
+        <div id="nt_yt_preview" style="margin-top:.5rem"></div>
+      </div>
     </div>
 
     <div class="form-actions">
