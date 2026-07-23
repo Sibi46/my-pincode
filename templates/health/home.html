@@ -166,8 +166,9 @@
   /* ── Video grid (default view) ── */
   #videoGrid{height:calc(100svh - 122px);overflow-y:auto;background:#000;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:2px;align-content:start;-webkit-overflow-scrolling:touch}
   #videoGrid::-webkit-scrollbar{display:none}
-  .vg-card{position:relative;aspect-ratio:9/16;overflow:hidden;cursor:pointer;background:#111;display:block}
-  .vg-card img{width:100%;height:100%;object-fit:cover;opacity:.88;transition:opacity .15s}
+  .vg-card{position:relative;overflow:hidden;cursor:pointer;background:#111;display:block}
+  .vg-card::before{content:'';display:block;padding-top:177.78%} /* force 9:16 portrait */
+  .vg-card img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:.88;transition:opacity .15s}
   .vg-card:hover img{opacity:1}
   .vg-play-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:38px;height:38px;background:rgba(220,0,0,.85);border-radius:50%;display:flex;align-items:center;justify-content:center}
   .vg-play-icon::after{content:'';border:solid transparent 7px;border-left:solid #fff 13px;margin-left:4px}
