@@ -115,6 +115,35 @@
       </table>
     </div>
 
+    <!-- Health Advice Video -->
+    <div class="form-card">
+      <h3>🏥 Health Advice Video</h3>
+      <div class="form-group">
+        <label>Upload Video</label>
+        {% if obj.advice_video %}
+        <div style="margin-bottom:.6rem">
+          <video src="{{ obj.advice_video.url }}" controls style="max-width:280px;border-radius:8px;display:block"></video>
+          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:.4rem;font-size:.82rem;color:#dc2626;font-weight:600;text-transform:none;letter-spacing:0">
+            <input type="checkbox" name="clear_advice_video" value="1"> Remove current video
+          </label>
+        </div>
+        {% endif %}
+        <input type="file" name="advice_video" accept="video/*">
+        <p style="font-size:.75rem;color:#94a3b8;margin:.3rem 0 0">MP4, WebM, MOV (max ~200MB)</p>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>OR — YouTube URL</label>
+          <input type="url" name="advice_video_url" id="advice_video_url" value="{{ obj.advice_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
+          <div id="advice_yt_preview" style="margin-top:.75rem"></div>
+        </div>
+        <div class="form-group">
+          <label>YouTube Channel Name</label>
+          <input type="text" name="advice_youtube_channel" value="{{ obj.advice_youtube_channel|default:'' }}" placeholder="e.g. Fit Tuber">
+        </div>
+      </div>
+    </div>
+
     <!-- Recipe -->
     <div class="form-card">
       <h3>Recipe / How to Eat</h3>
@@ -269,6 +298,7 @@ function renderYtPreview(inputId, previewId) {
   input.addEventListener('input', update);
   update();
 }
+renderYtPreview('advice_video_url', 'advice_yt_preview');
 renderYtPreview('journal_video_url', 'journal_yt_preview');
 
 var _rowCount = {recipe: 0, growing: 0};

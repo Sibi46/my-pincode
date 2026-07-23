@@ -3,319 +3,393 @@
 {% block title %}{{ item.name }} – {{ category.name }} – Food Guide{% endblock %}
 {% block content %}
 <style>
-  .gi-hero{background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:0}
-  .gi-hero-inner{max-width:1100px;margin:0 auto;padding:1.5rem 1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
-  .gi-hero-img{width:120px;height:120px;object-fit:cover;border-radius:16px;border:3px solid rgba(255,255,255,.3);flex-shrink:0}
-  .gi-hero-info h1{margin:0 0 .3rem;font-size:1.6rem}
-  .gi-hero-info p{margin:0;opacity:.85;font-size:.9rem}
-  .gi-wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem}
-  .breadcrumb{font-size:.82rem;color:#64748b;margin-bottom:1rem}
-  .breadcrumb a{color:#059669;text-decoration:none}
+  /* Hero */
+  .gi-hero{background:linear-gradient(135deg,#059669,#047857);color:#fff}
+  .gi-hero-inner{max-width:1100px;margin:0 auto;padding:1rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .gi-hero-img{width:72px;height:72px;object-fit:cover;border-radius:12px;border:2px solid rgba(255,255,255,.35);flex-shrink:0}
+  .gi-hero-info h1{margin:0 0 .2rem;font-size:1.25rem;font-weight:900}
+  .gi-hero-info p{margin:0;opacity:.85;font-size:.82rem}
 
-  /* Tabs */
-  .tabs{display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:1.5rem;overflow-x:auto}
-  .tab-btn{padding:.7rem 1.2rem;cursor:pointer;border:0;background:none;font-size:.88rem;font-weight:600;color:#64748b;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
-  .tab-btn.active{color:#059669;border-bottom-color:#059669}
-  .tab-pane{display:none}
-  .tab-pane.active{display:block}
+  /* Sticky tab bar */
+  .gi-tabs-bar{position:sticky;top:0;z-index:200;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+  .gi-tabs-inner{max-width:1100px;margin:0 auto;padding:0 1rem;display:flex;overflow-x:auto;scrollbar-width:none;border-bottom:2px solid #e2e8f0}
+  .gi-tabs-inner::-webkit-scrollbar{display:none}
+  .gtab-btn{flex-shrink:0;padding:.72rem 1rem;cursor:pointer;border:0;background:none;font-size:.84rem;font-weight:600;color:#64748b;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .gtab-btn.active{color:#059669;border-bottom-color:#059669}
 
-  /* Info cards */
-  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
-  @media(max-width:600px){.info-grid{grid-template-columns:1fr}}
-  .info-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem}
-  .info-card h4{margin:0 0 .6rem;font-size:.85rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.03em}
-  .info-card p{margin:0;font-size:.88rem;color:#374151;line-height:1.6;white-space:pre-line}
+  /* Page layout */
+  .gi-body{max-width:1100px;margin:0 auto;padding:1rem;display:grid;grid-template-columns:1fr 240px;gap:1.25rem;align-items:start}
+  @media(max-width:800px){.gi-body{grid-template-columns:1fr}}
 
-  /* Condition table */
+  /* Shorts feed */
+  .shorts-feed{display:none;height:calc(100svh - 110px);overflow-y:scroll;scroll-snap-type:y mandatory;border-radius:16px;background:#000;-webkit-overflow-scrolling:touch}
+  .shorts-feed::-webkit-scrollbar{display:none}
+  .shorts-feed.active{display:block}
+
+  /* Each slide */
+  .short-slide{height:calc(100svh - 110px);scroll-snap-align:start;position:relative;display:flex;align-items:center;justify-content:center;background:#000;flex-shrink:0}
+  .short-slide video{width:100%;height:100%;object-fit:contain}
+  .short-slide iframe{width:100%;height:100%;border:0}
+
+  /* Overlay info at bottom */
+  .short-info{position:absolute;bottom:0;left:0;right:0;padding:1.25rem 1rem 1rem;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;pointer-events:none}
+  .short-title{font-size:.95rem;font-weight:800;margin-bottom:.25rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+  .short-channel{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;background:rgba(255,0,0,.85);padding:.2rem .6rem;border-radius:4px}
+  .short-channel::before{content:'▶';font-size:.6rem}
+
+  /* Thumbnail play button */
+  .short-thumb{position:absolute;inset:0;cursor:pointer}
+  .short-thumb img{width:100%;height:100%;object-fit:cover;opacity:.85}
+  .short-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:68px;height:68px;background:rgba(255,0,0,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+  .short-play::after{content:'';border:solid transparent 14px;border-left:solid #fff 24px;margin-left:8px}
+
+  /* Text-only tab */
+  .text-feed{display:none;padding:.5rem 0}
+  .text-feed.active{display:block}
+  .content-text{font-size:.9rem;color:#374151;line-height:1.7;white-space:pre-line;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+
+  /* Condition advice */
   .ca-section{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem}
-  .ca-section h4{margin:0 0 .75rem;font-size:.85rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.03em}
+  .ca-section h4{margin:0 0 .75rem;font-size:.82rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.04em}
   .ca-list{display:flex;flex-direction:column;gap:.5rem}
-  .ca-row{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem;border-radius:8px;background:#f8fafc}
-  .ca-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
-  .ca-name{font-weight:700;font-size:.85rem;color:#111;margin-bottom:2px}
-  .ca-note{font-size:.8rem;color:#64748b}
-  .ca-badge{padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;margin-left:auto;white-space:nowrap;flex-shrink:0}
+  .ca-row{display:flex;align-items:flex-start;gap:.75rem;padding:.55rem .75rem;border-radius:8px;background:#f8fafc}
+  .ca-icon{font-size:.95rem;flex-shrink:0;margin-top:2px}
+  .ca-name{font-weight:700;font-size:.83rem;color:#111;margin-bottom:2px}
+  .ca-note{font-size:.78rem;color:#64748b}
+  .ca-badge{padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:auto;white-space:nowrap;flex-shrink:0}
   .ca-yes{background:#d1fae5;color:#065f46}
   .ca-mod{background:#fef3c7;color:#92400e}
   .ca-no{background:#fee2e2;color:#991b1b}
-  .ca-empty{color:#94a3b8;font-size:.85rem;padding:.5rem}
+  .ca-empty{color:#94a3b8;font-size:.84rem;padding:.5rem}
 
-  /* Reels-style video */
-  .reel-outer{display:flex;justify-content:center;margin-bottom:1.25rem}
-  .reel-shell{position:relative;width:100%;max-width:360px;aspect-ratio:9/16;border-radius:20px;overflow:hidden;background:#000;box-shadow:0 8px 32px rgba(0,0,0,.22)}
-  .reel-shell iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
-  .reel-thumb{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
-  .reel-thumb img{width:100%;height:100%;object-fit:cover;opacity:.88}
-  .reel-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;background:rgba(255,0,0,.88);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.35)}
-  .reel-play::after{content:'';border:solid transparent 12px;border-left:solid #fff 22px;margin-left:7px}
-  .reel-label{position:absolute;bottom:.9rem;left:0;right:0;text-align:center;color:#fff;font-size:.78rem;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,.6);letter-spacing:.03em}
+  /* Growing images inside feed */
+  .growing-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.5rem}
+  .growing-gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
 
-  /* Growing images */
-  .growing-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
-  .growing-gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0}
+  /* Journal author */
+  .journal-byline{display:flex;align-items:center;gap:.75rem;background:rgba(5,150,105,.12);border-radius:10px;padding:.65rem 1rem;margin-bottom:.75rem}
+  .author-avatar{width:34px;height:34px;background:#059669;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;flex-shrink:0}
+  .author-name{font-weight:800;font-size:.88rem;color:#065f46}
+  .author-label{font-size:.72rem;color:#6b7280}
 
-  /* Content areas */
-  .content-text{font-size:.9rem;color:#374151;line-height:1.7;white-space:pre-line;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1.25rem}
-
-  /* YouTube link button */
-  .yt-link-btn{display:inline-flex;align-items:center;gap:.6rem;background:#ff0000;color:#fff;padding:.85rem 1.5rem;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;margin-bottom:1rem;transition:.2s}
-  .yt-link-btn:hover{background:#cc0000;color:#fff}
-
-  /* Channel credit */
-  .vid-credit{display:flex;align-items:center;gap:.5rem;justify-content:center;margin-top:.5rem;margin-bottom:.5rem;font-size:.82rem;font-weight:700;color:#374151}
-  .yt-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#ff0000;color:#fff;border-radius:5px;font-size:.65rem;flex-shrink:0}
-
-  /* Reel carousel */
-  .reel-carousel{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.75rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-  .reel-carousel::-webkit-scrollbar{height:4px}
-  .reel-carousel::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
-  .reel-item{flex:0 0 280px;scroll-snap-align:start}
-  .reel-item .reel-shell{max-width:100%}
-  .reel-item-title{font-size:.8rem;font-weight:700;color:#374151;margin-top:.4rem;text-align:center}
-  .reel-item-channel{display:flex;align-items:center;gap:.35rem;justify-content:center;font-size:.75rem;color:#6b7280;margin-top:.2rem}
-
-  /* Journal byline */
-  .journal-byline{display:flex;align-items:center;gap:.75rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem}
-  .author-avatar{width:38px;height:38px;background:#059669;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;flex-shrink:0}
-  .author-name{font-weight:800;font-size:.9rem;color:#065f46}
-  .author-label{font-size:.75rem;color:#6b7280;margin-top:1px}
+  /* Sidebar */
+  .gi-sidebar{display:flex;flex-direction:column;gap:.85rem}
+  @media(max-width:800px){.gi-sidebar{order:-1}}
+  .info-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:.9rem;position:sticky;top:60px}
+  .info-card + .info-card{position:static;margin-top:.85rem}
+  .info-card h4{margin:0 0 .45rem;font-size:.76rem;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.04em}
+  .info-card-body{font-size:.83rem;color:#374151;line-height:1.6;white-space:pre-line;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .info-card-body.expanded{display:block}
+  .info-read-more{display:inline-block;margin-top:.35rem;font-size:.76rem;font-weight:700;color:#059669;cursor:pointer;background:none;border:0;padding:0}
 
   /* Related */
-  .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:.75rem}
-  .related-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit;transition:.15s}
-  .related-card:hover{border-color:#059669}
-  .related-card img{width:100%;aspect-ratio:1;object-fit:cover}
-  .related-card div{padding:.5rem;font-size:.82rem;font-weight:600;color:#111}
+  .related-row{display:flex;gap:.6rem;overflow-x:auto;padding:.75rem 0 .25rem;margin-top:1rem;scrollbar-width:none}
+  .related-row::-webkit-scrollbar{display:none}
+  .related-card{flex-shrink:0;width:100px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;text-decoration:none;color:inherit}
+  .related-card img,.related-card-ph{width:100%;aspect-ratio:1;object-fit:cover;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:1.75rem}
+  .related-card span{display:block;padding:.35rem .4rem;font-size:.72rem;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* Breadcrumb */
+  .breadcrumb{font-size:.78rem;color:#64748b;margin-bottom:.75rem}
+  .breadcrumb a{color:#059669;text-decoration:none}
 </style>
 
+<!-- Hero -->
 <div class="gi-hero">
   <div class="gi-hero-inner">
-    {% if item.image %}
-    <img class="gi-hero-img" src="{{ item.image.url }}" alt="{{ item.name }}">
-    {% endif %}
+    {% if item.image %}<img class="gi-hero-img" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
     <div class="gi-hero-info">
       <h1>{{ item.name }}</h1>
-      <p>{{ category.icon }} {{ category.name }}{% if item.description %} — {{ item.description|truncatechars:100 }}{% endif %}</p>
+      <p>{{ category.icon }} {{ category.name }}{% if item.description %} — {{ item.description|truncatechars:80 }}{% endif %}</p>
     </div>
   </div>
 </div>
 
-<div class="gi-wrap">
-  <div class="breadcrumb">
-    <a href="/health/">Health</a> ›
-    <a href="/health/guide/">Food Guide</a> ›
-    <a href="/health/guide/{{ category.slug }}/">{{ category.name }}</a> ›
-    {{ item.name }}
+<!-- Sticky Tab Bar -->
+<div class="gi-tabs-bar">
+  <div class="gi-tabs-inner">
+    <button class="gtab-btn active" onclick="switchTab('advice',this)">🏥 Health Advice</button>
+    {% if item.recipe_content or recipe_videos %}<button class="gtab-btn" onclick="switchTab('recipe',this)">🍽️ Recipe</button>{% endif %}
+    {% if item.growing_content or growing_videos or growing_images %}<button class="gtab-btn" onclick="switchTab('growing',this)">🌱 How to Grow</button>{% endif %}
+    {% if item.natural_treatment %}<button class="gtab-btn" onclick="switchTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
+    {% if item.journal_content or item.journal_video_url or item.journal_video %}<button class="gtab-btn" onclick="switchTab('journal',this)">📰 Journal</button>{% endif %}
   </div>
+</div>
 
-  <!-- Quick info row -->
+<div class="gi-body">
+  <div class="gi-main">
+    <div class="breadcrumb">
+      <a href="/health/">Health</a> › <a href="/health/guide/">Food Guide</a> › <a href="/health/guide/{{ category.slug }}/">{{ category.name }}</a> › {{ item.name }}
+    </div>
+
+    <!-- ── HEALTH ADVICE ── -->
+    {% if item.advice_video or item.advice_video_url %}
+    <div class="shorts-feed active" id="feed-advice">
+      <div class="short-slide">
+        {% if item.advice_video %}
+        <video src="{{ item.advice_video.url }}" controls playsinline></video>
+        {% elif 'shorts/' in item.advice_video_url %}
+        <a href="{{ item.advice_video_url }}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;text-decoration:none;gap:1rem">
+          <div class="short-play" style="position:static;transform:none"></div>
+          <span style="font-weight:700">Watch on YouTube</span>
+        </a>
+        {% else %}
+        <div class="short-thumb" onclick="playShort(this,'{{ item.advice_embed }}')">
+          <img src="https://img.youtube.com/vi/{{ item.advice_video_id }}/hqdefault.jpg" alt="">
+          <div class="short-play"></div>
+        </div>
+        {% endif %}
+        <div class="short-info">
+          <div class="short-title">🏥 Health Advice{% if item.name %} – {{ item.name }}{% endif %}</div>
+          {% if item.advice_youtube_channel %}<div class="short-channel">{{ item.advice_youtube_channel }}</div>{% endif %}
+        </div>
+      </div>
+      <!-- Condition advice as a text slide -->
+      <div class="short-slide" style="background:#0a1628;padding:1.5rem;overflow-y:auto;align-items:flex-start;scroll-snap-align:start">
+        <div style="width:100%">
+          <h3 style="color:#4ade80;font-size:.95rem;margin:0 0 1rem">🩺 Condition-wise Advice</h3>
+          {% if advice %}
+          <div class="ca-list">
+            {% for c in conditions %}{% with ca=advice|get_item:c.slug %}{% if ca %}
+            <div class="ca-row" style="background:rgba(255,255,255,.07)">
+              <div class="ca-icon">{{ c.icon }}</div>
+              <div style="flex:1"><div class="ca-name" style="color:#f1f5f9">{{ c.name }}</div>{% if ca|get_item:"note" %}<div class="ca-note" style="color:#94a3b8">{{ ca|get_item:"note" }}</div>{% endif %}</div>
+              {% with val=ca|get_item:"can_eat" %}{% if val == "yes" %}<span class="ca-badge ca-yes">✅ Can Eat</span>{% elif val == "moderate" %}<span class="ca-badge ca-mod">⚠️ Moderate</span>{% elif val == "no" %}<span class="ca-badge ca-no">❌ Avoid</span>{% endif %}{% endwith %}
+            </div>
+            {% endif %}{% endwith %}{% endfor %}
+          </div>
+          {% else %}<p style="color:#94a3b8;font-size:.85rem">No condition advice added yet.</p>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <!-- No advice video – show text only -->
+    <div class="text-feed active" id="feed-advice">
+      <div class="ca-section">
+        <h4>Condition-wise Advice</h4>
+        {% if advice %}
+        <div class="ca-list">
+          {% for c in conditions %}{% with ca=advice|get_item:c.slug %}{% if ca %}
+          <div class="ca-row">
+            <div class="ca-icon">{{ c.icon }}</div>
+            <div style="flex:1"><div class="ca-name">{{ c.name }}</div>{% if ca|get_item:"note" %}<div class="ca-note">{{ ca|get_item:"note" }}</div>{% endif %}</div>
+            {% with val=ca|get_item:"can_eat" %}{% if val == "yes" %}<span class="ca-badge ca-yes">✅ Can Eat</span>{% elif val == "moderate" %}<span class="ca-badge ca-mod">⚠️ Moderate</span>{% elif val == "no" %}<span class="ca-badge ca-no">❌ Avoid</span>{% endif %}{% endwith %}
+          </div>
+          {% endif %}{% endwith %}{% endfor %}
+        </div>
+        {% else %}<p class="ca-empty">No condition advice added yet.</p>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ── RECIPE ── -->
+    {% if item.recipe_content or recipe_videos %}
+    {% if recipe_videos %}
+    <div class="shorts-feed" id="feed-recipe">
+      {% for rv in recipe_videos %}
+      <div class="short-slide">
+        {% if rv.video_file %}
+        <video src="{{ rv.video_file.url }}" controls playsinline></video>
+        {% elif rv.is_shorts %}
+        <a href="{{ rv.video_url }}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;text-decoration:none;gap:1rem">
+          <div class="short-play" style="position:static;transform:none"></div>
+          <span style="font-weight:700">Watch on YouTube</span>
+        </a>
+        {% elif rv.embed_url %}
+        <div class="short-thumb" onclick="playShort(this,'{{ rv.embed_url }}')">
+          <img src="https://img.youtube.com/vi/{{ rv.video_id }}/hqdefault.jpg" alt="">
+          <div class="short-play"></div>
+        </div>
+        {% endif %}
+        <div class="short-info">
+          <div class="short-title">{% if rv.title %}{{ rv.title }}{% else %}🍽️ Recipe{% endif %}</div>
+          {% if rv.youtube_channel %}<div class="short-channel">{{ rv.youtube_channel }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% if item.recipe_content %}
+      <div class="short-slide" style="background:#1a0a00;padding:1.5rem;overflow-y:auto;align-items:flex-start">
+        <div style="width:100%;color:#fef3c7">
+          <h3 style="color:#fbbf24;font-size:.95rem;margin:0 0 1rem">🍽️ Recipe Details</h3>
+          <p style="font-size:.88rem;line-height:1.7;white-space:pre-line;color:#fef3c7">{{ item.recipe_content }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="text-feed" id="feed-recipe">
+      <div class="content-text">{{ item.recipe_content }}</div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- ── HOW TO GROW ── -->
+    {% if item.growing_content or growing_videos or growing_images %}
+    {% if growing_videos %}
+    <div class="shorts-feed" id="feed-growing">
+      {% for gv in growing_videos %}
+      <div class="short-slide">
+        {% if gv.video_file %}
+        <video src="{{ gv.video_file.url }}" controls playsinline></video>
+        {% elif gv.is_shorts %}
+        <a href="{{ gv.video_url }}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;text-decoration:none;gap:1rem">
+          <div class="short-play" style="position:static;transform:none"></div>
+          <span style="font-weight:700">Watch on YouTube</span>
+        </a>
+        {% elif gv.embed_url %}
+        <div class="short-thumb" onclick="playShort(this,'{{ gv.embed_url }}')">
+          <img src="https://img.youtube.com/vi/{{ gv.video_id }}/hqdefault.jpg" alt="">
+          <div class="short-play"></div>
+        </div>
+        {% endif %}
+        <div class="short-info">
+          <div class="short-title">{% if gv.title %}{{ gv.title }}{% else %}🌱 How to Grow{% endif %}</div>
+          {% if gv.youtube_channel %}<div class="short-channel">{{ gv.youtube_channel }}</div>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% if item.growing_content or growing_images %}
+      <div class="short-slide" style="background:#021a04;padding:1.5rem;overflow-y:auto;align-items:flex-start">
+        <div style="width:100%">
+          <h3 style="color:#4ade80;font-size:.95rem;margin:0 0 1rem">🌱 Growing Guide</h3>
+          {% if item.growing_content %}<p style="font-size:.88rem;line-height:1.7;white-space:pre-line;color:#d1fae5">{{ item.growing_content }}</p>{% endif %}
+          {% if growing_images %}
+          <div class="growing-gallery">
+            {% for gi in growing_images %}<img src="{{ gi.image.url }}" alt="{{ gi.caption|default:item.name }}">{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="text-feed" id="feed-growing">
+      {% if item.growing_content %}<div class="content-text">{{ item.growing_content }}</div>{% endif %}
+      {% if growing_images %}
+      <div class="growing-gallery">{% for gi in growing_images %}<img src="{{ gi.image.url }}" alt="">{% endfor %}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- ── NATURAL TREATMENT ── -->
+    {% if item.natural_treatment %}
+    <div class="text-feed" id="feed-natural">
+      <div class="content-text">{{ item.natural_treatment }}</div>
+    </div>
+    {% endif %}
+
+    <!-- ── JOURNAL ── -->
+    {% if item.journal_content or item.journal_video_url or item.journal_video %}
+    {% if item.journal_video or item.journal_video_url %}
+    <div class="shorts-feed" id="feed-journal">
+      <div class="short-slide">
+        {% if item.journal_video %}
+        <video src="{{ item.journal_video.url }}" controls playsinline></video>
+        {% elif 'shorts/' in item.journal_video_url %}
+        <a href="{{ item.journal_video_url }}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:#fff;text-decoration:none;gap:1rem">
+          <div class="short-play" style="position:static;transform:none"></div>
+          <span style="font-weight:700">Watch on YouTube</span>
+        </a>
+        {% else %}
+        <div class="short-thumb" onclick="playShort(this,'{{ item.journal_embed }}')">
+          <img src="https://img.youtube.com/vi/{{ item.journal_video_id }}/hqdefault.jpg" alt="">
+          <div class="short-play"></div>
+        </div>
+        {% endif %}
+        <div class="short-info">
+          <div class="short-title">📰 Journal{% if item.journal_author %} · {{ item.journal_author }}{% endif %}</div>
+          {% if item.journal_youtube_channel %}<div class="short-channel">{{ item.journal_youtube_channel }}</div>{% endif %}
+        </div>
+      </div>
+      {% if item.journal_content %}
+      <div class="short-slide" style="background:#0d0d1a;padding:1.5rem;overflow-y:auto;align-items:flex-start">
+        <div style="width:100%">
+          {% if item.journal_author %}
+          <div class="journal-byline" style="background:rgba(255,255,255,.08);margin-bottom:1rem">
+            <div class="author-avatar">{{ item.journal_author|slice:":1"|upper }}</div>
+            <div><div class="author-name" style="color:#e2e8f0">{{ item.journal_author }}</div><div class="author-label">Article Author</div></div>
+          </div>
+          {% endif %}
+          <h3 style="color:#818cf8;font-size:.95rem;margin:0 0 1rem">📰 Article</h3>
+          <p style="font-size:.88rem;line-height:1.7;white-space:pre-line;color:#e2e8f0">{{ item.journal_content }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="text-feed" id="feed-journal">
+      {% if item.journal_author %}
+      <div class="journal-byline"><div class="author-avatar">{{ item.journal_author|slice:":1"|upper }}</div><div><div class="author-name">{{ item.journal_author }}</div><div class="author-label">Article Author</div></div></div>
+      {% endif %}
+      {% if item.journal_content %}<div class="content-text">{{ item.journal_content }}</div>{% endif %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Related -->
+    {% if related %}
+    <div style="margin-top:1rem">
+      <h3 style="font-size:.85rem;font-weight:700;color:#059669;margin-bottom:.25rem">More in {{ category.name }}</h3>
+      <div class="related-row">
+        {% for rel in related %}
+        <a class="related-card" href="/health/guide/{{ category.slug }}/{{ rel.slug }}/">
+          {% if rel.image %}<img src="{{ rel.image.url }}" alt="{{ rel.name }}">{% else %}<div class="related-card-ph">{{ category.icon }}</div>{% endif %}
+          <span>{{ rel.name }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div><!-- /gi-main -->
+
+  <!-- Sidebar: Nutrition + Benefits -->
   {% if item.nutrition or item.benefits %}
-  <div class="info-grid">
+  <div class="gi-sidebar">
     {% if item.nutrition %}
     <div class="info-card">
-      <h4>Nutrition</h4>
-      <p>{{ item.nutrition }}</p>
+      <h4>📊 Nutrition</h4>
+      <div class="info-card-body" id="nutr-body">{{ item.nutrition }}</div>
+      <button class="info-read-more" onclick="toggleRM('nutr-body',this)">Read more ▼</button>
     </div>
     {% endif %}
     {% if item.benefits %}
     <div class="info-card">
-      <h4>Benefits</h4>
-      <p>{{ item.benefits }}</p>
+      <h4>✅ Benefits</h4>
+      <div class="info-card-body" id="bene-body">{{ item.benefits }}</div>
+      <button class="info-read-more" onclick="toggleRM('bene-body',this)">Read more ▼</button>
     </div>
     {% endif %}
   </div>
   {% endif %}
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="showGuideTab('advice',this)">🏥 Health Advice</button>
-    {% if item.recipe_content or recipe_videos %}<button class="tab-btn" onclick="showGuideTab('recipe',this)">🍽️ Recipe</button>{% endif %}
-    {% if item.growing_content or growing_videos or growing_images %}<button class="tab-btn" onclick="showGuideTab('growing',this)">🌱 How to Grow</button>{% endif %}
-    {% if item.journal_content or item.journal_video_url or item.journal_video %}<button class="tab-btn" onclick="showGuideTab('journal',this)">📰 Journal</button>{% endif %}
-    {% if item.natural_treatment %}<button class="tab-btn" onclick="showGuideTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
-  </div>
-
-  <!-- Advice Tab -->
-  <div id="tab-advice" class="tab-pane active">
-    <div class="ca-section">
-      <h4>Condition-wise Advice</h4>
-      {% if advice %}
-      <div class="ca-list">
-        {% for c in conditions %}
-        {% with ca=advice|get_item:c.slug %}
-        {% if ca %}
-        <div class="ca-row">
-          <div class="ca-icon">{{ c.icon }}</div>
-          <div style="flex:1">
-            <div class="ca-name">{{ c.name }}</div>
-            {% if ca|get_item:"note" %}<div class="ca-note">{{ ca|get_item:"note" }}</div>{% endif %}
-          </div>
-          {% with val=ca|get_item:"can_eat" %}
-          {% if val == "yes" %}<span class="ca-badge ca-yes">✅ Can Eat</span>
-          {% elif val == "moderate" %}<span class="ca-badge ca-mod">⚠️ Moderate</span>
-          {% elif val == "no" %}<span class="ca-badge ca-no">❌ Avoid</span>{% endif %}
-          {% endwith %}
-        </div>
-        {% endif %}
-        {% endwith %}
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="ca-empty">No condition advice added yet for this item.</p>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Recipe Tab -->
-  <div id="tab-recipe" class="tab-pane">
-    {% if recipe_videos %}
-    <div class="reel-carousel">
-      {% for rv in recipe_videos %}
-      <div class="reel-item">
-        <div class="reel-shell">
-          {% if rv.video_file %}
-          <video src="{{ rv.video_file.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
-          {% elif rv.is_shorts %}
-          <a href="{{ rv.video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
-            <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
-            <span style="font-size:.8rem;font-weight:700">Watch on YouTube</span>
-          </a>
-          {% elif rv.embed_url %}
-          <div class="reel-thumb" onclick="playReel(this,'{{ rv.embed_url }}')">
-            <img src="https://img.youtube.com/vi/{{ rv.video_id }}/hqdefault.jpg" alt="{{ rv.title|default:'Recipe Video' }}">
-            <div class="reel-play"></div>
-          </div>
-          {% endif %}
-        </div>
-        {% if rv.title %}<div class="reel-item-title">{{ rv.title }}</div>{% endif %}
-        {% if rv.youtube_channel %}<div class="reel-item-channel"><span class="yt-icon">▶</span>{{ rv.youtube_channel }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-    {% if item.recipe_content %}
-    <div class="content-text">{{ item.recipe_content }}</div>
-    {% endif %}
-  </div>
-
-  <!-- Growing Tab -->
-  <div id="tab-growing" class="tab-pane">
-    {% if growing_videos %}
-    <div class="reel-carousel">
-      {% for gv in growing_videos %}
-      <div class="reel-item">
-        <div class="reel-shell">
-          {% if gv.video_file %}
-          <video src="{{ gv.video_file.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
-          {% elif gv.is_shorts %}
-          <a href="{{ gv.video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
-            <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
-            <span style="font-size:.8rem;font-weight:700">Watch on YouTube</span>
-          </a>
-          {% elif gv.embed_url %}
-          <div class="reel-thumb" onclick="playReel(this,'{{ gv.embed_url }}')">
-            <img src="https://img.youtube.com/vi/{{ gv.video_id }}/hqdefault.jpg" alt="{{ gv.title|default:'Growing Video' }}">
-            <div class="reel-play"></div>
-          </div>
-          {% endif %}
-        </div>
-        {% if gv.title %}<div class="reel-item-title">{{ gv.title }}</div>{% endif %}
-        {% if gv.youtube_channel %}<div class="reel-item-channel"><span class="yt-icon">▶</span>{{ gv.youtube_channel }}</div>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-    {% if item.growing_content %}
-    <div class="content-text">{{ item.growing_content }}</div>
-    {% endif %}
-    {% if growing_images %}
-    <div class="growing-gallery">
-      {% for gi in growing_images %}
-      <img src="{{ gi.image.url }}" alt="{{ gi.caption|default:item.name }}">
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- Journal Tab -->
-  <div id="tab-journal" class="tab-pane">
-    {% if item.journal_author %}
-    <div class="journal-byline">
-      <span class="author-avatar">{{ item.journal_author|slice:":1"|upper }}</span>
-      <div>
-        <div class="author-name">{{ item.journal_author }}</div>
-        <div class="author-label">Article Author</div>
-      </div>
-    </div>
-    {% endif %}
-    {% if item.journal_video or item.journal_video_url %}
-    <div class="reel-outer">
-      <div class="reel-shell">
-        {% if item.journal_video %}
-        <video src="{{ item.journal_video.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
-        {% elif 'shorts/' in item.journal_video_url %}
-        <a href="{{ item.journal_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
-          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
-          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
-        </a>
-        {% else %}
-        <div class="reel-thumb" onclick="playReel(this,'{{ item.journal_embed }}')">
-          <img src="https://img.youtube.com/vi/{{ item.journal_video_id }}/hqdefault.jpg" alt="Journal Video">
-          <div class="reel-play"></div>
-          <div class="reel-label">📰 Journal Video — tap to play</div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-    {% if item.journal_youtube_channel %}
-    <div class="vid-credit">
-      <span class="yt-icon">▶</span>
-      <span>{{ item.journal_youtube_channel }}</span>
-    </div>
-    {% endif %}
-    {% endif %}
-    {% if item.journal_content %}
-    <div class="content-text">{{ item.journal_content }}</div>
-    {% endif %}
-  </div>
-
-  <!-- Natural Treatment Tab -->
-  <div id="tab-natural" class="tab-pane">
-    {% if item.natural_treatment %}
-    <div class="content-text">{{ item.natural_treatment }}</div>
-    {% endif %}
-  </div>
-
-  <!-- Related items -->
-  {% if related %}
-  <div style="margin-top:2rem">
-    <h3 style="font-size:1rem;font-weight:700;color:#059669;margin-bottom:.25rem">More in {{ category.name }}</h3>
-    <div class="related-grid">
-      {% for rel in related %}
-      <a class="related-card" href="/health/guide/{{ category.slug }}/{{ rel.slug }}/">
-        {% if rel.image %}<img src="{{ rel.image.url }}" alt="{{ rel.name }}">
-        {% else %}<div style="aspect-ratio:1;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:2rem">{{ category.icon }}</div>{% endif %}
-        <div>{{ rel.name }}</div>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-</div>
-
+</div><!-- /gi-body -->
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function showGuideTab(name, btn) {
-  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
-  document.getElementById('tab-' + name).classList.add('active');
+function switchTab(name, btn) {
+  document.querySelectorAll('.shorts-feed,.text-feed').forEach(function(el){ el.classList.remove('active'); });
+  document.querySelectorAll('.gtab-btn').forEach(function(b){ b.classList.remove('active'); });
+  var feed = document.getElementById('feed-' + name);
+  if (feed) { feed.classList.add('active'); }
   btn.classList.add('active');
 }
-function playReel(thumb, embedUrl) {
-  var shell = thumb.parentElement;
-  shell.innerHTML = '<iframe src="' + embedUrl + '?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"></iframe>';
+function playShort(thumb, embedUrl) {
+  var slide = thumb.parentElement;
+  var info = slide.querySelector('.short-info');
+  thumb.remove();
+  var iframe = document.createElement('iframe');
+  iframe.src = embedUrl + '?autoplay=1';
+  iframe.setAttribute('frameborder','0');
+  iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+  iframe.setAttribute('allowfullscreen','');
+  iframe.style.cssText = 'width:100%;height:100%;border:0;position:absolute;top:0;left:0';
+  slide.insertBefore(iframe, info);
+}
+function toggleRM(id, btn) {
+  var el = document.getElementById(id);
+  var exp = el.classList.toggle('expanded');
+  btn.textContent = exp ? 'Show less ▲' : 'Read more ▼';
 }
 </script>
 {% endblock %}

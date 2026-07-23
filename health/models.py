@@ -410,7 +410,10 @@ class FoodItem(models.Model):
     description       = models.TextField(blank=True)
 
     # Condition-wise advice
-    condition_advice  = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":"yes","note":"..."}, ...}')
+    condition_advice        = models.TextField(blank=True, help_text='JSON: {"diabetes":{"can_eat":"yes","note":"..."}, ...}')
+    advice_video_url        = models.URLField(blank=True, help_text='YouTube video for Health Advice tab')
+    advice_video            = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    advice_youtube_channel  = models.CharField(max_length=200, blank=True)
 
     # How to eat / Recipe
     recipe_content         = models.TextField(blank=True, help_text='How to eat / cook content')
@@ -450,6 +453,15 @@ class FoodItem(models.Model):
         import re
         m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', url or '')
         return m.group(1) if m else ''
+
+    @property
+    def advice_video_id(self):
+        return self._yt_id(self.advice_video_url)
+
+    @property
+    def advice_embed(self):
+        vid = self.advice_video_id
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
 
     @property
     def recipe_video_id(self):

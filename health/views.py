@@ -979,6 +979,7 @@ def hadmin_guide_item_edit(request, pk=None):
         cat_id   = request.POST.get('category_id')
         category = get_object_or_404(FoodCategory, pk=cat_id) if cat_id else None
         fields   = ['name', 'slug', 'description',
+                    'advice_video_url', 'advice_youtube_channel',
                     'recipe_content', 'recipe_video_url', 'recipe_youtube_channel',
                     'growing_content', 'growing_video_url', 'growing_youtube_channel',
                     'journal_content', 'journal_video_url', 'journal_youtube_channel', 'journal_author',
@@ -1002,7 +1003,7 @@ def hadmin_guide_item_edit(request, pk=None):
                 setattr(obj, k, v)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
-            for vfield in ('recipe_video', 'growing_video', 'journal_video'):
+            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video'):
                 if vfield in request.FILES:
                     setattr(obj, vfield, request.FILES[vfield])
                 elif request.POST.get(f'clear_{vfield}'):
@@ -1012,7 +1013,7 @@ def hadmin_guide_item_edit(request, pk=None):
             obj = FoodItem(**data)
             if 'image' in request.FILES:
                 obj.image = request.FILES['image']
-            for vfield in ('recipe_video', 'growing_video', 'journal_video'):
+            for vfield in ('advice_video', 'recipe_video', 'growing_video', 'journal_video'):
                 if vfield in request.FILES:
                     setattr(obj, vfield, request.FILES[vfield])
             obj.save()
