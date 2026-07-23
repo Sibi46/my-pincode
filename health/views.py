@@ -1087,8 +1087,12 @@ def hadmin_guide_item_delete(request, pk):
 # ── FOOD GUIDE USER VIEWS ─────────────────────────────────────────────────────
 
 def guide_home(request):
-    categories = FoodCategory.objects.filter(is_active=True)
-    return render(request, 'health/guide_home.html', {'categories': categories})
+    items = (FoodItem.objects
+             .filter(category__is_active=True)
+             .select_related('category')
+             .prefetch_related('recipe_videos', 'growing_videos')
+             .order_by('category__order', 'order', 'name'))
+    return render(request, 'health/guide_home.html', {'items': items})
 
 
 def guide_category(request, slug):
