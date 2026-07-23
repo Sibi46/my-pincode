@@ -65,6 +65,15 @@
   .vid-credit{display:flex;align-items:center;gap:.5rem;justify-content:center;margin-top:.5rem;margin-bottom:.5rem;font-size:.82rem;font-weight:700;color:#374151}
   .yt-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#ff0000;color:#fff;border-radius:5px;font-size:.65rem;flex-shrink:0}
 
+  /* Reel carousel */
+  .reel-carousel{display:flex;gap:1rem;overflow-x:auto;padding-bottom:.75rem;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .reel-carousel::-webkit-scrollbar{height:4px}
+  .reel-carousel::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:4px}
+  .reel-item{flex:0 0 280px;scroll-snap-align:start}
+  .reel-item .reel-shell{max-width:100%}
+  .reel-item-title{font-size:.8rem;font-weight:700;color:#374151;margin-top:.4rem;text-align:center}
+  .reel-item-channel{display:flex;align-items:center;gap:.35rem;justify-content:center;font-size:.75rem;color:#6b7280;margin-top:.2rem}
+
   /* Journal byline */
   .journal-byline{display:flex;align-items:center;gap:.75rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem}
   .author-avatar{width:38px;height:38px;background:#059669;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;flex-shrink:0}
@@ -120,8 +129,8 @@
   <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" onclick="showGuideTab('advice',this)">🏥 Health Advice</button>
-    {% if item.recipe_content or item.recipe_video_url or item.recipe_video %}<button class="tab-btn" onclick="showGuideTab('recipe',this)">🍽️ Recipe</button>{% endif %}
-    {% if item.growing_content or item.growing_video_url or item.growing_video or growing_images %}<button class="tab-btn" onclick="showGuideTab('growing',this)">🌱 How to Grow</button>{% endif %}
+    {% if item.recipe_content or recipe_videos %}<button class="tab-btn" onclick="showGuideTab('recipe',this)">🍽️ Recipe</button>{% endif %}
+    {% if item.growing_content or growing_videos or growing_images %}<button class="tab-btn" onclick="showGuideTab('growing',this)">🌱 How to Grow</button>{% endif %}
     {% if item.journal_content or item.journal_video_url or item.journal_video %}<button class="tab-btn" onclick="showGuideTab('journal',this)">📰 Journal</button>{% endif %}
     {% if item.natural_treatment %}<button class="tab-btn" onclick="showGuideTab('natural',this)">🌿 Natural Treatment</button>{% endif %}
   </div>
@@ -159,31 +168,30 @@
 
   <!-- Recipe Tab -->
   <div id="tab-recipe" class="tab-pane">
-    {% if item.recipe_video or item.recipe_video_url %}
-    <div class="reel-outer">
-      <div class="reel-shell">
-        {% if item.recipe_video %}
-        <video src="{{ item.recipe_video.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
-        {% elif 'shorts/' in item.recipe_video_url %}
-        <a href="{{ item.recipe_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
-          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
-          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
-        </a>
-        {% else %}
-        <div class="reel-thumb" onclick="playReel(this,'{{ item.recipe_embed }}')">
-          <img src="https://img.youtube.com/vi/{{ item.recipe_video_id }}/hqdefault.jpg" alt="Recipe Video">
-          <div class="reel-play"></div>
-          <div class="reel-label">🍽️ Recipe Video — tap to play</div>
+    {% if recipe_videos %}
+    <div class="reel-carousel">
+      {% for rv in recipe_videos %}
+      <div class="reel-item">
+        <div class="reel-shell">
+          {% if rv.video_file %}
+          <video src="{{ rv.video_file.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
+          {% elif rv.is_shorts %}
+          <a href="{{ rv.video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
+            <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
+            <span style="font-size:.8rem;font-weight:700">Watch on YouTube</span>
+          </a>
+          {% elif rv.embed_url %}
+          <div class="reel-thumb" onclick="playReel(this,'{{ rv.embed_url }}')">
+            <img src="https://img.youtube.com/vi/{{ rv.video_id }}/hqdefault.jpg" alt="{{ rv.title|default:'Recipe Video' }}">
+            <div class="reel-play"></div>
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
+        {% if rv.title %}<div class="reel-item-title">{{ rv.title }}</div>{% endif %}
+        {% if rv.youtube_channel %}<div class="reel-item-channel"><span class="yt-icon">▶</span>{{ rv.youtube_channel }}</div>{% endif %}
       </div>
+      {% endfor %}
     </div>
-    {% if item.recipe_youtube_channel %}
-    <div class="vid-credit">
-      <span class="yt-icon">▶</span>
-      <span>{{ item.recipe_youtube_channel }}</span>
-    </div>
-    {% endif %}
     {% endif %}
     {% if item.recipe_content %}
     <div class="content-text">{{ item.recipe_content }}</div>
@@ -192,31 +200,30 @@
 
   <!-- Growing Tab -->
   <div id="tab-growing" class="tab-pane">
-    {% if item.growing_video or item.growing_video_url %}
-    <div class="reel-outer">
-      <div class="reel-shell">
-        {% if item.growing_video %}
-        <video src="{{ item.growing_video.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
-        {% elif 'shorts/' in item.growing_video_url %}
-        <a href="{{ item.growing_video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
-          <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
-          <span style="font-size:.85rem;font-weight:700">Watch on YouTube</span>
-        </a>
-        {% else %}
-        <div class="reel-thumb" onclick="playReel(this,'{{ item.growing_embed }}')">
-          <img src="https://img.youtube.com/vi/{{ item.growing_video_id }}/hqdefault.jpg" alt="Growing Video">
-          <div class="reel-play"></div>
-          <div class="reel-label">🌱 Growing Guide — tap to play</div>
+    {% if growing_videos %}
+    <div class="reel-carousel">
+      {% for gv in growing_videos %}
+      <div class="reel-item">
+        <div class="reel-shell">
+          {% if gv.video_file %}
+          <video src="{{ gv.video_file.url }}" controls playsinline style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000"></video>
+          {% elif gv.is_shorts %}
+          <a href="{{ gv.video_url }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#111;color:#fff;text-decoration:none;flex-direction:column;gap:.75rem">
+            <div class="reel-play" style="position:relative;transform:none;top:auto;left:auto"></div>
+            <span style="font-size:.8rem;font-weight:700">Watch on YouTube</span>
+          </a>
+          {% elif gv.embed_url %}
+          <div class="reel-thumb" onclick="playReel(this,'{{ gv.embed_url }}')">
+            <img src="https://img.youtube.com/vi/{{ gv.video_id }}/hqdefault.jpg" alt="{{ gv.title|default:'Growing Video' }}">
+            <div class="reel-play"></div>
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
+        {% if gv.title %}<div class="reel-item-title">{{ gv.title }}</div>{% endif %}
+        {% if gv.youtube_channel %}<div class="reel-item-channel"><span class="yt-icon">▶</span>{{ gv.youtube_channel }}</div>{% endif %}
       </div>
+      {% endfor %}
     </div>
-    {% if item.growing_youtube_channel %}
-    <div class="vid-credit">
-      <span class="yt-icon">▶</span>
-      <span>{{ item.growing_youtube_channel }}</span>
-    </div>
-    {% endif %}
     {% endif %}
     {% if item.growing_content %}
     <div class="content-text">{{ item.growing_content }}</div>

@@ -497,3 +497,63 @@ class FoodItemGrowingImage(models.Model):
 
     def __str__(self):
         return f"{self.item.name} growing image"
+
+
+class FoodItemRecipeVideo(models.Model):
+    item            = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='recipe_videos')
+    title           = models.CharField(max_length=200, blank=True)
+    youtube_channel = models.CharField(max_length=200, blank=True)
+    video_url       = models.URLField(blank=True)
+    video_file      = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    order           = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'pk']
+
+    def _yt_id(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return m.group(1) if m else ''
+
+    @property
+    def embed_url(self):
+        vid = self._yt_id()
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def video_id(self):
+        return self._yt_id()
+
+    @property
+    def is_shorts(self):
+        return 'shorts/' in (self.video_url or '')
+
+
+class FoodItemGrowingVideo(models.Model):
+    item            = models.ForeignKey(FoodItem, on_delete=models.CASCADE, related_name='growing_videos')
+    title           = models.CharField(max_length=200, blank=True)
+    youtube_channel = models.CharField(max_length=200, blank=True)
+    video_url       = models.URLField(blank=True)
+    video_file      = models.FileField(upload_to='health/guide/videos/', blank=True, null=True)
+    order           = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'pk']
+
+    def _yt_id(self):
+        import re
+        m = re.search(r'(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})', self.video_url or '')
+        return m.group(1) if m else ''
+
+    @property
+    def embed_url(self):
+        vid = self._yt_id()
+        return f'https://www.youtube.com/embed/{vid}' if vid else ''
+
+    @property
+    def video_id(self):
+        return self._yt_id()
+
+    @property
+    def is_shorts(self):
+        return 'shorts/' in (self.video_url or '')

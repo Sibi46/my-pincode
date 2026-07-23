@@ -31,6 +31,21 @@
   .growing-thumb{position:relative;width:80px}
   .growing-thumb img{width:80px;height:80px;object-fit:cover;border-radius:8px}
   .growing-thumb label{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:.72rem;color:#dc2626;cursor:pointer}
+  /* Multi-video manager */
+  .multi-vid-list{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem}
+  .multi-vid-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:.85rem 1rem}
+  .mvc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+  .mvc-num{font-size:.82rem;font-weight:700;color:#059669}
+  .mvc-del{font-size:.78rem;color:#dc2626;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-transform:none;letter-spacing:0}
+  .mvc-preview{max-width:200px;border-radius:7px;display:block;margin-bottom:.4rem}
+  .mvc-url{font-size:.78rem;color:#4b5563;word-break:break-all;margin:.2rem 0}
+  .mvc-meta{font-size:.78rem;color:#6b7280;margin:.15rem 0}
+  .new-vid-row{background:#f0fdf4;border:1px dashed #059669;border-radius:10px;padding:.85rem 1rem;margin-bottom:.75rem;position:relative}
+  .new-vid-row .row-title{font-size:.78rem;font-weight:800;color:#059669;margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between}
+  .remove-row{background:none;border:0;color:#dc2626;font-size:1.1rem;cursor:pointer;padding:0;line-height:1}
+  .add-vid-btn{background:#059669;color:#fff;border:0;border-radius:8px;padding:.5rem 1rem;cursor:pointer;font-size:.82rem;font-weight:700;margin-top:.25rem;margin-bottom:.25rem}
+  .vid-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  @media(max-width:600px){.vid-row-grid{grid-template-columns:1fr}}
 </style>
 <div class="adm-header">
   <h1>{% if obj %}Edit: {{ obj.name }}{% else %}Add New Guide Item{% endif %}</h1>
@@ -104,56 +119,56 @@
     <div class="form-card">
       <h3>Recipe / How to Eat</h3>
       <div class="form-group"><label>Recipe Content</label><textarea name="recipe_content" style="min-height:120px" placeholder="Ingredients, preparation steps, how to eat...">{{ obj.recipe_content|default:'' }}</textarea></div>
-      <div class="form-group">
-        <label>Upload Recipe Video</label>
-        {% if obj.recipe_video %}
-        <div style="margin-bottom:.6rem">
-          <video src="{{ obj.recipe_video.url }}" controls style="max-width:280px;border-radius:8px;display:block"></video>
-          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:.4rem;font-size:.82rem;color:#dc2626;font-weight:600;text-transform:none;letter-spacing:0">
-            <input type="checkbox" name="clear_recipe_video" value="1"> Remove current video
-          </label>
+
+      <!-- Existing recipe videos -->
+      {% if recipe_videos %}
+      <div class="multi-vid-list" id="existing-recipe-vids">
+        {% for rv in recipe_videos %}
+        <div class="multi-vid-card">
+          <div class="mvc-header">
+            <span class="mvc-num">🎬 Video {{ forloop.counter }}</span>
+            <label class="mvc-del"><input type="checkbox" name="delete_recipe_video" value="{{ rv.pk }}"> Delete</label>
+          </div>
+          {% if rv.video_file %}<video src="{{ rv.video_file.url }}" controls class="mvc-preview"></video>{% endif %}
+          {% if rv.video_url %}<p class="mvc-url">🔗 {{ rv.video_url }}</p>{% endif %}
+          {% if rv.title %}<p class="mvc-meta"><strong>Title:</strong> {{ rv.title }}</p>{% endif %}
+          {% if rv.youtube_channel %}<p class="mvc-meta">📺 {{ rv.youtube_channel }}</p>{% endif %}
         </div>
-        {% endif %}
-        <input type="file" name="recipe_video" accept="video/*">
-        <p style="font-size:.75rem;color:#94a3b8;margin:.3rem 0 0">MP4, WebM, MOV (max ~100MB recommended)</p>
+        {% endfor %}
       </div>
-      <div class="form-group">
-        <label>OR — Recipe YouTube Video URL</label>
-        <input type="url" name="recipe_video_url" id="recipe_video_url" value="{{ obj.recipe_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
-        <div id="recipe_yt_preview" style="margin-top:.75rem"></div>
-      </div>
-      <div class="form-group">
-        <label>YouTube Channel Name <span style="font-weight:400;color:#94a3b8">(shown below the video)</span></label>
-        <input type="text" name="recipe_youtube_channel" value="{{ obj.recipe_youtube_channel|default:'' }}" placeholder="e.g. Hebbars Kitchen">
-      </div>
+      {% endif %}
+
+      <!-- Add new recipe videos -->
+      <div id="new-recipe-rows"></div>
+      <button type="button" class="add-vid-btn" onclick="addVideoRow('new-recipe-rows','recipe')">+ Add Recipe Video</button>
     </div>
 
     <!-- Growing -->
     <div class="form-card">
       <h3>How to Grow</h3>
       <div class="form-group"><label>Growing Instructions / Content</label><textarea name="growing_content" style="min-height:120px" placeholder="Season, soil, watering, care tips, harvest time...">{{ obj.growing_content|default:'' }}</textarea></div>
-      <div class="form-group">
-        <label>Upload Growing Video</label>
-        {% if obj.growing_video %}
-        <div style="margin-bottom:.6rem">
-          <video src="{{ obj.growing_video.url }}" controls style="max-width:280px;border-radius:8px;display:block"></video>
-          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:.4rem;font-size:.82rem;color:#dc2626;font-weight:600;text-transform:none;letter-spacing:0">
-            <input type="checkbox" name="clear_growing_video" value="1"> Remove current video
-          </label>
+
+      <!-- Existing growing videos -->
+      {% if growing_videos %}
+      <div class="multi-vid-list" id="existing-growing-vids">
+        {% for gv in growing_videos %}
+        <div class="multi-vid-card">
+          <div class="mvc-header">
+            <span class="mvc-num">🎬 Video {{ forloop.counter }}</span>
+            <label class="mvc-del"><input type="checkbox" name="delete_growing_video_item" value="{{ gv.pk }}"> Delete</label>
+          </div>
+          {% if gv.video_file %}<video src="{{ gv.video_file.url }}" controls class="mvc-preview"></video>{% endif %}
+          {% if gv.video_url %}<p class="mvc-url">🔗 {{ gv.video_url }}</p>{% endif %}
+          {% if gv.title %}<p class="mvc-meta"><strong>Title:</strong> {{ gv.title }}</p>{% endif %}
+          {% if gv.youtube_channel %}<p class="mvc-meta">📺 {{ gv.youtube_channel }}</p>{% endif %}
         </div>
-        {% endif %}
-        <input type="file" name="growing_video" accept="video/*">
-        <p style="font-size:.75rem;color:#94a3b8;margin:.3rem 0 0">MP4, WebM, MOV (max ~100MB recommended)</p>
+        {% endfor %}
       </div>
-      <div class="form-group">
-        <label>OR — Growing YouTube Video URL</label>
-        <input type="url" name="growing_video_url" id="growing_video_url" value="{{ obj.growing_video_url|default:'' }}" placeholder="https://youtube.com/watch?v=...">
-        <div id="growing_yt_preview" style="margin-top:.75rem"></div>
-      </div>
-      <div class="form-group">
-        <label>YouTube Channel Name <span style="font-weight:400;color:#94a3b8">(shown below the video)</span></label>
-        <input type="text" name="growing_youtube_channel" value="{{ obj.growing_youtube_channel|default:'' }}" placeholder="e.g. MrKheti">
-      </div>
+      {% endif %}
+
+      <!-- Add new growing videos -->
+      <div id="new-growing-rows"></div>
+      <button type="button" class="add-vid-btn" onclick="addVideoRow('new-growing-rows','growing')">+ Add Growing Video</button>
       <div class="form-group">
         <label>Growing Photos (can upload multiple)</label>
         <input type="file" name="growing_images" accept="image/*" multiple>
@@ -254,9 +269,30 @@ function renderYtPreview(inputId, previewId) {
   input.addEventListener('input', update);
   update();
 }
-renderYtPreview('recipe_video_url', 'recipe_yt_preview');
-renderYtPreview('growing_video_url', 'growing_yt_preview');
 renderYtPreview('journal_video_url', 'journal_yt_preview');
+
+var _rowCount = {recipe: 0, growing: 0};
+function addVideoRow(containerId, type) {
+  var idx = _rowCount[type]++;
+  var container = document.getElementById(containerId);
+  var row = document.createElement('div');
+  row.className = 'new-vid-row';
+  row.innerHTML =
+    '<div class="row-title"><span>🎬 New Video ' + (idx + 1) + '</span>'
+    + '<button type="button" class="remove-row" onclick="this.closest(\'.new-vid-row\').remove()">✕</button></div>'
+    + '<div class="form-group"><label>Video Title <span style="font-weight:400;color:#94a3b8">(optional)</span></label>'
+    + '<input type="text" name="new_' + type + '_title" placeholder="e.g. How to make juice"></div>'
+    + '<div class="form-group"><label>YouTube Channel Name</label>'
+    + '<input type="text" name="new_' + type + '_channel" placeholder="e.g. Hebbars Kitchen"></div>'
+    + '<div class="vid-row-grid">'
+    + '<div class="form-group"><label>Upload Video File</label>'
+    + '<input type="file" name="new_' + type + '_file" accept="video/*">'
+    + '<p style="font-size:.72rem;color:#94a3b8;margin:.25rem 0 0">MP4 / WebM / MOV</p></div>'
+    + '<div class="form-group"><label>OR — YouTube URL</label>'
+    + '<input type="url" name="new_' + type + '_url" placeholder="https://youtube.com/watch?v=...">'
+    + '</div></div>';
+  container.appendChild(row);
+}
 </script>
 {% endblock %}
 

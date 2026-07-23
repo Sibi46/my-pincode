@@ -13,6 +13,7 @@ from .models import (
     Herb, Recipe, Video, Favorite, FoodDiary, FoodDiaryEntry,
     MealPlan, MealPlanItem, HealthJournal,
     FoodCategory, FoodItem, FoodItemGrowingImage,
+    FoodItemRecipeVideo, FoodItemGrowingVideo,
 )
 
 
@@ -970,7 +971,9 @@ def hadmin_guide_item_edit(request, pk=None):
     obj            = get_object_or_404(FoodItem, pk=pk) if pk else None
     categories     = FoodCategory.objects.filter(is_active=True)
     conditions     = HealthCondition.objects.all()
-    growing_images = obj.growing_images.all() if obj else []
+    growing_images  = obj.growing_images.all() if obj else []
+    recipe_videos   = obj.recipe_videos.all() if obj else []
+    growing_videos  = obj.growing_videos.all() if obj else []
 
     if request.method == 'POST':
         cat_id   = request.POST.get('category_id')
@@ -1018,6 +1021,43 @@ def hadmin_guide_item_edit(request, pk=None):
         del_ids = request.POST.getlist('delete_growing_image')
         if del_ids:
             FoodItemGrowingImage.objects.filter(pk__in=del_ids, item=obj).delete()
+
+        # Save new recipe videos
+        new_rv_titles    = request.POST.getlist('new_recipe_title')
+        new_rv_channels  = request.POST.getlist('new_recipe_channel')
+        new_rv_urls      = request.POST.getlist('new_recipe_url')
+        new_rv_files     = request.FILES.getlist('new_recipe_file')
+        for i, title in enumerate(new_rv_titles):
+            url  = new_rv_urls[i]  if i < len(new_rv_urls)  else ''
+            chan = new_rv_channels[i] if i < len(new_rv_channels) else ''
+            f    = new_rv_files[i] if i < len(new_rv_files) else None
+            if url or f:
+                rv = FoodItemRecipeVideo(item=obj, title=title, youtube_channel=chan, video_url=url, order=i)
+                if f:
+                    rv.video_file = f
+                rv.save()
+        del_rv = request.POST.getlist('delete_recipe_video')
+        if del_rv:
+            FoodItemRecipeVideo.objects.filter(pk__in=del_rv, item=obj).delete()
+
+        # Save new growing videos
+        new_gv_titles    = request.POST.getlist('new_growing_title')
+        new_gv_channels  = request.POST.getlist('new_growing_channel')
+        new_gv_urls      = request.POST.getlist('new_growing_url')
+        new_gv_files     = request.FILES.getlist('new_growing_file')
+        for i, title in enumerate(new_gv_titles):
+            url  = new_gv_urls[i]  if i < len(new_gv_urls)  else ''
+            chan = new_gv_channels[i] if i < len(new_gv_channels) else ''
+            f    = new_gv_files[i] if i < len(new_gv_files) else None
+            if url or f:
+                gv = FoodItemGrowingVideo(item=obj, title=title, youtube_channel=chan, video_url=url, order=i)
+                if f:
+                    gv.video_file = f
+                gv.save()
+        del_gv = request.POST.getlist('delete_growing_video_item')
+        if del_gv:
+            FoodItemGrowingVideo.objects.filter(pk__in=del_gv, item=obj).delete()
+
         messages.success(request, 'Item saved.')
         return redirect('hadmin_guide_items')
 
@@ -1031,6 +1071,7 @@ def hadmin_guide_item_edit(request, pk=None):
     return render(request, 'health/admin/guide_item_edit.html', {
         'obj': obj, 'categories': categories, 'conditions': conditions,
         'advice': advice, 'growing_images': growing_images,
+        'recipe_videos': recipe_videos, 'growing_videos': growing_videos,
     })
 
 
@@ -1060,9 +1101,12 @@ def guide_item(request, cat_slug, item_slug):
     conditions     = HealthCondition.objects.all()
     advice         = item.get_condition_advice()
     growing_images = item.growing_images.all().order_by('order')
+    recipe_videos  = item.recipe_videos.all()
+    growing_videos = item.growing_videos.all()
     related        = FoodItem.objects.filter(category=category).exclude(pk=item.pk)[:4]
     return render(request, 'health/guide_item.html', {
         'category': category, 'item': item,
         'conditions': conditions, 'advice': advice,
         'growing_images': growing_images, 'related': related,
+        'recipe_videos': recipe_videos, 'growing_videos': growing_videos,
     })
