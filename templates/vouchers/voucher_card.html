@@ -3,31 +3,72 @@
 
 {% block extra_css %}
 <style>
-.vc-wrap{max-width:420px;margin:2rem auto;padding:0 1rem 3rem;text-align:center}
-.vc-brand{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:#7c3aed;text-transform:uppercase;margin-bottom:.6rem}
+.vc-wrap{max-width:440px;margin:1.5rem auto;padding:0 1rem 4rem;text-align:center}
+.vc-brand{font-size:.7rem;font-weight:700;letter-spacing:.12em;color:#7c3aed;text-transform:uppercase;margin-bottom:.6rem}
+
+/* Card */
 .vc-card{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(124,58,237,.15);overflow:hidden}
-.vc-card-top{background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:1.8rem 1.5rem 1.2rem;color:#fff;position:relative}
-.vc-gift-icon{font-size:2.2rem;margin-bottom:.4rem;display:block}
-.vc-card-top h2{margin:0 0 .15rem;font-size:1.1rem;font-weight:900;letter-spacing:.01em}
-.vc-card-top p{margin:0;font-size:.8rem;opacity:.8}
-.vc-value-badge{display:inline-block;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);border-radius:30px;padding:.35rem 1.1rem;font-size:1.25rem;font-weight:900;margin-top:.75rem;letter-spacing:.02em}
-.vc-body{padding:1.5rem}
-.vc-to{font-size:.72rem;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem}
-.vc-receiver{font-size:1.05rem;font-weight:800;color:#111;margin-bottom:.2rem}
-.vc-from{font-size:.78rem;color:#6b7280;margin-bottom:1.2rem}
-.vc-msg{background:#faf5ff;border-left:3px solid #c4b5fd;border-radius:0 8px 8px 0;padding:.65rem .9rem;font-size:.82rem;color:#6d28d9;font-style:italic;margin-bottom:1.2rem;text-align:left}
-.vc-qr{background:#f8f7ff;border-radius:14px;padding:1.1rem;margin-bottom:1.2rem;display:inline-block}
-.vc-qr img{width:160px;height:160px;display:block;border-radius:8px}
-.vc-qr-hint{font-size:.68rem;color:#9ca3af;margin-top:.5rem}
-.code-row{background:#f3f0ff;border:2px dashed #c4b5fd;border-radius:10px;padding:.75rem 1rem;margin-bottom:1.2rem}
-.code-lbl{font-size:.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
-.code-val{font-size:1.25rem;font-weight:900;color:#7c3aed;letter-spacing:.12em;font-family:monospace}
-.meta-row{display:flex;justify-content:space-between;font-size:.75rem;color:#6b7280;margin-bottom:.5rem}
-.meta-row span:last-child{font-weight:700;color:#374151}
-.vc-footer{background:#faf5ff;padding:.9rem 1.5rem;font-size:.7rem;color:#9ca3af;text-align:center}
+
+/* Header image / product image */
+.vc-img-wrap{position:relative;width:100%;aspect-ratio:16/7;background:#f3f0ff;overflow:hidden}
+.vc-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.vc-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;color:#c4b5fd;background:linear-gradient(135deg,#ede9fe,#f3f0ff)}
+
+/* Purple top bar */
+.vc-top-bar{background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:1rem 1.5rem;color:#fff;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.vc-top-bar-left h2{margin:0 0 .15rem;font-size:1rem;font-weight:900}
+.vc-top-bar-left p{margin:0;font-size:.75rem;opacity:.8}
+.vc-value-badge{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);border-radius:30px;padding:.4rem 1rem;font-size:1.3rem;font-weight:900;white-space:nowrap;flex-shrink:0}
+
+/* Body */
+.vc-body{padding:1.2rem 1.4rem}
+
+/* Status */
+.status-redeemed{background:#d1fae5;color:#065f46;border-radius:8px;padding:.5rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.status-expired{background:#fee2e2;color:#991b1b;border-radius:8px;padding:.5rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+
+/* To / from */
+.vc-to-row{text-align:center;margin-bottom:1rem;padding:.8rem;background:#f8f7ff;border-radius:10px}
+.vc-to-lbl{font-size:.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
+.vc-receiver{font-size:1.05rem;font-weight:900;color:#111}
+.vc-from{font-size:.78rem;color:#6b7280;margin-top:.15rem}
+
+/* Message */
+.vc-msg{background:#faf5ff;border-left:3px solid #c4b5fd;border-radius:0 8px 8px 0;padding:.65rem .9rem;font-size:.82rem;color:#6d28d9;font-style:italic;margin-bottom:1rem;text-align:left}
+
+/* QR + code */
+.vc-qr-code-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;background:#f8f7ff;border-radius:12px;padding:1rem}
+.vc-qr img{width:110px;height:110px;border-radius:8px;display:block;flex-shrink:0}
+.vc-code-side{flex:1;text-align:left}
+.code-lbl{font-size:.65rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.code-val{font-size:1.05rem;font-weight:900;color:#7c3aed;letter-spacing:.1em;font-family:monospace;word-break:break-all}
+.code-hint{font-size:.68rem;color:#9ca3af;margin-top:.4rem}
+
+/* Details table */
+.vc-details{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:1rem}
+.vc-details tr{border-bottom:1px solid #f3f4f6}
+.vc-details tr:last-child{border-bottom:none}
+.vc-details td{padding:.45rem .3rem;vertical-align:top}
+.vc-details td:first-child{color:#6b7280;font-weight:700;width:38%;padding-right:.5rem}
+.vc-details td:last-child{color:#111;font-weight:600}
+
+/* Shop info box */
+.shop-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:.9rem 1rem;margin-bottom:1rem;text-align:left}
+.shop-box-title{font-size:.68rem;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;display:flex;align-items:center;gap:.3rem}
+.shop-row{display:flex;align-items:flex-start;gap:.6rem;font-size:.8rem;color:#374151;margin-bottom:.45rem}
+.shop-row:last-child{margin-bottom:0}
+.shop-row i{color:#059669;width:14px;flex-shrink:0;margin-top:.1rem}
+.shop-row a{color:#059669;text-decoration:none;font-weight:700}
+.shop-row a:hover{text-decoration:underline}
+
+/* Description */
+.vc-desc{font-size:.8rem;color:#555;text-align:left;line-height:1.6;margin-bottom:1rem}
+.vc-terms{font-size:.73rem;color:#9ca3af;text-align:left;line-height:1.5;border-top:1px solid #f3f4f6;padding-top:.75rem}
+.vc-terms strong{color:#6b7280;display:block;margin-bottom:.25rem}
+
+/* Footer */
+.vc-footer{background:#faf5ff;padding:.8rem 1.4rem;font-size:.68rem;color:#9ca3af;text-align:center}
 .vc-footer strong{color:#7c3aed}
-.status-redeemed{background:#d1fae5;color:#065f46;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:700;margin-bottom:1rem}
-.status-expired{background:#fee2e2;color:#991b1b;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:700;margin-bottom:1rem}
 </style>
 {% endblock %}
 
@@ -35,53 +76,141 @@
 <div class="vc-wrap">
   <div class="vc-brand">MYPINCOD Gift Voucher</div>
   <div class="vc-card">
-    <div class="vc-card-top">
-      <span class="vc-gift-icon">🎁</span>
-      <h2>{{ purchase.gift_voucher.voucher_name }}</h2>
-      <p>{{ purchase.gift_voucher.business.business_name }}</p>
+
+    <!-- Product / header image -->
+    <div class="vc-img-wrap">
+      {% if purchase.gift_voucher.header_image %}
+        <img src="{{ purchase.gift_voucher.header_image.url }}" alt="{{ purchase.gift_voucher.voucher_name }}">
+      {% elif purchase.gift_voucher.product_image %}
+        <img src="{{ purchase.gift_voucher.product_image.url }}" alt="{{ purchase.gift_voucher.voucher_name }}">
+      {% else %}
+        <div class="vc-img-placeholder"><i class="fas fa-gift"></i></div>
+      {% endif %}
+    </div>
+
+    <!-- Purple bar: voucher name + value -->
+    <div class="vc-top-bar">
+      <div class="vc-top-bar-left">
+        <h2>{{ purchase.gift_voucher.voucher_name }}</h2>
+        <p>{{ purchase.gift_voucher.business.business_name }}</p>
+      </div>
       <div class="vc-value-badge">&#8377;{{ purchase.amount_paid }}</div>
     </div>
 
     <div class="vc-body">
 
+      <!-- Status banners -->
       {% if purchase.status == 'redeemed' %}
       <div class="status-redeemed"><i class="fas fa-check-circle"></i> This voucher has been redeemed</div>
       {% elif purchase.gift_voucher.expiry_date < today %}
       <div class="status-expired"><i class="fas fa-times-circle"></i> This voucher has expired</div>
       {% endif %}
 
-      <div class="vc-to">For</div>
-      <div class="vc-receiver">{{ purchase.receiver_name }}</div>
-      <div class="vc-from">From {{ purchase.buyer_name }}</div>
+      <!-- For / From -->
+      <div class="vc-to-row">
+        <div class="vc-to-lbl">Gift For</div>
+        <div class="vc-receiver">{{ purchase.receiver_name }}</div>
+        <div class="vc-from">From {{ purchase.buyer_name }}</div>
+      </div>
 
+      <!-- Personal message -->
       {% if purchase.personal_message %}
       <div class="vc-msg">"{{ purchase.personal_message }}"</div>
       {% endif %}
 
-      <!-- QR Code -->
-      {% if purchase.qr_code %}
-      <div class="vc-qr">
-        <img src="{{ purchase.qr_code.url }}" alt="QR Code">
-        <div class="vc-qr-hint">Show this at the store</div>
+      <!-- QR + Code side by side -->
+      <div class="vc-qr-code-row">
+        {% if purchase.qr_code %}
+        <div class="vc-qr">
+          <img src="{{ purchase.qr_code.url }}" alt="QR Code">
+        </div>
+        {% endif %}
+        <div class="vc-code-side">
+          <div class="code-lbl">Voucher Code</div>
+          <div class="code-val">{{ purchase.voucher_code }}</div>
+          <div class="code-hint"><i class="fas fa-info-circle"></i> Show this at the store</div>
+          <div style="margin-top:.6rem">
+            <button onclick="copyCode()" style="background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:.35rem .8rem;font-size:.72rem;font-weight:700;cursor:pointer">
+              <i class="fas fa-copy"></i> Copy Code
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voucher details -->
+      <table class="vc-details">
+        <tr><td>Status</td><td>
+          {% if purchase.status == 'redeemed' %}<span style="color:#059669;font-weight:800">&#10003; Redeemed</span>
+          {% elif purchase.status == 'paid' or purchase.status == 'sent' %}<span style="color:#7c3aed;font-weight:800">&#9679; Active</span>
+          {% elif purchase.status == 'expired' %}<span style="color:#dc2626;font-weight:800">&#10005; Expired</span>
+          {% else %}{{ purchase.get_status_display }}{% endif %}
+        </td></tr>
+        <tr><td>Valid Till</td><td>{{ purchase.gift_voucher.expiry_date|date:"d M Y" }}</td></tr>
+        {% if purchase.gift_voucher.product_service_name %}
+        <tr><td>Product</td><td>{{ purchase.gift_voucher.product_service_name }}</td></tr>
+        {% endif %}
+        <tr><td>Purchased</td><td>{{ purchase.purchased_at|date:"d M Y" }}</td></tr>
+      </table>
+
+      <!-- Shop info -->
+      <div class="shop-box">
+        <div class="shop-box-title"><i class="fas fa-store"></i> Shop Details</div>
+
+        <div class="shop-row">
+          <i class="fas fa-building"></i>
+          <span><strong>{{ purchase.gift_voucher.business.business_name }}</strong></span>
+        </div>
+
+        {% if purchase.gift_voucher.business.mobile %}
+        <div class="shop-row">
+          <i class="fas fa-phone"></i>
+          <span><a href="tel:{{ purchase.gift_voucher.business.mobile }}">{{ purchase.gift_voucher.business.mobile }}</a></span>
+        </div>
+        {% endif %}
+
+        {% if purchase.gift_voucher.business.email %}
+        <div class="shop-row">
+          <i class="fas fa-envelope"></i>
+          <span><a href="mailto:{{ purchase.gift_voucher.business.email }}">{{ purchase.gift_voucher.business.email }}</a></span>
+        </div>
+        {% endif %}
+
+        {% if purchase.gift_voucher.business.address %}
+        <div class="shop-row">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>
+            {{ purchase.gift_voucher.business.address }}{% if purchase.gift_voucher.business.city %}, {{ purchase.gift_voucher.business.city }}{% endif %}{% if purchase.gift_voucher.business.state %}, {{ purchase.gift_voucher.business.state }}{% endif %}{% if purchase.gift_voucher.business.pincode %} – {{ purchase.gift_voucher.business.pincode }}{% endif %}
+          </span>
+        </div>
+        {% endif %}
+
+        {% if purchase.gift_voucher.applicable_branches.exists %}
+        <div class="shop-row" style="margin-top:.5rem;flex-direction:column;gap:.3rem">
+          <div style="display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;color:#059669"><i class="fas fa-code-branch"></i> Redeemable at branches:</div>
+          {% for branch in purchase.gift_voucher.applicable_branches.all %}
+          <div style="padding:.35rem .6rem;background:#ecfdf5;border-radius:6px;font-size:.75rem;color:#065f46">
+            <strong>{{ branch.branch_name }}</strong>
+            {% if branch.address %} — {{ branch.address }}{% endif %}
+            {% if branch.contact_number %} &nbsp;<a href="tel:{{ branch.contact_number }}" style="color:#059669;font-weight:700"><i class="fas fa-phone"></i> {{ branch.contact_number }}</a>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Description -->
+      {% if purchase.gift_voucher.description %}
+      <div class="vc-desc">{{ purchase.gift_voucher.description }}</div>
+      {% endif %}
+
+      <!-- Terms -->
+      {% if purchase.gift_voucher.terms_conditions %}
+      <div class="vc-terms">
+        <strong><i class="fas fa-file-alt"></i> Terms & Conditions</strong>
+        {{ purchase.gift_voucher.terms_conditions }}
       </div>
       {% endif %}
 
-      <!-- Voucher Code -->
-      <div class="code-row">
-        <div class="code-lbl">Voucher Code</div>
-        <div class="code-val">{{ purchase.voucher_code }}</div>
-      </div>
-
-      <!-- Details -->
-      <div class="meta-row"><span>Business</span><span>{{ purchase.gift_voucher.business.business_name }}</span></div>
-      <div class="meta-row"><span>Valid Till</span><span>{{ purchase.gift_voucher.expiry_date|date:"d M Y" }}</span></div>
-      <div class="meta-row"><span>Status</span>
-        <span>
-          {% if purchase.status == 'redeemed' %}<span style="color:#059669">Redeemed</span>
-          {% elif purchase.status == 'paid' or purchase.status == 'sent' %}<span style="color:#7c3aed">Active</span>
-          {% else %}{{ purchase.status|capfirst }}{% endif %}
-        </span>
-      </div>
     </div>
 
     <div class="vc-footer">
@@ -89,4 +218,17 @@
     </div>
   </div>
 </div>
+
+<div style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;border-radius:20px;padding:.45rem 1.2rem;font-size:.8rem;font-weight:700;display:none;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2)" id="copyToast"></div>
+
+<script>
+function copyCode() {
+  navigator.clipboard.writeText("{{ purchase.voucher_code }}").then(function() {
+    var t = document.getElementById('copyToast');
+    t.textContent = '✓ Code copied!';
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2000);
+  });
+}
+</script>
 {% endblock %}
