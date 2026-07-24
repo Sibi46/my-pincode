@@ -376,7 +376,42 @@ def voucher_pause(request, pk):
 
     voucher.status = 'paused'
     voucher.save()
-    messages.success(request, f'"{voucher.voucher_name}" paused.')
+    messages.success(request, f'"{voucher.voucher_name}" paused. Slot freed — you can publish another voucher.')
+    return redirect('vouchers:voucher_list')
+
+
+@login_required
+def voucher_resume(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    voucher = get_object_or_404(GiftVoucher, pk=pk, business=business)
+
+    if voucher.status != 'paused':
+        messages.error(request, 'Only Paused vouchers can be resumed.')
+        return redirect('vouchers:voucher_list')
+
+    if business.available_slots <= 0:
+        messages.error(request, 'No slots available. Buy more slots to resume this voucher.')
+        return redirect('vouchers:voucher_list')
+
+    voucher.status = 'published'
+    voucher.save()
+    messages.success(request, f'"{voucher.voucher_name}" is live again!')
+    return redirect('vouchers:voucher_list')
+
+
+@login_required
+def voucher_delete(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    voucher = get_object_or_404(GiftVoucher, pk=pk, business=business)
+
+    if voucher.status == 'deleted':
+        messages.error(request, 'Voucher already deleted.')
+        return redirect('vouchers:voucher_list')
+
+    name = voucher.voucher_name
+    voucher.status = 'deleted'
+    voucher.save()
+    messages.success(request, f'"{name}" deleted. Slot freed.')
     return redirect('vouchers:voucher_list')
 
 

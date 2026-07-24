@@ -37,6 +37,10 @@
 .btn-publish:hover{background:#a7f3d0}
 .btn-pause{background:#fef3c7;color:#92400e}
 .btn-pause:hover{background:#fde68a}
+.btn-resume{background:#dbeafe;color:#1e40af}
+.btn-resume:hover{background:#bfdbfe}
+.btn-delete{background:#fee2e2;color:#991b1b}
+.btn-delete:hover{background:#fca5a5}
 .vl-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
 .vl-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem;display:block}
 .messages-wrap{max-width:900px;margin:.6rem auto 0;padding:0 1rem}
@@ -91,14 +95,33 @@
         </div>
       </div>
       <div class="vc-actions">
-        {% if v.status in 'draft,paused' %}
+        {% if v.status == 'draft' or v.status == 'paused' %}
           <a href="{% url 'vouchers:voucher_edit' v.pk %}" class="btn-sm btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
         {% endif %}
         {% if v.status == 'draft' %}
-          <a href="{% url 'vouchers:voucher_publish' v.pk %}" class="btn-sm btn-publish"><i class="fas fa-rocket"></i> Publish</a>
+          <form method="post" action="{% url 'vouchers:voucher_publish' v.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm btn-publish"><i class="fas fa-rocket"></i> Publish</button>
+          </form>
         {% endif %}
         {% if v.status == 'published' %}
-          <a href="{% url 'vouchers:voucher_pause' v.pk %}" class="btn-sm btn-pause"><i class="fas fa-pause"></i> Pause</a>
+          <form method="post" action="{% url 'vouchers:voucher_pause' v.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm btn-pause"><i class="fas fa-pause"></i> Pause</button>
+          </form>
+        {% endif %}
+        {% if v.status == 'paused' %}
+          <form method="post" action="{% url 'vouchers:voucher_resume' v.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm btn-resume"><i class="fas fa-play"></i> Resume</button>
+          </form>
+        {% endif %}
+        {% if v.status == 'draft' or v.status == 'paused' %}
+          <form method="post" action="{% url 'vouchers:voucher_delete' v.pk %}" style="display:inline"
+                onsubmit="return confirm('Delete \'{{ v.voucher_name }}\'? This cannot be undone.')">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm btn-delete"><i class="fas fa-trash"></i> Delete</button>
+          </form>
         {% endif %}
       </div>
     </div>

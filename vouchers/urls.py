@@ -27,8 +27,10 @@ urlpatterns = [
     path('vouchers/',                   views.voucher_list,    name='voucher_list'),
     path('vouchers/create/',            views.voucher_create,  name='voucher_create'),
     path('vouchers/<int:pk>/edit/',     views.voucher_edit,    name='voucher_edit'),
-    path('vouchers/<int:pk>/publish/',  views.voucher_publish, name='voucher_publish'),
-    path('vouchers/<int:pk>/pause/',    views.voucher_pause,   name='voucher_pause'),
+    path('vouchers/<int:pk>/publish/',  views.voucher_publish,  name='voucher_publish'),
+    path('vouchers/<int:pk>/pause/',    views.voucher_pause,    name='voucher_pause'),
+    path('vouchers/<int:pk>/resume/',   views.voucher_resume,   name='voucher_resume'),
+    path('vouchers/<int:pk>/delete/',   views.voucher_delete,   name='voucher_delete'),
     # Marketplace (public)
     path('marketplace/',          views.marketplace,     name='marketplace'),
     path('marketplace/<int:pk>/', views.voucher_detail,  name='voucher_detail'),

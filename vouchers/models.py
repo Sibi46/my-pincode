@@ -86,7 +86,7 @@ class Business(models.Model):
 
     @property
     def total_slots_used(self):
-        return self.gift_vouchers.filter(status__in=['published', 'paused']).count()
+        return self.gift_vouchers.filter(status='published').count()
 
     @property
     def available_slots(self):
