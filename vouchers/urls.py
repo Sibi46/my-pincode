@@ -32,4 +32,8 @@ urlpatterns = [
     # Marketplace (public)
     path('marketplace/',          views.marketplace,     name='marketplace'),
     path('marketplace/<int:pk>/', views.voucher_detail,  name='voucher_detail'),
+      # Customer purchase
+    path('buy/<int:pk>/',     views.voucher_purchase,  name='voucher_purchase'),
+    path('confirm/<int:pk>/', views.purchase_confirm,  name='purchase_confirm'),
+
 ]

@@ -142,3 +142,17 @@ class GiftVoucherForm(forms.ModelForm):
         self.fields['category'].empty_label = '— Select Category —'
         self.fields['category'].required = False
         self.fields['category'].widget.attrs['class'] = 'form-control'
+
+
+class VoucherPurchaseForm(forms.Form):
+    buyer_name   = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Your full name', 'class': 'form-control'}))
+    buyer_mobile = forms.CharField(max_length=15,  widget=forms.TextInput(attrs={'placeholder': 'Your mobile number', 'class': 'form-control'}))
+    buyer_email  = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Your email address', 'class': 'form-control'}))
+
+    receiver_name    = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'placeholder': "Receiver's full name", 'class': 'form-control'}))
+    receiver_mobile  = forms.CharField(max_length=15,  widget=forms.TextInput(attrs={'placeholder': "Receiver's mobile number", 'class': 'form-control'}))
+    receiver_email   = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': "Receiver's email address", 'class': 'form-control'}))
+    personal_message = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write a personal message (optional)', 'class': 'form-control'})
+    )

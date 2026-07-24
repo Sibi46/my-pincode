@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Voucher Confirmed – MYPINCOD{% endblock %}
+
+{% block extra_css %}
+<style>
+.pc-wrap{max-width:520px;margin:2.5rem auto;padding:0 1rem 3rem;text-align:center}
+.pc-icon{font-size:3.5rem;margin-bottom:.75rem}
+.pc-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:2rem 1.5rem}
+.pc-card h2{margin:0 0 .3rem;font-size:1.3rem;font-weight:900;color:#111}
+.pc-card .sub{font-size:.85rem;color:#6b7280;margin-bottom:1.5rem}
+
+.code-box{background:#f8f7ff;border:2px dashed #c4b5fd;border-radius:12px;padding:1.1rem;margin-bottom:1.5rem}
+.code-label{font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
+.code-val{font-size:1.5rem;font-weight:900;color:#7c3aed;letter-spacing:.1em;font-family:monospace}
+
+.qr-wrap{margin-bottom:1.5rem}
+.qr-wrap img{width:150px;height:150px;border-radius:10px;border:3px solid #ede9fe}
+
+.info-table{width:100%;border-collapse:collapse;text-align:left;font-size:.82rem;margin-bottom:1.5rem}
+.info-table td{padding:.4rem .5rem;border-bottom:1px solid #f3f4f6;color:#374151}
+.info-table td:first-child{font-weight:700;color:#6b7280;width:40%}
+.info-table tr:last-child td{border-bottom:none}
+
+.btn-home{display:inline-block;background:#7c3aed;color:#fff;padding:.65rem 1.8rem;border-radius:22px;font-weight:700;text-decoration:none;font-size:.9rem}
+.btn-home:hover{background:#6d28d9}
+.btn-market{display:inline-block;background:#f3f4f6;color:#374151;padding:.65rem 1.8rem;border-radius:22px;font-weight:700;text-decoration:none;font-size:.9rem;margin-top:.5rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pc-wrap">
+  <div class="pc-icon">🎉</div>
+  <div class="pc-card">
+    <h2>Purchase Confirmed!</h2>
+    <p class="sub">Your gift voucher is ready. Show the QR code or voucher code at the store.</p>
+
+    <!-- Voucher code -->
+    <div class="code-box">
+      <div class="code-label">Voucher Code</div>
+      <div class="code-val">{{ purchase.voucher_code }}</div>
+    </div>
+
+    <!-- QR Code -->
+    {% if purchase.qr_code %}
+    <div class="qr-wrap">
+      <img src="{{ purchase.qr_code.url }}" alt="QR Code">
+      <div style="font-size:.72rem;color:#9ca3af;margin-top:.4rem">Scan this QR code at the store</div>
+    </div>
+    {% endif %}
+
+    <!-- Details -->
+    <table class="info-table">
+      <tr><td>Voucher</td><td>{{ purchase.gift_voucher.voucher_name }}</td></tr>
+      <tr><td>Value</td><td><strong style="color:#7c3aed">&#8377;{{ purchase.amount_paid }}</strong></td></tr>
+      <tr><td>Receiver</td><td>{{ purchase.receiver_name }}</td></tr>
+      <tr><td>Valid Till</td><td>{{ purchase.gift_voucher.expiry_date|date:"d M Y" }}</td></tr>
+      <tr><td>Status</td><td><span style="color:#059669;font-weight:700">&#10003; Paid</span></td></tr>
+    </table>
+
+    {% if purchase.personal_message %}
+    <div style="background:#faf5ff;border-radius:8px;padding:.75rem;font-size:.82rem;color:#6d28d9;margin-bottom:1.2rem;font-style:italic">
+      "{{ purchase.personal_message }}"
+    </div>
+    {% endif %}
+
+    <a href="/" class="btn-home"><i class="fas fa-home"></i> Home</a><br>
+    <a href="{% url 'vouchers:marketplace' %}" class="btn-market"><i class="fas fa-search"></i> Browse More Vouchers</a>
+  </div>
+</div>
+{% endblock %}

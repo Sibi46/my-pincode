@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherCategory, VoucherPurchase
-from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, GiftVoucherForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
+from django.db import models as dj_models
+from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, GiftVoucherForm, VoucherPurchaseForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
 
 
 def business_register(request):
@@ -392,4 +393,89 @@ def voucher_detail(request, pk):
     return render(request, 'vouchers/voucher_detail.html', {
         'voucher': voucher,
         'is_expired': voucher.expiry_date < today,
+    })
+    import uuid
+import string
+import random
+import io
+from django.core.files.base import ContentFile
+
+
+def _generate_voucher_code():
+    chars = string.ascii_uppercase + string.digits
+    suffix = ''.join(random.choices(chars, k=8))
+    return f"GIFT-{suffix}"
+
+
+def _generate_qr(voucher_code):
+    import qrcode
+    qr = qrcode.QRCode(version=1, box_size=10, border=4)
+    qr.add_data(voucher_code)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+    buf = io.BytesIO()
+    img.save(buf, format='PNG')
+    return ContentFile(buf.getvalue(), name=f'{voucher_code}.png')
+
+
+def voucher_purchase(request, pk):
+    from django.utils import timezone
+    today = timezone.now().date()
+    voucher = get_object_or_404(GiftVoucher, pk=pk, status='published')
+
+    # Block if expired or sold out
+    if voucher.expiry_date < today:
+        messages.error(request, 'This voucher has expired.')
+        return redirect('vouchers:voucher_detail', pk=pk)
+    if voucher.available_quantity <= 0:
+        messages.error(request, 'This voucher is sold out.')
+        return redirect('vouchers:voucher_detail', pk=pk)
+
+    if request.method == 'POST':
+        form = VoucherPurchaseForm(request.POST)
+        if form.is_valid():
+            d = form.cleaned_data
+
+            # Generate unique voucher code — retry if collision
+            for _ in range(10):
+                code = _generate_voucher_code()
+                if not VoucherPurchase.objects.filter(voucher_code=code).exists():
+                    break
+
+            purchase = VoucherPurchase(
+                gift_voucher     = voucher,
+                voucher_code     = code,
+                buyer_name       = d['buyer_name'],
+                buyer_mobile     = d['buyer_mobile'],
+                buyer_email      = d['buyer_email'],
+                buyer_user       = request.user if request.user.is_authenticated else None,
+                receiver_name    = d['receiver_name'],
+                receiver_mobile  = d['receiver_mobile'],
+                receiver_email   = d['receiver_email'],
+                personal_message = d.get('personal_message', ''),
+                amount_paid      = voucher.voucher_value,
+                status           = 'paid',
+            )
+            purchase.qr_code.save(f'{code}.png', _generate_qr(code), save=False)
+            purchase.save()
+
+            # Increment sold quantity
+            GiftVoucher.objects.filter(pk=voucher.pk).update(
+                sold_quantity=models.F('sold_quantity') + 1
+            )
+
+            return redirect('vouchers:purchase_confirm', pk=purchase.pk)
+    else:
+        form = VoucherPurchaseForm()
+
+    return render(request, 'vouchers/voucher_purchase.html', {
+        'voucher': voucher,
+        'form': form,
+    })
+
+
+def purchase_confirm(request, pk):
+    purchase = get_object_or_404(VoucherPurchase, pk=pk)
+    return render(request, 'vouchers/purchase_confirm.html', {
+        'purchase': purchase,
     })
