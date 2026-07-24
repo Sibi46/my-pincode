@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Gift Voucher – {{ purchase.voucher_code }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.vc-wrap{max-width:420px;margin:2rem auto;padding:0 1rem 3rem;text-align:center}
+.vc-brand{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:#7c3aed;text-transform:uppercase;margin-bottom:.6rem}
+.vc-card{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(124,58,237,.15);overflow:hidden}
+.vc-card-top{background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:1.8rem 1.5rem 1.2rem;color:#fff;position:relative}
+.vc-gift-icon{font-size:2.2rem;margin-bottom:.4rem;display:block}
+.vc-card-top h2{margin:0 0 .15rem;font-size:1.1rem;font-weight:900;letter-spacing:.01em}
+.vc-card-top p{margin:0;font-size:.8rem;opacity:.8}
+.vc-value-badge{display:inline-block;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.5);border-radius:30px;padding:.35rem 1.1rem;font-size:1.25rem;font-weight:900;margin-top:.75rem;letter-spacing:.02em}
+.vc-body{padding:1.5rem}
+.vc-to{font-size:.72rem;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem}
+.vc-receiver{font-size:1.05rem;font-weight:800;color:#111;margin-bottom:.2rem}
+.vc-from{font-size:.78rem;color:#6b7280;margin-bottom:1.2rem}
+.vc-msg{background:#faf5ff;border-left:3px solid #c4b5fd;border-radius:0 8px 8px 0;padding:.65rem .9rem;font-size:.82rem;color:#6d28d9;font-style:italic;margin-bottom:1.2rem;text-align:left}
+.vc-qr{background:#f8f7ff;border-radius:14px;padding:1.1rem;margin-bottom:1.2rem;display:inline-block}
+.vc-qr img{width:160px;height:160px;display:block;border-radius:8px}
+.vc-qr-hint{font-size:.68rem;color:#9ca3af;margin-top:.5rem}
+.code-row{background:#f3f0ff;border:2px dashed #c4b5fd;border-radius:10px;padding:.75rem 1rem;margin-bottom:1.2rem}
+.code-lbl{font-size:.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
+.code-val{font-size:1.25rem;font-weight:900;color:#7c3aed;letter-spacing:.12em;font-family:monospace}
+.meta-row{display:flex;justify-content:space-between;font-size:.75rem;color:#6b7280;margin-bottom:.5rem}
+.meta-row span:last-child{font-weight:700;color:#374151}
+.vc-footer{background:#faf5ff;padding:.9rem 1.5rem;font-size:.7rem;color:#9ca3af;text-align:center}
+.vc-footer strong{color:#7c3aed}
+.status-redeemed{background:#d1fae5;color:#065f46;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:700;margin-bottom:1rem}
+.status-expired{background:#fee2e2;color:#991b1b;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:700;margin-bottom:1rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vc-wrap">
+  <div class="vc-brand">MYPINCOD Gift Voucher</div>
+  <div class="vc-card">
+    <div class="vc-card-top">
+      <span class="vc-gift-icon">🎁</span>
+      <h2>{{ purchase.gift_voucher.voucher_name }}</h2>
+      <p>{{ purchase.gift_voucher.business.business_name }}</p>
+      <div class="vc-value-badge">&#8377;{{ purchase.amount_paid }}</div>
+    </div>
+
+    <div class="vc-body">
+
+      {% if purchase.status == 'redeemed' %}
+      <div class="status-redeemed"><i class="fas fa-check-circle"></i> This voucher has been redeemed</div>
+      {% elif purchase.gift_voucher.expiry_date < today %}
+      <div class="status-expired"><i class="fas fa-times-circle"></i> This voucher has expired</div>
+      {% endif %}
+
+      <div class="vc-to">For</div>
+      <div class="vc-receiver">{{ purchase.receiver_name }}</div>
+      <div class="vc-from">From {{ purchase.buyer_name }}</div>
+
+      {% if purchase.personal_message %}
+      <div class="vc-msg">"{{ purchase.personal_message }}"</div>
+      {% endif %}
+
+      <!-- QR Code -->
+      {% if purchase.qr_code %}
+      <div class="vc-qr">
+        <img src="{{ purchase.qr_code.url }}" alt="QR Code">
+        <div class="vc-qr-hint">Show this at the store</div>
+      </div>
+      {% endif %}
+
+      <!-- Voucher Code -->
+      <div class="code-row">
+        <div class="code-lbl">Voucher Code</div>
+        <div class="code-val">{{ purchase.voucher_code }}</div>
+      </div>
+
+      <!-- Details -->
+      <div class="meta-row"><span>Business</span><span>{{ purchase.gift_voucher.business.business_name }}</span></div>
+      <div class="meta-row"><span>Valid Till</span><span>{{ purchase.gift_voucher.expiry_date|date:"d M Y" }}</span></div>
+      <div class="meta-row"><span>Status</span>
+        <span>
+          {% if purchase.status == 'redeemed' %}<span style="color:#059669">Redeemed</span>
+          {% elif purchase.status == 'paid' or purchase.status == 'sent' %}<span style="color:#7c3aed">Active</span>
+          {% else %}{{ purchase.status|capfirst }}{% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="vc-footer">
+      Powered by <strong>MYPINCOD</strong> &nbsp;·&nbsp; www.mypincod.com
+    </div>
+  </div>
+</div>
+{% endblock %}

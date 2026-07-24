@@ -546,6 +546,48 @@ def purchase_confirm(request, pk):
     })
 
 
+def voucher_card(request, code):
+    """Public voucher card — anyone with the link can view it (no login needed)."""
+    from django.utils import timezone
+    purchase = get_object_or_404(VoucherPurchase, voucher_code=code.upper())
+    return render(request, 'vouchers/voucher_card.html', {
+        'purchase': purchase,
+        'today': timezone.now().date(),
+    })
+
+
+@login_required
+def voucher_share_email(request, pk):
+    """Send the voucher card link to the receiver's email."""
+    from django.core.mail import send_mail
+    purchase = get_object_or_404(VoucherPurchase, pk=pk)
+
+    scheme = 'https' if request.is_secure() else 'http'
+    domain = request.get_host()
+    card_url = f"{scheme}://{domain}/vouchers/v/{purchase.voucher_code}/"
+
+    send_mail(
+        subject=f'Gift Voucher for you – {purchase.gift_voucher.voucher_name}',
+        message=(
+            f"Hello {purchase.receiver_name},\n\n"
+            f"{purchase.buyer_name} has sent you a gift voucher!\n\n"
+            f"Voucher: {purchase.gift_voucher.voucher_name}\n"
+            f"Value: Rs.{purchase.amount_paid}\n"
+            f"Code: {purchase.voucher_code}\n"
+            f"Valid Till: {purchase.gift_voucher.expiry_date.strftime('%d %b %Y')}\n"
+            + (f"\nMessage: {purchase.personal_message}\n" if purchase.personal_message else "")
+            + f"\nView your voucher here:\n{card_url}\n\n"
+            f"Show this voucher or QR code at the store to redeem.\n\n"
+            f"– MYPINCOD Team"
+        ),
+        from_email=None,
+        recipient_list=[purchase.receiver_email],
+        fail_silently=True,
+    )
+    messages.success(request, f'Voucher sent to {purchase.receiver_email}')
+    return redirect('vouchers:purchase_confirm', pk=pk)
+
+
 def _send_otp_email(purchase):
     from django.core.mail import send_mail
     otp = f"{random.randint(100000, 999999)}"

@@ -9,17 +9,32 @@
 .pc-card h2{margin:0 0 .3rem;font-size:1.3rem;font-weight:900;color:#111}
 .pc-card .sub{font-size:.85rem;color:#6b7280;margin-bottom:1.5rem}
 
-.code-box{background:#f8f7ff;border:2px dashed #c4b5fd;border-radius:12px;padding:1.1rem;margin-bottom:1.5rem}
+.code-box{background:#f8f7ff;border:2px dashed #c4b5fd;border-radius:12px;padding:1.1rem;margin-bottom:1.2rem;cursor:pointer;position:relative}
 .code-label{font-size:.72rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
 .code-val{font-size:1.5rem;font-weight:900;color:#7c3aed;letter-spacing:.1em;font-family:monospace}
+.copy-hint{font-size:.68rem;color:#9ca3af;margin-top:.3rem}
 
-.qr-wrap{margin-bottom:1.5rem}
+.qr-wrap{margin-bottom:1.2rem}
 .qr-wrap img{width:150px;height:150px;border-radius:10px;border:3px solid #ede9fe}
 
-.info-table{width:100%;border-collapse:collapse;text-align:left;font-size:.82rem;margin-bottom:1.5rem}
+.info-table{width:100%;border-collapse:collapse;text-align:left;font-size:.82rem;margin-bottom:1.2rem}
 .info-table td{padding:.4rem .5rem;border-bottom:1px solid #f3f4f6;color:#374151}
 .info-table td:first-child{font-weight:700;color:#6b7280;width:40%}
 .info-table tr:last-child td{border-bottom:none}
+
+/* Share section */
+.share-section{background:#f8f7ff;border-radius:12px;padding:1rem;margin-bottom:1.2rem}
+.share-title{font-size:.75rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem}
+.share-btns{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+.btn-wa{display:inline-flex;align-items:center;gap:.4rem;background:#25d366;color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-weight:700;text-decoration:none;font-size:.82rem;border:none;cursor:pointer}
+.btn-wa:hover{background:#1fba58}
+.btn-copy{display:inline-flex;align-items:center;gap:.4rem;background:#7c3aed;color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-weight:700;font-size:.82rem;border:none;cursor:pointer}
+.btn-copy:hover{background:#6d28d9}
+.btn-email{display:inline-flex;align-items:center;gap:.4rem;background:#f59e0b;color:#fff;padding:.55rem 1.1rem;border-radius:20px;font-weight:700;font-size:.82rem;border:none;cursor:pointer;text-decoration:none}
+.btn-email:hover{background:#d97706}
+.btn-view-card{display:inline-flex;align-items:center;gap:.4rem;background:#f3f4f6;color:#374151;padding:.55rem 1.1rem;border-radius:20px;font-weight:700;font-size:.82rem;text-decoration:none;border:none}
+.btn-view-card:hover{background:#e5e7eb}
+.copy-toast{display:none;background:#059669;color:#fff;border-radius:8px;padding:.35rem .8rem;font-size:.75rem;margin-top:.5rem}
 
 .btn-home{display:inline-block;background:#7c3aed;color:#fff;padding:.65rem 1.8rem;border-radius:22px;font-weight:700;text-decoration:none;font-size:.9rem}
 .btn-home:hover{background:#6d28d9}
@@ -32,19 +47,21 @@
   <div class="pc-icon">🎉</div>
   <div class="pc-card">
     <h2>Purchase Confirmed!</h2>
-    <p class="sub">Your gift voucher is ready. Show the QR code or voucher code at the store.</p>
+    <p class="sub">Your gift voucher is ready. Share it with {{ purchase.receiver_name }} to use at the store.</p>
 
-    <!-- Voucher code -->
-    <div class="code-box">
+    <!-- Voucher code (tap to copy) -->
+    <div class="code-box" onclick="copyCode()" title="Tap to copy">
       <div class="code-label">Voucher Code</div>
-      <div class="code-val">{{ purchase.voucher_code }}</div>
+      <div class="code-val" id="vcode">{{ purchase.voucher_code }}</div>
+      <div class="copy-hint"><i class="fas fa-copy"></i> Tap to copy</div>
     </div>
+    <div class="copy-toast" id="copyToast"><i class="fas fa-check-circle"></i> Code copied!</div>
 
     <!-- QR Code -->
     {% if purchase.qr_code %}
     <div class="qr-wrap">
       <img src="{{ purchase.qr_code.url }}" alt="QR Code">
-      <div style="font-size:.72rem;color:#9ca3af;margin-top:.4rem">Scan this QR code at the store</div>
+      <div style="font-size:.72rem;color:#9ca3af;margin-top:.4rem">Scan at the store to redeem</div>
     </div>
     {% endif %}
 
@@ -52,14 +69,56 @@
     <table class="info-table">
       <tr><td>Voucher</td><td>{{ purchase.gift_voucher.voucher_name }}</td></tr>
       <tr><td>Value</td><td><strong style="color:#7c3aed">&#8377;{{ purchase.amount_paid }}</strong></td></tr>
-      <tr><td>Receiver</td><td>{{ purchase.receiver_name }}</td></tr>
+      <tr><td>For</td><td>{{ purchase.receiver_name }}</td></tr>
       <tr><td>Valid Till</td><td>{{ purchase.gift_voucher.expiry_date|date:"d M Y" }}</td></tr>
       <tr><td>Status</td><td><span style="color:#059669;font-weight:700">&#10003; Paid</span></td></tr>
     </table>
 
     {% if purchase.personal_message %}
-    <div style="background:#faf5ff;border-radius:8px;padding:.75rem;font-size:.82rem;color:#6d28d9;margin-bottom:1.2rem;font-style:italic">
+    <div style="background:#faf5ff;border-radius:8px;padding:.75rem;font-size:.82rem;color:#6d28d9;margin-bottom:1rem;font-style:italic">
       "{{ purchase.personal_message }}"
+    </div>
+    {% endif %}
+
+    <!-- Share section -->
+    <div class="share-section">
+      <div class="share-title"><i class="fas fa-share-alt"></i> Share this voucher</div>
+      <div class="share-btns">
+
+        <!-- WhatsApp share -->
+        <a id="waBtn" href="#" class="btn-wa" target="_blank" rel="noopener">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+
+        <!-- Copy link -->
+        <button class="btn-copy" onclick="copyLink()">
+          <i class="fas fa-link"></i> Copy Link
+        </button>
+
+        <!-- View as card -->
+        <a href="{% url 'vouchers:voucher_card' purchase.voucher_code %}" class="btn-view-card" target="_blank">
+          <i class="fas fa-id-card"></i> View Card
+        </a>
+
+        <!-- Send email to receiver -->
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'vouchers:voucher_share_email' purchase.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="btn-email">
+            <i class="fas fa-envelope"></i> Email Friend
+          </button>
+        </form>
+        {% endif %}
+
+      </div>
+      <div style="font-size:.7rem;color:#9ca3af;margin-top:.6rem">
+        Share the link → Friend opens it → Shows QR at store
+      </div>
+    </div>
+
+    {% if messages %}
+    <div style="background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;border-radius:8px;padding:.5rem 1rem;font-size:.83rem;margin-bottom:1rem">
+      {% for msg in messages %}<div><i class="fas fa-check-circle"></i> {{ msg }}</div>{% endfor %}
     </div>
     {% endif %}
 
@@ -67,4 +126,34 @@
     <a href="{% url 'vouchers:marketplace' %}" class="btn-market"><i class="fas fa-search"></i> Browse More Vouchers</a>
   </div>
 </div>
+
+<script>
+const cardUrl = "{{ request.scheme }}://{{ request.get_host }}{% url 'vouchers:voucher_card' purchase.voucher_code %}";
+const waMsg = encodeURIComponent(
+  "Here is your Gift Voucher from {{ purchase.buyer_name }}!\n\n" +
+  "Voucher: {{ purchase.gift_voucher.voucher_name }}\n" +
+  "Value: ₹{{ purchase.amount_paid }}\n" +
+  "Code: {{ purchase.voucher_code }}\n" +
+  "Valid Till: {{ purchase.gift_voucher.expiry_date|date:'d M Y' }}\n\n" +
+  "View your voucher: " + cardUrl
+);
+document.getElementById('waBtn').href = "https://wa.me/?text=" + waMsg;
+
+function copyCode() {
+  navigator.clipboard.writeText("{{ purchase.voucher_code }}").then(function() {
+    const t = document.getElementById('copyToast');
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2000);
+  });
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(cardUrl).then(function() {
+    const t = document.getElementById('copyToast');
+    t.innerHTML = '<i class="fas fa-check-circle"></i> Link copied!';
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2000);
+  });
+}
+</script>
 {% endblock %}

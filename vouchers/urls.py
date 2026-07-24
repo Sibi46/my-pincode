@@ -36,7 +36,9 @@ urlpatterns = [
     path('marketplace/<int:pk>/', views.voucher_detail,  name='voucher_detail'),
       # Customer purchase
     path('buy/<int:pk>/',     views.voucher_purchase,  name='voucher_purchase'),
-    path('confirm/<int:pk>/', views.purchase_confirm,  name='purchase_confirm'),
+    path('confirm/<int:pk>/', views.purchase_confirm,    name='purchase_confirm'),
+    path('v/<str:code>/',     views.voucher_card,        name='voucher_card'),
+    path('share/<int:pk>/email/', views.voucher_share_email, name='voucher_share_email'),
   # Redemption
     path('redeem/',                  views.redeem_lookup,    name='redeem_lookup'),
     path('redeem/<int:pk>/send-otp/', views.redeem_send_otp, name='redeem_send_otp'),
