@@ -546,6 +546,19 @@ def purchase_confirm(request, pk):
     })
 
 
+@login_required
+def my_vouchers(request):
+    from django.utils import timezone
+    today = timezone.now().date()
+    purchases = VoucherPurchase.objects.filter(
+        buyer_user=request.user
+    ).select_related('gift_voucher', 'gift_voucher__business').order_by('-purchased_at')
+    return render(request, 'vouchers/my_vouchers.html', {
+        'purchases': purchases,
+        'today': today,
+    })
+
+
 def voucher_card(request, code):
     """Public voucher card — anyone with the link can view it (no login needed)."""
     from django.utils import timezone

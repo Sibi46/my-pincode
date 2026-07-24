@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}My Vouchers – MYPINCOD{% endblock %}
+
+{% block extra_css %}
+<style>
+.mv-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.4rem 1rem}
+.mv-hero-inner{max-width:800px;margin:0 auto}
+.mv-hero h1{margin:0 0 .2rem;font-size:1.15rem;font-weight:900}
+.mv-hero p{margin:0;font-size:.8rem;opacity:.8}
+.mv-wrap{max-width:800px;margin:1.4rem auto;padding:0 1rem 4rem}
+
+.mv-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:1rem;overflow:hidden}
+.mv-card-top{display:flex;gap:.9rem;padding:1rem 1.1rem;align-items:flex-start}
+.mv-thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#f3f4f6;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#d8b4fe}
+.mv-thumb img{width:56px;height:56px;border-radius:10px;object-fit:cover}
+.mv-info{flex:1;min-width:0}
+.mv-name{font-weight:800;font-size:.95rem;color:#111;margin-bottom:.1rem}
+.mv-biz{font-size:.75rem;color:#6b7280;margin-bottom:.4rem}
+
+.mv-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .65rem;border-radius:20px;font-size:.7rem;font-weight:800}
+.badge-paid{background:#ede9fe;color:#6d28d9}
+.badge-sent{background:#dbeafe;color:#1e40af}
+.badge-redeemed{background:#d1fae5;color:#065f46}
+.badge-expired{background:#fee2e2;color:#991b1b}
+.badge-pending{background:#f3f4f6;color:#374151}
+
+.mv-meta{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-top:.5rem;font-size:.75rem;color:#6b7280}
+.mv-meta span{display:flex;align-items:center;gap:.3rem}
+.mv-meta strong{color:#374151}
+
+.mv-friend{background:#f8f7ff;border-top:1px solid #ede9fe;padding:.7rem 1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.mv-friend-info{font-size:.8rem;color:#374151}
+.mv-friend-info span{font-weight:700;color:#7c3aed}
+.mv-used{display:inline-flex;align-items:center;gap:.3rem;font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:20px}
+.mv-used.yes{background:#d1fae5;color:#065f46}
+.mv-used.no{background:#fef3c7;color:#92400e}
+
+.mv-actions{padding:.6rem 1.1rem;border-top:1px solid #f9fafb;display:flex;gap:.5rem;flex-wrap:wrap}
+.btn-sm-link{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;border:none;cursor:pointer}
+.btn-view{background:#ede9fe;color:#7c3aed}
+.btn-view:hover{background:#ddd6fe}
+.btn-share-wa{background:#dcfce7;color:#166534}
+.btn-share-wa:hover{background:#bbf7d0}
+.btn-share-copy{background:#f3f4f6;color:#374151}
+.btn-share-copy:hover{background:#e5e7eb}
+.btn-email{background:#fef3c7;color:#92400e}
+.btn-email:hover{background:#fde68a}
+
+.mv-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.mv-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem;display:block}
+
+.copy-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;border-radius:20px;padding:.45rem 1.2rem;font-size:.8rem;font-weight:700;display:none;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mv-hero">
+  <div class="mv-hero-inner">
+    <h1><i class="fas fa-ticket-alt"></i> My Vouchers</h1>
+    <p>All gift vouchers you have purchased</p>
+  </div>
+</div>
+
+<div class="mv-wrap">
+
+  {% if purchases %}
+    {% for p in purchases %}
+    <div class="mv-card">
+
+      <!-- Top: voucher info + status -->
+      <div class="mv-card-top">
+        <div class="mv-thumb">
+          {% if p.gift_voucher.product_image %}
+            <img src="{{ p.gift_voucher.product_image.url }}" alt="">
+          {% else %}
+            <i class="fas fa-gift"></i>
+          {% endif %}
+        </div>
+        <div class="mv-info">
+          <div class="mv-name">{{ p.gift_voucher.voucher_name }}</div>
+          <div class="mv-biz">{{ p.gift_voucher.business.business_name }}</div>
+
+          <span class="mv-badge badge-{{ p.status }}">
+            {% if p.status == 'redeemed' %}<i class="fas fa-check-circle"></i> Used
+            {% elif p.status == 'paid' or p.status == 'sent' %}<i class="fas fa-circle"></i> Active
+            {% elif p.status == 'expired' %}<i class="fas fa-times-circle"></i> Expired
+            {% else %}<i class="fas fa-clock"></i> {{ p.get_status_display }}{% endif %}
+          </span>
+
+          <div class="mv-meta">
+            <span><i class="fas fa-rupee-sign"></i> <strong>&#8377;{{ p.amount_paid }}</strong></span>
+            <span><i class="fas fa-barcode"></i> {{ p.voucher_code }}</span>
+            <span><i class="fas fa-calendar-alt"></i> Valid till <strong>{{ p.gift_voucher.expiry_date|date:"d M Y" }}</strong></span>
+            <span><i class="fas fa-clock"></i> Bought {{ p.purchased_at|date:"d M Y" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Friend info + used status -->
+      <div class="mv-friend">
+        <div class="mv-friend-info">
+          <i class="fas fa-user-friends"></i>
+          Sent to <span>{{ p.receiver_name }}</span>
+          {% if p.receiver_email %}<span style="color:#9ca3af;font-weight:400"> ({{ p.receiver_email }})</span>{% endif %}
+        </div>
+        {% if p.status == 'redeemed' %}
+          <span class="mv-used yes"><i class="fas fa-check-circle"></i> Friend used it</span>
+        {% elif p.gift_voucher.expiry_date < today %}
+          <span class="mv-used no"><i class="fas fa-times-circle"></i> Expired unused</span>
+        {% else %}
+          <span class="mv-used no"><i class="fas fa-hourglass-half"></i> Not used yet</span>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      {% if p.status != 'redeemed' and p.status != 'cancelled' %}
+      <div class="mv-actions">
+        <a href="{% url 'vouchers:voucher_card' p.voucher_code %}" class="btn-sm-link btn-view" target="_blank">
+          <i class="fas fa-id-card"></i> View Card
+        </a>
+        <button class="btn-sm-link btn-share-wa" onclick="shareWA('{{ p.voucher_code }}','{{ p.gift_voucher.voucher_name }}','{{ p.amount_paid }}','{{ p.gift_voucher.expiry_date|date:"d M Y" }}')">
+          <i class="fab fa-whatsapp"></i> Share on WhatsApp
+        </button>
+        <button class="btn-sm-link btn-share-copy" onclick="copyLink('{{ p.voucher_code }}')">
+          <i class="fas fa-link"></i> Copy Link
+        </button>
+        {% if request.user.is_authenticated %}
+        <form method="post" action="{% url 'vouchers:voucher_share_email' p.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="btn-sm-link btn-email">
+            <i class="fas fa-envelope"></i> Resend Email
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="mv-empty">
+      <i class="fas fa-ticket-alt"></i>
+      <p style="font-weight:700;color:#374151;margin-bottom:.4rem">No vouchers yet</p>
+      <p style="color:#6b7280;font-size:.85rem;margin-bottom:1.2rem">Gift vouchers you buy will appear here</p>
+      <a href="{% url 'vouchers:marketplace' %}" style="background:#7c3aed;color:#fff;padding:.6rem 1.5rem;border-radius:20px;font-weight:700;text-decoration:none;font-size:.85rem">
+        <i class="fas fa-gift"></i> Browse Gift Vouchers
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+
+<div class="copy-toast" id="copyToast"></div>
+
+<script>
+var baseUrl = "{{ request.scheme }}://{{ request.get_host }}/vouchers/v/";
+
+function shareWA(code, name, amount, expiry) {
+  var url = baseUrl + code + '/';
+  var msg = encodeURIComponent(
+    "Here is your Gift Voucher!\n\n" +
+    "Voucher: " + name + "\n" +
+    "Value: ₹" + amount + "\n" +
+    "Code: " + code + "\n" +
+    "Valid Till: " + expiry + "\n\n" +
+    "View your voucher: " + url
+  );
+  window.open("https://wa.me/?text=" + msg, "_blank");
+}
+
+function copyLink(code) {
+  var url = baseUrl + code + '/';
+  navigator.clipboard.writeText(url).then(function() {
+    var t = document.getElementById('copyToast');
+    t.textContent = '✓ Link copied!';
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2000);
+  });
+}
+</script>
+{% endblock %}

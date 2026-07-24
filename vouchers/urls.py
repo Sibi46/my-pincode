@@ -37,6 +37,7 @@ urlpatterns = [
       # Customer purchase
     path('buy/<int:pk>/',     views.voucher_purchase,  name='voucher_purchase'),
     path('confirm/<int:pk>/', views.purchase_confirm,    name='purchase_confirm'),
+    path('my-vouchers/',      views.my_vouchers,         name='my_vouchers'),
     path('v/<str:code>/',     views.voucher_card,        name='voucher_card'),
     path('share/<int:pk>/email/', views.voucher_share_email, name='voucher_share_email'),
   # Redemption
