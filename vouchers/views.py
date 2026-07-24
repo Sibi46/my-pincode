@@ -389,7 +389,6 @@ def marketplace(request):
 
     vouchers = GiftVoucher.objects.filter(
         status='published',
-        valid_from__lte=today,
         expiry_date__gte=today,
     ).select_related('business', 'category')
 
