@@ -14,7 +14,7 @@ class BusinessRegistrationForm(forms.ModelForm):
             'facebook', 'instagram', 'twitter',
         ]
         widgets = {
-            'business_name': forms.TextInput(attrs={'placeholder': 'e.g. Sibi\'s Kitchen'}),
+            'business_name': forms.TextInput(attrs={'placeholder': 'Enter your business name'}),
             'owner_name':    forms.TextInput(attrs={'placeholder': 'Full name of business owner'}),
             'mobile':        forms.TextInput(attrs={'placeholder': '10-digit mobile number'}),
             'email':         forms.EmailInput(attrs={'placeholder': 'business@email.com'}),
