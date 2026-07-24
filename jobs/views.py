@@ -2215,7 +2215,7 @@ def super_admin_dashboard(request):
     ).select_related('category', 'owner').order_by('created_at')[:5]
     pending_voucher_slots = VoucherSlotPurchase.objects.filter(
         status='pending'
-    ).select_related('business').order_by('requested_at')[:5]
+    ).select_related('business').order_by('purchased_at')[:5]
 
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
