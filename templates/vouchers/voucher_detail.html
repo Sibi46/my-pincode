@@ -120,7 +120,7 @@
       {% if is_expired or voucher.available_quantity == 0 %}
         <span class="btn-buy disabled">{% if is_expired %}Expired{% else %}Sold Out{% endif %}</span>
       {% else %}
-        <a href="#" class="btn-buy"><i class="fas fa-shopping-cart"></i> Buy Now – &#8377;{{ voucher.voucher_value }}</a>
+        <a href="{% url 'vouchers:voucher_purchase' voucher.pk %}" class="btn-buy"><i class="fas fa-shopping-cart"></i> Buy Now – &#8377;{{ voucher.voucher_value }}</a>
       {% endif %}
 
     </div>
