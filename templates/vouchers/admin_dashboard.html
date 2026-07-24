@@ -195,7 +195,7 @@ table.adm-table{width:100%;border-collapse:collapse;font-size:.81rem}
           {% for slot in pending_slots %}
           <tr>
             <td><strong>{{ slot.business.business_name }}</strong></td>
-            <td><strong>{{ slot.slots_requested }}</strong> slots</td>
+            <td><strong>{{ slot.slots_count }}</strong> slots</td>
             <td>&#8377;{{ slot.amount_paid }}</td>
             <td class="mono">{{ slot.payment_reference }}</td>
             <td style="font-size:.75rem;color:#6b7280;white-space:nowrap">{{ slot.requested_at|date:"d M Y" }}</td>

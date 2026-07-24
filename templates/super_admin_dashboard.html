@@ -222,7 +222,7 @@
         {% for slot in pending_voucher_slots %}
         <tr>
           <td><strong>{{ slot.business.business_name }}</strong></td>
-          <td>{{ slot.slots_requested }}</td>
+          <td>{{ slot.slots_count }}</td>
           <td>&#8377;{{ slot.amount_paid }}</td>
           <td style="font-family:monospace;font-size:12px">{{ slot.payment_reference }}</td>
           <td>

@@ -701,7 +701,7 @@ def admin_approve_slot(request, pk):
         slot = get_object_or_404(VoucherSlotPurchase, pk=pk)
         slot.status = 'approved'
         slot.save()
-        messages.success(request, f'Slot request #{slot.pk} approved ({slot.slots_requested} slots).')
+        messages.success(request, f'Slot request #{slot.pk} approved ({slot.slots_count} slots).')
     return redirect('vouchers:admin_dashboard')
 
 
