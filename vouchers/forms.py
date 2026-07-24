@@ -1,5 +1,5 @@
 from django import forms
-from .models import Business, BusinessCategory
+from .models import Business, BusinessCategory, Branch
 
 
 class BusinessRegistrationForm(forms.ModelForm):
@@ -40,3 +40,24 @@ class BusinessRegistrationForm(forms.ModelForm):
                                          forms.URLInput, forms.Textarea, forms.Select)):
                 existing = field.widget.attrs.get('class', '')
                 field.widget.attrs['class'] = (existing + ' form-control').strip()
+
+
+class BranchForm(forms.ModelForm):
+    class Meta:
+        model = Branch
+        fields = ['branch_name', 'address', 'pincode', 'contact_number', 'working_hours', 'is_active']
+        widgets = {
+            'branch_name':    forms.TextInput(attrs={'placeholder': 'e.g. Main Branch, Anna Nagar Branch'}),
+            'address':        forms.Textarea(attrs={'rows': 3, 'placeholder': 'Full branch address'}),
+            'pincode':        forms.TextInput(attrs={'placeholder': '6-digit pincode', 'maxlength': '10'}),
+            'contact_number': forms.TextInput(attrs={'placeholder': '10-digit contact number'}),
+            'working_hours':  forms.TextInput(attrs={'placeholder': 'e.g. Mon–Sat 9am–6pm'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.Textarea, forms.CheckboxInput)):
+                if not isinstance(field.widget, forms.CheckboxInput):
+                    existing = field.widget.attrs.get('class', '')
+                    field.widget.attrs['class'] = (existing + ' form-control').strip()

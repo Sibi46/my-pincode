@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Branches – {{ business.business_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.br-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.4rem 1rem}
+.br-hero-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.br-hero h1{margin:0;font-size:1.15rem;font-weight:900}
+.br-hero p{margin:.2rem 0 0;font-size:.8rem;opacity:.8}
+.btn-add{display:inline-flex;align-items:center;gap:.4rem;background:#fff;color:#7c3aed;padding:.5rem 1.1rem;border-radius:20px;font-weight:800;text-decoration:none;font-size:.85rem;white-space:nowrap}
+.btn-add:hover{background:#ede9fe}
+
+.br-wrap{max-width:900px;margin:1.4rem auto;padding:0 1rem 3rem}
+
+.br-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.br-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem}
+.br-empty p{color:#6b7280;font-size:.9rem;margin:.3rem 0 1rem}
+
+.br-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:.9rem;display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.1rem}
+.br-icon{width:44px;height:44px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;color:#7c3aed}
+.br-info{flex:1;min-width:0}
+.br-name{font-weight:800;font-size:.95rem;color:#111;display:flex;align-items:center;gap:.5rem}
+.br-badge{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:8px}
+.badge-active{background:#d1fae5;color:#065f46}
+.badge-inactive{background:#f3f4f6;color:#6b7280}
+.br-meta{font-size:.78rem;color:#6b7280;margin-top:.2rem;line-height:1.5}
+.br-meta i{width:14px;color:#9ca3af}
+.br-actions{display:flex;flex-direction:column;gap:.4rem;flex-shrink:0}
+.btn-edit{display:inline-flex;align-items:center;gap:.3rem;background:#ede9fe;color:#7c3aed;padding:.35rem .8rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none}
+.btn-edit:hover{background:#ddd6fe}
+.btn-toggle{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .8rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;border:none;cursor:pointer}
+.btn-deactivate{background:#fee2e2;color:#dc2626}
+.btn-deactivate:hover{background:#fecaca}
+.btn-activate{background:#d1fae5;color:#059669}
+.btn-activate:hover{background:#a7f3d0}
+
+.nav-back{display:inline-flex;align-items:center;gap:.4rem;color:#7c3aed;text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem}
+.nav-back:hover{text-decoration:underline}
+
+.messages-wrap{max-width:900px;margin:.6rem auto 0;padding:0 1rem}
+.msg-success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:.5rem 1rem;border-radius:8px;font-size:.83rem}
+.msg-error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.5rem 1rem;border-radius:8px;font-size:.83rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="br-hero">
+  <div class="br-hero-inner">
+    <div>
+      <h1><i class="fas fa-code-branch"></i> Branches</h1>
+      <p>{{ business.business_name }}</p>
+    </div>
+    {% if business.status == 'approved' %}
+    <a href="{% url 'vouchers:branch_add' %}" class="btn-add"><i class="fas fa-plus"></i> Add Branch</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if messages %}
+<div class="messages-wrap">
+  {% for msg in messages %}
+    <div class="msg-{{ msg.tags }}">{{ msg }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="br-wrap">
+  <a href="{% url 'vouchers:business_dashboard' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+  {% if branches %}
+    {% for branch in branches %}
+    <div class="br-card">
+      <div class="br-icon"><i class="fas fa-store-alt"></i></div>
+      <div class="br-info">
+        <div class="br-name">
+          {{ branch.branch_name }}
+          <span class="br-badge {% if branch.is_active %}badge-active{% else %}badge-inactive{% endif %}">
+            {% if branch.is_active %}Active{% else %}Inactive{% endif %}
+          </span>
+        </div>
+        <div class="br-meta">
+          <div><i class="fas fa-map-marker-alt"></i> {{ branch.address }}{% if branch.pincode %} – {{ branch.pincode }}{% endif %}</div>
+          {% if branch.contact_number %}<div><i class="fas fa-phone"></i> {{ branch.contact_number }}</div>{% endif %}
+          {% if branch.working_hours %}<div><i class="fas fa-clock"></i> {{ branch.working_hours }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="br-actions">
+        <a href="{% url 'vouchers:branch_edit' branch.pk %}" class="btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
+        <a href="{% url 'vouchers:branch_toggle' branch.pk %}" class="btn-toggle {% if branch.is_active %}btn-deactivate{% else %}btn-activate{% endif %}">
+          {% if branch.is_active %}<i class="fas fa-toggle-off"></i> Deactivate{% else %}<i class="fas fa-toggle-on"></i> Activate{% endif %}
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="br-empty">
+      <div><i class="fas fa-store-alt"></i></div>
+      <p>No branches added yet.</p>
+      {% if business.status == 'approved' %}
+        <a href="{% url 'vouchers:branch_add' %}" class="btn-add" style="display:inline-flex"><i class="fas fa-plus"></i> Add Your First Branch</a>
+      {% else %}
+        <p style="font-size:.78rem;color:#9ca3af">Your business must be approved before adding branches.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
