@@ -659,7 +659,7 @@ def admin_dashboard(request):
 
     pending_slots = VoucherSlotPurchase.objects.filter(status='pending').select_related(
         'business'
-    ).order_by('requested_at')
+    ).order_by('purchased_at')
 
     context = {
         'biz_stats':          biz_stats,
