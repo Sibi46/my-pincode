@@ -216,6 +216,7 @@ a{text-decoration:none;color:inherit}
     </div>
     <div class="nav-links">
       <a href="/health/" style="color:#16a34a;font-weight:700;border:1.5px solid #16a34a;padding:6px 12px;border-radius:8px;font-size:13px"><i class="fas fa-leaf"></i> Health</a>
+      <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;border:1.5px solid #7c3aed;padding:6px 12px;border-radius:8px;font-size:13px"><i class="fas fa-gift"></i> Gift Vouchers</a>
       {% if not request.user.is_authenticated or request.user.is_employer %}
       <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
       {% endif %}
@@ -238,6 +239,7 @@ a{text-decoration:none;color:inherit}
   </div>
   <div class="mob-menu" id="mobMenu">
     <a href="/health/" style="color:#16a34a;font-weight:700"><i class="fas fa-leaf"></i> Healthy Food Guide</a>
+    <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700"><i class="fas fa-gift"></i> Gift Vouchers</a>
     {% if not request.user.is_authenticated or request.user.is_employer %}
     <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
     {% endif %}
@@ -335,50 +337,6 @@ a{text-decoration:none;color:inherit}
 @media(max-width:380px){
   .hq-tag:nth-child(n+5){display:none}
 }
-</style>
-
-<!-- QUICK ACTIONS STRIP -->
-<div class="qa-strip">
-  <a href="/vouchers/marketplace/" class="qa-item">
-    <div class="qa-ic" style="background:#f3f0ff;color:#7c3aed"><i class="fas fa-gift"></i></div>
-    <span>Gift Vouchers</span>
-  </a>
-  <a href="/health/" class="qa-item">
-    <div class="qa-ic" style="background:#ecfdf5;color:#059669"><i class="fas fa-heartbeat"></i></div>
-    <span>Health</span>
-  </a>
-  <a href="/jobs/" class="qa-item">
-    <div class="qa-ic" style="background:#eff6ff;color:#2563eb"><i class="fas fa-briefcase"></i></div>
-    <span>Find a Job</span>
-  </a>
-  {% if request.user.is_authenticated %}
-  <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" class="qa-item">
-    <div class="qa-ic" style="background:#fff7ed;color:#ea580c"><i class="fas fa-tachometer-alt"></i></div>
-    <span>Dashboard</span>
-  </a>
-  <a href="/logout/" class="qa-item">
-    <div class="qa-ic" style="background:#fef2f2;color:#dc2626"><i class="fas fa-sign-out-alt"></i></div>
-    <span>Logout</span>
-  </a>
-  {% else %}
-  <a href="/login/" class="qa-item">
-    <div class="qa-ic" style="background:#eff6ff;color:#0a66c2"><i class="fas fa-sign-in-alt"></i></div>
-    <span>Sign In</span>
-  </a>
-  <a href="/register/" class="qa-item">
-    <div class="qa-ic" style="background:#f0fdf4;color:#16a34a"><i class="fas fa-user-plus"></i></div>
-    <span>Join Free</span>
-  </a>
-  {% endif %}
-</div>
-<style>
-.qa-strip{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px;background:#fff;border-bottom:1px solid #f0f0f0;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
-.qa-strip::-webkit-scrollbar{display:none}
-.qa-item{display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:#374151;font-size:11px;font-weight:700;flex-shrink:0;min-width:64px;transition:.15s}
-.qa-item:hover{color:#7c3aed;transform:translateY(-2px)}
-.qa-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;transition:.15s}
-.qa-item:hover .qa-ic{box-shadow:0 4px 14px rgba(0,0,0,.12)}
-@media(max-width:480px){.qa-ic{width:44px;height:44px;font-size:18px;border-radius:12px}.qa-item{font-size:10px;min-width:56px}}
 </style>
 
 <!-- PAID HOMEPAGE BANNER ADS -->
