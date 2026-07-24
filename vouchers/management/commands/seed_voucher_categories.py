@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
-from vouchers.models import BusinessCategory
+from vouchers.models import BusinessCategory, VoucherCategory
 
 
-CATEGORIES = [
+BUSINESS_CATEGORIES = [
     ('Restaurant & Food',     '🍽️'),
     ('Beauty & Spa',          '💆'),
     ('Fitness & Wellness',    '💪'),
@@ -20,19 +20,51 @@ CATEGORIES = [
     ('Photography & Media',   '📷'),
 ]
 
+VOUCHER_CATEGORIES = [
+    ('Dining',            '🍽️', 1),
+    ('Shopping',          '🛍️', 2),
+    ('Beauty & Wellness', '💆', 3),
+    ('Entertainment',     '🎭', 4),
+    ('Travel',            '✈️', 5),
+    ('Fitness',           '💪', 6),
+    ('Electronics',       '📱', 7),
+    ('Education',         '📚', 8),
+    ('Healthcare',        '🏥', 9),
+    ('Grocery',           '🛒', 10),
+    ('Bakery & Cafe',     '☕', 11),
+    ('Fashion',           '👗', 12),
+    ('Home & Living',     '🏠', 13),
+    ('Experiences',       '🎁', 14),
+    ('Other',             '⭐', 15),
+]
+
 
 class Command(BaseCommand):
-    help = 'Seed default business categories for the voucher platform'
+    help = 'Seed default business and voucher categories'
 
     def handle(self, *args, **options):
-        for name, icon in CATEGORIES:
+        self.stdout.write('--- Business Categories ---')
+        for name, icon in BUSINESS_CATEGORIES:
             obj, created = BusinessCategory.objects.get_or_create(
                 name=name, defaults={'icon': icon, 'is_active': True}
             )
             if not created and not obj.is_active:
                 obj.is_active = True
                 obj.save()
-            self.stdout.write(f"{'Created' if created else 'OK'}: {name}")
+            self.stdout.write(f"  {'Created' if created else 'OK'}: {name}")
         self.stdout.write(self.style.SUCCESS(
-            f"Done. {BusinessCategory.objects.filter(is_active=True).count()} active categories."
+            f"  {BusinessCategory.objects.filter(is_active=True).count()} active business categories."
+        ))
+
+        self.stdout.write('--- Voucher Categories ---')
+        for name, icon, order in VOUCHER_CATEGORIES:
+            obj, created = VoucherCategory.objects.get_or_create(
+                name=name, defaults={'icon': icon, 'is_active': True, 'order': order}
+            )
+            if not created and not obj.is_active:
+                obj.is_active = True
+                obj.save()
+            self.stdout.write(f"  {'Created' if created else 'OK'}: {name}")
+        self.stdout.write(self.style.SUCCESS(
+            f"  {VoucherCategory.objects.filter(is_active=True).count()} active voucher categories."
         ))
