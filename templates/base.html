@@ -48,7 +48,7 @@
                 {% endif %}
                 {% with biz=request.user.businesses.first %}
                 {% if biz %}
-                    <a href="/vouchers/business/dashboard/" style="color:#7c3aed">
+                    <a href="/vouchers/dashboard/" style="color:#7c3aed">
                         <i class="fas fa-store"></i> My Business
                         {% if biz.status == 'pending' %}<span style="background:#fef3c7;color:#92400e;font-size:.65rem;padding:.1rem .35rem;border-radius:8px;font-weight:800;vertical-align:middle">Pending</span>{% endif %}
                         {% if biz.status == 'approved' %}<span style="background:#d1fae5;color:#065f46;font-size:.65rem;padding:.1rem .35rem;border-radius:8px;font-weight:800;vertical-align:middle">Live</span>{% endif %}
@@ -100,7 +100,7 @@
             <a href="/messages/">Messages</a>
             {% with biz=request.user.businesses.first %}
             {% if biz %}
-                <a href="/vouchers/business/dashboard/" style="color:#7c3aed">
+                <a href="/vouchers/dashboard/" style="color:#7c3aed">
                     🏪 My Business
                     {% if biz.status == 'pending' %}(Pending){% endif %}
                     {% if biz.status == 'approved' %}(Live){% endif %}
