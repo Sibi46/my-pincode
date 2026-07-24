@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Registration Submitted – MYPINCOD Gift Vouchers{% endblock %}
+
+{% block extra_css %}
+<style>
+.success-wrap{max-width:520px;margin:4rem auto;padding:0 1rem;text-align:center}
+.success-icon{font-size:4rem;margin-bottom:1rem}
+.success-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:2.5rem 2rem}
+.success-card h2{margin:0 0 .75rem;font-size:1.4rem;font-weight:900;color:#111}
+.success-card p{color:#6b7280;line-height:1.7;margin-bottom:1.2rem;font-size:.9rem}
+.status-badge{display:inline-flex;align-items:center;gap:.4rem;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:22px;padding:.4rem 1rem;font-size:.82rem;font-weight:700;margin-bottom:1.4rem}
+.steps-list{text-align:left;background:#f8f7ff;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem}
+.steps-list li{font-size:.84rem;color:#374151;padding:.3rem 0;display:flex;align-items:center;gap:.5rem}
+.steps-list li i{color:#7c3aed;width:16px}
+.btn-home{display:inline-block;background:#7c3aed;color:#fff;padding:.65rem 1.8rem;border-radius:22px;font-weight:700;text-decoration:none;font-size:.9rem;transition:background .15s}
+.btn-home:hover{background:#6d28d9}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-wrap">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h2>Registration Submitted!</h2>
+    <div class="status-badge"><i class="fas fa-clock"></i> Under Review</div>
+    <p>Your business registration has been submitted successfully. Our team will review your details and get back to you within <strong>24–48 hours</strong>.</p>
+
+    <ul class="steps-list">
+      <li><i class="fas fa-check-circle" style="color:#059669"></i> Registration submitted</li>
+      <li><i class="fas fa-hourglass-half"></i> Admin review (in progress)</li>
+      <li><i class="fas fa-envelope"></i> Approval email will be sent to your registered email</li>
+      <li><i class="fas fa-gift"></i> Start creating Gift Vouchers after approval</li>
+    </ul>
+
+    <a href="/" class="btn-home"><i class="fas fa-home"></i> Back to Home</a>
+  </div>
+</div>
+{% endblock %}

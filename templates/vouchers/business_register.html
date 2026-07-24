@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block title %}Register Your Business – MYPINCOD Gift Vouchers{% endblock %}
+
+{% block extra_css %}
+<style>
+.vr-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:2.5rem 1rem;text-align:center}
+.vr-hero h1{margin:0 0 .4rem;font-size:1.6rem;font-weight:900}
+.vr-hero p{margin:0;opacity:.85;font-size:.95rem}
+
+.vr-wrap{max-width:760px;margin:2rem auto;padding:0 1rem 3rem}
+
+.vr-card{background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.08);overflow:hidden;margin-bottom:1.4rem}
+.vr-card-head{background:#f8f7ff;border-bottom:1px solid #ede9fe;padding:.75rem 1.2rem;display:flex;align-items:center;gap:.6rem}
+.vr-card-head h3{margin:0;font-size:.9rem;font-weight:800;color:#4f46e5}
+.vr-card-head i{color:#7c3aed;font-size:1rem}
+.vr-card-body{padding:1.2rem}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:580px){.form-row{grid-template-columns:1fr}}
+
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.35rem}
+.form-group .required{color:#ef4444}
+.form-control{width:100%;padding:.5rem .75rem;border:1.5px solid #d1d5db;border-radius:8px;font-size:.88rem;color:#111;box-sizing:border-box;transition:border-color .15s}
+.form-control:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+textarea.form-control{resize:vertical}
+select.form-control{background:#fff}
+
+.file-hint{font-size:.72rem;color:#6b7280;margin-top:.25rem}
+.errorlist{list-style:none;padding:0;margin:.3rem 0 0;color:#dc2626;font-size:.78rem}
+
+.vr-submit{display:block;width:100%;padding:.8rem;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;transition:background .15s;margin-top:.5rem}
+.vr-submit:hover{background:#6d28d9}
+
+.vr-login-note{text-align:center;font-size:.82rem;color:#6b7280;margin-top:1rem}
+.vr-login-note a{color:#7c3aed;font-weight:700}
+
+.badge-steps{display:flex;justify-content:center;gap:1.5rem;margin:1.5rem 0;flex-wrap:wrap}
+.step-badge{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:#6b7280}
+.step-badge .num{width:24px;height:24px;border-radius:50%;background:#7c3aed;color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0}
+.step-badge.done .num{background:#059669}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vr-hero">
+  <h1><i class="fas fa-store"></i> Register Your Business</h1>
+  <p>Start selling Gift Vouchers on MYPINCOD</p>
+</div>
+
+<div class="vr-wrap">
+
+  <!-- Steps indicator -->
+  <div class="badge-steps">
+    <div class="step-badge done"><div class="num">1</div> Register</div>
+    <div class="step-badge"><div class="num">2</div> Admin Approval</div>
+    <div class="step-badge"><div class="num">3</div> Buy Slots</div>
+    <div class="step-badge"><div class="num">4</div> Publish Vouchers</div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Basic Info -->
+    <div class="vr-card">
+      <div class="vr-card-head"><i class="fas fa-building"></i><h3>Business Information</h3></div>
+      <div class="vr-card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Business Name <span class="required">*</span></label>
+            {{ form.business_name }}
+            {% if form.business_name.errors %}<ul class="errorlist">{% for e in form.business_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="form-group">
+            <label>Owner Name <span class="required">*</span></label>
+            {{ form.owner_name }}
+            {% if form.owner_name.errors %}<ul class="errorlist">{% for e in form.owner_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Category <span class="required">*</span></label>
+            {{ form.category }}
+            {% if form.category.errors %}<ul class="errorlist">{% for e in form.category.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="form-group">
+            <label>Mobile Number <span class="required">*</span></label>
+            {{ form.mobile }}
+            {% if form.mobile.errors %}<ul class="errorlist">{% for e in form.mobile.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            {{ form.email }}
+            {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="form-group">
+            <label>Website</label>
+            {{ form.website }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Business Description</label>
+          {{ form.description }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="vr-card">
+      <div class="vr-card-head"><i class="fas fa-map-marker-alt"></i><h3>Business Address</h3></div>
+      <div class="vr-card-body">
+        <div class="form-group">
+          <label>Address <span class="required">*</span></label>
+          {{ form.address }}
+          {% if form.address.errors %}<ul class="errorlist">{% for e in form.address.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Pincode <span class="required">*</span></label>
+            {{ form.pincode }}
+            {% if form.pincode.errors %}<ul class="errorlist">{% for e in form.pincode.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            {{ form.city }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          {{ form.state }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax (optional) -->
+    <div class="vr-card">
+      <div class="vr-card-head"><i class="fas fa-file-invoice"></i><h3>Tax Details <small style="font-weight:400;color:#6b7280">(Optional)</small></h3></div>
+      <div class="vr-card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>GST Number</label>
+            {{ form.gst_number }}
+          </div>
+          <div class="form-group">
+            <label>PAN Number</label>
+            {{ form.pan_number }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Media -->
+    <div class="vr-card">
+      <div class="vr-card-head"><i class="fas fa-image"></i><h3>Business Logo &amp; Cover</h3></div>
+      <div class="vr-card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Business Logo</label>
+            {{ form.logo }}
+            <div class="file-hint">PNG or JPG, square image recommended</div>
+          </div>
+          <div class="form-group">
+            <label>Cover Image</label>
+            {{ form.cover_image }}
+            <div class="file-hint">Wide banner image (1200×400 px recommended)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Media -->
+    <div class="vr-card">
+      <div class="vr-card-head"><i class="fas fa-share-alt"></i><h3>Social Media <small style="font-weight:400;color:#6b7280">(Optional)</small></h3></div>
+      <div class="vr-card-body">
+        <div class="form-group">
+          <label><i class="fab fa-facebook" style="color:#1877f2"></i> Facebook</label>
+          {{ form.facebook }}
+        </div>
+        <div class="form-group">
+          <label><i class="fab fa-instagram" style="color:#e1306c"></i> Instagram</label>
+          {{ form.instagram }}
+        </div>
+        <div class="form-group">
+          <label><i class="fab fa-twitter" style="color:#1da1f2"></i> Twitter / X</label>
+          {{ form.twitter }}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="vr-submit">
+      <i class="fas fa-paper-plane"></i> Submit for Approval
+    </button>
+    <p class="vr-login-note">By registering you agree to our <a href="/terms/">Terms of Service</a></p>
+  </form>
+</div>
+{% endblock %}

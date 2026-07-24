@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block title %}Business Dashboard – MYPINCOD Gift Vouchers{% endblock %}
+
+{% block extra_css %}
+<style>
+.bd-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.6rem 1rem 1rem}
+.bd-hero-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:1rem}
+.bd-logo{width:56px;height:56px;border-radius:12px;object-fit:cover;background:#fff;flex-shrink:0}
+.bd-logo-placeholder{width:56px;height:56px;border-radius:12px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.bd-name{font-size:1.2rem;font-weight:900;margin-bottom:.15rem}
+.bd-cat{font-size:.8rem;opacity:.8}
+.bd-status{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;font-weight:700;padding:.2rem .65rem;border-radius:12px;margin-top:.3rem}
+.bd-status.pending{background:#fef3c7;color:#92400e}
+.bd-status.approved{background:#d1fae5;color:#065f46}
+.bd-status.suspended{background:#fee2e2;color:#991b1b}
+.bd-status.rejected{background:#fee2e2;color:#991b1b}
+
+.bd-wrap{max-width:900px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+.bd-pending-alert{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:.85rem;color:#92400e;display:flex;gap:.6rem;align-items:flex-start}
+.bd-pending-alert i{margin-top:.1rem;flex-shrink:0}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;margin-bottom:1.4rem}
+.stat-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);padding:1rem .9rem;text-align:center}
+.stat-num{font-size:1.7rem;font-weight:900;color:#7c3aed;line-height:1}
+.stat-label{font-size:.72rem;color:#6b7280;margin-top:.3rem}
+
+.bd-section{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:1rem;overflow:hidden}
+.bd-section-head{padding:.7rem 1.1rem;background:#f8f7ff;border-bottom:1px solid #ede9fe;display:flex;align-items:center;justify-content:space-between}
+.bd-section-head h3{margin:0;font-size:.85rem;font-weight:800;color:#4f46e5}
+.bd-section-head a{font-size:.75rem;color:#7c3aed;text-decoration:none;font-weight:700}
+
+table.bd-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.bd-table th{padding:.5rem .9rem;text-align:left;color:#6b7280;font-weight:700;border-bottom:1px solid #f3f4f6;font-size:.75rem;text-transform:uppercase}
+.bd-table td{padding:.6rem .9rem;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:middle}
+.bd-table tr:last-child td{border-bottom:none}
+.bd-table .badge{padding:.2rem .55rem;border-radius:8px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.badge-draft{background:#f3f4f6;color:#6b7280}
+.badge-published{background:#d1fae5;color:#065f46}
+.badge-paused{background:#fef3c7;color:#92400e}
+.badge-expired{background:#fee2e2;color:#991b1b}
+.badge-paid{background:#dbeafe;color:#1e40af}
+.badge-redeemed{background:#d1fae5;color:#065f46}
+.badge-pending{background:#fef3c7;color:#92400e}
+
+.empty-row td{text-align:center;color:#9ca3af;font-size:.8rem;padding:1.4rem}
+
+.quick-links{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem;margin-bottom:1.4rem}
+.ql-btn{display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);text-decoration:none;color:#374151;font-size:.83rem;font-weight:700;transition:box-shadow .15s}
+.ql-btn:hover{box-shadow:0 4px 18px rgba(124,58,237,.15);color:#7c3aed}
+.ql-btn i{font-size:1.1rem;color:#7c3aed;width:22px;text-align:center}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero bar -->
+<div class="bd-hero">
+  <div class="bd-hero-inner">
+    {% if business.logo %}
+      <img src="{{ business.logo.url }}" class="bd-logo" alt="logo">
+    {% else %}
+      <div class="bd-logo-placeholder"><i class="fas fa-store"></i></div>
+    {% endif %}
+    <div>
+      <div class="bd-name">{{ business.business_name }}</div>
+      <div class="bd-cat">{{ business.category.name }}</div>
+      <span class="bd-status {{ business.status }}">
+        {% if business.status == 'pending' %}<i class="fas fa-clock"></i> Under Review
+        {% elif business.status == 'approved' %}<i class="fas fa-check-circle"></i> Approved
+        {% elif business.status == 'suspended' %}<i class="fas fa-ban"></i> Suspended
+        {% elif business.status == 'rejected' %}<i class="fas fa-times-circle"></i> Rejected
+        {% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="bd-wrap">
+
+  {% if business.status == 'pending' %}
+  <div class="bd-pending-alert">
+    <i class="fas fa-hourglass-half"></i>
+    <div>Your business is <strong>under review</strong>. You'll receive an email once approved. After approval you can buy voucher slots and start creating gift vouchers.</div>
+  </div>
+  {% endif %}
+
+  {% if business.status == 'rejected' %}
+  <div class="bd-pending-alert" style="background:#fee2e2;border-color:#fca5a5;color:#991b1b">
+    <i class="fas fa-times-circle"></i>
+    <div><strong>Registration Rejected.</strong> Reason: {{ business.rejection_reason|default:"No reason provided." }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num">{{ business.total_slots_purchased }}</div>
+      <div class="stat-label">Slots Purchased</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ business.total_slots_used }}</div>
+      <div class="stat-label">Slots Used</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" style="color:{% if business.available_slots > 0 %}#059669{% else %}#dc2626{% endif %}">{{ business.available_slots }}</div>
+      <div class="stat-label">Available Slots</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">&#8377;{{ total_sales|floatformat:0 }}</div>
+      <div class="stat-label">Total Sales</div>
+    </div>
+  </div>
+
+  {% if business.status == 'approved' %}
+  <!-- Quick action links -->
+  <div class="quick-links">
+    <a href="#" class="ql-btn"><i class="fas fa-plus"></i> New Voucher</a>
+    <a href="#" class="ql-btn"><i class="fas fa-shopping-bag"></i> Buy Slots</a>
+    <a href="#" class="ql-btn"><i class="fas fa-code-branch"></i> Branches</a>
+    <a href="#" class="ql-btn"><i class="fas fa-users"></i> Employees</a>
+  </div>
+  {% endif %}
+
+  <!-- Recent Vouchers -->
+  <div class="bd-section">
+    <div class="bd-section-head">
+      <h3><i class="fas fa-gift"></i> Recent Gift Vouchers</h3>
+      <a href="#">View All</a>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="bd-table">
+        <thead>
+          <tr><th>Voucher</th><th>Value</th><th>Qty</th><th>Sold</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for v in recent_vouchers %}
+          <tr>
+            <td>{{ v.voucher_name }}</td>
+            <td>&#8377;{{ v.voucher_value }}</td>
+            <td>{{ v.total_quantity }}</td>
+            <td>{{ v.sold_quantity }}</td>
+            <td><span class="badge badge-{{ v.status }}">{{ v.get_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr class="empty-row"><td colspan="5">No vouchers yet{% if business.status == 'approved' %} — <a href="#" style="color:#7c3aed">Create your first voucher</a>{% endif %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Purchases -->
+  <div class="bd-section">
+    <div class="bd-section-head">
+      <h3><i class="fas fa-receipt"></i> Recent Purchases</h3>
+      <a href="#">View All</a>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="bd-table">
+        <thead>
+          <tr><th>Code</th><th>Buyer</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for p in recent_purchases %}
+          <tr>
+            <td style="font-family:monospace;font-size:.78rem">{{ p.voucher_code }}</td>
+            <td>{{ p.buyer_name }}</td>
+            <td>&#8377;{{ p.amount_paid }}</td>
+            <td><span class="badge badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+          </tr>
+          {% empty %}
+          <tr class="empty-row"><td colspan="4">No purchases yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
