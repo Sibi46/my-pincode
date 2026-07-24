@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'jobs',
     'health',
+    'vouchers',
 ]
 
 AUTH_USER_MODEL = 'jobs.User'
