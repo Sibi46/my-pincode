@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Employees – {{ business.business_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.em-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.4rem 1rem}
+.em-hero-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.em-hero h1{margin:0;font-size:1.15rem;font-weight:900}
+.em-hero p{margin:.2rem 0 0;font-size:.8rem;opacity:.8}
+.btn-add{display:inline-flex;align-items:center;gap:.4rem;background:#fff;color:#7c3aed;padding:.5rem 1.1rem;border-radius:20px;font-weight:800;text-decoration:none;font-size:.85rem;white-space:nowrap}
+.btn-add:hover{background:#ede9fe}
+.em-wrap{max-width:900px;margin:1.4rem auto;padding:0 1rem 3rem}
+.nav-back{display:inline-flex;align-items:center;gap:.4rem;color:#7c3aed;text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem}
+.nav-back:hover{text-decoration:underline}
+.em-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.em-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem;display:block}
+.em-empty p{color:#6b7280;font-size:.9rem;margin:.3rem 0 1rem}
+.em-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:.9rem;display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.1rem}
+.em-avatar{width:44px;height:44px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;color:#7c3aed;font-weight:800}
+.em-info{flex:1;min-width:0}
+.em-name{font-weight:800;font-size:.95rem;color:#111;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.em-badge{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:8px}
+.badge-active{background:#d1fae5;color:#065f46}
+.badge-inactive{background:#f3f4f6;color:#6b7280}
+.role-badge{font-size:.68rem;font-weight:700;padding:.15rem .55rem;border-radius:8px;background:#ede9fe;color:#6d28d9}
+.em-meta{font-size:.78rem;color:#6b7280;margin-top:.2rem;line-height:1.6}
+.em-meta i{width:14px;color:#9ca3af}
+.em-actions{display:flex;flex-direction:column;gap:.4rem;flex-shrink:0}
+.btn-edit{display:inline-flex;align-items:center;gap:.3rem;background:#ede9fe;color:#7c3aed;padding:.35rem .8rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none}
+.btn-edit:hover{background:#ddd6fe}
+.btn-toggle{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .8rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;border:none;cursor:pointer}
+.btn-deactivate{background:#fee2e2;color:#dc2626}
+.btn-deactivate:hover{background:#fecaca}
+.btn-activate{background:#d1fae5;color:#059669}
+.btn-activate:hover{background:#a7f3d0}
+.messages-wrap{max-width:900px;margin:.6rem auto 0;padding:0 1rem}
+.msg-success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:.5rem 1rem;border-radius:8px;font-size:.83rem;margin-bottom:.5rem}
+.msg-error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.5rem 1rem;border-radius:8px;font-size:.83rem;margin-bottom:.5rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="em-hero">
+  <div class="em-hero-inner">
+    <div>
+      <h1><i class="fas fa-users"></i> Employees</h1>
+      <p>{{ business.business_name }}</p>
+    </div>
+    {% if business.status == 'approved' %}
+    <a href="{% url 'vouchers:employee_add' %}" class="btn-add"><i class="fas fa-plus"></i> Add Employee</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if messages %}
+<div class="messages-wrap">
+  {% for msg in messages %}<div class="msg-{{ msg.tags }}">{{ msg }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<div class="em-wrap">
+  <a href="{% url 'vouchers:business_dashboard' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+  {% if employees %}
+    {% for emp in employees %}
+    <div class="em-card">
+      <div class="em-avatar">{{ emp.name|first|upper }}</div>
+      <div class="em-info">
+        <div class="em-name">
+          {{ emp.name }}
+          <span class="em-badge {% if emp.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if emp.is_active %}Active{% else %}Inactive{% endif %}</span>
+          <span class="role-badge">{{ emp.get_role_display }}</span>
+        </div>
+        <div class="em-meta">
+          <div><i class="fas fa-phone"></i> {{ emp.mobile }}</div>
+          <div><i class="fas fa-envelope"></i> {{ emp.email }}</div>
+          {% if emp.assigned_branch %}<div><i class="fas fa-store-alt"></i> {{ emp.assigned_branch.branch_name }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="em-actions">
+        <a href="{% url 'vouchers:employee_edit' emp.pk %}" class="btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
+        <a href="{% url 'vouchers:employee_toggle' emp.pk %}" class="btn-toggle {% if emp.is_active %}btn-deactivate{% else %}btn-activate{% endif %}">
+          {% if emp.is_active %}<i class="fas fa-toggle-off"></i> Deactivate{% else %}<i class="fas fa-toggle-on"></i> Activate{% endif %}
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="em-empty">
+      <i class="fas fa-users"></i>
+      <p>No employees added yet.</p>
+      {% if business.status == 'approved' %}
+        <a href="{% url 'vouchers:employee_add' %}" class="btn-add" style="display:inline-flex"><i class="fas fa-plus"></i> Add First Employee</a>
+      {% else %}
+        <p style="font-size:.78rem;color:#9ca3af">Your business must be approved before adding employees.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

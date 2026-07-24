@@ -118,7 +118,7 @@ table.bd-table{width:100%;border-collapse:collapse;font-size:.82rem}
     <a href="#" class="ql-btn"><i class="fas fa-plus"></i> New Voucher</a>
     <a href="{% url 'vouchers:slot_buy' %}" class="ql-btn"><i class="fas fa-shopping-bag"></i> Buy Slots</a>
     <a href="{% url 'vouchers:branch_list' %}" class="ql-btn"><i class="fas fa-code-branch"></i> Branches</a>
-    <a href="#" class="ql-btn"><i class="fas fa-users"></i> Employees</a>
+    <a href="{% url 'vouchers:employee_list' %}" class="ql-btn"><i class="fas fa-users"></i> Employees</a>
   </div>
   {% endif %}
 
