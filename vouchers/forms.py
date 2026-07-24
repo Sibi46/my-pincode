@@ -1,5 +1,5 @@
 from django import forms
-from .models import Business, BusinessCategory, Branch, Employee, VoucherSlotPurchase
+from .models import Business, BusinessCategory, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherCategory
 
 
 class BusinessRegistrationForm(forms.ModelForm):
@@ -110,3 +110,35 @@ class SlotRequestForm(forms.Form):
             'class': 'form-control',
         })
     )
+
+
+class GiftVoucherForm(forms.ModelForm):
+    class Meta:
+        model = GiftVoucher
+        fields = [
+            'voucher_name', 'product_service_name',
+            'category', 'voucher_value', 'description',
+            'terms_conditions', 'valid_from', 'expiry_date',
+            'applicable_branches', 'total_quantity',
+            'product_image', 'header_image',
+        ]
+        widgets = {
+            'voucher_name':         forms.TextInput(attrs={'placeholder': 'e.g. Diwali Special Gift', 'class': 'form-control'}),
+            'product_service_name': forms.TextInput(attrs={'placeholder': 'e.g. Dinner for Two', 'class': 'form-control'}),
+            'voucher_value':        forms.NumberInput(attrs={'placeholder': '500', 'class': 'form-control'}),
+            'description':          forms.Textarea(attrs={'rows': 3, 'placeholder': 'What does this voucher offer?', 'class': 'form-control'}),
+            'terms_conditions':     forms.Textarea(attrs={'rows': 3, 'placeholder': 'Terms and conditions...', 'class': 'form-control'}),
+            'valid_from':           forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'expiry_date':          forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'total_quantity':       forms.NumberInput(attrs={'placeholder': '100', 'class': 'form-control'}),
+            'applicable_branches':  forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, business, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['applicable_branches'].queryset = Branch.objects.filter(business=business)
+        self.fields['applicable_branches'].required = False
+        self.fields['category'].queryset = VoucherCategory.objects.filter(is_active=True)
+        self.fields['category'].empty_label = '— Select Category —'
+        self.fields['category'].required = False
+        self.fields['category'].widget.attrs['class'] = 'form-control'

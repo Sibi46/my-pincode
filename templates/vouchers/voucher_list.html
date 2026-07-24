@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Gift Vouchers – {{ business.business_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.vl-hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.4rem 1rem}
+.vl-hero-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.vl-hero h1{margin:0;font-size:1.15rem;font-weight:900}
+.vl-hero p{margin:.2rem 0 0;font-size:.8rem;opacity:.8}
+.btn-create{display:inline-flex;align-items:center;gap:.4rem;background:#fff;color:#7c3aed;padding:.5rem 1.1rem;border-radius:20px;font-weight:800;text-decoration:none;font-size:.85rem;white-space:nowrap}
+.btn-create:hover{background:#ede9fe}
+.vl-wrap{max-width:900px;margin:1.4rem auto;padding:0 1rem 3rem}
+.nav-back{display:inline-flex;align-items:center;gap:.4rem;color:#7c3aed;text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem}
+.nav-back:hover{text-decoration:underline}
+.slot-bar{background:#faf5ff;border:1px solid #e9d5ff;border-radius:10px;padding:.7rem 1.1rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:.82rem;color:#6d28d9}
+.slot-bar strong{color:#5b21b6}
+.vc-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:.9rem;overflow:hidden}
+.vc-card-inner{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.1rem}
+.vc-img{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#f3f4f6;flex-shrink:0}
+.vc-img-placeholder{width:56px;height:56px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.vc-info{flex:1;min-width:0}
+.vc-name{font-weight:800;font-size:.95rem;color:#111}
+.vc-sub{font-size:.78rem;color:#6b7280;margin-top:.15rem}
+.vc-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem;align-items:center}
+.badge{padding:.2rem .55rem;border-radius:8px;font-size:.7rem;font-weight:700}
+.badge-draft{background:#f3f4f6;color:#374151}
+.badge-published{background:#d1fae5;color:#065f46}
+.badge-paused{background:#fef3c7;color:#92400e}
+.badge-expired{background:#fee2e2;color:#991b1b}
+.vc-value{font-size:.78rem;font-weight:700;color:#7c3aed}
+.vc-qty{font-size:.75rem;color:#6b7280}
+.vc-actions{display:flex;gap:.4rem;flex-wrap:wrap;padding:.6rem 1.1rem;border-top:1px solid #f9fafb;background:#fafafa}
+.btn-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:8px;font-size:.75rem;font-weight:700;text-decoration:none;border:none;cursor:pointer}
+.btn-edit{background:#ede9fe;color:#7c3aed}
+.btn-edit:hover{background:#ddd6fe}
+.btn-publish{background:#d1fae5;color:#065f46}
+.btn-publish:hover{background:#a7f3d0}
+.btn-pause{background:#fef3c7;color:#92400e}
+.btn-pause:hover{background:#fde68a}
+.vl-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.vl-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem;display:block}
+.messages-wrap{max-width:900px;margin:.6rem auto 0;padding:0 1rem}
+.msg-success{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:.5rem 1rem;border-radius:8px;font-size:.83rem;margin-bottom:.5rem}
+.msg-error{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.5rem 1rem;border-radius:8px;font-size:.83rem;margin-bottom:.5rem}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vl-hero">
+  <div class="vl-hero-inner">
+    <div>
+      <h1><i class="fas fa-gift"></i> Gift Vouchers</h1>
+      <p>{{ business.business_name }}</p>
+    </div>
+    <a href="{% url 'vouchers:voucher_create' %}" class="btn-create"><i class="fas fa-plus"></i> New Voucher</a>
+  </div>
+</div>
+
+{% if messages %}
+<div class="messages-wrap">
+  {% for msg in messages %}<div class="msg-{{ msg.tags }}">{{ msg }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<div class="vl-wrap">
+  <a href="{% url 'vouchers:business_dashboard' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+  <div class="slot-bar">
+    <span><i class="fas fa-layer-group"></i> Available Slots: <strong>{{ business.available_slots }}</strong></span>
+    <a href="{% url 'vouchers:slot_buy' %}" style="color:#7c3aed;font-weight:700;font-size:.8rem;text-decoration:none"><i class="fas fa-plus"></i> Buy More</a>
+  </div>
+
+  {% if vouchers %}
+    {% for v in vouchers %}
+    <div class="vc-card">
+      <div class="vc-card-inner">
+        {% if v.product_image %}
+          <img src="{{ v.product_image.url }}" class="vc-img" alt="">
+        {% else %}
+          <div class="vc-img-placeholder"><i class="fas fa-gift"></i></div>
+        {% endif %}
+        <div class="vc-info">
+          <div class="vc-name">{{ v.voucher_name }}</div>
+          <div class="vc-sub">{{ v.product_service_name }}</div>
+          <div class="vc-meta">
+            <span class="badge badge-{{ v.status }}">{{ v.get_status_display }}</span>
+            <span class="vc-value">&#8377;{{ v.voucher_value }}</span>
+            <span class="vc-qty"><i class="fas fa-ticket-alt"></i> {{ v.sold_quantity }}/{{ v.total_quantity }} sold</span>
+            <span class="vc-qty"><i class="fas fa-calendar"></i> {{ v.expiry_date|date:"d M Y" }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="vc-actions">
+        {% if v.status in 'draft,paused' %}
+          <a href="{% url 'vouchers:voucher_edit' v.pk %}" class="btn-sm btn-edit"><i class="fas fa-pencil-alt"></i> Edit</a>
+        {% endif %}
+        {% if v.status == 'draft' %}
+          <a href="{% url 'vouchers:voucher_publish' v.pk %}" class="btn-sm btn-publish"><i class="fas fa-rocket"></i> Publish</a>
+        {% endif %}
+        {% if v.status == 'published' %}
+          <a href="{% url 'vouchers:voucher_pause' v.pk %}" class="btn-sm btn-pause"><i class="fas fa-pause"></i> Pause</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="vl-empty">
+      <i class="fas fa-gift"></i>
+      <p>No vouchers yet.</p>
+      <a href="{% url 'vouchers:voucher_create' %}" class="btn-create" style="display:inline-flex"><i class="fas fa-plus"></i> Create First Voucher</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

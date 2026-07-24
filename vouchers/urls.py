@@ -22,4 +22,11 @@ urlpatterns = [
     # Slot purchase
     path('slots/',     views.slot_history, name='slot_history'),
     path('slots/buy/', views.slot_buy,     name='slot_buy'),
+
+     # Gift Voucher management
+    path('vouchers/',                   views.voucher_list,    name='voucher_list'),
+    path('vouchers/create/',            views.voucher_create,  name='voucher_create'),
+    path('vouchers/<int:pk>/edit/',     views.voucher_edit,    name='voucher_edit'),
+    path('vouchers/<int:pk>/publish/',  views.voucher_publish, name='voucher_publish'),
+    path('vouchers/<int:pk>/pause/',    views.voucher_pause,   name='voucher_pause'),
 ]

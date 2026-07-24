@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherPurchase
-from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
+from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherCategory, VoucherPurchase
+from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, GiftVoucherForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
 
 
 def business_register(request):
@@ -245,3 +245,108 @@ def slot_history(request):
         'business': business,
         'slot_requests': slot_requests,
     })
+
+
+@login_required
+def voucher_list(request):
+    business = get_object_or_404(Business, owner=request.user)
+    vouchers = business.gift_vouchers.exclude(status='deleted').order_by('-created_at')
+    return render(request, 'vouchers/voucher_list.html', {
+        'business': business,
+        'vouchers': vouchers,
+    })
+
+
+@login_required
+def voucher_create(request):
+    business = get_object_or_404(Business, owner=request.user)
+
+    # Block if not approved
+    if business.status != 'approved':
+        messages.error(request, 'Your business must be approved before creating vouchers.')
+        return redirect('vouchers:business_dashboard')
+
+    if request.method == 'POST':
+        form = GiftVoucherForm(business, request.POST, request.FILES)
+        if form.is_valid():
+            voucher = form.save(commit=False)
+            # Set fields that user doesn't fill in manually
+            voucher.business = business
+            voucher.created_by = request.user
+            voucher.status = 'draft'       # Always starts as draft
+            voucher.sold_quantity = 0      # No sales yet
+            voucher.save()
+            form.save_m2m()               # Save applicable_branches (ManyToMany needs this)
+            messages.success(request, f'Voucher "{voucher.voucher_name}" created as Draft.')
+            return redirect('vouchers:voucher_list')
+    else:
+        form = GiftVoucherForm(business)
+
+    return render(request, 'vouchers/voucher_form.html', {
+        'business': business,
+        'form': form,
+        'action': 'Create',
+    })
+
+
+@login_required
+def voucher_edit(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    voucher = get_object_or_404(GiftVoucher, pk=pk, business=business)
+
+    # Can only edit draft or paused vouchers
+    if voucher.status not in ['draft', 'paused']:
+        messages.error(request, 'Only Draft or Paused vouchers can be edited.')
+        return redirect('vouchers:voucher_list')
+
+    if request.method == 'POST':
+        form = GiftVoucherForm(business, request.POST, request.FILES, instance=voucher)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Voucher "{voucher.voucher_name}" updated.')
+            return redirect('vouchers:voucher_list')
+    else:
+        form = GiftVoucherForm(business, instance=voucher)
+
+    return render(request, 'vouchers/voucher_form.html', {
+        'business': business,
+        'form': form,
+        'voucher': voucher,
+        'action': 'Edit',
+    })
+
+
+@login_required
+def voucher_publish(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    voucher = get_object_or_404(GiftVoucher, pk=pk, business=business)
+
+    if business.available_slots <= 0:
+        messages.error(request, f'No slots available. Buy more slots to publish vouchers.')
+        return redirect('vouchers:voucher_list')
+
+    if voucher.status != 'draft':
+        messages.error(request, 'Only Draft vouchers can be published.')
+        return redirect('vouchers:voucher_list')
+
+    from django.utils import timezone
+    voucher.status = 'published'
+    voucher.published_at = timezone.now()
+    voucher.save()
+    messages.success(request, f'"{voucher.voucher_name}" is now live!')
+    return redirect('vouchers:voucher_list')
+
+
+@login_required
+def voucher_pause(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    voucher = get_object_or_404(GiftVoucher, pk=pk, business=business)
+
+    if voucher.status != 'published':
+        messages.error(request, 'Only Published vouchers can be paused.')
+        return redirect('vouchers:voucher_list')
+
+    voucher.status = 'paused'
+    voucher.save()
+    messages.success(request, f'"{voucher.voucher_name}" paused.')
+    return redirect('vouchers:voucher_list')
