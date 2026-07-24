@@ -32,20 +32,19 @@
             </form>
         </div>
         <div class="nav-links">
-            <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
             <a href="/health/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health</a>
             <a href="/vouchers/marketplace/" style="color:#7c3aed"><i class="fas fa-gift"></i> Gift Vouchers</a>
-            {% if not request.user.is_authenticated or request.user.is_employer %}
-                <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
-            {% endif %}
+
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
+                    <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
                     <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 {% else %}
                     <a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>
                     <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 {% endif %}
+
                 {% with biz=request.user.businesses.first %}
                 {% if biz %}
                     <a href="/vouchers/dashboard/" style="color:#7c3aed">
@@ -55,21 +54,36 @@
                     </a>
                 {% endif %}
                 {% endwith %}
+
                 {% if request.user.ad_posts.exists %}
                     <a href="/ads/my-ads/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
                 {% else %}
                     <a href="/ads/post/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 {% endif %}
+
                 {% if request.user.is_staff %}
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
                 {% endif %}
-                {% if request.user.admin_role %}
-                    <a href="/health/admin/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health</a>
-                {% endif %}
-                <a href="/messages/" style="color:#0a66c2"><i class="fas fa-comment-dots"></i> Messages</a>
-                <a href="/profile/edit/" class="btn-signin">My Profile</a>
-                <a href="/logout/">Logout</a>
+
+                <!-- Profile dropdown -->
+                <div class="nav-avatar-wrap">
+                    <button class="nav-avatar-btn" onclick="toggleProfileMenu(event)" aria-label="Profile menu">
+                        <i class="fas fa-user-circle"></i>
+                        <i class="fas fa-chevron-down nav-chevron"></i>
+                    </button>
+                    <div class="nav-profile-drop" id="profileDrop">
+                        <a href="/messages/"><i class="fas fa-comment-dots"></i> Messages</a>
+                        {% if request.user.admin_role %}
+                        <a href="/health/admin/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health Admin</a>
+                        {% endif %}
+                        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> My Profile</a>
+                        <div class="npd-divider"></div>
+                        <a href="/logout/" style="color:#dc2626"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+
             {% else %}
+                <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
                 <a href="/login/?next=/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 <a href="/login/" class="btn-signin">Sign In</a>
                 <a href="/register/" class="btn-join">Join Now</a>
@@ -597,7 +611,40 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 body{padding-bottom:62px}
 </style>
 
+<style>
+/* Profile avatar dropdown */
+.nav-avatar-wrap{position:relative}
+.nav-avatar-btn{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:4px;color:#555;padding:5px 8px;border-radius:20px;transition:background .15s}
+.nav-avatar-btn:hover{background:#f3f4f6;color:#0a66c2}
+.nav-avatar-btn .fa-user-circle{font-size:22px}
+.nav-chevron{font-size:.6rem;transition:transform .2s}
+.nav-avatar-btn.open .nav-chevron{transform:rotate(180deg)}
+.nav-profile-drop{display:none;position:absolute;right:0;top:calc(100% + 6px);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.13);border:1px solid #eee;min-width:170px;z-index:1001;padding:5px 0;animation:dropIn .15s ease}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.nav-profile-drop.open{display:block}
+.nav-profile-drop a{display:flex;align-items:center;gap:9px;padding:9px 16px;color:#374151;text-decoration:none;font-size:13.5px;font-weight:500;transition:background .12s}
+.nav-profile-drop a:hover{background:#f3f4f6;color:#0a66c2}
+.nav-profile-drop a i{width:14px;text-align:center;flex-shrink:0}
+.npd-divider{height:1px;background:#f0f0f0;margin:4px 0}
+</style>
 <script src="{% static 'js/main.js' %}?v=2"></script>
+<script>
+function toggleProfileMenu(e){
+  e.stopPropagation();
+  var btn=e.currentTarget, drop=document.getElementById('profileDrop');
+  var isOpen=drop.classList.contains('open');
+  drop.classList.toggle('open',!isOpen);
+  btn.classList.toggle('open',!isOpen);
+}
+document.addEventListener('click',function(e){
+  var drop=document.getElementById('profileDrop');
+  var btn=document.querySelector('.nav-avatar-btn');
+  if(drop&&!drop.contains(e.target)&&btn&&!btn.contains(e.target)){
+    drop.classList.remove('open');
+    btn.classList.remove('open');
+  }
+});
+</script>
 {% block extra_js %}{% endblock %}
 
 {% if ads_by_type.popup %}
