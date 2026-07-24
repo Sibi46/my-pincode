@@ -61,6 +61,35 @@
   </a>
 </div>
 
+<!-- Voucher Stats -->
+<div class="ap-stats" style="margin-top:1rem">
+  <a href="/vouchers/admin-panel/" class="ap-stat" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);text-decoration:none;border:1.5px solid #ddd6fe">
+    <div class="ap-stat-icon"><i class="fas fa-store" style="color:#7c3aed"></i></div>
+    <h3 style="color:#7c3aed">{{ voucher_total_biz }}</h3>
+    <p style="color:#5b21b6">Active Businesses</p>
+  </a>
+  <a href="/vouchers/admin-panel/" class="ap-stat" style="background:linear-gradient(135deg,{% if voucher_biz_pending %}#fef3c7,#fffbeb{% else %}#f5f3ff,#ede9fe{% endif %});text-decoration:none;border:1.5px solid {% if voucher_biz_pending %}#fcd34d{% else %}#ddd6fe{% endif %}">
+    <div class="ap-stat-icon"><i class="fas fa-hourglass-half" style="color:{% if voucher_biz_pending %}#d97706{% else %}#7c3aed{% endif %}"></i></div>
+    <h3 style="color:{% if voucher_biz_pending %}#d97706{% else %}#7c3aed{% endif %}">{{ voucher_biz_pending }}</h3>
+    <p style="color:{% if voucher_biz_pending %}#92400e{% else %}#5b21b6{% endif %}">Biz Approvals Pending</p>
+  </a>
+  <a href="/vouchers/admin-panel/" class="ap-stat" style="background:linear-gradient(135deg,{% if voucher_slot_pending %}#fef3c7,#fffbeb{% else %}#f5f3ff,#ede9fe{% endif %});text-decoration:none;border:1.5px solid {% if voucher_slot_pending %}#fcd34d{% else %}#ddd6fe{% endif %}">
+    <div class="ap-stat-icon"><i class="fas fa-layer-group" style="color:{% if voucher_slot_pending %}#d97706{% else %}#7c3aed{% endif %}"></i></div>
+    <h3 style="color:{% if voucher_slot_pending %}#d97706{% else %}#7c3aed{% endif %}">{{ voucher_slot_pending }}</h3>
+    <p style="color:{% if voucher_slot_pending %}#92400e{% else %}#5b21b6{% endif %}">Slot Requests Pending</p>
+  </a>
+  <a href="/vouchers/marketplace/" class="ap-stat" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);text-decoration:none;border:1.5px solid #bbf7d0">
+    <div class="ap-stat-icon"><i class="fas fa-gift" style="color:#059669"></i></div>
+    <h3 style="color:#059669">{{ voucher_live }}</h3>
+    <p style="color:#065f46">Live Vouchers</p>
+  </a>
+  <div class="ap-stat" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #bbf7d0">
+    <div class="ap-stat-icon"><i class="fas fa-rupee-sign" style="color:#059669"></i></div>
+    <h3 style="color:#059669">&#8377;{{ voucher_revenue|floatformat:0 }}</h3>
+    <p style="color:#065f46">Voucher Revenue</p>
+  </div>
+</div>
+
 <!-- Quick Actions -->
 <div class="ap-card">
   <div class="ap-card-header"><h3><i class="fas fa-bolt" style="color:#f3a000"></i> Quick Actions</h3></div>
@@ -133,8 +162,83 @@
       <i class="fas fa-bullhorn" style="color:#f3a000"></i>
       <span>Ad Management</span>
     </a>
+    <a href="/vouchers/admin-panel/" class="ap-quick-card" style="{% if voucher_biz_pending or voucher_slot_pending %}border:2px solid #7c3aed;background:#f5f3ff{% endif %}">
+      <i class="fas fa-gift" style="color:#7c3aed"></i>
+      <span>Gift Vouchers
+        {% if voucher_biz_pending %}<br><small style="color:#d97706;font-weight:900">{{ voucher_biz_pending }} biz pending</small>{% endif %}
+        {% if voucher_slot_pending %}<br><small style="color:#d97706;font-weight:900">{{ voucher_slot_pending }} slots pending</small>{% endif %}
+      </span>
+    </a>
+    <a href="/vouchers/marketplace/" class="ap-quick-card">
+      <i class="fas fa-store" style="color:#7c3aed"></i>
+      <span>Voucher Marketplace</span>
+    </a>
   </div>
 </div>
+
+<!-- Gift Voucher Pending Actions -->
+{% if pending_voucher_businesses or pending_voucher_slots %}
+<div class="ap-card">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-gift" style="color:#7c3aed"></i> Gift Voucher — Pending Actions</h3>
+    <a href="/vouchers/admin-panel/" class="ap-btn ap-btn-primary">Full Panel</a>
+  </div>
+
+  {% if pending_voucher_businesses %}
+  <div style="padding:.5rem 0 .25rem;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">
+    Business Approvals
+  </div>
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Business</th><th>Owner</th><th>Category</th><th>City</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for biz in pending_voucher_businesses %}
+        <tr>
+          <td><strong>{{ biz.business_name }}</strong></td>
+          <td>{{ biz.owner.get_full_name|default:biz.owner.username }}</td>
+          <td>{{ biz.category.name }}</td>
+          <td>{{ biz.city }}</td>
+          <td>
+            <form method="post" action="/vouchers/admin-panel/business/{{ biz.pk }}/approve/" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" style="background:#059669;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Approve</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if pending_voucher_slots %}
+  <div style="padding:.75rem 0 .25rem;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em">
+    Slot Requests
+  </div>
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead><tr><th>Business</th><th>Slots</th><th>Amount</th><th>Payment Ref</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for slot in pending_voucher_slots %}
+        <tr>
+          <td><strong>{{ slot.business.business_name }}</strong></td>
+          <td>{{ slot.slots_requested }}</td>
+          <td>&#8377;{{ slot.amount_paid }}</td>
+          <td style="font-family:monospace;font-size:12px">{{ slot.payment_reference }}</td>
+          <td>
+            <form method="post" action="/vouchers/admin-panel/slot/{{ slot.pk }}/approve/" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" style="background:#059669;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Approve</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
 
 <div class="ap-two-col">
 

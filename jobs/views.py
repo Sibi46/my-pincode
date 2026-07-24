@@ -2181,6 +2181,8 @@ def flick_advertise(request, pk):
 
 @super_admin_required
 def super_admin_dashboard(request):
+    from vouchers.models import Business as VoucherBusiness, VoucherSlotPurchase, GiftVoucher, VoucherPurchase
+    from django.db.models import Sum as DjSum
     total_users     = User.objects.count()
     total_jobs      = Job.objects.count()
     active_jobs     = Job.objects.filter(status='active').count()
@@ -2199,6 +2201,22 @@ def super_admin_dashboard(request):
     notifications      = SystemNotification.objects.filter(is_active=True)[:5]
     pending_jobs_count = Job.objects.filter(status='active', is_approved=False).count()
     paid_verify_count  = Job.objects.filter(job_plan='paid_pending').count()
+
+    # Voucher stats
+    voucher_biz_pending  = VoucherBusiness.objects.filter(status='pending').count()
+    voucher_slot_pending = VoucherSlotPurchase.objects.filter(status='pending').count()
+    voucher_total_biz    = VoucherBusiness.objects.filter(status='approved').count()
+    voucher_live         = GiftVoucher.objects.filter(status='published').count()
+    voucher_revenue      = VoucherPurchase.objects.filter(
+        status__in=['paid', 'sent', 'redeemed']
+    ).aggregate(t=DjSum('amount_paid'))['t'] or 0
+    pending_voucher_businesses = VoucherBusiness.objects.filter(
+        status='pending'
+    ).select_related('category', 'owner').order_by('created_at')[:5]
+    pending_voucher_slots = VoucherSlotPurchase.objects.filter(
+        status='pending'
+    ).select_related('business').order_by('requested_at')[:5]
+
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
@@ -2208,6 +2226,13 @@ def super_admin_dashboard(request):
         'industries': industries, 'notifications': notifications,
         'employer_count': employer_count, 'jobseeker_count': jobseeker_count,
         'pending_jobs_count': pending_jobs_count, 'paid_verify_count': paid_verify_count,
+        'voucher_biz_pending': voucher_biz_pending,
+        'voucher_slot_pending': voucher_slot_pending,
+        'voucher_total_biz': voucher_total_biz,
+        'voucher_live': voucher_live,
+        'voucher_revenue': voucher_revenue,
+        'pending_voucher_businesses': pending_voucher_businesses,
+        'pending_voucher_slots': pending_voucher_slots,
     })
 
 
