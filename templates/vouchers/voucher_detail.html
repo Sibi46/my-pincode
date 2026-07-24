@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}{{ voucher.voucher_name }} – MYPINCOD{% endblock %}
+
+{% block extra_css %}
+<style>
+.vd-wrap{max-width:680px;margin:1.5rem auto;padding:0 1rem 3rem}
+.nav-back{display:inline-flex;align-items:center;gap:.4rem;color:#7c3aed;text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem}
+.nav-back:hover{text-decoration:underline}
+
+.vd-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);overflow:hidden}
+.vd-header-img{width:100%;max-height:220px;object-fit:cover;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#d8b4fe;min-height:120px}
+.vd-header-img img{width:100%;max-height:220px;object-fit:cover}
+
+.vd-body{padding:1.4rem}
+.vd-biz{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem}
+.vd-biz-logo{width:36px;height:36px;border-radius:8px;object-fit:cover;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#7c3aed;flex-shrink:0}
+.vd-biz-name{font-size:.82rem;color:#6b7280;font-weight:700}
+.vd-name{font-size:1.3rem;font-weight:900;color:#111;margin-bottom:.3rem}
+.vd-value{font-size:1.8rem;font-weight:900;color:#7c3aed;margin-bottom:.75rem}
+
+.vd-meta-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem}
+.vd-chip{display:inline-flex;align-items:center;gap:.3rem;background:#f3f4f6;color:#374151;padding:.3rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700}
+.vd-chip i{color:#7c3aed}
+
+.vd-section{margin-bottom:1.1rem}
+.vd-section h4{font-size:.8rem;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin:0 0 .4rem}
+.vd-section p{font-size:.88rem;color:#374151;line-height:1.7;margin:0}
+
+.vd-branches{display:flex;flex-direction:column;gap:.4rem}
+.vd-branch{display:flex;align-items:flex-start;gap:.5rem;font-size:.82rem;color:#374151;padding:.5rem .7rem;background:#f9fafb;border-radius:8px}
+.vd-branch i{color:#7c3aed;margin-top:.15rem;flex-shrink:0}
+
+.expired-banner{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:.75rem 1rem;border-radius:10px;font-size:.85rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+
+.btn-buy{display:block;width:100%;padding:.9rem;background:#7c3aed;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;transition:background .15s;margin-top:1rem}
+.btn-buy:hover{background:#6d28d9}
+.btn-buy:disabled,.btn-buy.disabled{background:#d1d5db;color:#9ca3af;cursor:not-allowed}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vd-wrap">
+  <a href="{% url 'vouchers:marketplace' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Back to Marketplace</a>
+
+  <div class="vd-card">
+
+    <!-- Header image -->
+    <div class="vd-header-img">
+      {% if voucher.header_image %}
+        <img src="{{ voucher.header_image.url }}" alt="">
+      {% elif voucher.product_image %}
+        <img src="{{ voucher.product_image.url }}" alt="">
+      {% else %}
+        <i class="fas fa-gift"></i>
+      {% endif %}
+    </div>
+
+    <div class="vd-body">
+
+      <!-- Business -->
+      <div class="vd-biz">
+        {% if voucher.business.logo %}
+          <img src="{{ voucher.business.logo.url }}" class="vd-biz-logo" alt="">
+        {% else %}
+          <div class="vd-biz-logo"><i class="fas fa-store"></i></div>
+        {% endif %}
+        <div class="vd-biz-name">{{ voucher.business.business_name }}</div>
+      </div>
+
+      <div class="vd-name">{{ voucher.voucher_name }}</div>
+      <div class="vd-value">&#8377;{{ voucher.voucher_value }}</div>
+
+      <!-- Meta chips -->
+      <div class="vd-meta-row">
+        <span class="vd-chip"><i class="fas fa-calendar"></i> Valid till {{ voucher.expiry_date|date:"d M Y" }}</span>
+        <span class="vd-chip"><i class="fas fa-ticket-alt"></i> {{ voucher.available_quantity }} left</span>
+        {% if voucher.category %}<span class="vd-chip">{{ voucher.category.icon }} {{ voucher.category.name }}</span>{% endif %}
+      </div>
+
+      {% if is_expired %}
+      <div class="expired-banner"><i class="fas fa-times-circle"></i> This voucher has expired</div>
+      {% endif %}
+
+      <!-- Description -->
+      {% if voucher.description %}
+      <div class="vd-section">
+        <h4>About this Voucher</h4>
+        <p>{{ voucher.description }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Applicable branches -->
+      {% if voucher.applicable_branches.exists %}
+      <div class="vd-section">
+        <h4>Valid At</h4>
+        <div class="vd-branches">
+          {% for branch in voucher.applicable_branches.all %}
+          <div class="vd-branch">
+            <i class="fas fa-store-alt"></i>
+            <div>
+              <strong>{{ branch.branch_name }}</strong><br>
+              {{ branch.address }}{% if branch.pincode %}, {{ branch.pincode }}{% endif %}
+              {% if branch.contact_number %} · {{ branch.contact_number }}{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Terms -->
+      {% if voucher.terms_conditions %}
+      <div class="vd-section">
+        <h4>Terms &amp; Conditions</h4>
+        <p>{{ voucher.terms_conditions }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Buy button -->
+      {% if is_expired or voucher.available_quantity == 0 %}
+        <span class="btn-buy disabled">{% if is_expired %}Expired{% else %}Sold Out{% endif %}</span>
+      {% else %}
+        <a href="#" class="btn-buy"><i class="fas fa-shopping-cart"></i> Buy Now – &#8377;{{ voucher.voucher_value }}</a>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

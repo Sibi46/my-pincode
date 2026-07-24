@@ -29,4 +29,7 @@ urlpatterns = [
     path('vouchers/<int:pk>/edit/',     views.voucher_edit,    name='voucher_edit'),
     path('vouchers/<int:pk>/publish/',  views.voucher_publish, name='voucher_publish'),
     path('vouchers/<int:pk>/pause/',    views.voucher_pause,   name='voucher_pause'),
+    # Marketplace (public)
+    path('marketplace/',          views.marketplace,     name='marketplace'),
+    path('marketplace/<int:pk>/', views.voucher_detail,  name='voucher_detail'),
 ]

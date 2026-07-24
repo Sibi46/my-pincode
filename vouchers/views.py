@@ -350,3 +350,46 @@ def voucher_pause(request, pk):
     voucher.save()
     messages.success(request, f'"{voucher.voucher_name}" paused.')
     return redirect('vouchers:voucher_list')
+
+
+def marketplace(request):
+    pincode  = request.GET.get('pincode', '').strip()
+    category = request.GET.get('category', '').strip()
+
+    from django.utils import timezone
+    today = timezone.now().date()
+
+    vouchers = GiftVoucher.objects.filter(
+        status='published',
+        valid_from__lte=today,
+        expiry_date__gte=today,
+    ).select_related('business', 'category')
+
+    if pincode:
+        from django.db.models import Q
+        vouchers = vouchers.filter(
+            Q(applicable_branches__pincode=pincode) |
+            Q(business__pincode=pincode)
+        ).distinct()
+
+    if category:
+        vouchers = vouchers.filter(category__id=category)
+
+    categories = VoucherCategory.objects.filter(is_active=True)
+
+    return render(request, 'vouchers/marketplace.html', {
+        'vouchers':    vouchers,
+        'categories':  categories,
+        'pincode':     pincode,
+        'category':    category,
+    })
+
+
+def voucher_detail(request, pk):
+    from django.utils import timezone
+    today = timezone.now().date()
+    voucher = get_object_or_404(GiftVoucher, pk=pk, status='published')
+    return render(request, 'vouchers/voucher_detail.html', {
+        'voucher': voucher,
+        'is_expired': voucher.expiry_date < today,
+    })
