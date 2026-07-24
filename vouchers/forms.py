@@ -1,5 +1,5 @@
 from django import forms
-from .models import Business, BusinessCategory, Branch
+from .models import Business, BusinessCategory, Branch, Employee, VoucherSlotPurchase
 
 
 class BusinessRegistrationForm(forms.ModelForm):
@@ -61,3 +61,52 @@ class BranchForm(forms.ModelForm):
                 if not isinstance(field.widget, forms.CheckboxInput):
                     existing = field.widget.attrs.get('class', '')
                     field.widget.attrs['class'] = (existing + ' form-control').strip()
+class EmployeeForm(forms.ModelForm):
+    class Meta:
+        model = Employee
+        fields = ['name', 'mobile', 'email', 'role', 'assigned_branch', 'is_active']
+        widgets = {
+            'name':   forms.TextInput(attrs={'placeholder': 'Full name'}),
+            'mobile': forms.TextInput(attrs={'placeholder': '10-digit mobile number'}),
+            'email':  forms.EmailInput(attrs={'placeholder': 'employee@email.com'}),
+        }
+
+    def __init__(self, business, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['assigned_branch'].queryset = Branch.objects.filter(business=business, is_active=True)
+        self.fields['assigned_branch'].empty_label = '— No specific branch —'
+        self.fields['assigned_branch'].required = False
+        for name, field in self.fields.items():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.Select)):
+                existing = field.widget.attrs.get('class', '')
+                field.widget.attrs['class'] = (existing + ' form-control').strip()
+
+
+SLOT_PACKAGES = [
+    {'id': '5',  'slots': 5,  'price': 999,  'label': '5 Slots',  'per_slot': 199, 'tag': ''},
+    {'id': '10', 'slots': 10, 'price': 1799, 'label': '10 Slots', 'per_slot': 179, 'tag': 'Popular'},
+    {'id': '20', 'slots': 20, 'price': 3299, 'label': '20 Slots', 'per_slot': 164, 'tag': 'Best Value'},
+    {'id': '50', 'slots': 50, 'price': 7499, 'label': '50 Slots', 'per_slot': 149, 'tag': ''},
+]
+
+SLOT_PACKAGE_MAP = {p['id']: p for p in SLOT_PACKAGES}
+
+
+class SlotRequestForm(forms.Form):
+    PACKAGE_CHOICES = [(p['id'], p['label']) for p in SLOT_PACKAGES]
+    package           = forms.ChoiceField(choices=PACKAGE_CHOICES, widget=forms.RadioSelect)
+    payment_reference = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'UPI transaction ID / Bank transfer UTR number',
+            'class': 'form-control',
+        })
+    )
+    notes = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows': 2,
+            'placeholder': 'Any additional notes (optional)',
+            'class': 'form-control',
+        })
+    )

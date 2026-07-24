@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Business, Branch, GiftVoucher, VoucherPurchase
-from .forms import BusinessRegistrationForm, BranchForm
+from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherPurchase
+from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
 
 
 def business_register(request):
@@ -137,3 +137,111 @@ def branch_toggle(request, pk):
     status = 'activated' if branch.is_active else 'deactivated'
     messages.success(request, f'Branch "{branch.branch_name}" {status}.')
     return redirect('vouchers:branch_list')
+@login_required
+def employee_list(request):
+    business = get_object_or_404(Business, owner=request.user)
+    employees = business.employees.select_related('assigned_branch').all()
+    return render(request, 'vouchers/employee_list.html', {
+        'business': business,
+        'employees': employees,
+    })
+
+
+@login_required
+def employee_add(request):
+    business = get_object_or_404(Business, owner=request.user)
+    if business.status != 'approved':
+        messages.error(request, 'Your business must be approved before adding employees.')
+        return redirect('vouchers:business_dashboard')
+
+    if request.method == 'POST':
+        form = EmployeeForm(business, request.POST)
+        if form.is_valid():
+            emp = form.save(commit=False)
+            emp.business = business
+            emp.save()
+            messages.success(request, f'Employee "{emp.name}" added successfully.')
+            return redirect('vouchers:employee_list')
+    else:
+        form = EmployeeForm(business)
+
+    return render(request, 'vouchers/employee_form.html', {
+        'business': business,
+        'form': form,
+        'action': 'Add',
+    })
+
+
+@login_required
+def employee_edit(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    employee = get_object_or_404(Employee, pk=pk, business=business)
+
+    if request.method == 'POST':
+        form = EmployeeForm(business, request.POST, instance=employee)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Employee "{employee.name}" updated.')
+            return redirect('vouchers:employee_list')
+    else:
+        form = EmployeeForm(business, instance=employee)
+
+    return render(request, 'vouchers/employee_form.html', {
+        'business': business,
+        'form': form,
+        'employee': employee,
+        'action': 'Edit',
+    })
+
+
+@login_required
+def employee_toggle(request, pk):
+    business = get_object_or_404(Business, owner=request.user)
+    employee = get_object_or_404(Employee, pk=pk, business=business)
+    employee.is_active = not employee.is_active
+    employee.save()
+    status = 'activated' if employee.is_active else 'deactivated'
+    messages.success(request, f'Employee "{employee.name}" {status}.')
+    return redirect('vouchers:employee_list')
+
+
+@login_required
+def slot_buy(request):
+    business = get_object_or_404(Business, owner=request.user)
+    if business.status != 'approved':
+        messages.error(request, 'Your business must be approved before buying slots.')
+        return redirect('vouchers:business_dashboard')
+
+    if request.method == 'POST':
+        form = SlotRequestForm(request.POST)
+        if form.is_valid():
+            pkg = SLOT_PACKAGE_MAP[form.cleaned_data['package']]
+            VoucherSlotPurchase.objects.create(
+                business=business,
+                purchased_by=request.user,
+                slots_count=pkg['slots'],
+                amount_paid=pkg['price'],
+                payment_reference=form.cleaned_data['payment_reference'],
+                notes=form.cleaned_data.get('notes', ''),
+                status='pending',
+            )
+            messages.success(request, f"Slot request for {pkg['slots']} slots submitted. Admin will approve after payment verification.")
+            return redirect('vouchers:slot_history')
+    else:
+        form = SlotRequestForm()
+
+    return render(request, 'vouchers/slot_buy.html', {
+        'business': business,
+        'form': form,
+        'packages': SLOT_PACKAGES,
+    })
+
+
+@login_required
+def slot_history(request):
+    business = get_object_or_404(Business, owner=request.user)
+    slot_requests = business.slot_purchases.all()
+    return render(request, 'vouchers/slot_history.html', {
+        'business': business,
+        'slot_requests': slot_requests,
+    })

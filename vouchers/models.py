@@ -81,7 +81,8 @@ class Business(models.Model):
 
     @property
     def total_slots_purchased(self):
-        return self.slot_purchases.aggregate(total=models.Sum('slots_count'))['total'] or 0
+        return self.slot_purchases.filter(status='approved').aggregate(
+            total=models.Sum('slots_count'))['total'] or 0
 
     @property
     def total_slots_used(self):
@@ -140,12 +141,19 @@ class Employee(models.Model):
 
 
 class VoucherSlotPurchase(models.Model):
+    STATUS_CHOICES = [
+        ('pending',  'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
     business          = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='slot_purchases')
     purchased_by      = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     slots_count       = models.PositiveIntegerField()
     amount_paid       = models.DecimalField(max_digits=10, decimal_places=2)
     payment_reference = models.CharField(max_length=100, blank=True)
     notes             = models.TextField(blank=True)
+    status            = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     purchased_at      = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -154,7 +162,7 @@ class VoucherSlotPurchase(models.Model):
         ordering = ['-purchased_at']
 
     def __str__(self):
-        return f"{self.business.business_name} – {self.slots_count} slots – Rs.{self.amount_paid}"
+        return f"{self.business.business_name} – {self.slots_count} slots – Rs.{self.amount_paid} ({self.get_status_display()})"
 
 
 class VoucherCategory(models.Model):

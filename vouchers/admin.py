@@ -30,7 +30,7 @@ class SlotPurchaseInline(admin.TabularInline):
     model = VoucherSlotPurchase
     extra = 0
     readonly_fields = ['purchased_at', 'purchased_by']
-    fields = ['slots_count', 'amount_paid', 'payment_reference', 'purchased_at', 'notes']
+    fields = ['slots_count', 'amount_paid', 'payment_reference', 'status', 'purchased_at', 'notes']
 
 
 @admin.register(Business)
@@ -93,10 +93,22 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 @admin.register(VoucherSlotPurchase)
 class VoucherSlotPurchaseAdmin(admin.ModelAdmin):
-    list_display  = ['business', 'slots_count', 'amount_paid', 'payment_reference', 'purchased_at']
-    list_filter   = ['business']
-    search_fields = ['business__business_name', 'payment_reference']
-    readonly_fields = ['purchased_at']
+    list_display   = ['business', 'slots_count', 'amount_paid', 'payment_reference', 'status', 'purchased_at']
+    list_filter    = ['status', 'business']
+    list_editable  = ['status']
+    search_fields  = ['business__business_name', 'payment_reference']
+    readonly_fields = ['purchased_at', 'purchased_by']
+    actions        = ['approve_slots', 'reject_slots']
+
+    @admin.action(description='Approve selected slot requests')
+    def approve_slots(self, request, queryset):
+        updated = queryset.filter(status='pending').update(status='approved')
+        self.message_user(request, f"{updated} slot request(s) approved.")
+
+    @admin.action(description='Reject selected slot requests')
+    def reject_slots(self, request, queryset):
+        updated = queryset.filter(status='pending').update(status='rejected')
+        self.message_user(request, f"{updated} slot request(s) rejected.")
 
 
 @admin.register(VoucherCategory)
