@@ -32,7 +32,8 @@
       <li><i class="fas fa-gift"></i> Start creating Gift Vouchers after approval</li>
     </ul>
 
-    <a href="/" class="btn-home"><i class="fas fa-home"></i> Back to Home</a>
+    <a href="{% url 'vouchers:business_dashboard' %}" class="btn-home" style="margin-right:.6rem"><i class="fas fa-tachometer-alt"></i> Check My Status</a>
+    <a href="/" class="btn-home" style="background:#6b7280"><i class="fas fa-home"></i> Back to Home</a>
   </div>
 </div>
 {% endblock %}
