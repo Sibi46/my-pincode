@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherCategory, VoucherPurchase
+from .models import Business, Branch, Employee, VoucherSlotPurchase, GiftVoucher, VoucherCategory, VoucherPurchase, VoucherRedemption
 from django.db import models as dj_models
-from .forms import BusinessRegistrationForm, BranchForm, EmployeeForm, SlotRequestForm, GiftVoucherForm, VoucherPurchaseForm, SLOT_PACKAGES, SLOT_PACKAGE_MAP
-
 
 def business_register(request):
     """Any logged-in user can register a business."""
@@ -36,29 +35,56 @@ def business_register_success(request):
 
 @login_required
 def business_dashboard(request):
+    from django.utils import timezone
+    from django.db.models import Sum
     business = get_object_or_404(Business, owner=request.user)
 
-    recent_vouchers = GiftVoucher.objects.filter(
-        business=business
-    ).order_by('-created_at')[:5]
+    now = timezone.now()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    recent_purchases = VoucherPurchase.objects.filter(
-        gift_voucher__business=business
-    ).order_by('-purchased_at')[:5]
+    all_vouchers  = GiftVoucher.objects.filter(business=business)
+    all_purchases = VoucherPurchase.objects.filter(gift_voucher__business=business)
+    revenue_qs    = all_purchases.filter(status__in=['paid', 'sent', 'redeemed'])
 
-    total_sales = sum(
-        p.amount_paid for p in
-        VoucherPurchase.objects.filter(
-            gift_voucher__business=business,
-            status__in=['paid', 'sent', 'redeemed']
-        )
-    )
+    voucher_stats = {
+        'total':     all_vouchers.count(),
+        'published': all_vouchers.filter(status='published').count(),
+        'draft':     all_vouchers.filter(status='draft').count(),
+        'paused':    all_vouchers.filter(status='paused').count(),
+    }
+
+    purchase_stats = {
+        'total':    all_purchases.count(),
+        'paid':     all_purchases.filter(status='paid').count(),
+        'sent':     all_purchases.filter(status='sent').count(),
+        'redeemed': all_purchases.filter(status='redeemed').count(),
+    }
+
+    total_revenue = revenue_qs.aggregate(t=Sum('amount_paid'))['t'] or 0
+    month_revenue = revenue_qs.filter(
+        purchased_at__gte=month_start
+    ).aggregate(t=Sum('amount_paid'))['t'] or 0
+
+    slot_pending = VoucherSlotPurchase.objects.filter(
+        business=business, status='pending'
+    ).count()
+
+    recent_vouchers    = all_vouchers.order_by('-created_at')[:5]
+    recent_purchases   = all_purchases.select_related('gift_voucher').order_by('-purchased_at')[:8]
+    recent_redemptions = VoucherRedemption.objects.filter(
+        purchase__gift_voucher__business=business
+    ).select_related('purchase', 'purchase__gift_voucher').order_by('-redeemed_at')[:5]
 
     context = {
-        'business': business,
-        'recent_vouchers': recent_vouchers,
-        'recent_purchases': recent_purchases,
-        'total_sales': total_sales,
+        'business':           business,
+        'voucher_stats':      voucher_stats,
+        'purchase_stats':     purchase_stats,
+        'total_revenue':      total_revenue,
+        'month_revenue':      month_revenue,
+        'slot_pending':       slot_pending,
+        'recent_vouchers':    recent_vouchers,
+        'recent_purchases':   recent_purchases,
+        'recent_redemptions': recent_redemptions,
     }
     return render(request, 'vouchers/business_dashboard.html', context)
 
@@ -461,7 +487,7 @@ def voucher_purchase(request, pk):
 
             # Increment sold quantity
             GiftVoucher.objects.filter(pk=voucher.pk).update(
-                sold_quantity=models.F('sold_quantity') + 1
+                sold_quantity=dj_models.F('sold_quantity') + 1
             )
 
             return redirect('vouchers:purchase_confirm', pk=purchase.pk)
@@ -479,3 +505,210 @@ def purchase_confirm(request, pk):
     return render(request, 'vouchers/purchase_confirm.html', {
         'purchase': purchase,
     })
+
+
+def _send_otp_email(purchase):
+    from django.core.mail import send_mail
+    otp = f"{random.randint(100000, 999999)}"
+    from django.utils import timezone
+    purchase.otp = otp
+    purchase.otp_generated_at = timezone.now()
+    purchase.save(update_fields=['otp', 'otp_generated_at'])
+    send_mail(
+        subject='Your Gift Voucher OTP – MYPINCOD',
+        message=(
+            f"Hello {purchase.receiver_name},\n\n"
+            f"Your redemption OTP for voucher {purchase.voucher_code} is:\n\n"
+            f"  {otp}\n\n"
+            f"This OTP is valid for 10 minutes. Share it with the store staff.\n\n"
+            f"– MYPINCOD Team"
+        ),
+        from_email=None,
+        recipient_list=[purchase.receiver_email],
+        fail_silently=True,
+    )
+    return otp
+
+
+@login_required
+def redeem_lookup(request):
+    error = None
+    if request.method == 'POST':
+        code = request.POST.get('voucher_code', '').strip().upper()
+        try:
+            purchase = VoucherPurchase.objects.select_related(
+                'gift_voucher', 'gift_voucher__business'
+            ).get(voucher_code=code)
+            if purchase.status == 'redeemed':
+                error = 'This voucher has already been redeemed.'
+            elif purchase.status in ['cancelled', 'expired']:
+                error = f'This voucher is {purchase.status}.'
+            elif purchase.status == 'pending':
+                error = 'Payment not completed for this voucher.'
+            else:
+                return redirect('vouchers:redeem_verify', pk=purchase.pk)
+        except VoucherPurchase.DoesNotExist:
+            error = 'Voucher code not found. Please check and try again.'
+
+    return render(request, 'vouchers/redeem_lookup.html', {'error': error})
+
+
+@login_required
+def redeem_send_otp(request, pk):
+    purchase = get_object_or_404(VoucherPurchase, pk=pk)
+    if purchase.status not in ['paid', 'sent']:
+        messages.error(request, 'Cannot send OTP for this voucher.')
+        return redirect('vouchers:redeem_lookup')
+    _send_otp_email(purchase)
+    messages.success(request, f'OTP sent to {purchase.receiver_email}')
+    return redirect('vouchers:redeem_verify', pk=pk)
+
+
+@login_required
+def redeem_verify(request, pk):
+    from django.utils import timezone
+    purchase = get_object_or_404(
+        VoucherPurchase.objects.select_related('gift_voucher', 'gift_voucher__business'),
+        pk=pk
+    )
+
+    if purchase.status == 'redeemed':
+        messages.error(request, 'This voucher is already redeemed.')
+        return redirect('vouchers:redeem_lookup')
+
+    error = None
+
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+
+        # Check OTP exists
+        if not purchase.otp:
+            error = 'OTP not sent yet. Please send OTP first.'
+
+        # Check OTP expiry (10 minutes)
+        elif purchase.otp_generated_at:
+            age = (timezone.now() - purchase.otp_generated_at).seconds
+            if age > 600:
+                error = 'OTP has expired. Please send a new OTP.'
+            elif entered_otp != purchase.otp:
+                error = 'Incorrect OTP. Please try again.'
+            else:
+                # OTP correct — redeem
+                now = timezone.now()
+                purchase.status = 'redeemed'
+                purchase.save(update_fields=['status'])
+
+                VoucherRedemption.objects.create(
+                    purchase=purchase,
+                    branch=None,
+                    redeemed_by=request.user,
+                    otp_sent_at=purchase.otp_generated_at,
+                    otp_verified_at=now,
+                )
+
+                return render(request, 'vouchers/redeem_success.html', {
+                    'purchase': purchase,
+                })
+        else:
+            error = 'OTP not sent yet. Please send OTP first.'
+
+    return render(request, 'vouchers/redeem_verify.html', {
+        'purchase': purchase,
+        'error': error,
+    })
+
+
+@staff_member_required
+def admin_dashboard(request):
+    from django.db.models import Sum
+    from django.utils import timezone
+
+    now = timezone.now()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    businesses    = Business.objects.all()
+    all_purchases = VoucherPurchase.objects.filter(status__in=['paid', 'sent', 'redeemed'])
+
+    biz_stats = {
+        'total':     businesses.count(),
+        'pending':   businesses.filter(status='pending').count(),
+        'approved':  businesses.filter(status='approved').count(),
+        'suspended': businesses.filter(status='suspended').count(),
+    }
+
+    slot_stats = {
+        'pending':  VoucherSlotPurchase.objects.filter(status='pending').count(),
+        'approved': VoucherSlotPurchase.objects.filter(status='approved').count(),
+    }
+
+    voucher_stats = {
+        'total':     GiftVoucher.objects.count(),
+        'published': GiftVoucher.objects.filter(status='published').count(),
+    }
+
+    total_revenue = all_purchases.aggregate(t=Sum('amount_paid'))['t'] or 0
+    month_revenue = all_purchases.filter(
+        purchased_at__gte=month_start
+    ).aggregate(t=Sum('amount_paid'))['t'] or 0
+    total_redemptions = VoucherRedemption.objects.count()
+
+    pending_businesses = businesses.filter(status='pending').select_related(
+        'category', 'owner'
+    ).order_by('created_at')
+
+    pending_slots = VoucherSlotPurchase.objects.filter(status='pending').select_related(
+        'business'
+    ).order_by('requested_at')
+
+    context = {
+        'biz_stats':          biz_stats,
+        'slot_stats':         slot_stats,
+        'voucher_stats':      voucher_stats,
+        'total_revenue':      total_revenue,
+        'month_revenue':      month_revenue,
+        'total_redemptions':  total_redemptions,
+        'pending_businesses': pending_businesses,
+        'pending_slots':      pending_slots,
+    }
+    return render(request, 'vouchers/admin_dashboard.html', context)
+
+
+@staff_member_required
+def admin_approve_business(request, pk):
+    if request.method == 'POST':
+        biz = get_object_or_404(Business, pk=pk)
+        biz.status = 'approved'
+        biz.save()
+        messages.success(request, f'"{biz.business_name}" approved.')
+    return redirect('vouchers:admin_dashboard')
+
+
+@staff_member_required
+def admin_reject_business(request, pk):
+    if request.method == 'POST':
+        biz = get_object_or_404(Business, pk=pk)
+        biz.status = 'rejected'
+        biz.rejection_reason = request.POST.get('reason', '').strip()
+        biz.save()
+        messages.success(request, f'"{biz.business_name}" rejected.')
+    return redirect('vouchers:admin_dashboard')
+
+
+@staff_member_required
+def admin_approve_slot(request, pk):
+    if request.method == 'POST':
+        slot = get_object_or_404(VoucherSlotPurchase, pk=pk)
+        slot.status = 'approved'
+        slot.save()
+        messages.success(request, f'Slot request #{slot.pk} approved ({slot.slots_requested} slots).')
+    return redirect('vouchers:admin_dashboard')
+
+
+@staff_member_required
+def admin_reject_slot(request, pk):
+    if request.method == 'POST':
+        slot = get_object_or_404(VoucherSlotPurchase, pk=pk)
+        slot.status = 'rejected'
+        slot.save()
+        messages.success(request, f'Slot request #{slot.pk} rejected.')
+    return redirect('vouchers:admin_dashboard')

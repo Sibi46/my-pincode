@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard – MYPINCOD{% endblock %}
+
+{% block extra_css %}
+<style>
+.adm-hero{background:linear-gradient(135deg,#111827,#1f2937);color:#fff;padding:1.4rem 1rem}
+.adm-hero-inner{max-width:960px;margin:0 auto}
+.adm-hero h1{margin:0;font-size:1.1rem;font-weight:900}
+.adm-hero p{margin:.2rem 0 0;font-size:.8rem;opacity:.6}
+.adm-wrap{max-width:960px;margin:0 auto;padding:1.2rem 1rem 3rem}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-bottom:1.2rem}
+.stat-card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);padding:1rem .9rem;text-align:center;border-top:3px solid transparent}
+.stat-card.indigo{border-top-color:#4f46e5}
+.stat-card.green{border-top-color:#059669}
+.stat-card.blue{border-top-color:#2563eb}
+.stat-card.amber{border-top-color:#d97706}
+.stat-card.rose{border-top-color:#e11d48}
+.stat-num{font-size:1.65rem;font-weight:900;line-height:1}
+.stat-num.indigo{color:#4f46e5}
+.stat-num.green{color:#059669}
+.stat-num.blue{color:#2563eb}
+.stat-num.amber{color:#d97706}
+.stat-num.rose{color:#e11d48}
+.stat-label{font-size:.7rem;color:#6b7280;margin-top:.3rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+
+.mini-stats{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem}
+.mini-stat{background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.07);padding:.55rem .9rem;font-size:.78rem;display:flex;align-items:center;gap:.4rem;color:#374151;font-weight:700}
+.mini-stat .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.adm-section{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:1rem;overflow:hidden}
+.adm-section-head{padding:.65rem 1.1rem;background:#1f2937;color:#fff;display:flex;align-items:center;justify-content:space-between}
+.adm-section-head h3{margin:0;font-size:.84rem;font-weight:800}
+.adm-section-head .badge-count{background:rgba(255,255,255,.15);padding:.15rem .55rem;border-radius:10px;font-size:.72rem;font-weight:700}
+
+.msg-bar{padding:.7rem 1.1rem;font-size:.83rem;border-bottom:1px solid #f3f4f6}
+.msg-bar.success{background:#d1fae5;color:#065f46}
+.msg-bar.error{background:#fee2e2;color:#991b1b}
+
+table.adm-table{width:100%;border-collapse:collapse;font-size:.81rem}
+.adm-table th{padding:.45rem .9rem;text-align:left;color:#6b7280;font-weight:700;border-bottom:1px solid #f3f4f6;font-size:.72rem;text-transform:uppercase}
+.adm-table td{padding:.6rem .9rem;border-bottom:1px solid #f9fafb;color:#374151;vertical-align:top}
+.adm-table tr:last-child td{border-bottom:none}
+
+.badge{padding:.2rem .55rem;border-radius:8px;font-size:.7rem;font-weight:700;white-space:nowrap}
+.badge-pending{background:#fef3c7;color:#92400e}
+.badge-approved{background:#d1fae5;color:#065f46}
+.badge-rejected{background:#fee2e2;color:#991b1b}
+.badge-suspended{background:#fee2e2;color:#991b1b}
+
+.btn-approve{background:#059669;color:#fff;border:none;padding:.35rem .8rem;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn-approve:hover{background:#047857}
+.btn-reject-toggle{background:#fee2e2;color:#991b1b;border:none;padding:.35rem .8rem;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer}
+.btn-reject-toggle:hover{background:#fecaca}
+
+.reject-form{display:none;margin-top:.5rem;background:#fff8f8;border:1px solid #fca5a5;border-radius:8px;padding:.65rem .75rem}
+.reject-form.open{display:block}
+.reject-form textarea{width:100%;border:1px solid #d1d5db;border-radius:6px;padding:.4rem .6rem;font-size:.78rem;resize:vertical;box-sizing:border-box;margin-bottom:.4rem}
+.reject-form button{background:#dc2626;color:#fff;border:none;padding:.35rem .8rem;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer}
+
+.empty-row td{text-align:center;color:#9ca3af;font-size:.8rem;padding:1.8rem}
+.sub-text{font-size:.72rem;color:#6b7280;margin-top:.1rem}
+.mono{font-family:monospace;font-size:.78rem;color:#4f46e5}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="adm-hero">
+  <div class="adm-hero-inner">
+    <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+    <p>Platform-wide overview — MYPINCOD Gift Vouchers</p>
+  </div>
+</div>
+
+<div class="adm-wrap">
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="adm-section" style="margin-bottom:.75rem">
+      <div class="msg-bar success"><i class="fas fa-check-circle"></i> {{ msg }}</div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Platform Stats -->
+  <div class="stat-grid">
+    <div class="stat-card indigo">
+      <div class="stat-num indigo">{{ biz_stats.total }}</div>
+      <div class="stat-label">Total Businesses</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num green">&#8377;{{ total_revenue|floatformat:0 }}</div>
+      <div class="stat-label">Total Revenue</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-num blue">&#8377;{{ month_revenue|floatformat:0 }}</div>
+      <div class="stat-label">This Month</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num amber">{{ voucher_stats.published }}</div>
+      <div class="stat-label">Live Vouchers</div>
+    </div>
+    <div class="stat-card rose">
+      <div class="stat-num rose">{{ total_redemptions }}</div>
+      <div class="stat-label">Redemptions</div>
+    </div>
+  </div>
+
+  <!-- Business breakdown -->
+  <div class="mini-stats">
+    <div class="mini-stat"><span class="dot" style="background:#4f46e5"></span>{{ biz_stats.total }} Businesses</div>
+    <div class="mini-stat"><span class="dot" style="background:#d97706"></span>{{ biz_stats.pending }} Pending</div>
+    <div class="mini-stat"><span class="dot" style="background:#059669"></span>{{ biz_stats.approved }} Approved</div>
+    <div class="mini-stat"><span class="dot" style="background:#dc2626"></span>{{ biz_stats.suspended }} Suspended</div>
+    <div class="mini-stat"><span class="dot" style="background:#6b7280"></span>{{ voucher_stats.total }} Total Vouchers</div>
+    <div class="mini-stat"><span class="dot" style="background:#d97706"></span>{{ slot_stats.pending }} Slot Requests Pending</div>
+  </div>
+
+  <!-- Pending Businesses -->
+  <div class="adm-section">
+    <div class="adm-section-head">
+      <h3><i class="fas fa-store"></i> Pending Business Approvals</h3>
+      <span class="badge-count">{{ biz_stats.pending }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>Owner</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Registered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for biz in pending_businesses %}
+          <tr>
+            <td>
+              <strong>{{ biz.business_name }}</strong>
+              {% if biz.mobile %}<div class="sub-text"><i class="fas fa-phone"></i> {{ biz.mobile }}</div>{% endif %}
+            </td>
+            <td>{{ biz.owner.get_full_name|default:biz.owner.username }}</td>
+            <td>{{ biz.category.name }}</td>
+            <td>{{ biz.city }}, {{ biz.state }}<div class="sub-text">{{ biz.pincode }}</div></td>
+            <td style="font-size:.75rem;color:#6b7280;white-space:nowrap">{{ biz.created_at|date:"d M Y" }}</td>
+            <td style="min-width:160px">
+              <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                <form method="post" action="{% url 'vouchers:admin_approve_business' biz.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-approve"><i class="fas fa-check"></i> Approve</button>
+                </form>
+                <button class="btn-reject-toggle" onclick="toggleReject('biz-{{ biz.pk }}')">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+              </div>
+              <div class="reject-form" id="biz-{{ biz.pk }}">
+                <form method="post" action="{% url 'vouchers:admin_reject_business' biz.pk %}">
+                  {% csrf_token %}
+                  <textarea name="reason" rows="2" placeholder="Reason for rejection (shown to business owner)…"></textarea>
+                  <button type="submit"><i class="fas fa-times-circle"></i> Confirm Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr class="empty-row"><td colspan="6"><i class="fas fa-check-circle" style="color:#059669"></i> No pending business approvals</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pending Slot Requests -->
+  <div class="adm-section">
+    <div class="adm-section-head">
+      <h3><i class="fas fa-layer-group"></i> Pending Slot Requests</h3>
+      <span class="badge-count">{{ slot_stats.pending }}</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Business</th>
+            <th>Slots</th>
+            <th>Amount</th>
+            <th>Payment Ref</th>
+            <th>Requested</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for slot in pending_slots %}
+          <tr>
+            <td><strong>{{ slot.business.business_name }}</strong></td>
+            <td><strong>{{ slot.slots_requested }}</strong> slots</td>
+            <td>&#8377;{{ slot.amount_paid }}</td>
+            <td class="mono">{{ slot.payment_reference }}</td>
+            <td style="font-size:.75rem;color:#6b7280;white-space:nowrap">{{ slot.requested_at|date:"d M Y" }}</td>
+            <td>
+              <div style="display:flex;gap:.4rem">
+                <form method="post" action="{% url 'vouchers:admin_approve_slot' slot.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-approve"><i class="fas fa-check"></i> Approve</button>
+                </form>
+                <form method="post" action="{% url 'vouchers:admin_reject_slot' slot.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-reject-toggle"><i class="fas fa-times"></i> Reject</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr class="empty-row"><td colspan="6"><i class="fas fa-check-circle" style="color:#059669"></i> No pending slot requests</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:1.5rem">
+    <a href="/admin/" style="color:#4f46e5;font-size:.82rem;font-weight:700;text-decoration:none">
+      <i class="fas fa-cog"></i> Full Django Admin →
+    </a>
+  </div>
+
+</div>
+
+<script>
+function toggleReject(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+</script>
+{% endblock %}

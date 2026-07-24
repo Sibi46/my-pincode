@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Verify OTP – {{ purchase.voucher_code }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.rv-wrap{max-width:520px;margin:2rem auto;padding:0 1rem 3rem}
+.nav-back{display:inline-flex;align-items:center;gap:.4rem;color:#7c3aed;text-decoration:none;font-size:.82rem;font-weight:700;margin-bottom:1rem}
+.rv-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);overflow:hidden}
+.rv-card-head{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:1.2rem 1.5rem}
+.rv-card-head h2{margin:0;font-size:1rem;font-weight:900}
+.rv-card-head p{margin:.2rem 0 0;font-size:.78rem;opacity:.8}
+.rv-card-body{padding:1.4rem}
+
+.voucher-info{background:#f8f7ff;border-radius:10px;padding:1rem;margin-bottom:1.2rem}
+.vi-row{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid #ede9fe;font-size:.82rem}
+.vi-row:last-child{border-bottom:none}
+.vi-label{color:#6b7280;font-weight:700}
+.vi-val{color:#111;font-weight:700}
+.vi-code{font-family:monospace;font-size:.9rem;color:#7c3aed;letter-spacing:.05em}
+
+.otp-section{margin-bottom:1.2rem}
+.otp-section label{display:block;font-size:.8rem;font-weight:700;color:#374151;margin-bottom:.4rem}
+.otp-input{width:100%;padding:.75rem;border:2px solid #d1d5db;border-radius:10px;font-size:1.4rem;font-weight:900;letter-spacing:.2em;text-align:center;box-sizing:border-box;font-family:monospace;transition:border-color .15s}
+.otp-input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+
+.error-box{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;border-radius:8px;padding:.65rem 1rem;font-size:.83rem;margin-bottom:1rem}
+.success-msg{background:#d1fae5;border:1px solid #6ee7b7;color:#065f46;padding:.5rem 1rem;border-radius:8px;font-size:.83rem;margin-bottom:.8rem}
+
+.btn-verify{display:block;width:100%;padding:.8rem;background:#059669;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;transition:background .15s;margin-bottom:.6rem}
+.btn-verify:hover{background:#047857}
+.btn-send-otp{display:block;width:100%;padding:.7rem;background:#f3f4f6;color:#374151;border:none;border-radius:10px;font-size:.85rem;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;transition:background .15s}
+.btn-send-otp:hover{background:#e5e7eb}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rv-wrap">
+  <a href="{% url 'vouchers:redeem_lookup' %}" class="nav-back"><i class="fas fa-arrow-left"></i> Back</a>
+
+  <div class="rv-card">
+    <div class="rv-card-head">
+      <h2><i class="fas fa-shield-alt"></i> OTP Verification</h2>
+      <p>Send OTP to receiver, then enter it below</p>
+    </div>
+    <div class="rv-card-body">
+
+      <!-- Voucher Info -->
+      <div class="voucher-info">
+        <div class="vi-row"><span class="vi-label">Code</span><span class="vi-code">{{ purchase.voucher_code }}</span></div>
+        <div class="vi-row"><span class="vi-label">Voucher</span><span class="vi-val">{{ purchase.gift_voucher.voucher_name }}</span></div>
+        <div class="vi-row"><span class="vi-label">Value</span><span class="vi-val" style="color:#7c3aed">&#8377;{{ purchase.amount_paid }}</span></div>
+        <div class="vi-row"><span class="vi-label">Receiver</span><span class="vi-val">{{ purchase.receiver_name }}</span></div>
+        <div class="vi-row"><span class="vi-label">Receiver Email</span><span class="vi-val">{{ purchase.receiver_email }}</span></div>
+      </div>
+
+      {% if messages %}
+        {% for msg in messages %}
+        <div class="success-msg"><i class="fas fa-check-circle"></i> {{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+
+      {% if error %}
+      <div class="error-box"><i class="fas fa-times-circle"></i> {{ error }}</div>
+      {% endif %}
+
+      <!-- OTP Entry -->
+      <form method="post">
+        {% csrf_token %}
+        <div class="otp-section">
+          <label>Enter OTP (shared by customer)</label>
+          <input type="text" name="otp" class="otp-input" placeholder="------" maxlength="6" autocomplete="off">
+        </div>
+        <button type="submit" class="btn-verify"><i class="fas fa-check-circle"></i> Verify &amp; Redeem</button>
+      </form>
+
+      <!-- Send OTP button -->
+      <a href="{% url 'vouchers:redeem_send_otp' purchase.pk %}" class="btn-send-otp">
+        <i class="fas fa-paper-plane"></i>
+        {% if purchase.otp %}Resend OTP{% else %}Send OTP to Receiver{% endif %}
+      </a>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

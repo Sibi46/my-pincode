@@ -1,0 +1,39 @@
+
+{% extends 'base.html' %}
+{% block title %}Redeemed Successfully{% endblock %}
+
+{% block extra_css %}
+<style>
+.rs-wrap{max-width:440px;margin:3rem auto;padding:0 1rem 3rem;text-align:center}
+.rs-icon{font-size:4rem;margin-bottom:.75rem}
+.rs-card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:2rem 1.5rem}
+.rs-card h2{margin:0 0 .3rem;font-size:1.3rem;font-weight:900;color:#059669}
+.rs-card p{font-size:.85rem;color:#6b7280;margin-bottom:1.5rem}
+.rs-info{background:#f0fdf4;border-radius:10px;padding:1rem;margin-bottom:1.5rem;text-align:left}
+.rs-row{display:flex;justify-content:space-between;padding:.3rem 0;font-size:.82rem;border-bottom:1px solid #dcfce7}
+.rs-row:last-child{border-bottom:none}
+.rs-label{color:#6b7280;font-weight:700}
+.rs-val{color:#111;font-weight:700}
+.btn-another{display:inline-block;background:#7c3aed;color:#fff;padding:.65rem 1.8rem;border-radius:22px;font-weight:700;text-decoration:none;font-size:.9rem}
+.btn-another:hover{background:#6d28d9}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rs-wrap">
+  <div class="rs-icon">✅</div>
+  <div class="rs-card">
+    <h2>Redeemed Successfully!</h2>
+    <p>The gift voucher has been verified and redeemed.</p>
+
+    <div class="rs-info">
+      <div class="rs-row"><span class="rs-label">Voucher Code</span><span class="rs-val" style="font-family:monospace;color:#7c3aed">{{ purchase.voucher_code }}</span></div>
+      <div class="rs-row"><span class="rs-label">Voucher</span><span class="rs-val">{{ purchase.gift_voucher.voucher_name }}</span></div>
+      <div class="rs-row"><span class="rs-label">Value</span><span class="rs-val">&#8377;{{ purchase.amount_paid }}</span></div>
+      <div class="rs-row"><span class="rs-label">Customer</span><span class="rs-val">{{ purchase.receiver_name }}</span></div>
+    </div>
+
+    <a href="{% url 'vouchers:redeem_lookup' %}" class="btn-another"><i class="fas fa-qrcode"></i> Redeem Another</a>
+  </div>
+</div>
+{% endblock %}

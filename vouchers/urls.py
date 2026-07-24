@@ -35,5 +35,14 @@ urlpatterns = [
       # Customer purchase
     path('buy/<int:pk>/',     views.voucher_purchase,  name='voucher_purchase'),
     path('confirm/<int:pk>/', views.purchase_confirm,  name='purchase_confirm'),
-
+  # Redemption
+    path('redeem/',                  views.redeem_lookup,    name='redeem_lookup'),
+    path('redeem/<int:pk>/send-otp/', views.redeem_send_otp, name='redeem_send_otp'),
+    path('redeem/<int:pk>/verify/',   views.redeem_verify,   name='redeem_verify'),
+     # Admin panel
+    path('admin-panel/',                             views.admin_dashboard,        name='admin_dashboard'),
+    path('admin-panel/business/<int:pk>/approve/',   views.admin_approve_business, name='admin_approve_business'),
+    path('admin-panel/business/<int:pk>/reject/',    views.admin_reject_business,  name='admin_reject_business'),
+    path('admin-panel/slot/<int:pk>/approve/',       views.admin_approve_slot,     name='admin_approve_slot'),
+    path('admin-panel/slot/<int:pk>/reject/',        views.admin_reject_slot,      name='admin_reject_slot'),
 ]
