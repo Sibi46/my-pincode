@@ -215,8 +215,8 @@ a{text-decoration:none;color:inherit}
       </form>
     </div>
     <div class="nav-links">
-      <a href="/health/" style="color:#16a34a;font-weight:700;border:1.5px solid #16a34a;padding:6px 12px;border-radius:8px;font-size:13px"><i class="fas fa-leaf"></i> Health</a>
-      <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;border:1.5px solid #7c3aed;padding:6px 12px;border-radius:8px;font-size:13px"><i class="fas fa-gift"></i> Gift Vouchers</a>
+      <a href="/health/" style="color:#16a34a;font-weight:700;border:1.5px solid #16a34a;padding:6px 12px;border-radius:8px;font-size:13px;display:none"><i class="fas fa-leaf"></i> Health</a>
+      <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;border:1.5px solid #7c3aed;padding:6px 12px;border-radius:8px;font-size:13px;display:none"><i class="fas fa-gift"></i> Gift Vouchers</a>
       {% if not request.user.is_authenticated or request.user.is_employer %}
       <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
       {% endif %}
@@ -238,8 +238,8 @@ a{text-decoration:none;color:inherit}
     </div>
   </div>
   <div class="mob-menu" id="mobMenu">
-    <a href="/health/" style="color:#16a34a;font-weight:700"><i class="fas fa-leaf"></i> Healthy Food Guide</a>
-    <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700"><i class="fas fa-gift"></i> Gift Vouchers</a>
+    <a href="/health/" style="color:#16a34a;font-weight:700;display:none"><i class="fas fa-leaf"></i> Healthy Food Guide</a>
+    <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;display:none"><i class="fas fa-gift"></i> Gift Vouchers</a>
     {% if not request.user.is_authenticated or request.user.is_employer %}
     <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
     {% endif %}
@@ -571,9 +571,17 @@ var olxAdCur = 0;
   </div>
   <div class="footer-bottom">
     <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
-    <button class="admin-footer-btn" onclick="openAdminPanel()" title="Admin Panel">
-      <i class="fas fa-shield-alt"></i>
-    </button>
+    <div style="display:flex;align-items:center;gap:4px">
+      <a href="/health/" class="admin-footer-btn" title="Health Guide" style="display:inline-flex;align-items:center;color:rgba(255,255,255,.25);text-decoration:none">
+        <i class="fas fa-heartbeat"></i>
+      </a>
+      <a href="/vouchers/marketplace/" class="admin-footer-btn" title="Gift Vouchers" style="display:inline-flex;align-items:center;color:rgba(255,255,255,.25);text-decoration:none">
+        <i class="fas fa-gift"></i>
+      </a>
+      <button class="admin-footer-btn" onclick="openAdminPanel()" title="Admin Panel">
+        <i class="fas fa-shield-alt"></i>
+      </button>
+    </div>
   </div>
 </footer>
 
@@ -835,7 +843,8 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 .ob-prog-dot.on{background:#fff}
 .ob-body{padding:22px}
 .ob-title{font-size:15px;font-weight:800;color:#111;text-align:center;margin-bottom:16px}
-.ob-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+.ob-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+.ob-type-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;max-width:66%;margin-left:auto;margin-right:auto}
 .ob-type-btn{border:2px solid #dde1ea;border-radius:14px;background:#fff;padding:18px 8px;cursor:pointer;text-align:center;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:9px}
 .ob-type-btn i{font-size:26px}
 .ob-type-btn span{font-size:12px;font-weight:700;color:#111}
@@ -845,6 +854,10 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 .ob-type-btn:hover,.ob-type-btn.sel{border-color:#0a66c2;background:#f0f7ff}
 .ob-type-btn.post-btn:hover,.ob-type-btn.post-btn.sel{border-color:#f3a000;background:#fff8eb}
 .ob-type-btn.ads-btn:hover,.ob-type-btn.ads-btn.sel{border-color:#2e7d32;background:#f1f8e9}
+.ob-type-btn.health-btn i{color:#059669}
+.ob-type-btn.health-btn:hover,.ob-type-btn.health-btn.sel{border-color:#059669;background:#f0fdf4}
+.ob-type-btn.voucher-btn i{color:#7c3aed}
+.ob-type-btn.voucher-btn:hover,.ob-type-btn.voucher-btn.sel{border-color:#7c3aed;background:#faf5ff}
 .ob-collar-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
 .ob-collar-btn{border:2px solid #dde1ea;border-radius:12px;background:#fff;padding:16px 10px;cursor:pointer;text-align:center;transition:.18s;display:flex;flex-direction:column;align-items:center;gap:8px}
 .ob-collar-btn i{font-size:22px}
@@ -907,8 +920,16 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
             <i class="fas fa-briefcase"></i><span>Post a Job</span>
           </a>
           <a class="ob-type-btn ads-btn" href="/register/?type=company" style="text-decoration:none">
-            <i class="fas fa-bullhorn"></i><span>Post Ads</span>
+            <i class="fas fa-bullhorn"></i><span>Promote Business</span>
           </a>
+        </div>
+        <div class="ob-type-row2">
+          <button class="ob-type-btn health-btn" onclick="obChoose('health')">
+            <i class="fas fa-heartbeat"></i><span>Health</span>
+          </button>
+          <button class="ob-type-btn voucher-btn" onclick="obChoose('voucher')">
+            <i class="fas fa-gift"></i><span>Gift Voucher</span>
+          </button>
         </div>
 
         <!-- Already have account -->
@@ -1003,6 +1024,27 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
           <i class="fas fa-check-circle"></i> Create My Account
         </button>
         <button class="ob-back" onclick="obGoStep(1)">← Back</button>
+      </div>
+
+      <!-- Step CS: Coming Soon (Health & Gift Voucher) -->
+      <div class="ob-step" id="obStepCS">
+        <div style="text-align:center;padding:10px 0 18px">
+          <div id="obCSIcon" style="font-size:3rem;margin-bottom:12px"></div>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:#fff7ed;border:1.5px solid #f3a000;color:#b45309;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px">
+            <i class="fas fa-clock"></i> Launching August 15, 2026
+          </div>
+          <h3 style="font-size:17px;font-weight:900;color:#111;margin-bottom:8px" id="obCSTitle"></h3>
+          <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px" id="obCSMsg"></p>
+          <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:8px;color:#065f46;font-size:13px;font-weight:700">
+              <i class="fas fa-check-circle" style="color:#059669"></i>
+              You're on the early access list! We'll notify you on launch day.
+            </div>
+          </div>
+          <a href="/" style="display:inline-block;background:#111;color:#fff;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none">
+            <i class="fas fa-home"></i> Go to Home
+          </a>
+        </div>
       </div>
 
       <!-- Step L: Returning user — login with password -->
@@ -1112,7 +1154,14 @@ function obRemoveJob(i){
   window.obChoose = function(type){
     obType = type;
     var isFind = type === 'find';
-    document.getElementById('obStep2Title').textContent = isFind ? 'Find your next job' : 'Post a job';
+    var titles = {
+      find:    'Find your next job',
+      post:    'Post a job',
+      ads:     'Promote Business',
+      health:  'Join Health Guide',
+      voucher: 'Explore Gift Vouchers'
+    };
+    document.getElementById('obStep2Title').textContent = titles[type] || 'Your details';
     document.getElementById('obJobField').style.display  = isFind ? 'block' : 'none';
     // Reset job tags
     _obJobTags = []; obRenderJobTags();
@@ -1214,6 +1263,11 @@ function obRemoveJob(i){
           var phone   = encodeURIComponent(document.getElementById('obPhone').value.trim());
           var pincode = encodeURIComponent(document.getElementById('obPincode').value.trim());
           window.location.href = '/register/?type=company&name=' + name + '&phone=' + phone + '&pincode=' + pincode;
+          return;
+        }
+        if (obType === 'health' || obType === 'voucher') {
+          document.getElementById('obOverlay').classList.remove('show');
+          showComingSoon(obType);
           return;
         }
 
@@ -1397,7 +1451,42 @@ function obRemoveJob(i){
   obGoStep(1);
   document.getElementById('obOverlay').classList.add('show');
 })();
+
+// Coming Soon popup for Health & Gift Voucher
+window.showComingSoon = function(type) {
+  var isHealth = type === 'health';
+  document.getElementById('csIcon').innerHTML  = isHealth
+    ? '<i class="fas fa-heartbeat" style="color:#059669"></i>'
+    : '<i class="fas fa-gift" style="color:#7c3aed"></i>';
+  document.getElementById('csTitle').textContent = isHealth
+    ? 'Health Guide'
+    : 'Gift Vouchers';
+  document.getElementById('csOverlay').style.display = 'flex';
+};
+window.closeCS = function() {
+  document.getElementById('csOverlay').style.display = 'none';
+};
 </script>
+
+<!-- Coming Soon overlay -->
+<div id="csOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;max-width:360px;width:100%;padding:32px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:obIn .2s ease">
+    <div id="csIcon" style="font-size:3rem;margin-bottom:12px"></div>
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#fff7ed;border:1.5px solid #f3a000;color:#b45309;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px">
+      <i class="fas fa-clock"></i> Launching August 15, 2026
+    </div>
+    <h3 style="font-size:18px;font-weight:900;color:#111;margin-bottom:8px" id="csTitle"></h3>
+    <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:20px">
+      We're working hard to bring this to you.<br>Stay tuned for the big launch!
+    </p>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:#065f46;font-weight:600">
+      <i class="fas fa-bell" style="color:#059669"></i> &nbsp;Coming on <strong>15 August 2026</strong>
+    </div>
+    <button onclick="closeCS()" style="background:#111;color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;width:100%">
+      OK, Got It!
+    </button>
+  </div>
+</div>
 {% endif %}
 <script>
 document.addEventListener('DOMContentLoaded',function(){

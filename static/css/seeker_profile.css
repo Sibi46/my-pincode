@@ -30,20 +30,30 @@ input, select, textarea { font: inherit; }
 .sp-logo strong { color: #3b82f6; }
 .sp-topnav {
   display: flex;
-  gap: .25rem;
+  gap: .5rem;
   flex: 1;
 }
 .sp-topnav a {
-  padding: .45rem .85rem;
-  border-radius: 6px;
-  color: #94a3b8;
-  font-size: .85rem;
-  transition: background .15s, color .15s;
+  padding: .42rem 1rem;
+  border-radius: 20px;
+  color: #cbd5e1;
+  font-size: .82rem;
+  font-weight: 600;
+  border: 1.5px solid rgba(255,255,255,.1);
+  transition: background .15s, color .15s, border-color .15s;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
 }
-.sp-topnav a:hover,
+.sp-topnav a:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-color: rgba(255,255,255,.25);
+}
 .sp-topnav a.active {
-  background: rgba(59,130,246,.18);
-  color: #60a5fa;
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
 }
 .sp-user {
   display: flex;

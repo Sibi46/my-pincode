@@ -34,7 +34,8 @@
         <div class="nav-links">
             {% if '/vouchers' in request.path %}
             {# ── VOUCHER SECTION NAV ── #}
-            <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700"><i class="fas fa-gift"></i> Gift Vouchers</a>
+            {# hidden until launch — footer icon still active #}
+            <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;display:none!important"><i class="fas fa-gift"></i> Gift Vouchers</a>
 
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
@@ -71,7 +72,7 @@
                         {% if request.user.admin_role %}
                         <a href="/health/admin/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health Admin</a>
                         {% endif %}
-                        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> My Profile</a>
+                        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> Profile</a>
                         <div class="npd-divider"></div>
                         <a href="/logout/" style="color:#dc2626"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
@@ -84,8 +85,9 @@
 
             {% else %}
             {# ── DEFAULT NAV ── #}
-            <a href="/health/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health</a>
-            <a href="/vouchers/marketplace/" style="color:#7c3aed"><i class="fas fa-gift"></i> Gift Vouchers</a>
+            {# hidden until launch — footer icons still active #}
+            <a href="/health/" style="color:#059669;display:none!important"><i class="fas fa-heartbeat"></i> Health</a>
+            <a href="/vouchers/marketplace/" style="color:#7c3aed;display:none!important"><i class="fas fa-gift"></i> Gift Vouchers</a>
 
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
@@ -129,7 +131,7 @@
                         {% if request.user.admin_role %}
                         <a href="/health/admin/" style="color:#059669"><i class="fas fa-heartbeat"></i> Health Admin</a>
                         {% endif %}
-                        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> My Profile</a>
+                        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> Profile</a>
                         <div class="npd-divider"></div>
                         <a href="/logout/" style="color:#dc2626"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
@@ -147,8 +149,8 @@
     </div>
     <div class="mobile-menu" id="mobileMenu">
         <a href="/jobs/">Browse Jobs</a>
-        <a href="/health/" style="color:#059669">🏥 Health</a>
-        <a href="/vouchers/marketplace/" style="color:#7c3aed">🎁 Gift Vouchers</a>
+        <a href="/health/" style="color:#059669;display:none!important">🏥 Health</a>
+        <a href="/vouchers/marketplace/" style="color:#7c3aed;display:none!important">🎁 Gift Vouchers</a>
         {% if not request.user.is_authenticated or request.user.is_employer %}
             <a href="/candidates/">Find Candidates</a>
         {% endif %}
@@ -158,7 +160,7 @@
                 <a href="/employer/dashboard/">Dashboard</a>
             {% else %}
                 <a href="/jobseeker/dashboard/">Dashboard</a>
-                <a href="/profile/edit/">My Profile</a>
+                <a href="/profile/edit/">Profile</a>
             {% endif %}
             {% if request.user.ad_posts.exists %}
                 <a href="/ads/my-ads/">My Ads</a>
@@ -368,9 +370,17 @@ document.querySelectorAll('.toast').forEach(function(t, i){
     </div>
     <div class="footer-bottom">
         <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
-        <button class="admin-footer-btn" onclick="openAdminPanel()">
-          <i class="fas fa-shield-alt"></i> Admin Panel
-        </button>
+        <div style="display:flex;align-items:center;gap:6px">
+          <a href="/health/" class="admin-footer-btn" title="Health Guide" style="text-decoration:none">
+            <i class="fas fa-heartbeat"></i>
+          </a>
+          <a href="/vouchers/marketplace/" class="admin-footer-btn" title="Gift Vouchers" style="text-decoration:none">
+            <i class="fas fa-gift"></i>
+          </a>
+          <button class="admin-footer-btn" onclick="openAdminPanel()">
+            <i class="fas fa-shield-alt"></i> Admin Panel
+          </button>
+        </div>
     </div>
 </footer>
 
@@ -610,19 +620,19 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
     <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
       <i class="fas fa-home"></i><span>Home</span>
     </a>
-    <a href="/health/" class="bn-item {% if request.path == '/health/' or '/health/guide' in request.path %}active{% endif %}" style="{% if request.path == '/health/' or '/health/guide' in request.path %}color:#059669{% endif %}">
+    <a href="/health/" class="bn-item {% if request.path == '/health/' or '/health/guide' in request.path %}active{% endif %}" style="display:none">
       <i class="fas fa-heartbeat"></i><span>Health</span>
     </a>
-    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}" style="{% if '/vouchers' in request.path %}color:#7c3aed{% endif %}">
+    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}" style="display:none">
       <i class="fas fa-gift"></i><span>Vouchers</span>
     </a>
     {% if request.user.is_authenticated %}
       {% if request.user.ad_posts.exists %}
-        <a href="/ads/my-ads/" class="bn-item {% if '/ads/my-ads' in request.path %}active{% endif %}" style="color:#f3a000">
+        <a href="/ads/my-ads/" class="bn-item {% if '/ads/my-ads' in request.path %}active{% endif %}" style="color:#f3a000;display:none!important">
           <i class="fas fa-bullhorn"></i><span>My Ads</span>
         </a>
       {% else %}
-        <a href="/ads/post/" class="bn-item {% if '/ads/post' in request.path %}active{% endif %}" style="color:#f3a000">
+        <a href="/ads/post/" class="bn-item {% if '/ads/post' in request.path %}active{% endif %}" style="color:#f3a000;display:none!important">
           <i class="fas fa-bullhorn"></i><span>Advertise</span>
         </a>
       {% endif %}
