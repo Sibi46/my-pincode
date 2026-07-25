@@ -261,38 +261,65 @@ a{text-decoration:none;color:inherit}
 </nav>
 
 <!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge"><i class="fas fa-map-pin"></i> India's #1 PIN-code Based Job Portal</div>
-    <h1>Find Jobs &amp; Opportunities<br><span class="hero-highlight">Near Your PIN Code</span></h1>
-    <p class="hero-sub">Connect with local employers • Hire local talent • Grow your business nearby</p>
-
-    <form class="hero-form" action="/jobs/" method="get">
-      <div class="hf-box">
-        <div class="hf-field">
-          <div class="hf-icon"><i class="fas fa-briefcase"></i></div>
-          <input type="text" name="q" placeholder="Job title, skill or keyword…" autocomplete="off">
-        </div>
-        <div class="hf-divider"></div>
-        <div class="hf-field hf-pin">
-          <div class="hf-icon"><i class="fas fa-map-marker-alt"></i></div>
-          <input type="text" name="pincode" placeholder="Enter PIN code" maxlength="6" inputmode="numeric" autocomplete="off">
-        </div>
-        <button type="submit" class="hf-btn"><i class="fas fa-search"></i> Search Jobs</button>
-      </div>
-    </form>
-
-    <div class="hero-quick">
-      <span class="hq-label">Popular:</span>
-      <a href="/jobs/?q=driver" class="hq-tag">Driver</a>
-      <a href="/jobs/?q=cook" class="hq-tag">Cook</a>
-      <a href="/jobs/?q=security" class="hq-tag">Security Guard</a>
-      <a href="/jobs/?q=sales" class="hq-tag">Sales</a>
-      <a href="/jobs/?q=accountant" class="hq-tag">Accountant</a>
+<section class="mp-landing">
+  <div class="mp-landing-inner">
+    <div class="mp-logo-wrap">
+      <img src="/static/images/logo.png" alt="MY PINCOD" class="mp-logo">
     </div>
-  </div>
+    <h1 class="mp-title">MY PINCOD</h1>
+    <p class="mp-sub">India's local job portal</p>
 
+    <p class="mp-q">What are you looking for?</p>
+
+    <div class="mp-options">
+      <button class="mp-opt find" onclick="obChoose('find')">
+        <i class="fas fa-search"></i><span>Find a Job</span>
+      </button>
+      <a class="mp-opt post" href="/register/?type=company">
+        <i class="fas fa-briefcase"></i><span>Post a Job</span>
+      </a>
+      <a class="mp-opt biz" href="/register/?type=company">
+        <i class="fas fa-bullhorn"></i><span>Promote Business</span>
+      </a>
+      <button class="mp-opt health" onclick="obChoose('health')">
+        <i class="fas fa-heartbeat"></i><span>Health</span>
+      </button>
+      <button class="mp-opt voucher" onclick="obChoose('voucher')">
+        <i class="fas fa-gift"></i><span>Gift Voucher</span>
+      </button>
+    </div>
+
+    <div class="mp-or"><span>or</span></div>
+    <a href="/login/" class="mp-signin">Already have an account? <strong>Sign In</strong></a>
+  </div>
 </section>
+
+<style>
+.mp-landing{min-height:80vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#f8faff 0%,#eef2ff 100%);padding:40px 16px}
+.mp-landing-inner{text-align:center;max-width:480px;width:100%}
+.mp-logo-wrap{margin-bottom:12px}
+.mp-logo{height:64px;width:auto;object-fit:contain}
+.mp-title{font-size:28px;font-weight:900;color:#111;margin:0 0 4px}
+.mp-sub{font-size:14px;color:#6b7280;margin:0 0 28px}
+.mp-q{font-size:13px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.mp-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+.mp-options .mp-opt:nth-child(4),.mp-options .mp-opt:nth-child(5){grid-column:span 1}
+.mp-options{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.mp-opt{display:flex;flex-direction:column;align-items:center;gap:8px;border:2px solid #e5e7eb;border-radius:14px;background:#fff;padding:18px 12px;cursor:pointer;text-decoration:none;width:130px;transition:.18s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.mp-opt i{font-size:24px}
+.mp-opt span{font-size:12px;font-weight:700;color:#111}
+.mp-opt.find i{color:#0a66c2}.mp-opt.find:hover{border-color:#0a66c2;background:#f0f7ff}
+.mp-opt.post i{color:#f3a000}.mp-opt.post:hover{border-color:#f3a000;background:#fffbeb}
+.mp-opt.biz i{color:#059669}.mp-opt.biz:hover{border-color:#059669;background:#f0fdf4}
+.mp-opt.health i{color:#dc2626}.mp-opt.health:hover{border-color:#dc2626;background:#fff5f5}
+.mp-opt.voucher i{color:#7c3aed}.mp-opt.voucher:hover{border-color:#7c3aed;background:#faf5ff}
+.mp-or{display:flex;align-items:center;gap:10px;margin:18px 0 12px;color:#d1d5db;font-size:13px}
+.mp-or::before,.mp-or::after{content:'';flex:1;height:1px;background:#e5e7eb}
+.mp-signin{font-size:13px;color:#6b7280;display:block}
+.mp-signin strong{color:#0a66c2}
+.mp-signin:hover strong{text-decoration:underline}
+@media(max-width:400px){.mp-opt{width:calc(33% - 8px);padding:14px 6px}.mp-opt i{font-size:20px}}
+</style>
 
 <style>
 .hero{background:linear-gradient(135deg,#0d47a1 0%,#0a66c2 60%,#1976d2 100%);padding:52px 20px 0;text-align:center;position:relative;overflow:hidden}
@@ -1152,6 +1179,7 @@ function obRemoveJob(i){
   };
 
   window.obChoose = function(type){
+    document.getElementById('obOverlay').classList.add('show');
     obType = type;
     var isFind = type === 'find';
     var titles = {
@@ -1447,9 +1475,8 @@ function obRemoveJob(i){
     if (e.key === 'Escape') e.preventDefault();
   });
 
-  // Always show popup for guests on every page load
+  // Overlay shown only when user clicks an option button
   obGoStep(1);
-  document.getElementById('obOverlay').classList.add('show');
 })();
 
 // Coming Soon popup for Health & Gift Voucher
