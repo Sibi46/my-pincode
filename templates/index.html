@@ -418,6 +418,69 @@ a{text-decoration:none;color:inherit}
 </script>
 {% endif %}
 
+<!-- OLX-STYLE FULL-WIDTH LEADERBOARD AD BANNER -->
+{% if advertiser_banners %}
+<div class="olx-ad-wrap">
+  <div class="olx-ad-label">Sponsored</div>
+  <div class="olx-ad-track" id="olxAdTrack">
+    {% for adv in advertiser_banners %}
+    <a class="olx-ad-slide {% if forloop.first %}active{% endif %}"
+       href="{% if adv.website %}{{ adv.website }}{% else %}#{% endif %}"
+       target="_blank" rel="noopener">
+      <img src="{{ adv.banner_image.url }}" alt="{{ adv.business_name }}">
+      <div class="olx-ad-info">
+        <span class="olx-ad-name">{{ adv.business_name }}</span>
+        {% if adv.address %}<span class="olx-ad-addr"><i class="fas fa-map-marker-alt"></i> {{ adv.address|truncatechars:60 }}</span>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% if advertiser_banners|length > 1 %}
+  <button class="olx-ad-prev" onclick="olxAdGo(olxAdCur-1)"><i class="fas fa-chevron-left"></i></button>
+  <button class="olx-ad-next" onclick="olxAdGo(olxAdCur+1)"><i class="fas fa-chevron-right"></i></button>
+  <div class="olx-ad-dots" id="olxAdDots">
+    {% for adv in advertiser_banners %}
+    <span class="olx-ad-dot {% if forloop.first %}active{% endif %}" onclick="olxAdGo({{ forloop.counter0 }})"></span>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+<style>
+.olx-ad-wrap{background:#000;position:relative;overflow:hidden}
+.olx-ad-label{position:absolute;top:10px;left:14px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
+.olx-ad-track{position:relative;width:100%;height:340px}
+.olx-ad-slide{display:none;width:100%;height:340px;position:relative;text-decoration:none}
+.olx-ad-slide.active{display:block}
+.olx-ad-slide img{width:100%;height:340px;object-fit:cover;display:block;opacity:.93}
+.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);padding:28px 60px 20px 20px;color:#fff;display:flex;flex-direction:column;gap:3px}
+.olx-ad-name{font-size:18px;font-weight:900;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.olx-ad-addr{font-size:13px;opacity:.88}
+.olx-ad-dots{position:absolute;bottom:10px;right:16px;display:flex;gap:6px;z-index:3}
+.olx-ad-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.3s}
+.olx-ad-dot.active{background:#fff;width:24px;border-radius:4px}
+.olx-ad-prev,.olx-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
+.olx-ad-prev{left:12px}.olx-ad-next{right:12px}
+.olx-ad-prev:hover,.olx-ad-next:hover{background:rgba(0,0,0,.7)}
+@media(max-width:768px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:220px}.olx-ad-name{font-size:15px}.olx-ad-info{padding:20px 16px 14px}}
+@media(max-width:480px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:180px}.olx-ad-name{font-size:14px}}
+</style>
+<script>
+var olxAdCur = 0;
+(function(){
+  var slides = document.querySelectorAll('.olx-ad-slide');
+  var dots   = document.querySelectorAll('.olx-ad-dot');
+  window.olxAdGo = function(n){
+    slides[olxAdCur].classList.remove('active');
+    dots[olxAdCur] && dots[olxAdCur].classList.remove('active');
+    olxAdCur = ((n % slides.length) + slides.length) % slides.length;
+    slides[olxAdCur].classList.add('active');
+    dots[olxAdCur] && dots[olxAdCur].classList.add('active');
+  };
+  if(slides.length > 1) setInterval(function(){ olxAdGo(olxAdCur + 1); }, 4000);
+})();
+</script>
+{% endif %}
+
 <!-- SMART MARKETING SECTION -->
 <section class="sm-wrap">
 
@@ -558,71 +621,6 @@ a{text-decoration:none;color:inherit}
 .sm-contact-btn:hover{background:rgba(255,255,255,.25)}
 .sm-contact-web{background:rgba(255,255,255,.25)}
 </style>
-
-<!-- OLX-STYLE FULL-WIDTH LEADERBOARD AD BANNER -->
-{% if advertiser_banners %}
-<div class="olx-ad-wrap">
-  <div class="olx-ad-label">Sponsored</div>
-  <div class="olx-ad-track" id="olxAdTrack">
-    {% for adv in advertiser_banners %}
-    <a class="olx-ad-slide {% if forloop.first %}active{% endif %}"
-       href="{% if adv.website %}{{ adv.website }}{% else %}#{% endif %}"
-       target="_blank" rel="noopener">
-      <img src="{{ adv.banner_image.url }}" alt="{{ adv.business_name }}">
-      <div class="olx-ad-info">
-        <span class="olx-ad-name">{{ adv.business_name }}</span>
-        {% if adv.address %}<span class="olx-ad-addr"><i class="fas fa-map-marker-alt"></i> {{ adv.address|truncatechars:60 }}</span>{% endif %}
-      </div>
-    </a>
-    {% endfor %}
-  </div>
-  {% if advertiser_banners|length > 1 %}
-  <button class="olx-ad-prev" onclick="olxAdGo(olxAdCur-1)"><i class="fas fa-chevron-left"></i></button>
-  <button class="olx-ad-next" onclick="olxAdGo(olxAdCur+1)"><i class="fas fa-chevron-right"></i></button>
-  <div class="olx-ad-dots" id="olxAdDots">
-    {% for adv in advertiser_banners %}
-    <span class="olx-ad-dot {% if forloop.first %}active{% endif %}" onclick="olxAdGo({{ forloop.counter0 }})"></span>
-    {% endfor %}
-  </div>
-  {% endif %}
-</div>
-<style>
-.olx-ad-wrap{background:#000;position:relative;overflow:hidden}
-.olx-ad-label{position:absolute;top:10px;left:14px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
-.olx-ad-track{position:relative;width:100%;height:340px}
-.olx-ad-slide{display:none;width:100%;height:340px;position:relative;text-decoration:none}
-.olx-ad-slide.active{display:block}
-.olx-ad-slide img{width:100%;height:340px;object-fit:cover;display:block;opacity:.93}
-.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);padding:28px 60px 20px 20px;color:#fff;display:flex;flex-direction:column;gap:3px}
-.olx-ad-name{font-size:18px;font-weight:900;text-shadow:0 1px 4px rgba(0,0,0,.5)}
-.olx-ad-addr{font-size:13px;opacity:.88}
-.olx-ad-dots{position:absolute;bottom:10px;right:16px;display:flex;gap:6px;z-index:3}
-.olx-ad-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.3s}
-.olx-ad-dot.active{background:#fff;width:24px;border-radius:4px}
-/* prev/next arrows */
-.olx-ad-prev,.olx-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
-.olx-ad-prev{left:12px}.olx-ad-next{right:12px}
-.olx-ad-prev:hover,.olx-ad-next:hover{background:rgba(0,0,0,.7)}
-@media(max-width:768px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:220px}.olx-ad-name{font-size:15px}.olx-ad-info{padding:20px 16px 14px}}
-@media(max-width:480px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:180px}.olx-ad-name{font-size:14px}}
-</style>
-<script>
-var olxAdCur = 0;
-(function(){
-  var slides = document.querySelectorAll('.olx-ad-slide');
-  var dots   = document.querySelectorAll('.olx-ad-dot');
-  window.olxAdGo = function(n){
-    slides[olxAdCur].classList.remove('active');
-    dots[olxAdCur] && dots[olxAdCur].classList.remove('active');
-    olxAdCur = ((n % slides.length) + slides.length) % slides.length;
-    slides[olxAdCur].classList.add('active');
-    dots[olxAdCur] && dots[olxAdCur].classList.add('active');
-  };
-  if(slides.length > 1) setInterval(function(){ olxAdGo(olxAdCur + 1); }, 4000);
-})();
-</script>
-{% endif %}
-
 
 <!-- HOW ADVERTISING WORKS -->
 <section style="background:#fff;padding:56px 20px 60px;border-top:1px solid #eaecf2">
