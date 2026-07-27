@@ -1992,11 +1992,23 @@ def admin_ad_posts(request):
             ad.expires_at  = timezone.now().date() + datetime.timedelta(days=settings.renewal_days)
             ad.reject_note = ''
             ad.save()
-            messages.success(request, f'"{ad.company_name}" approved — live for 30 days.')
+            UserNotification.objects.create(
+                user=ad.user,
+                title='Your ad is LIVE!',
+                message=f'Your ad "{ad.company_name}" has been approved and is now live until {ad.expires_at.strftime("%d %b %Y")}. Check My Ads to view it.',
+                notif_type='success',
+            )
+            messages.success(request, f'"{ad.company_name}" approved — live for {settings.renewal_days} days.')
         elif action == 'reject':
             ad.status      = 'rejected'
             ad.reject_note = request.POST.get('reject_note', '').strip()
             ad.save()
+            UserNotification.objects.create(
+                user=ad.user,
+                title='Ad not approved',
+                message=f'Your ad "{ad.company_name}" was not approved.{" Reason: " + ad.reject_note if ad.reject_note else " Please review and resubmit."}',
+                notif_type='warning',
+            )
             messages.success(request, f'"{ad.company_name}" rejected.')
         elif action == 'delete':
             ad.delete()
