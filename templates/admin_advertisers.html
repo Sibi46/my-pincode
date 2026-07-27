@@ -87,6 +87,14 @@
                 </form>
                 {% elif adv.status == 'approved' %}
                 <span style="color:#2e7d32;font-size:12px;font-weight:700"><i class="fas fa-check-circle"></i> Approved {{ adv.approved_at|date:"d M" }}</span>
+                <button onclick="document.getElementById('bannerForm{{ adv.pk }}').style.display=document.getElementById('bannerForm{{ adv.pk }}').style.display=='none'?'block':'none'" class="adm-btn" style="background:#e8f0fe;color:#0a66c2;font-size:11px">
+                  <i class="fas fa-image"></i> {% if adv.banner_image %}Change Banner{% else %}Upload Banner{% endif %}
+                </button>
+                <form id="bannerForm{{ adv.pk }}" method="POST" action="/admin-panel/advertisers/{{ adv.pk }}/upload-banner/" enctype="multipart/form-data" style="display:none;margin-top:6px;width:100%">
+                  {% csrf_token %}
+                  <input type="file" name="banner_image" accept="image/*" required style="font-size:12px;margin-bottom:4px">
+                  <button type="submit" class="adm-btn adm-approve" style="font-size:11px"><i class="fas fa-upload"></i> Save</button>
+                </form>
                 {% elif adv.status == 'rejected' %}
                 <a href="/admin-panel/advertisers/{{ adv.pk }}/approve/" class="adm-btn adm-approve">Re-Approve</a>
                 {% endif %}
@@ -95,6 +103,12 @@
                   <i class="fab fa-whatsapp"></i> WhatsApp
                 </a>
                 {% endif %}
+                <form method="POST" action="/admin-panel/advertisers/{{ adv.pk }}/remove/" style="display:inline">
+                  {% csrf_token %}
+                  <button type="submit" class="adm-btn adm-reject" style="background:#fff0f0;color:#dc2626;border-color:#fca5a5" onclick="return confirm('Permanently remove {{ adv.business_name }}?')">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </form>
               </div>
             </td>
           </tr>

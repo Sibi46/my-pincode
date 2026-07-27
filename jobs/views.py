@@ -1527,6 +1527,27 @@ def admin_reject_advertiser(request, adv_id):
 
 
 @admin_required
+def admin_remove_advertiser(request, adv_id):
+    if request.method == 'POST':
+        adv = get_object_or_404(Advertiser, pk=adv_id)
+        name = adv.business_name
+        adv.delete()
+        messages.success(request, f'{name} removed.')
+    return redirect('admin_advertisers')
+
+
+@admin_required
+def admin_upload_advertiser_banner(request, adv_id):
+    if request.method == 'POST':
+        adv = get_object_or_404(Advertiser, pk=adv_id)
+        if 'banner_image' in request.FILES:
+            adv.banner_image = request.FILES['banner_image']
+            adv.save()
+            messages.success(request, f'Banner uploaded for {adv.business_name}.')
+    return redirect(f'/admin-panel/advertisers/?status={request.POST.get("status", "approved")}')
+
+
+@admin_required
 def admin_ad_list(request):
     from urllib.parse import quote
     status_filter = request.GET.get('status', 'pending_review')

@@ -81,8 +81,10 @@ urlpatterns = [
 
     # Advertiser — Ad Panel (old admin)
     path('admin-panel/advertisers/',          views.admin_advertisers,          name='admin_advertisers'),
-    path('admin-panel/advertisers/<int:adv_id>/approve/', views.admin_approve_advertiser, name='admin_approve_advertiser'),
-    path('admin-panel/advertisers/<int:adv_id>/reject/',  views.admin_reject_advertiser,  name='admin_reject_advertiser'),
+    path('admin-panel/advertisers/<int:adv_id>/approve/',        views.admin_approve_advertiser,         name='admin_approve_advertiser'),
+    path('admin-panel/advertisers/<int:adv_id>/reject/',         views.admin_reject_advertiser,          name='admin_reject_advertiser'),
+    path('admin-panel/advertisers/<int:adv_id>/remove/',         views.admin_remove_advertiser,          name='admin_remove_advertiser'),
+    path('admin-panel/advertisers/<int:adv_id>/upload-banner/',  views.admin_upload_advertiser_banner,   name='admin_upload_advertiser_banner'),
     path('admin-panel/ads/',                  views.admin_ad_list,              name='admin_ad_list'),
     path('admin-panel/ads/<int:ad_id>/activate/', views.admin_activate_ad,      name='admin_activate_ad'),
     path('admin-panel/ads/<int:ad_id>/reject/',   views.admin_reject_ad,        name='admin_reject_ad'),

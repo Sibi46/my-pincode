@@ -275,16 +275,16 @@ a{text-decoration:none;color:inherit}
       <button class="mp-opt find" onclick="obChoose('find')">
         <i class="fas fa-search"></i><span>Find a Job</span>
       </button>
-      <a class="mp-opt post" href="/register/?type=company">
+      <a class="mp-opt post" href="{% if request.user.is_authenticated and request.user.is_employer %}/post-job/{% else %}/register/?type=company{% endif %}">
         <i class="fas fa-briefcase"></i><span>Post a Job</span>
       </a>
-      <a class="mp-opt biz" href="/register/?type=company">
+      <a class="mp-opt biz" href="{% if request.user.is_authenticated and request.user.is_employer %}/post-job/{% else %}/register/?type=company{% endif %}">
         <i class="fas fa-bullhorn"></i><span>Promote Business</span>
       </a>
-      <button class="mp-opt health" onclick="obChoose('health')">
+      <button class="mp-opt health" onclick="{% if request.user.is_authenticated %}showComingSoon('health'){% else %}obChoose('health'){% endif %}">
         <i class="fas fa-heartbeat"></i><span>Health</span>
       </button>
-      <button class="mp-opt voucher" onclick="obChoose('voucher')">
+      <button class="mp-opt voucher" onclick="{% if request.user.is_authenticated %}showComingSoon('voucher'){% else %}obChoose('voucher'){% endif %}">
         <i class="fas fa-gift"></i><span>Gift Voucher</span>
       </button>
     </div>
