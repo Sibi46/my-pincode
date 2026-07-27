@@ -481,6 +481,36 @@ var olxAdCur = 0;
 </script>
 {% endif %}
 
+{% if live_ads %}
+<!-- USER SIMPLE ADS STRIP -->
+<div style="background:#fff;padding:28px 20px 32px;border-top:1px solid #eaecf2">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="background:#0a66c2;color:#fff;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:4px 12px;border-radius:20px">Local Ads</span>
+        <span style="font-size:16px;font-weight:800;color:#1e293b">Ads near you</span>
+      </div>
+      <a href="/ads/post/" style="font-size:12px;color:#0a66c2;font-weight:700;text-decoration:none"><i class="fas fa-plus"></i> Post Free Ad</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+      {% for ad in live_ads %}
+      <div style="background:#f8faff;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;transition:.2s" onmouseover="this.style.boxShadow='0 4px 14px rgba(10,102,194,.12)';this.style.borderColor='#0a66c2'" onmouseout="this.style.boxShadow='none';this.style.borderColor='#e2e8f0'">
+        {% if ad.image %}
+        <img src="{{ ad.image.url }}" alt="{{ ad.company_name }}" style="width:100%;height:140px;object-fit:cover;display:block">
+        {% endif %}
+        <div style="padding:12px 14px">
+          <div style="font-size:13px;font-weight:800;color:#1e293b;margin-bottom:4px">{{ ad.company_name }}</div>
+          {% if ad.pincode %}<div style="font-size:11px;color:#0369a1;margin-bottom:6px"><i class="fas fa-map-marker-alt"></i> {{ ad.pincode }}</div>{% endif %}
+          <p style="margin:0;font-size:12px;color:#475569;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ ad.description }}</p>
+          {% if ad.website %}<a href="{{ ad.website }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:11px;color:#0a66c2;font-weight:700;text-decoration:none"><i class="fas fa-external-link-alt"></i> Visit</a>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <!-- SMART MARKETING SECTION -->
 <section class="sm-wrap">
 
