@@ -49,6 +49,11 @@
     <h3>{{ open_complaints }}</h3>
     <p>Open Complaints</p>
   </div>
+  <a href="/super-admin/ad-posts/?tab=ads&status=pending" class="ap-stat" style="background:linear-gradient(135deg,#fff8e1,#fffde7);text-decoration:none;border:1.5px solid {% if pending_ad_posts %}#f59e0b{% else %}#e5e7eb{% endif %}">
+    <div class="ap-stat-icon"><i class="fas fa-bullhorn" style="color:{% if pending_ad_posts %}#d97706{% else %}#aaa{% endif %}"></i></div>
+    <h3 style="color:{% if pending_ad_posts %}#d97706{% else %}#aaa{% endif %}">{{ pending_ad_posts }}</h3>
+    <p style="color:{% if pending_ad_posts %}#92400e{% else %}#aaa{% endif %}">Pending Ads</p>
+  </a>
   <a href="/admin-panel/users/?type=employer" class="ap-stat" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);text-decoration:none;border:1.5px solid #bfdbfe">
     <div class="ap-stat-icon"><i class="fas fa-briefcase" style="color:#1d4ed8"></i></div>
     <h3 style="color:#1d4ed8">{{ employer_count }}</h3>

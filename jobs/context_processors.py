@@ -14,7 +14,13 @@ def site_ads(request):
         t = ad.package.ad_type
         by_type.setdefault(t, []).append(ad)
 
+    pending_ad_posts = 0
+    if request.user.is_authenticated and getattr(request.user, 'admin_role', '') == 'super_admin':
+        from .models import AdPost
+        pending_ad_posts = AdPost.objects.filter(status='pending').count()
+
     return {
         'site_ads': ads,
         'ads_by_type': by_type,
+        'pending_ad_posts': pending_ad_posts,
     }

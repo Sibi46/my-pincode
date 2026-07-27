@@ -2212,7 +2212,9 @@ def super_admin_dashboard(request):
     total_states    = State.objects.count()
     total_districts = District.objects.count()
     total_adverts   = Advertiser.objects.count()
-    pending_adverts = Advertiser.objects.filter(status='pending').count()
+    pending_adverts   = Advertiser.objects.filter(status='pending').count()
+    from .models import AdPost
+    pending_ad_posts  = AdPost.objects.filter(status='pending').count()
     open_complaints = Complaint.objects.filter(status='open').count()
     employer_count  = User.objects.filter(user_type__in=User.EMPLOYER_TYPES, admin_role='').count()
     jobseeker_count = User.objects.filter(user_type__in=['employee','individual','freelancer'], admin_role='').count()
@@ -2243,6 +2245,7 @@ def super_admin_dashboard(request):
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
         'total_adverts': total_adverts, 'pending_adverts': pending_adverts,
+        'pending_ad_posts': pending_ad_posts,
         'open_complaints': open_complaints, 'recent_users': recent_users,
         'state_list': state_list, 'recent_jobs': recent_jobs,
         'industries': industries, 'notifications': notifications,

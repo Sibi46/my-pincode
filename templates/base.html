@@ -419,7 +419,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
           <a href="/super-admin/flicks/" class="afc"><i class="fas fa-bolt"></i><span>Flicks</span></a>
           <a href="/super-admin/feedback/" class="afc"><i class="fas fa-comment-dots"></i><span>Feedback</span></a>
           <a href="/super-admin/ad-packages/" class="afc"><i class="fas fa-box-open"></i><span>Ad Packages</span></a>
-          <a href="/super-admin/ad-posts/" class="afc"><i class="fas fa-bullhorn"></i><span>Ad Management</span></a>
+          <a href="/super-admin/ad-posts/" class="afc"><i class="fas fa-bullhorn"></i><span>Ad Management{% if pending_ad_posts %} <span style="background:#f59e0b;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:800;margin-left:4px">{{ pending_ad_posts }}</span>{% endif %}</span></a>
         </div>
         <div class="admin-feature-group">
           <div class="afg-title"><i class="fas fa-users"></i> User Management</div>
