@@ -48,6 +48,12 @@ def home(request):
     # ── Approved advertiser banners ──────────────────────
     advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='')[:6]
 
+    # ── Live simple ads (AdPost) ─────────────────────────
+    from .models import AdPost
+    live_ads = AdPost.objects.filter(status='approved').filter(
+        Q(expires_at__isnull=True) | Q(expires_at__gte=today)
+    ).order_by('-approved_at')[:12]
+
     # ── Jobs & employers ────────────────────────────────
     featured_jobs = Job.objects.filter(status='active').select_related('posted_by').order_by('-created_at')[:8]
 
@@ -108,6 +114,7 @@ def home(request):
         'total_seekers':       total_seekers,
         'total_districts':     total_districts,
         'advertiser_banners':  advertiser_banners,
+        'live_ads':            live_ads,
     })
 
 
