@@ -1221,25 +1221,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         <button class="ob-back" onclick="obGoStep(1)">← Back</button>
       </div>
 
-      <!-- Step CS: Coming Soon (Health & Gift Voucher) -->
+      <!-- Step CS: redirects to live page -->
       <div class="ob-step" id="obStepCS">
-        <div style="text-align:center;padding:10px 0 18px">
-          <div id="obCSIcon" style="font-size:3rem;margin-bottom:12px"></div>
-          <div style="display:inline-flex;align-items:center;gap:6px;background:#fff7ed;border:1.5px solid #f3a000;color:#b45309;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px">
-            <i class="fas fa-clock"></i> Launching August 15, 2026
-          </div>
-          <h3 style="font-size:17px;font-weight:900;color:#111;margin-bottom:8px" id="obCSTitle"></h3>
-          <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:16px" id="obCSMsg"></p>
-          <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:16px">
-            <div style="display:flex;align-items:center;gap:8px;color:#065f46;font-size:13px;font-weight:700">
-              <i class="fas fa-check-circle" style="color:#059669"></i>
-              You're on the early access list! We'll notify you on launch day.
-            </div>
-          </div>
-          <a href="/" style="display:inline-block;background:#111;color:#fff;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none">
-            <i class="fas fa-home"></i> Go to Home
-          </a>
-        </div>
+        <div id="obCSIcon"></div>
+        <h3 id="obCSTitle"></h3>
+        <p id="obCSMsg"></p>
       </div>
 
       <!-- Step L: Returning user — login with password -->
@@ -1641,20 +1627,11 @@ function obRemoveJob(i){
   obGoStep(1);
 })();
 
-// Coming Soon popup for Health & Gift Voucher
+// Health and Gift Voucher are now live — redirect directly
 window.showComingSoon = function(type) {
-  var isHealth = type === 'health';
-  document.getElementById('csIcon').innerHTML  = isHealth
-    ? '<i class="fas fa-heartbeat" style="color:#059669"></i>'
-    : '<i class="fas fa-gift" style="color:#7c3aed"></i>';
-  document.getElementById('csTitle').textContent = isHealth
-    ? 'Health Guide'
-    : 'Gift Vouchers';
-  document.getElementById('csOverlay').style.display = 'flex';
+  window.location.href = type === 'health' ? '/health/' : '/vouchers/marketplace/';
 };
-window.closeCS = function() {
-  document.getElementById('csOverlay').style.display = 'none';
-};
+window.closeCS = function() {};
 </script>
 
 <!-- Coming Soon overlay -->
