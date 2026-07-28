@@ -1060,7 +1060,14 @@ def quick_register(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
 
-    redirect_url = '/post-job/' if job_type == 'post' else '/jobseeker/profile/'
+    if job_type == 'health':
+        redirect_url = '/health/'
+    elif job_type == 'voucher':
+        redirect_url = '/vouchers/marketplace/'
+    elif job_type == 'post':
+        redirect_url = '/post-job/'
+    else:
+        redirect_url = '/jobseeker/profile/'
     return JsonResponse({'success': True, 'redirect': redirect_url})
 
 

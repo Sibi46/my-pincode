@@ -1461,15 +1461,6 @@ function obRemoveJob(i){
           window.location.href = '/register/?type=company&name=' + name + '&phone=' + phone + '&pincode=' + pincode;
           return;
         }
-        if (obType === 'health') {
-          window.location.href = '/health/';
-          return;
-        }
-        if (obType === 'voucher') {
-          window.location.href = '/vouchers/marketplace/';
-          return;
-        }
-
         document.getElementById('obPostVerify').style.display  = 'block';
         document.getElementById('obRegisterBtn').style.display = 'block';
         setTimeout(function(){ document.getElementById('obPassword').focus(); }, 100);
