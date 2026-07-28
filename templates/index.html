@@ -260,18 +260,12 @@ a{text-decoration:none;color:inherit}
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="mp-landing">
-  <div class="mp-landing-inner">
-    <div class="mp-logo-wrap">
-      <img src="/static/images/logo.png" alt="MY PINCOD" class="mp-logo">
-    </div>
-    <h1 class="mp-title">MY PINCOD</h1>
-    <p class="mp-sub">India's first local community portal</p>
+{% if not request.user.is_authenticated %}
+<!-- OPTIONS STRIP -->
+<section class="mp-opts-strip">
+  <div class="mp-opts-inner">
 
-    {% if not request.user.is_authenticated %}
     <div class="mp-split-card">
-
       <!-- Left: Looking for -->
       <div class="mp-split-col">
         <p class="mp-split-label"><i class="fas fa-search" style="color:#0a66c2"></i> I'm looking for</p>
@@ -302,42 +296,38 @@ a{text-decoration:none;color:inherit}
           <i class="fas fa-tag"></i><span>Post a Gift Voucher</span>
         </button>
       </div>
-
     </div>
+
     <div class="mp-or"><span>or</span></div>
     <a href="/login/" class="mp-signin">Already have an account? <strong>Sign In</strong></a>
-    {% endif %}
   </div>
 </section>
+{% endif %}
 
 <style>
-.mp-landing{min-height:80vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#f8faff 0%,#eef2ff 100%);padding:40px 16px}
-.mp-landing-inner{text-align:center;max-width:480px;width:100%}
-.mp-logo-wrap{margin-bottom:12px}
-.mp-logo{height:64px;width:auto;object-fit:contain}
-.mp-title{font-size:28px;font-weight:900;color:#111;margin:0 0 4px}
-.mp-sub{font-size:14px;color:#6b7280;margin:0 0 28px}
+/* Options strip */
+.mp-opts-strip{background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 16px}
+.mp-opts-inner{max-width:540px;margin:0 auto}
 /* Split layout */
-.mp-split-card{display:flex;gap:12px;margin-bottom:16px;text-align:left}
-.mp-split-col{flex:1;display:flex;flex-direction:column;gap:8px}
-.mp-split-div{width:1px;background:#d1d5db;flex-shrink:0;margin:8px 0}
-.mp-split-label{font-size:11px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;display:flex;align-items:center;gap:5px}
+.mp-split-card{display:flex;gap:10px;margin-bottom:10px}
+.mp-split-col{flex:1;display:flex;flex-direction:column;gap:7px}
+.mp-split-div{width:1px;background:#e5e7eb;flex-shrink:0}
+.mp-split-label{font-size:10px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px;display:flex;align-items:center;gap:4px}
 /* Option buttons */
-.mp-opt{display:flex;align-items:center;gap:10px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fafafa;padding:11px 13px;cursor:pointer;text-decoration:none;width:100%;transition:.16s;box-shadow:0 1px 3px rgba(0,0,0,.04);font-family:inherit}
-.mp-opt i{font-size:18px;flex-shrink:0;width:22px;text-align:center}
-.mp-opt span{font-size:13px;font-weight:700;color:#111}
+.mp-opt{display:flex;align-items:center;gap:9px;border:1.5px solid #e5e7eb;border-radius:10px;background:#fafafa;padding:9px 11px;cursor:pointer;text-decoration:none;width:100%;transition:.15s;font-family:inherit}
+.mp-opt i{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.mp-opt span{font-size:12px;font-weight:700;color:#111}
 .mp-opt.find i{color:#0a66c2}.mp-opt.find:hover{border-color:#0a66c2;background:#f0f7ff}
 .mp-opt.post i{color:#f3a000}.mp-opt.post:hover{border-color:#f3a000;background:#fffbeb}
 .mp-opt.biz i{color:#059669}.mp-opt.biz:hover{border-color:#059669;background:#f0fdf4}
 .mp-opt.health i{color:#dc2626}.mp-opt.health:hover{border-color:#dc2626;background:#fff5f5}
 .mp-opt.voucher i,.mp-opt.voucher-post i{color:#7c3aed}
 .mp-opt.voucher:hover,.mp-opt.voucher-post:hover{border-color:#7c3aed;background:#faf5ff}
-.mp-or{display:flex;align-items:center;gap:10px;margin:4px 0 10px;color:#d1d5db;font-size:13px}
+.mp-or{display:flex;align-items:center;gap:8px;margin:4px 0 6px;color:#d1d5db;font-size:12px}
 .mp-or::before,.mp-or::after{content:'';flex:1;height:1px;background:#e5e7eb}
-.mp-signin{font-size:13px;color:#6b7280;display:block}
+.mp-signin{font-size:12px;color:#6b7280;display:block;text-align:center}
 .mp-signin strong{color:#0a66c2}
 .mp-signin:hover strong{text-decoration:underline}
-@media(max-width:420px){.mp-split-card{flex-direction:column}.mp-split-div{width:auto;height:1px}}
 </style>
 
 <style>
