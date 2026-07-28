@@ -615,7 +615,8 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 </script>
 
 <!-- ══ APP-STYLE BOTTOM NAV (mobile) ══════════════════════════ -->
-<nav class="bottom-nav"{% if '/health/guide' in request.path %} style="display:none"{% endif %}>
+{% block site_bottom_nav %}
+<nav class="bottom-nav">
   <div class="bottom-nav-inner">
     <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
       <i class="fas fa-home"></i><span>Home</span>
@@ -658,6 +659,7 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
     {% endif %}
   </div>
 </nav>
+{% endblock site_bottom_nav %}
 
 <style>
 .bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
