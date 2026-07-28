@@ -1221,11 +1221,13 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         <button class="ob-back" onclick="obGoStep(1)">← Back</button>
       </div>
 
-      <!-- Step CS: redirects to live page -->
-      <div class="ob-step" id="obStepCS">
-        <div id="obCSIcon"></div>
-        <h3 id="obCSTitle"></h3>
-        <p id="obCSMsg"></p>
+      <!-- Step CS: coming soon -->
+      <div class="ob-step" id="obStepCS" style="text-align:center;padding:20px 10px">
+        <div id="obCSIcon" style="margin-bottom:12px"></div>
+        <h3 id="obCSTitle" style="font-size:18px;font-weight:800;color:#111;margin-bottom:8px"></h3>
+        <div style="font-size:28px;font-weight:900;color:#059669;margin-bottom:6px">Launching August 15, 2026</div>
+        <p style="font-size:13px;color:#555;margin-bottom:16px">We're working hard to bring this to you. Stay tuned!</p>
+        <button onclick="document.getElementById('obOverlay').classList.remove('show')" style="padding:10px 24px;background:#059669;color:#fff;border:none;border-radius:22px;font-size:14px;font-weight:700;cursor:pointer">Got it!</button>
       </div>
 
       <!-- Step L: Returning user — login with password -->
@@ -1447,6 +1449,11 @@ function obRemoveJob(i){
           window.location.href = '/register/?type=company&name=' + name + '&phone=' + phone + '&pincode=' + pincode;
           return;
         }
+        if (obType === 'health' || obType === 'voucher') {
+          document.getElementById('obOverlay').classList.remove('show');
+          showComingSoon(obType);
+          return;
+        }
         document.getElementById('obPostVerify').style.display  = 'block';
         document.getElementById('obRegisterBtn').style.display = 'block';
         setTimeout(function(){ document.getElementById('obPassword').focus(); }, 100);
@@ -1522,7 +1529,6 @@ function obRemoveJob(i){
     .then(function(r){ return r.json(); })
     .then(function(d){
       if (d.success) {
-
         document.getElementById('obOverlay').classList.remove('show');
         window.location.href = d.redirect;
       } else {
@@ -1627,11 +1633,17 @@ function obRemoveJob(i){
   obGoStep(1);
 })();
 
-// Health and Gift Voucher are now live — redirect directly
 window.showComingSoon = function(type) {
-  window.location.href = type === 'health' ? '/health/' : '/vouchers/marketplace/';
+  var isHealth = type === 'health';
+  document.getElementById('csIcon').innerHTML = isHealth
+    ? '<i class="fas fa-heartbeat" style="color:#059669;font-size:3rem"></i>'
+    : '<i class="fas fa-gift" style="color:#7c3aed;font-size:3rem"></i>';
+  document.getElementById('csTitle').textContent = isHealth ? 'Health Guide' : 'Gift Vouchers';
+  document.getElementById('csOverlay').style.display = 'flex';
 };
-window.closeCS = function() {};
+window.closeCS = function() {
+  document.getElementById('csOverlay').style.display = 'none';
+};
 </script>
 
 <!-- Coming Soon overlay -->
