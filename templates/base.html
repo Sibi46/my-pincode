@@ -623,7 +623,7 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
     <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
       <i class="fas fa-heartbeat"></i><span>Health</span>
     </a>
-    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}" style="display:none">
+    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
       <i class="fas fa-gift"></i><span>Vouchers</span>
     </a>
     {% if request.user.is_authenticated %}

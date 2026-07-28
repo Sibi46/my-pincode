@@ -1225,14 +1225,8 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         <button class="ob-back" onclick="obGoStep(1)">← Back</button>
       </div>
 
-      <!-- Step CS: coming soon -->
-      <div class="ob-step" id="obStepCS" style="text-align:center;padding:20px 10px">
-        <div id="obCSIcon" style="margin-bottom:12px"></div>
-        <h3 id="obCSTitle" style="font-size:18px;font-weight:800;color:#111;margin-bottom:8px"></h3>
-        <div style="font-size:28px;font-weight:900;color:#059669;margin-bottom:6px">Launching August 15, 2026</div>
-        <p style="font-size:13px;color:#555;margin-bottom:16px">We're working hard to bring this to you. Stay tuned!</p>
-        <button onclick="document.getElementById('obOverlay').classList.remove('show')" style="padding:10px 24px;background:#059669;color:#fff;border:none;border-radius:22px;font-size:14px;font-weight:700;cursor:pointer">Got it!</button>
-      </div>
+      <!-- Step CS: placeholder -->
+      <div class="ob-step" id="obStepCS"></div>
 
       <!-- Step L: Returning user — login with password -->
       <div class="ob-step" id="obStepL">
@@ -1453,11 +1447,6 @@ function obRemoveJob(i){
           window.location.href = '/register/?type=company&name=' + name + '&phone=' + phone + '&pincode=' + pincode;
           return;
         }
-        if (obType === 'health' || obType === 'voucher') {
-          document.getElementById('obOverlay').classList.remove('show');
-          showComingSoon(obType);
-          return;
-        }
         document.getElementById('obPostVerify').style.display  = 'block';
         document.getElementById('obRegisterBtn').style.display = 'block';
         setTimeout(function(){ document.getElementById('obPassword').focus(); }, 100);
@@ -1637,38 +1626,8 @@ function obRemoveJob(i){
   obGoStep(1);
 })();
 
-window.showComingSoon = function(type) {
-  var isHealth = type === 'health';
-  document.getElementById('csIcon').innerHTML = isHealth
-    ? '<i class="fas fa-heartbeat" style="color:#059669;font-size:3rem"></i>'
-    : '<i class="fas fa-gift" style="color:#7c3aed;font-size:3rem"></i>';
-  document.getElementById('csTitle').textContent = isHealth ? 'Health Guide' : 'Gift Vouchers';
-  document.getElementById('csOverlay').style.display = 'flex';
-};
-window.closeCS = function() {
-  document.getElementById('csOverlay').style.display = 'none';
-};
 </script>
 
-<!-- Coming Soon overlay -->
-<div id="csOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:20px;max-width:360px;width:100%;padding:32px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:obIn .2s ease">
-    <div id="csIcon" style="font-size:3rem;margin-bottom:12px"></div>
-    <div style="display:inline-flex;align-items:center;gap:6px;background:#fff7ed;border:1.5px solid #f3a000;color:#b45309;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px">
-      <i class="fas fa-clock"></i> Launching August 15, 2026
-    </div>
-    <h3 style="font-size:18px;font-weight:900;color:#111;margin-bottom:8px" id="csTitle"></h3>
-    <p style="font-size:13px;color:#555;line-height:1.6;margin-bottom:20px">
-      We're working hard to bring this to you.<br>Stay tuned for the big launch!
-    </p>
-    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:13px;color:#065f46;font-weight:600">
-      <i class="fas fa-bell" style="color:#059669"></i> &nbsp;Coming on <strong>15 August 2026</strong>
-    </div>
-    <button onclick="closeCS()" style="background:#111;color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;width:100%">
-      OK, Got It!
-    </button>
-  </div>
-</div>
 {% endif %}
 <script>
 document.addEventListener('DOMContentLoaded',function(){

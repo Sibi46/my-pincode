@@ -1062,6 +1062,10 @@ def quick_register(request):
 
     if job_type == 'post':
         redirect_url = '/post-job/'
+    elif job_type == 'health':
+        redirect_url = '/health/guide/'
+    elif job_type == 'voucher':
+        redirect_url = '/vouchers/marketplace/'
     else:
         redirect_url = '/jobseeker/profile/'
     return JsonResponse({'success': True, 'redirect': redirect_url})
