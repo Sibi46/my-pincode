@@ -287,12 +287,21 @@ a{text-decoration:none;color:inherit}
       <a class="mp-opt biz" href="{% if request.user.is_authenticated and request.user.is_employer %}/post-job/{% else %}/register/?type=company{% endif %}">
         <i class="fas fa-bullhorn"></i><span>Promote Business</span>
       </a>
+      {% if request.user.is_authenticated %}
       <a class="mp-opt health" href="/health/">
         <i class="fas fa-heartbeat"></i><span>Health</span>
       </a>
       <a class="mp-opt voucher" href="/vouchers/marketplace/">
         <i class="fas fa-gift"></i><span>Gift Voucher</span>
       </a>
+      {% else %}
+      <button class="mp-opt health" onclick="obChoose('health')">
+        <i class="fas fa-heartbeat"></i><span>Health</span>
+      </button>
+      <button class="mp-opt voucher" onclick="obChoose('voucher')">
+        <i class="fas fa-gift"></i><span>Gift Voucher</span>
+      </button>
+      {% endif %}
     </div>
 
     <div class="mp-or"><span>or</span></div>
