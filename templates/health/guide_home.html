@@ -43,24 +43,24 @@
 
   /* ── Full-screen reel feed ── */
   .reel-feed {
-    height: calc(100svh - 122px);
+    height: calc(100vh - 200px);
     overflow-y: scroll; scroll-snap-type: y mandatory;
     background: #000; -webkit-overflow-scrolling: touch;
   }
   .reel-feed::-webkit-scrollbar { display: none; }
 
   .reel-slide {
-    height: calc(100svh - 122px);
+    height: calc(100vh - 200px);
     scroll-snap-align: start; flex-shrink: 0;
     position: relative; display: flex;
     align-items: center; justify-content: center; background: #000;
   }
   .reel-slide video {
     width: 100%; height: 100%; object-fit: contain;
-    position: absolute; inset: 0;
+    position: absolute; inset: 0; max-height: 100%;
   }
   .reel-slide iframe {
-    width: 100%; height: 100%; border: 0; position: absolute; inset: 0;
+    width: 100%; height: 100%; border: 0; position: absolute; inset: 0; max-height: 100%;
   }
 
   /* thumbnail tap-to-play */
@@ -358,6 +358,29 @@
 
 <button id="reelMuteBtn" title="Mute/Unmute">🔇</button>
 <div id="reelTapInd"></div>
+
+<script>
+/* Fix reel height: viewport minus chip-row minus bottom-nav */
+(function setReelH(){
+  var chip = document.querySelector('.chip-row');
+  var feed = document.getElementById('reelFeed');
+  var bnav = document.querySelector('.bottom-nav');
+  if (!chip || !feed) return;
+  var h = window.innerHeight
+          - chip.getBoundingClientRect().bottom
+          - (bnav ? bnav.getBoundingClientRect().height : 0);
+  h = Math.max(h, 280);
+  feed.style.height = h + 'px';
+  feed.querySelectorAll('.reel-slide').forEach(function(s){ s.style.height = h + 'px'; });
+})();
+window.addEventListener('resize', function(){
+  var chip=document.querySelector('.chip-row'),feed=document.getElementById('reelFeed'),bnav=document.querySelector('.bottom-nav');
+  if(!chip||!feed) return;
+  var h=Math.max(window.innerHeight-chip.getBoundingClientRect().bottom-(bnav?bnav.getBoundingClientRect().height:0),280);
+  feed.style.height=h+'px';
+  feed.querySelectorAll('.reel-slide').forEach(function(s){s.style.height=h+'px';});
+});
+</script>
 
 <script>
 (function(){
