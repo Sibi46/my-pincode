@@ -22,7 +22,7 @@
 </head>
 <body>
 
-<nav class="navbar">
+<nav class="navbar"{% if '/health/guide' in request.path %} style="display:none"{% endif %}>
     <div class="nav-container">
         <a href="/" class="nav-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:40px;width:auto;max-width:140px;object-fit:contain;display:block;"></a>
         <div class="nav-search">
@@ -615,7 +615,7 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 </script>
 
 <!-- ══ APP-STYLE BOTTOM NAV (mobile) ══════════════════════════ -->
-<nav class="bottom-nav">
+<nav class="bottom-nav"{% if '/health/guide' in request.path %} style="display:none"{% endif %}>
   <div class="bottom-nav-inner">
     <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
       <i class="fas fa-home"></i><span>Home</span>
