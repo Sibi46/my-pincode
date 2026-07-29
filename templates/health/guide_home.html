@@ -3,889 +3,283 @@
 {% block site_bottom_nav %}{% endblock %}
 {% block content %}
 <style>
-  /* ── Hide site nav & bottom nav — health page is full-screen ── */
-  nav.navbar     { display: none !important; }
-  nav.bottom-nav { display: none !important; }
-  html, body     { overflow: hidden; height: 100%; background: #000; }
+  nav.navbar { display:none !important; }
+  html,body   { background:#f4f6f9; margin:0; padding:0; }
 
-  /* ── CATEGORY STRIP ── */
-  #catStrip {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 300;
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px 16px;
-    overflow-x: auto; scrollbar-width: none;
+  /* ── TOP BAR ── */
+  #healthTopBar {
+    position: sticky; top: 0; z-index: 200;
+    background: #fff; border-bottom: 1px solid #e5e7eb;
+    padding: 10px 14px 6px;
+  }
+  #healthTopBar h2 {
+    font-size: 15px; font-weight: 900; color: #111;
+    margin: 0 0 10px; display: flex; align-items: center; gap: 7px;
+  }
+  #healthTopBar h2 i { color: #dc2626; font-size: 16px; }
+
+  /* Food item bubbles */
+  #foodStrip {
+    display: flex; gap: 12px; overflow-x: auto;
+    scrollbar-width: none; padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
-    background: linear-gradient(to bottom, rgba(0,0,0,.85) 60%, transparent);
-    transition: background .25s;
   }
-  #catStrip.explore-mode { background: #0d0d0d; border-bottom: 1px solid #1c1c1c; }
-  #catStrip::-webkit-scrollbar { display: none; }
+  #foodStrip::-webkit-scrollbar { display: none; }
 
-  .cat-bubble {
-    flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
-    cursor: pointer; border: none; background: none; padding: 0;
+  .food-bubble {
+    flex-shrink: 0; display: flex; flex-direction: column;
+    align-items: center; gap: 5px; text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .cat-bubble-img {
-    width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
-    border: 2.5px solid rgba(255,255,255,.25); background: #1a2a1a;
-    transition: border-color .15s, box-shadow .15s;
+  .food-bubble-img {
+    width: 60px; height: 60px; border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #e5e7eb;
+    background: #f0fdf4;
+    transition: border-color .15s, transform .15s;
   }
-  .cat-bubble-ph {
-    width: 52px; height: 52px; border-radius: 50%;
-    background: #1a2a1a; border: 2.5px solid rgba(255,255,255,.25);
-    display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .cat-bubble.active .cat-bubble-img,
-  .cat-bubble.active .cat-bubble-ph {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 2.5px rgba(34,197,94,.35);
-  }
-  .cat-bubble-name { font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,.9); }
-
-  /* ── REELS VIEW ── */
-  #reelsView {
-    position: fixed; inset: 0; z-index: 1;
-    overflow-y: scroll; scroll-snap-type: y mandatory;
-    -webkit-overflow-scrolling: touch; background: #000;
-  }
-  #reelsView.hidden { display: none; }
-
-  .reel {
-    width: 100%; height: 100vh; height: 100svh;
-    scroll-snap-align: start;
-    position: relative; overflow: hidden; background: #000; flex-shrink: 0;
-  }
-  .reel-thumb {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; opacity: .72;
-  }
-  .reel-video {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; display: none;
-  }
-  .reel.playing .reel-video { display: block; }
-  .reel-iframe-wrap {
-    position: absolute; inset: 0; display: none;
-  }
-  .reel.playing .reel-iframe-wrap { display: block; }
-  .reel-iframe-wrap iframe {
-    width: 100%; height: 100%; border: 0;
-  }
-
-  /* Play button */
-  .reel-play-btn {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 64px; height: 64px;
-    background: rgba(255,255,255,.18);
-    border: 2.5px solid rgba(255,255,255,.55);
-    border-radius: 50%;
+  .food-bubble-ph {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #f0fdf4; border: 2.5px solid #e5e7eb;
     display: flex; align-items: center; justify-content: center;
-    pointer-events: none; backdrop-filter: blur(6px);
-    transition: opacity .2s;
+    font-size: 1.6rem;
+    transition: border-color .15s, transform .15s;
   }
-  .reel-play-btn::after {
-    content: ''; border: solid transparent 12px;
-    border-left: solid #fff 22px; margin-left: 6px;
-  }
-  .reel.playing .reel-play-btn,
-  .reel.shorts-type .reel-play-btn { opacity: 0; pointer-events: none; }
-
-  /* Gradient */
-  .reel-gradient {
-    position: absolute; inset: 0; pointer-events: none;
-    background: linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.4) 100%);
+  .food-bubble:hover .food-bubble-img,
+  .food-bubble:hover .food-bubble-ph { border-color: #16a34a; transform: scale(1.06); }
+  .food-bubble-name {
+    font-size: 10px; font-weight: 700; color: #374151;
+    white-space: nowrap; max-width: 68px;
+    overflow: hidden; text-overflow: ellipsis; text-align: center;
   }
 
-  /* Category badge */
-  .reel-cat {
-    position: absolute; top: 84px; left: 14px;
-    font-size: 11px; font-weight: 800; padding: 3px 10px;
-    border-radius: 20px; pointer-events: none;
-  }
-  .tag-advice  { background: #065f46; color: #6ee7b7; }
-  .tag-recipe  { background: #78350f; color: #fde68a; }
-  .tag-growing { background: #14532d; color: #86efac; }
-  .tag-natural { background: #052e16; color: #4ade80; }
-  .tag-journal { background: #1e1b4b; color: #a5b4fc; }
-
-  /* Info overlay */
-  .reel-info {
-    position: absolute; bottom: 64px; left: 0; right: 60px;
-    padding: 0 16px 12px;
-  }
-  .reel-item-name {
-    font-size: 12px; font-weight: 800; color: #4ade80; margin-bottom: 5px;
-    text-shadow: 0 1px 4px rgba(0,0,0,.9);
-  }
-  .reel-title {
-    font-size: 15px; font-weight: 700; color: #fff; line-height: 1.4;
-    text-shadow: 0 1px 5px rgba(0,0,0,.9);
+  /* ── MAIN BODY ── */
+  #healthBody {
+    display: flex; gap: 0; min-height: calc(100vh - 130px);
   }
 
-  /* Mute button */
-  .reel-mute {
-    position: absolute; bottom: 64px; right: 12px;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(0,0,0,.5); border: 1.5px solid rgba(255,255,255,.3);
-    color: #fff; font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; -webkit-tap-highlight-color: transparent;
-    display: none;
+  /* ── LEFT: DISEASE LIST ── */
+  #diseasePanel {
+    width: 140px; flex-shrink: 0;
+    background: #fff; border-right: 1px solid #e5e7eb;
+    overflow-y: auto; position: sticky;
+    top: 130px; /* height of topbar */
+    height: calc(100vh - 130px);
   }
-  .reel.playing.video-type .reel-mute { display: flex; }
-
-  /* Shorts CTA */
-  .reel-shorts-cta {
-    position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-    background: rgba(220,0,0,.9); color: #fff;
-    font-size: 14px; font-weight: 800;
-    padding: 11px 30px; border-radius: 30px;
-    text-decoration: none; white-space: nowrap;
-    border: 2px solid rgba(255,255,255,.25);
-    -webkit-tap-highlight-color: transparent;
+  #diseasePanel h3 {
+    font-size: 10px; font-weight: 800; color: #6b7280;
+    text-transform: uppercase; letter-spacing: .06em;
+    padding: 12px 12px 6px; margin: 0; border-bottom: 1px solid #f3f4f6;
   }
-
-  /* Empty reels */
-  .reel-empty {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 12px;
-    color: #555; font-size: 16px;
+  .disease-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; cursor: pointer; border: none;
+    background: none; width: 100%; text-align: left;
+    font-family: inherit; border-bottom: 1px solid #f9fafb;
+    transition: background .12s;
   }
-
-  /* ── EXPLORE VIEW ── */
-  #exploreView {
-    position: fixed; inset: 0; z-index: 1;
-    overflow-y: auto; background: #000;
-    padding-top: 84px; padding-bottom: 58px;
-    display: none;
+  .disease-item:hover { background: #f0fdf4; }
+  .disease-item.active { background: #dcfce7; }
+  .disease-item .d-icon { font-size: 16px; flex-shrink: 0; }
+  .disease-item .d-name {
+    font-size: 11px; font-weight: 700; color: #111;
+    line-height: 1.3;
   }
-  #exploreView.active { display: block; }
+  .disease-item.active .d-name { color: #16a34a; }
 
-  .guide-grid {
+  /* ── RIGHT: FOOD CARDS ── */
+  #foodPanel {
+    flex: 1; padding: 14px 12px; overflow-y: auto;
+    background: #f4f6f9;
+  }
+  #foodPanel h3 {
+    font-size: 12px; font-weight: 800; color: #374151;
+    margin: 0 0 10px; display: flex; align-items: center; gap: 6px;
+  }
+  #foodGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 2px; background: #000;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
   }
-  .guide-card {
-    background: #111; cursor: pointer;
-    overflow: hidden; text-decoration: none;
-    display: block; position: relative;
+  .food-card {
+    background: #fff; border-radius: 14px; overflow: hidden;
+    text-decoration: none; display: block;
+    box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    transition: transform .15s, box-shadow .15s;
+    border: 1.5px solid #e5e7eb;
   }
-  .guide-thumb {
-    position: relative; width: 100%; padding-top: 56.25%;
-    background: #0a0a0a; overflow: hidden;
+  .food-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+  .food-card-img {
+    width: 100%; aspect-ratio: 1/1; object-fit: cover;
+    background: #f0fdf4; display: block;
   }
-  .guide-thumb img {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; opacity: .82; transition: opacity .2s;
+  .food-card-ph {
+    width: 100%; aspect-ratio: 1/1;
+    background: #f0fdf4; display: flex;
+    align-items: center; justify-content: center; font-size: 2.5rem;
   }
-  .guide-thumb iframe, .guide-thumb video {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    border: 0; object-fit: cover;
+  .food-card-body { padding: 8px 10px 10px; }
+  .food-card-name {
+    font-size: 13px; font-weight: 800; color: #111;
+    margin-bottom: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .guide-card:hover .guide-thumb img { opacity: 1; }
-  .guide-play {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    width: 38px; height: 38px; background: rgba(220,0,0,.88);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
+  .food-card-cat {
+    font-size: 10px; color: #6b7280; font-weight: 600;
+    display: flex; align-items: center; gap: 3px;
   }
-  .guide-play::after {
-    content: ''; border: solid transparent 8px;
-    border-left: solid #fff 15px; margin-left: 5px;
-  }
-  .guide-cat {
-    position: absolute; bottom: 5px; left: 5px;
-    font-size: 10px; font-weight: 700;
-    padding: 2px 7px; border-radius: 4px;
-    pointer-events: none; line-height: 1.4;
-  }
-  .guide-shorts-lbl {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    background: rgba(220,0,0,.9); color: #fff;
-    font-size: 11px; font-weight: 800;
-    padding: 4px 12px; border-radius: 20px;
-    pointer-events: none; white-space: nowrap;
-  }
-  .guide-info { padding: 6px 8px 8px; background: #111; }
-  .guide-item-name {
-    font-size: 10px; font-weight: 800; color: #4ade80;
-    margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .guide-title {
-    font-size: 11px; color: #ccc; line-height: 1.35;
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
-  }
-  .guide-empty {
-    grid-column: 1 / -1; padding: 4rem 2rem;
-    text-align: center; color: #555; background: #000;
-  }
-  .guide-card.no-vid .guide-thumb { background: #0a1a0a; }
-  .guide-card.no-vid .guide-thumb img { opacity: .5; }
-  .guide-noplay {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .guide-noplay span {
-    font-size: 11px; font-weight: 800; color: #4ade80;
-    background: rgba(0,0,0,.7); padding: 4px 10px; border-radius: 12px;
-  }
+
+  /* tag colors */
+  .tag-advice  { background:#065f46; color:#6ee7b7; }
+  .tag-recipe  { background:#78350f; color:#fde68a; }
+  .tag-growing { background:#14532d; color:#86efac; }
+  .tag-natural { background:#052e16; color:#4ade80; }
 
   /* ── HEALTH BOTTOM NAV ── */
   #healthNav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
-    background: #080808; border-top: 1px solid #1c1c1c;
-    display: flex; height: 54px;
+    background: #fff; border-top: 1px solid #e5e7eb;
+    display: flex; height: 56px;
   }
   .hn-item {
     flex: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 3px;
-    color: #555; font-size: 10px; font-weight: 700;
+    color: #9ca3af; font-size: 10px; font-weight: 700;
     text-decoration: none; cursor: pointer;
-    border: none; background: none;
-    -webkit-tap-highlight-color: transparent; transition: color .15s;
+    border: none; background: none; font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
   }
   .hn-item i { font-size: 20px; }
-  .hn-item.active { color: #22c55e; }
+  .hn-item.active { color: #16a34a; }
+
+  /* bottom padding for fixed nav */
+  #healthBody { padding-bottom: 56px; }
+
+  @media (max-width: 400px) {
+    #diseasePanel { width: 110px; }
+    #foodGrid { grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); }
+  }
 </style>
 
-<!-- ── CATEGORY STRIP ── -->
-<div id="catStrip">
-  <button class="cat-bubble active" data-item="all">
-    <div class="cat-bubble-ph">🌿</div>
-    <span class="cat-bubble-name">All</span>
-  </button>
-  {% for item in items %}
-  <button class="cat-bubble" data-item="{{ item.slug }}">
-    {% if item.image %}
-    <img class="cat-bubble-img" src="{{ item.image.url }}" alt="{{ item.name }}">
-    {% else %}
-    <div class="cat-bubble-ph">{{ item.category.icon }}</div>
-    {% endif %}
-    <span class="cat-bubble-name">{{ item.name }}</span>
-  </button>
-  {% endfor %}
-</div>
-
-<!-- ── REELS VIEW ── -->
-<div id="reelsView">
-
-  {% for item in items %}
-
-    {# Health Advice #}
-    {% if item.advice_video %}
-    <div class="reel video-type" data-type="video" data-src="{{ item.advice_video.url }}" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <video class="reel-video" src="{{ item.advice_video.url }}" playsinline muted loop></video>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-advice">🏥 Health Advice</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">Health Advice – {{ item.name }}</div>
-      </div>
-      <button class="reel-mute" title="Toggle mute"><i class="fas fa-volume-mute"></i></button>
-    </div>
-    {% elif item.advice_video_url %}
-      {% if 'shorts/' in item.advice_video_url %}
-      <div class="reel shorts-type" data-type="shorts" data-item="{{ item.slug }}">
-        {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-advice">🏥 Health Advice</span>
-        <a class="reel-shorts-cta" href="{{ item.advice_video_url }}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Health Advice – {{ item.name }}</div>
-        </div>
-      </div>
-      {% else %}
-      <div class="reel youtube-type" data-type="youtube" data-embed="{{ item.advice_embed }}" data-vid="{{ item.advice_video_id }}" data-item="{{ item.slug }}">
-        <img class="reel-thumb" src="https://img.youtube.com/vi/{{ item.advice_video_id }}/hqdefault.jpg" alt="{{ item.name }}">
-        <div class="reel-iframe-wrap"></div>
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-advice">🏥 Health Advice</span>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Health Advice – {{ item.name }}</div>
-        </div>
-      </div>
-      {% endif %}
-    {% endif %}
-
-    {# Recipe videos #}
-    {% for rv in item.recipe_videos.all %}
-    {% if rv.video_file %}
-    <div class="reel video-type" data-type="video" data-src="{{ rv.video_file.url }}" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <video class="reel-video" src="{{ rv.video_file.url }}" playsinline muted loop></video>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-recipe">🍽️ Recipe</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-      </div>
-      <button class="reel-mute" title="Toggle mute"><i class="fas fa-volume-mute"></i></button>
-    </div>
-    {% elif rv.is_shorts %}
-    <div class="reel shorts-type" data-type="shorts" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-recipe">🍽️ Recipe</span>
-      <a class="reel-shorts-cta" href="{{ rv.video_url }}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-      </div>
-    </div>
-    {% elif rv.embed_url %}
-    <div class="reel youtube-type" data-type="youtube" data-embed="{{ rv.embed_url }}" data-vid="{{ rv.video_id }}" data-item="{{ item.slug }}">
-      <img class="reel-thumb" src="https://img.youtube.com/vi/{{ rv.video_id }}/hqdefault.jpg" alt="{{ item.name }}">
-      <div class="reel-iframe-wrap"></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-recipe">🍽️ Recipe</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-      </div>
-    </div>
-    {% endif %}
-    {% endfor %}
-
-    {# Growing videos #}
-    {% for gv in item.growing_videos.all %}
-    {% if gv.video_file %}
-    <div class="reel video-type" data-type="video" data-src="{{ gv.video_file.url }}" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <video class="reel-video" src="{{ gv.video_file.url }}" playsinline muted loop></video>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-growing">🌱 How to Grow</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-      </div>
-      <button class="reel-mute" title="Toggle mute"><i class="fas fa-volume-mute"></i></button>
-    </div>
-    {% elif gv.is_shorts %}
-    <div class="reel shorts-type" data-type="shorts" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-growing">🌱 How to Grow</span>
-      <a class="reel-shorts-cta" href="{{ gv.video_url }}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-      </div>
-    </div>
-    {% elif gv.embed_url %}
-    <div class="reel youtube-type" data-type="youtube" data-embed="{{ gv.embed_url }}" data-vid="{{ gv.video_id }}" data-item="{{ item.slug }}">
-      <img class="reel-thumb" src="https://img.youtube.com/vi/{{ gv.video_id }}/hqdefault.jpg" alt="{{ item.name }}">
-      <div class="reel-iframe-wrap"></div>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-growing">🌱 How to Grow</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-      </div>
-    </div>
-    {% endif %}
-    {% endfor %}
-
-    {# Natural Treatment #}
-    {% if item.natural_treatment_video %}
-    <div class="reel video-type" data-type="video" data-src="{{ item.natural_treatment_video.url }}" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <video class="reel-video" src="{{ item.natural_treatment_video.url }}" playsinline muted loop></video>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-natural">🌿 Natural Treatment</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">Natural Treatment – {{ item.name }}</div>
-      </div>
-      <button class="reel-mute" title="Toggle mute"><i class="fas fa-volume-mute"></i></button>
-    </div>
-    {% elif item.natural_treatment_video_url %}
-      {% if item.natural_treatment_is_shorts %}
-      <div class="reel shorts-type" data-type="shorts" data-item="{{ item.slug }}">
-        {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-natural">🌿 Natural Treatment</span>
-        <a class="reel-shorts-cta" href="{{ item.natural_treatment_video_url }}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Natural Treatment – {{ item.name }}</div>
-        </div>
-      </div>
-      {% else %}
-      <div class="reel youtube-type" data-type="youtube" data-embed="{{ item.natural_treatment_embed }}" data-vid="{{ item.natural_treatment_video_id }}" data-item="{{ item.slug }}">
-        <img class="reel-thumb" src="https://img.youtube.com/vi/{{ item.natural_treatment_video_id }}/hqdefault.jpg" alt="{{ item.name }}">
-        <div class="reel-iframe-wrap"></div>
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-natural">🌿 Natural Treatment</span>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Natural Treatment – {{ item.name }}</div>
-        </div>
-      </div>
-      {% endif %}
-    {% endif %}
-
-    {# Journal #}
-    {% if item.journal_video %}
-    <div class="reel video-type" data-type="video" data-src="{{ item.journal_video.url }}" data-item="{{ item.slug }}">
-      {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-      <video class="reel-video" src="{{ item.journal_video.url }}" playsinline muted loop></video>
-      <div class="reel-gradient"></div>
-      <div class="reel-play-btn"></div>
-      <span class="reel-cat tag-journal">📰 Journal</span>
-      <div class="reel-info">
-        <div class="reel-item-name">{{ item.name }}</div>
-        <div class="reel-title">Journal – {{ item.name }}</div>
-      </div>
-      <button class="reel-mute" title="Toggle mute"><i class="fas fa-volume-mute"></i></button>
-    </div>
-    {% elif item.journal_video_url %}
-      {% if 'shorts/' in item.journal_video_url %}
-      <div class="reel shorts-type" data-type="shorts" data-item="{{ item.slug }}">
-        {% if item.image %}<img class="reel-thumb" src="{{ item.image.url }}" alt="{{ item.name }}">{% endif %}
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-journal">📰 Journal</span>
-        <a class="reel-shorts-cta" href="{{ item.journal_video_url }}" target="_blank" rel="noopener">▶ Watch on YouTube</a>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Journal – {{ item.name }}</div>
-        </div>
-      </div>
-      {% else %}
-      <div class="reel youtube-type" data-type="youtube" data-embed="{{ item.journal_embed }}" data-vid="{{ item.journal_video_id }}" data-item="{{ item.slug }}">
-        <img class="reel-thumb" src="https://img.youtube.com/vi/{{ item.journal_video_id }}/hqdefault.jpg" alt="{{ item.name }}">
-        <div class="reel-iframe-wrap"></div>
-        <div class="reel-gradient"></div>
-        <div class="reel-play-btn"></div>
-        <span class="reel-cat tag-journal">📰 Journal</span>
-        <div class="reel-info">
-          <div class="reel-item-name">{{ item.name }}</div>
-          <div class="reel-title">Journal{% if item.journal_author %} · {{ item.journal_author }}{% endif %} – {{ item.name }}</div>
-        </div>
-      </div>
-      {% endif %}
-    {% endif %}
-
-  {% empty %}
-  <div class="reel reel-empty">
-    <div style="font-size:3rem">🌱</div>
-    <p style="color:#555;font-size:16px">No videos yet.</p>
-  </div>
-  {% endfor %}
-
-</div>
-
-<!-- ── EXPLORE VIEW ── -->
-<div id="exploreView">
-  <div class="guide-grid">
-
+<!-- ── TOP BAR ── -->
+<div id="healthTopBar">
+  <h2><i class="fas fa-heartbeat"></i> Health Guide</h2>
+  <div id="foodStrip">
     {% for item in items %}
-    {% with item_url="/health/guide/"|add:item.category.slug|add:"/"|add:item.slug|add:"/" %}
-
-      {% if item.advice_video or item.advice_video_url %}
-      {% if item.advice_video %}
-      <div class="guide-card" data-type="video" data-src="{{ item.advice_video.url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#0a1a0a"></div>{% endif %}
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-advice">🏥 Health Advice</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Health Advice – {{ item.name }}</div>
-        </div>
-      </div>
-      {% elif 'shorts/' in item.advice_video_url %}
-      <a class="guide-card" href="{{ item.advice_video_url }}" target="_blank" rel="noopener" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#0a1a0a"></div>{% endif %}
-          <span class="guide-shorts-lbl">▶ Watch Shorts</span>
-          <span class="guide-cat tag-advice">🏥 Health Advice</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Health Advice – {{ item.name }}</div>
-        </div>
-      </a>
+    <a class="food-bubble" href="/health/guide/{{ item.category.slug }}/{{ item.slug }}/">
+      {% if item.image %}
+        <img class="food-bubble-img" src="{{ item.image.url }}" alt="{{ item.name }}">
       {% else %}
-      <div class="guide-card" data-type="youtube" data-embed="{{ item.advice_embed }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          <img src="https://img.youtube.com/vi/{{ item.advice_video_id }}/mqdefault.jpg" alt="{{ item.name }}">
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-advice">🏥 Health Advice</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Health Advice – {{ item.name }}</div>
-        </div>
-      </div>
+        <div class="food-bubble-ph">{{ item.category.icon }}</div>
       {% endif %}
-      {% endif %}
-
-      {% for rv in item.recipe_videos.all %}
-      {% if rv.video_file %}
-      <div class="guide-card" data-type="video" data-src="{{ rv.video_file.url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#1a0a00"></div>{% endif %}
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-recipe">🍽️ Recipe</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-        </div>
-      </div>
-      {% elif rv.is_shorts %}
-      <a class="guide-card" href="{{ rv.video_url }}" target="_blank" rel="noopener" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#1a0a00"></div>{% endif %}
-          <span class="guide-shorts-lbl">▶ Watch Shorts</span>
-          <span class="guide-cat tag-recipe">🍽️ Recipe</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-        </div>
-      </a>
-      {% elif rv.embed_url %}
-      <div class="guide-card" data-type="youtube" data-embed="{{ rv.embed_url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          <img src="https://img.youtube.com/vi/{{ rv.video_id }}/mqdefault.jpg" alt="{{ item.name }}">
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-recipe">🍽️ Recipe</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if rv.title %}{{ rv.title }}{% else %}Recipe – {{ item.name }}{% endif %}</div>
-        </div>
-      </div>
-      {% endif %}
-      {% endfor %}
-
-      {% for gv in item.growing_videos.all %}
-      {% if gv.video_file %}
-      <div class="guide-card" data-type="video" data-src="{{ gv.video_file.url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#001a00"></div>{% endif %}
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-growing">🌱 How to Grow</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-        </div>
-      </div>
-      {% elif gv.is_shorts %}
-      <a class="guide-card" href="{{ gv.video_url }}" target="_blank" rel="noopener" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#001a00"></div>{% endif %}
-          <span class="guide-shorts-lbl">▶ Watch Shorts</span>
-          <span class="guide-cat tag-growing">🌱 How to Grow</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-        </div>
-      </a>
-      {% elif gv.embed_url %}
-      <div class="guide-card" data-type="youtube" data-embed="{{ gv.embed_url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          <img src="https://img.youtube.com/vi/{{ gv.video_id }}/mqdefault.jpg" alt="{{ item.name }}">
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-growing">🌱 How to Grow</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{% if gv.title %}{{ gv.title }}{% else %}How to Grow – {{ item.name }}{% endif %}</div>
-        </div>
-      </div>
-      {% endif %}
-      {% endfor %}
-
-      {% if item.natural_treatment_video or item.natural_treatment_video_url %}
-      {% if item.natural_treatment_video %}
-      <div class="guide-card" data-type="video" data-src="{{ item.natural_treatment_video.url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#051a05"></div>{% endif %}
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-natural">🌿 Natural Treatment</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Natural Treatment – {{ item.name }}</div>
-        </div>
-      </div>
-      {% elif item.natural_treatment_is_shorts %}
-      <a class="guide-card" href="{{ item.natural_treatment_video_url }}" target="_blank" rel="noopener" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#051a05"></div>{% endif %}
-          <span class="guide-shorts-lbl">▶ Watch Shorts</span>
-          <span class="guide-cat tag-natural">🌿 Natural Treatment</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Natural Treatment – {{ item.name }}</div>
-        </div>
-      </a>
-      {% else %}
-      <div class="guide-card" data-type="youtube" data-embed="{{ item.natural_treatment_embed }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          <img src="https://img.youtube.com/vi/{{ item.natural_treatment_video_id }}/mqdefault.jpg" alt="{{ item.name }}">
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-natural">🌿 Natural Treatment</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Natural Treatment – {{ item.name }}</div>
-        </div>
-      </div>
-      {% endif %}
-      {% endif %}
-
-      {% if item.journal_video or item.journal_video_url %}
-      {% if item.journal_video %}
-      <div class="guide-card" data-type="video" data-src="{{ item.journal_video.url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#0a0a1a"></div>{% endif %}
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-journal">📰 Journal</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Journal – {{ item.name }}</div>
-        </div>
-      </div>
-      {% elif 'shorts/' in item.journal_video_url %}
-      <a class="guide-card" href="{{ item.journal_video_url }}" target="_blank" rel="noopener" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;background:#0a0a1a"></div>{% endif %}
-          <span class="guide-shorts-lbl">▶ Watch Shorts</span>
-          <span class="guide-cat tag-journal">📰 Journal</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Journal – {{ item.name }}</div>
-        </div>
-      </a>
-      {% else %}
-      <div class="guide-card" data-type="youtube" data-embed="{{ item.journal_embed }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          <img src="https://img.youtube.com/vi/{{ item.journal_video_id }}/mqdefault.jpg" alt="{{ item.name }}">
-          <div class="guide-play"></div>
-          <span class="guide-cat tag-journal">📰 Journal</span>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">Journal{% if item.journal_author %} · {{ item.journal_author }}{% endif %} – {{ item.name }}</div>
-        </div>
-      </div>
-      {% endif %}
-      {% endif %}
-
-      {% with has_vid=item.advice_video|default:item.advice_video_url|default:item.natural_treatment_video|default:item.natural_treatment_video_url|default:item.journal_video|default:item.journal_video_url %}
-      {% if not has_vid and not item.recipe_videos.all and not item.growing_videos.all %}
-      <a class="guide-card no-vid" href="{{ item_url }}" data-item="{{ item.slug }}">
-        <div class="guide-thumb">
-          {% if item.image %}<img src="{{ item.image.url }}" alt="{{ item.name }}">{% else %}<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:#0a1a0a">{{ item.category.icon }}</div>{% endif %}
-          <div class="guide-noplay"><span>View Details →</span></div>
-        </div>
-        <div class="guide-info">
-          <div class="guide-item-name">{{ item.name }}</div>
-          <div class="guide-title">{{ item.category.icon }} {{ item.category.name }}</div>
-        </div>
-      </a>
-      {% endif %}
-      {% endwith %}
-
-    {% endwith %}
-    {% empty %}
-    <div class="guide-empty">
-      <div style="font-size:3rem">🌱</div>
-      <p>No food items added yet.</p>
-    </div>
+      <span class="food-bubble-name">{{ item.name }}</span>
+    </a>
     {% endfor %}
-
   </div>
+</div>
+
+<!-- ── MAIN BODY ── -->
+<div id="healthBody">
+
+  <!-- LEFT: Diseases -->
+  <div id="diseasePanel">
+    <h3>Conditions</h3>
+    <button class="disease-item active" data-slug="all" onclick="filterByDisease(this,'all')">
+      <span class="d-icon">🌿</span>
+      <span class="d-name">All Foods</span>
+    </button>
+    {% for cond in conditions %}
+    <button class="disease-item" data-slug="{{ cond.slug }}" onclick="filterByDisease(this,'{{ cond.slug }}')">
+      <span class="d-icon">{{ cond.icon }}</span>
+      <span class="d-name">{{ cond.name }}</span>
+    </button>
+    {% empty %}
+    <button class="disease-item active" data-slug="diabetes" onclick="filterByDisease(this,'diabetes')">
+      <span class="d-icon">🩸</span><span class="d-name">Diabetes</span>
+    </button>
+    <button class="disease-item" data-slug="bp" onclick="filterByDisease(this,'bp')">
+      <span class="d-icon">❤️</span><span class="d-name">Blood Pressure</span>
+    </button>
+    <button class="disease-item" data-slug="heart" onclick="filterByDisease(this,'heart')">
+      <span class="d-icon">🫀</span><span class="d-name">Heart Disease</span>
+    </button>
+    <button class="disease-item" data-slug="digestion" onclick="filterByDisease(this,'digestion')">
+      <span class="d-icon">🫁</span><span class="d-name">Digestion</span>
+    </button>
+    <button class="disease-item" data-slug="immunity" onclick="filterByDisease(this,'immunity')">
+      <span class="d-icon">🛡️</span><span class="d-name">Immunity</span>
+    </button>
+    <button class="disease-item" data-slug="skin" onclick="filterByDisease(this,'skin')">
+      <span class="d-icon">✨</span><span class="d-name">Skin Care</span>
+    </button>
+    <button class="disease-item" data-slug="weight" onclick="filterByDisease(this,'weight')">
+      <span class="d-icon">⚖️</span><span class="d-name">Weight Loss</span>
+    </button>
+    <button class="disease-item" data-slug="bone" onclick="filterByDisease(this,'bone')">
+      <span class="d-icon">🦴</span><span class="d-name">Bone Health</span>
+    </button>
+    <button class="disease-item" data-slug="eye" onclick="filterByDisease(this,'eye')">
+      <span class="d-icon">👁️</span><span class="d-name">Eye Care</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <!-- RIGHT: Food cards -->
+  <div id="foodPanel">
+    <h3 id="foodPanelTitle"><i class="fas fa-leaf" style="color:#16a34a"></i> All Foods</h3>
+    <div id="foodGrid">
+      {% for item in items %}
+      <a class="food-card"
+         href="/health/guide/{{ item.category.slug }}/{{ item.slug }}/"
+         data-conditions="{% for c in item.conditions.all %}{{ c.slug }}{% if not forloop.last %},{% endif %}{% endfor %}">
+        {% if item.image %}
+          <img class="food-card-img" src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+        {% else %}
+          <div class="food-card-ph">{{ item.category.icon }}</div>
+        {% endif %}
+        <div class="food-card-body">
+          <div class="food-card-name">{{ item.name }}</div>
+          <div class="food-card-cat">{{ item.category.icon }} {{ item.category.name }}</div>
+        </div>
+      </a>
+      {% empty %}
+      <div style="grid-column:1/-1;padding:3rem;text-align:center;color:#9ca3af">
+        <div style="font-size:3rem;margin-bottom:8px">🌱</div>
+        <p>No food items added yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
 </div>
 
 <!-- ── HEALTH BOTTOM NAV ── -->
 <nav id="healthNav">
-  <button class="hn-item active" data-view="reels" onclick="switchView('reels')">
-    <i class="fas fa-play-circle"></i>
-    <span>Home</span>
-  </button>
-  <button class="hn-item" data-view="explore" onclick="switchView('explore')">
-    <i class="fas fa-th"></i>
-    <span>Explore</span>
-  </button>
+  <a href="/health/guide/" class="hn-item active">
+    <i class="fas fa-home"></i><span>Home</span>
+  </a>
   <a href="/profile/" class="hn-item">
-    <i class="fas fa-user"></i>
-    <span>Profile</span>
+    <i class="fas fa-user"></i><span>Profile</span>
   </a>
 </nav>
 
 <script>
-(function(){
-  var reelsEl   = document.getElementById('reelsView');
-  var exploreEl = document.getElementById('exploreView');
-  var catStrip  = document.getElementById('catStrip');
-  var allReels  = Array.from(document.querySelectorAll('#reelsView .reel'));
-  var currentFilter = 'all';
+function filterByDisease(btn, slug) {
+  document.querySelectorAll('.disease-item').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var title = document.getElementById('foodPanelTitle');
+  var cards = document.querySelectorAll('#foodGrid .food-card');
 
-  /* ── CATEGORY FILTER ── */
-  document.querySelectorAll('.cat-bubble').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      currentFilter = this.dataset.item;
-      document.querySelectorAll('.cat-bubble').forEach(function(b){ b.classList.remove('active'); });
-      this.classList.add('active');
-      applyFilter();
-    });
-  });
-
-  function applyFilter(){
-    var f = currentFilter;
-    /* reels */
-    allReels.forEach(function(r){
-      r.style.display = (f === 'all' || r.dataset.item === f) ? '' : 'none';
-    });
-    /* explore grid cards */
-    document.querySelectorAll('#exploreView [data-item]').forEach(function(c){
-      c.style.display = (f === 'all' || c.dataset.item === f) ? '' : 'none';
-    });
-    /* scroll first visible reel into view */
-    if(!exploreEl.classList.contains('active')){
-      var first = allReels.find(function(r){ return r.style.display !== 'none'; });
-      if(first) first.scrollIntoView();
-    }
+  if (slug === 'all') {
+    title.innerHTML = '<i class="fas fa-leaf" style="color:#16a34a"></i> All Foods';
+    cards.forEach(function(c){ c.style.display = ''; });
+    return;
   }
-
-  /* ── VIEW SWITCHING ── */
-  window.switchView = function(view){
-    var hnItems = document.querySelectorAll('.hn-item[data-view]');
-    hnItems.forEach(function(it){ it.classList.remove('active'); });
-    var activeBtn = document.querySelector('.hn-item[data-view="'+view+'"]');
-    if(activeBtn) activeBtn.classList.add('active');
-
-    if(view === 'reels'){
-      reelsEl.classList.remove('hidden');
-      exploreEl.classList.remove('active');
-      catStrip.classList.remove('explore-mode');
-    } else {
-      reelsEl.classList.add('hidden');
-      exploreEl.classList.add('active');
-      catStrip.classList.add('explore-mode');
-      /* pause any playing videos */
-      allReels.forEach(function(r){ pauseReel(r); });
-    }
-  };
-
-  /* ── INTERSECTION OBSERVER (auto-play on scroll) ── */
-  var observer = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){ playReel(e.target); }
-      else { pauseReel(e.target); }
-    });
-  }, { root: reelsEl, threshold: 0.7 });
-
-  allReels.forEach(function(r){ observer.observe(r); });
-
-  function playReel(reel){
-    var type = reel.dataset.type;
-    if(type === 'video'){
-      var vid = reel.querySelector('video');
-      if(vid){ vid.play().catch(function(){}); reel.classList.add('playing'); }
-    } else if(type === 'youtube'){
-      var wrap = reel.querySelector('.reel-iframe-wrap');
-      if(wrap && !wrap.querySelector('iframe') && reel.dataset.embed){
-        var f = document.createElement('iframe');
-        var url = reel.dataset.embed;
-        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=1&mute=1&playsinline=1&rel=0&controls=1';
-        f.src = url;
-        f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        f.setAttribute('allowfullscreen','');
-        wrap.appendChild(f);
-      }
-      reel.classList.add('playing');
-    }
-  }
-
-  function pauseReel(reel){
-    var vid = reel.querySelector('video');
-    if(vid){ vid.pause(); }
-    reel.classList.remove('playing');
-  }
-
-  /* ── TAP TO PLAY/PAUSE (video reels) ── */
-  allReels.forEach(function(reel){
-    if(reel.dataset.type !== 'video') return;
-    reel.addEventListener('click', function(e){
-      if(e.target.closest('.reel-mute, .reel-shorts-cta')) return;
-      var vid = reel.querySelector('video');
-      if(!vid) return;
-      if(vid.paused){ vid.play().catch(function(){}); reel.classList.add('playing'); }
-      else { vid.pause(); reel.classList.remove('playing'); }
-    });
+  title.innerHTML = '<i class="fas fa-leaf" style="color:#16a34a"></i> ' + btn.querySelector('.d-name').textContent;
+  cards.forEach(function(c){
+    var csv = (c.dataset.conditions || '').toLowerCase();
+    c.style.display = csv.indexOf(slug.toLowerCase()) >= 0 ? '' : 'none';
   });
-
-  /* ── MUTE TOGGLE ── */
-  document.querySelectorAll('.reel-mute').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation();
-      var reel = this.closest('.reel');
-      var vid  = reel && reel.querySelector('video');
-      if(!vid) return;
-      vid.muted = !vid.muted;
-      this.querySelector('i').className = vid.muted ? 'fas fa-volume-mute' : 'fas fa-volume-up';
-    });
-  });
-
-  /* ── EXPLORE GRID: inline play on click ── */
-  document.querySelectorAll('#exploreView .guide-card[data-type]').forEach(function(card){
-    card.addEventListener('click', function(){
-      var type  = this.dataset.type;
-      var thumb = this.querySelector('.guide-thumb');
-      if(!thumb) return;
-      if(type === 'video'){
-        var v = document.createElement('video');
-        v.src = this.dataset.src; v.controls = true; v.autoplay = true; v.playsInline = true;
-        v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000';
-        thumb.innerHTML = ''; thumb.appendChild(v);
-      } else if(type === 'youtube' && this.dataset.embed){
-        var url = this.dataset.embed;
-        url += (url.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=1&playsinline=1&rel=0';
-        var f = document.createElement('iframe');
-        f.src = url;
-        f.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        f.setAttribute('allowfullscreen','');
-        f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
-        thumb.innerHTML = ''; thumb.appendChild(f);
-      }
-    });
-  });
-
-})();
+}
 </script>
 {% endblock %}

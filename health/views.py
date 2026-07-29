@@ -1085,9 +1085,10 @@ def guide_home(request):
     items = (FoodItem.objects
              .filter(category__is_active=True)
              .select_related('category')
-             .prefetch_related('recipe_videos', 'growing_videos')
+             .prefetch_related('recipe_videos', 'growing_videos', 'conditions')
              .order_by('category__order', 'order', 'name'))
-    return render(request, 'health/guide_home.html', {'items': items})
+    conditions = HealthCondition.objects.all().order_by('name')
+    return render(request, 'health/guide_home.html', {'items': items, 'conditions': conditions})
 
 
 def guide_category(request, slug):
