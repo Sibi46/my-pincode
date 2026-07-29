@@ -942,17 +942,17 @@ var olxAdCur = 0;
 <!-- APP-STYLE BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <a href="/" class="bn-item active"><i class="fas fa-home"></i><span>Home</span></a>
-    {% if request.user.is_authenticated and request.user.is_employer %}
+    {% if request.user.is_authenticated %}
+      <a href="/" class="bn-item active"><i class="fas fa-home"></i><span>Home</span></a>
+      <a href="/health/guide/" class="bn-item"><i class="fas fa-heartbeat"></i><span>Health</span></a>
       <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
-<a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
-    {% elif request.user.is_authenticated %}
-      <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span></a>
+      <a href="/vouchers/marketplace/" class="bn-item"><i class="fas fa-gift"></i><span>Vouchers</span></a>
       <a href="/profile/" class="bn-item"><i class="fas fa-user"></i><span>Profile</span></a>
     {% else %}
-      <a href="/jobs/" class="bn-item"><i class="fas fa-briefcase"></i><span>Jobs</span></a>
-      <a href="/register/" class="bn-item bn-fab"><div class="bn-fab-icon"><i class="fas fa-user-plus"></i></div><span>Join</span></a>
-      <a href="/advertise/" class="bn-item"><i class="fas fa-bullhorn"></i><span>Advertise</span></a>
+      <a href="/jobs/" class="bn-item"><i class="fas fa-briefcase"></i><span>Job</span></a>
+      <a href="/health/guide/" class="bn-item"><i class="fas fa-heartbeat"></i><span>Health</span></a>
+      <a href="/flicks/" class="bn-item bn-fab"><div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flick</span></a>
+      <a href="/vouchers/marketplace/" class="bn-item"><i class="fas fa-gift"></i><span>Voucher</span></a>
       <a href="/login/" class="bn-item"><i class="fas fa-sign-in-alt"></i><span>Sign In</span></a>
     {% endif %}
   </div>
