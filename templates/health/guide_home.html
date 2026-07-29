@@ -231,7 +231,7 @@
       {% for item in items %}
       <a class="food-card"
          href="/health/guide/{{ item.category.slug }}/{{ item.slug }}/"
-         data-conditions="{% for c in item.conditions.all %}{{ c.slug }}{% if not forloop.last %},{% endif %}{% endfor %}">
+         data-conditions="">
         {% if item.image %}
           <img class="food-card-img" src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
         {% else %}
