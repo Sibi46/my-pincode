@@ -139,7 +139,7 @@
   #healthNav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 400;
     background: #fff; border-top: 1px solid #e5e7eb;
-    display: flex; height: 56px;
+    display: flex; height: 56px; align-items: stretch;
   }
   .hn-item {
     flex: 1; display: flex; flex-direction: column;
@@ -151,6 +151,20 @@
   }
   .hn-item i { font-size: 20px; }
   .hn-item.active { color: #16a34a; }
+  .hn-fab {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-end; gap: 3px;
+    text-decoration: none; margin-top: -20px;
+    font-size: 10px; font-weight: 700; color: #7c3aed;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hn-fab-icon {
+    width: 46px; height: 46px; border-radius: 50%;
+    background: linear-gradient(135deg,#7c3aed,#0a66c2);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 19px; box-shadow: 0 4px 14px rgba(124,58,237,.4);
+    margin-bottom: 2px;
+  }
 
   /* bottom padding for fixed nav */
   #healthBody { padding-bottom: 56px; }
@@ -255,11 +269,17 @@
 
 <!-- ── HEALTH BOTTOM NAV ── -->
 <nav id="healthNav">
-  <a href="/health/guide/" class="hn-item active">
+  <a href="/" class="hn-item">
     <i class="fas fa-home"></i><span>Home</span>
   </a>
-  <a href="/profile/" class="hn-item">
-    <i class="fas fa-user"></i><span>Profile</span>
+  <a href="/health/guide/" class="hn-item active">
+    <i class="fas fa-heartbeat"></i><span>Health</span>
+  </a>
+  <a href="/flicks/" class="hn-fab">
+    <div class="hn-fab-icon"><i class="fas fa-bolt"></i></div><span>Flick</span>
+  </a>
+  <a href="#" class="hn-item" style="opacity:.45;pointer-events:none">
+    <i class="fas fa-notes-medical"></i><span>My Health</span>
   </a>
 </nav>
 
