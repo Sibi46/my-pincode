@@ -618,34 +618,37 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 {% block site_bottom_nav %}
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
-      <i class="fas fa-home"></i><span>Home</span>
-    </a>
-    <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
-      <i class="fas fa-heartbeat"></i><span>Health</span>
-    </a>
-    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
-      <i class="fas fa-gift"></i><span>Vouchers</span>
-    </a>
     {% if request.user.is_authenticated %}
-      {% if request.user.ad_posts.exists %}
-        <a href="/ads/my-ads/" class="bn-item {% if '/ads/my-ads' in request.path %}active{% endif %}" style="color:#f3a000;display:none!important">
-          <i class="fas fa-bullhorn"></i><span>My Ads</span>
-        </a>
-      {% else %}
-        <a href="/ads/post/" class="bn-item {% if '/ads/post' in request.path %}active{% endif %}" style="color:#f3a000;display:none!important">
-          <i class="fas fa-bullhorn"></i><span>Advertise</span>
-        </a>
-      {% endif %}
+      <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
+        <i class="fas fa-home"></i><span>Home</span>
+      </a>
+      <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
+        <i class="fas fa-heartbeat"></i><span>Health</span>
+      </a>
       <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
         <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span>
+      </a>
+      <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
+        <i class="fas fa-gift"></i><span>Vouchers</span>
       </a>
       <a href="/profile/" class="bn-item {% if '/profile' in request.path or '/employer/dashboard' in request.path or '/jobseeker/dashboard' in request.path %}active{% endif %}">
         <i class="fas fa-user"></i><span>Profile</span>
       </a>
     {% else %}
       <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
-        <i class="fas fa-briefcase"></i><span>Jobs</span>
+        <i class="fas fa-briefcase"></i><span>Job</span>
+      </a>
+      <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
+        <i class="fas fa-heartbeat"></i><span>Health</span>
+      </a>
+      <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
+        <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flick</span>
+      </a>
+      <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
+        <i class="fas fa-gift"></i><span>Voucher</span>
+      </a>
+      <a href="/login/" class="bn-item {% if '/login' in request.path %}active{% endif %}">
+        <i class="fas fa-sign-in-alt"></i><span>Sign In</span>
       </a>
     {% endif %}
   </div>
