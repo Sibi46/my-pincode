@@ -866,13 +866,12 @@ function onPincodeInput(val) {
   if (pin.length !== 6) { preview.innerHTML = ''; return; }
   if (_pinCache[pin]) { applyPinResult(pin, _pinCache[pin], preview); return; }
   preview.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Looking up…';
-  fetch('https://api.postalpincode.in/pincode/' + pin)
+  fetch('/api/pincode/' + pin + '/')
     .then(function(r){ return r.json(); })
     .then(function(data){
       var res = null;
-      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
-        var po = data[0].PostOffice[0];
-        res = { area: po.Name, district: po.District, state: po.State };
+      if (data && data.success) {
+        res = { area: data.area, district: data.district, state: data.state };
       }
       _pinCache[pin] = res;
       applyPinResult(pin, res, preview);

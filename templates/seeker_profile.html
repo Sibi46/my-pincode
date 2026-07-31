@@ -784,12 +784,11 @@ function prefLocPinCheck(val) {
   if (clean.length !== 6) { hint.textContent = ''; document.getElementById('prefLocInput')._locLabel = null; return; }
   hint.style.color = '#aaa';
   hint.textContent = '🔍 Looking up…';
-  fetch('https://api.postalpincode.in/pincode/' + clean)
+  fetch('/api/pincode/' + clean + '/')
     .then(function(r){return r.json();})
     .then(function(data){
-      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
-        var po = data[0].PostOffice[0];
-        var label = (po.Name !== po.District ? po.Name + ', ' + po.District : po.District) + ', ' + po.State;
+      if (data && data.success) {
+        var label = (data.area && data.area !== data.district ? data.area + ', ' + data.district : data.district) + ', ' + data.state;
         hint.style.color = '#2e7d32';
         hint.textContent = '📍 ' + label;
         document.getElementById('prefLocInput')._locLabel = label + ' (' + clean + ')';
@@ -845,13 +844,11 @@ function prefPinLookup(val) {
   if (val.length !== 6) { hint.textContent = ''; return; }
   hint.style.color = '#aaa';
   hint.textContent = '🔍 Looking up…';
-  fetch('https://api.postalpincode.in/pincode/' + val)
+  fetch('/api/pincode/' + val + '/')
     .then(function(r){return r.json();})
     .then(function(data){
-      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length) {
-        var po = data[0].PostOffice[0];
-        var label = po.Name !== po.District ? po.Name + ', ' + po.District : po.District;
-        label += ', ' + po.State;
+      if (data && data.success) {
+        var label = (data.area && data.area !== data.district ? data.area + ', ' + data.district : data.district) + ', ' + data.state;
         hint.style.color = '#2e7d32';
         hint.textContent = '📍 ' + label;
         document.getElementById('prefPinInput')._pinLabel = label;
