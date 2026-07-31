@@ -690,14 +690,42 @@ function fkPostCmt() {
 /* ── SHARE ── */
 function fkShare(pk, title) {
   var url = window.location.origin + '/flicks/';
+  var shareTitle = title || 'Flick on MY PINCOD';
+
+  function showToast(msg) {
+    var t = document.getElementById('fk-toast');
+    if (!t) return;
+    t.textContent = msg || 'Link copied!';
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  function execCopy() {
+    var el = document.createElement('textarea');
+    el.value = url;
+    el.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+    document.body.appendChild(el);
+    el.focus(); el.select();
+    try { document.execCommand('copy'); showToast('Link copied!'); }
+    catch(e) { prompt('Copy link:', url); }
+    document.body.removeChild(el);
+  }
+
+  function copyFallback() {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url)
+        .then(function(){ showToast('Link copied!'); })
+        .catch(execCopy);
+    } else {
+      execCopy();
+    }
+  }
+
   if (navigator.share) {
-    navigator.share({ title: title || 'Flick on MY PINCOD', url: url }).catch(function(){});
+    navigator.share({ title: shareTitle, url: url })
+      .catch(function(e){ if (e.name !== 'AbortError') copyFallback(); });
   } else {
-    navigator.clipboard.writeText(url).then(function() {
-      var t = document.getElementById('fk-toast');
-      t.classList.add('show');
-      setTimeout(function(){ t.classList.remove('show'); }, 2200);
-    }).catch(function(){ prompt('Copy link:', url); });
+    copyFallback();
   }
 }
 
