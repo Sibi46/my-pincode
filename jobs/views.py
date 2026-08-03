@@ -2622,29 +2622,34 @@ def flicks_feed(request):
     from .models import Flick, FlickLike
     from django.utils import timezone
     today = timezone.now().date()
-    # promoted (paid active) first, then rest newest-first
+    cat = request.GET.get('cat', '')
     flicks = Flick.objects.select_related('user').prefetch_related('likes', 'comments').extra(
         select={'is_paid_active': "CASE WHEN promoted_until >= %s THEN 1 ELSE 0 END"},
         select_params=[today],
         order_by=['-is_paid_active', '-created_at'],
     )
-    liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
-    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids, 'today': today})
+    if cat:
+        flicks = flicks.filter(category=cat)
+    liked_ids = set()
+    if request.user.is_authenticated:
+        liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+    return render(request, 'flicks.html', {'flicks': flicks, 'liked_ids': liked_ids, 'today': today, 'active_cat': cat})
 
 
 @login_required
 def post_flick(request):
     from .models import Flick
     if request.method == 'POST':
-        title   = request.POST.get('title', '').strip()
-        caption = request.POST.get('caption', '').strip()
-        video   = request.FILES.get('video')
-        image   = request.FILES.get('image')
+        title    = request.POST.get('title', '').strip()
+        caption  = request.POST.get('caption', '').strip()
+        category = request.POST.get('category', 'general')
+        video    = request.FILES.get('video')
+        image    = request.FILES.get('image')
         if not caption and not video and not image:
             messages.error(request, 'Add a caption, image, or video.')
             return redirect('post_flick')
         Flick.objects.create(user=request.user, title=title, caption=caption,
-                             video=video, image=image)
+                             category=category, video=video, image=image)
         messages.success(request, 'Flick posted!')
         return redirect('flicks_feed')
     return render(request, 'post_flick.html')

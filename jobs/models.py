@@ -959,9 +959,11 @@ class FlickAdSettings(models.Model):
 
 class Flick(models.Model):
     PLAN_CHOICES = [('', 'No Plan'), ('basic', 'Basic'), ('premium', 'Premium'), ('featured', 'Featured')]
+    CAT_CHOICES  = [('general', 'General'), ('health', 'Health'), ('job', 'Job'), ('business', 'Business')]
     user           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flicks')
     title          = models.CharField(max_length=150, blank=True)
     caption        = models.TextField(blank=True)
+    category       = models.CharField(max_length=20, choices=CAT_CHOICES, default='general')
     video          = models.FileField(upload_to='flicks/videos/', blank=True, null=True)
     image          = models.ImageField(upload_to='flicks/images/', blank=True, null=True)
     views          = models.PositiveIntegerField(default=0)
