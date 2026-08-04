@@ -1004,11 +1004,10 @@ var olxAdCur = 0;
     return v ? v[2] : null;
   }
 
-  function revealAll(digits, won, addr){
+  function revealAll(digits, won, giftName, giftImg, addr){
     var hint = document.getElementById('spinHint');
     if(hint) hint.style.display = 'none';
 
-    /* animate each box with a small stagger */
     digits.forEach(function(d, i){
       setTimeout(function(){
         boxes[i].textContent = d;
@@ -1016,8 +1015,8 @@ var olxAdCur = 0;
       }, i * 80);
     });
 
-    /* show code at top + result message after all revealed */
     setTimeout(function(){
+      /* code at top */
       var codeTop = document.getElementById('spinCodeTop');
       var codeVal = document.getElementById('spinCodeVal');
       if(codeTop && codeVal){
@@ -1027,10 +1026,13 @@ var olxAdCur = 0;
 
       var el = document.getElementById('spinResult');
       if(won){
-        el.innerHTML = '<div style="background:linear-gradient(135deg,#065f46,#16a34a);border-radius:14px;padding:14px;color:#fff">'
-          +'<div style="font-size:24px;margin-bottom:4px">&#127881; You Won!</div>'
-          +'<div style="font-size:12px;opacity:.85;margin-bottom:6px">Show the code above to collect your prize</div>'
-          +(addr ? '<div style="font-size:11px;opacity:.7">&#128205; '+addr+'</div>' : '')
+        el.innerHTML = '<div style="background:linear-gradient(135deg,#065f46,#16a34a);border-radius:14px;padding:16px;color:#fff">'
+          +'<div style="font-size:22px;margin-bottom:10px">&#127881; You Won!</div>'
+          +(giftImg ? '<img src="'+giftImg+'" style="width:80px;height:80px;border-radius:12px;object-fit:cover;border:3px solid rgba(255,255,255,.4);margin-bottom:8px">' : '')
+          +(giftName ? '<div style="font-size:16px;font-weight:900;margin-bottom:6px">'+giftName+'</div>' : '')
+          +'<div style="background:rgba(0,0,0,.3);border-radius:10px;padding:10px;font-size:28px;font-weight:900;letter-spacing:.25em;margin-bottom:8px">'+digits.join('')+'</div>'
+          +'<div style="font-size:11px;opacity:.8;">Show this code to claim your gift</div>'
+          +(addr ? '<div style="margin-top:6px;font-size:11px;opacity:.7">&#128205; '+addr+'</div>' : '')
           +'</div>';
       } else {
         el.innerHTML = '<div style="color:rgba(255,255,255,.7);font-size:13px">'
@@ -1067,7 +1069,7 @@ var olxAdCur = 0;
           boxes.forEach(function(b){ b.classList.add('locked'); b.textContent='?'; });
           return;
         }
-        revealAll(data.code.split(''), data.won, data.gift_address || '');
+        revealAll(data.code.split(''), data.won, data.gift_name || '', data.gift_image || '', data.gift_address || '');
       })
       .catch(function(){ clearInterval(roll); spinning = false; });
   };
