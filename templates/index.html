@@ -269,6 +269,39 @@ a{text-decoration:none;color:inherit}
     <h1 class="mp-title">MY PINCOD</h1>
     <p class="mp-sub">India's first local community portal</p>
 
+    {% if spin_gift %}
+    <div id="spinSection" style="background:linear-gradient(135deg,#1a0533,#3b1a78);border-radius:20px;padding:18px 16px 20px;margin:0 0 20px;text-align:center;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;opacity:.06;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%) 0 0/16px 16px;pointer-events:none"></div>
+      <!-- Gift strip -->
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+        {% if spin_gift.image %}
+        <img src="{{ spin_gift.image.url }}" alt="{{ spin_gift.name }}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.25)">
+        {% endif %}
+        <div style="text-align:left;flex:1;min-width:0">
+          <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">&#127873; Lucky Prize</div>
+          <div style="color:#fff;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.name }}</div>
+          {% if spin_gift.address %}<div style="color:rgba(255,255,255,.55);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.address }}</div>{% endif %}
+        </div>
+        <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;padding:5px 9px;font-size:10px;font-weight:900;color:#fff;white-space:nowrap;flex-shrink:0">WIN IT</div>
+      </div>
+      <!-- 6 digit boxes -->
+      <div style="color:#fff;font-size:13px;font-weight:800;margin-bottom:10px">&#127920; Spin &amp; Win — Tap boxes to reveal</div>
+      <div id="spinBoxes" style="display:flex;gap:6px;justify-content:center;margin-bottom:12px">
+        {% for i in "123456" %}
+        <div class="spin-box" data-idx="{{ forloop.counter0 }}" style="width:42px;height:54px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.22);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;cursor:pointer;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent">?</div>
+        {% endfor %}
+      </div>
+      <div id="spinResult" style="display:none;margin-top:6px"></div>
+      {% if already_spun %}
+      <div style="color:rgba(255,255,255,.65);font-size:12px">You've spun today &#127749; Come back tomorrow!</div>
+      {% elif not request.user.is_authenticated %}
+      <a href="/login/?next=/" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:13px;font-weight:800;padding:10px 24px;border-radius:24px;text-decoration:none">Login to Play</a>
+      {% else %}
+      <div id="spinHint" style="color:rgba(255,255,255,.5);font-size:11px">Tap box 1 first to start</div>
+      {% endif %}
+    </div>
+    {% endif %}
+
     {% if not request.user.is_authenticated %}
     <div class="mp-split-card">
 
@@ -938,47 +971,6 @@ var olxAdCur = 0;
     {% endif %}
   </div>
 </div>
-
-<!-- ── SPIN TO WIN ── -->
-{% if spin_gift %}
-<div id="spinSection" style="background:linear-gradient(135deg,#1a0533,#3b1a78);padding:28px 16px 36px;text-align:center;position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;opacity:.07;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%) 0 0/20px 20px"></div>
-  <!-- Gift strip -->
-  <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.1);border-radius:16px;padding:12px 16px;margin-bottom:20px;max-width:380px;margin-left:auto;margin-right:auto;position:relative">
-    {% if spin_gift.image %}
-    <img src="{{ spin_gift.image.url }}" alt="{{ spin_gift.name }}" style="width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.3)">
-    {% endif %}
-    <div style="text-align:left;flex:1">
-      <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Today's Prize</div>
-      <div style="color:#fff;font-size:17px;font-weight:900;margin:2px 0">{{ spin_gift.name }}</div>
-      {% if spin_gift.address %}<div style="color:rgba(255,255,255,.6);font-size:11px">{{ spin_gift.address }}</div>{% endif %}
-    </div>
-    <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:900;color:#fff;white-space:nowrap">WIN IT</div>
-  </div>
-
-  <!-- Title -->
-  <div style="color:#fff;font-size:22px;font-weight:900;margin-bottom:4px">🎰 Spin & Win</div>
-  <div style="color:rgba(255,255,255,.6);font-size:13px;margin-bottom:20px">Tap the boxes one by one to reveal your code</div>
-
-  <!-- 6 digit boxes -->
-  <div id="spinBoxes" style="display:flex;gap:8px;justify-content:center;margin-bottom:20px">
-    {% for i in "123456" %}
-    <div class="spin-box" data-idx="{{ forloop.counter0 }}" style="width:46px;height:62px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;cursor:pointer;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent">?</div>
-    {% endfor %}
-  </div>
-
-  <!-- Result area (hidden initially) -->
-  <div id="spinResult" style="display:none;margin-top:8px"></div>
-
-  {% if already_spun %}
-  <div style="color:rgba(255,255,255,.7);font-size:13px;margin-top:4px">You've spun today. Come back tomorrow! 🌅</div>
-  {% elif not request.user.is_authenticated %}
-  <a href="/login/?next=/" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:14px;font-weight:800;padding:12px 28px;border-radius:30px;text-decoration:none;margin-top:4px">Login to Play</a>
-  {% else %}
-  <div id="spinHint" style="color:rgba(255,255,255,.55);font-size:12px;margin-top:4px">Tap each box to reveal your digits</div>
-  {% endif %}
-</div>
-{% endif %}
 
 <style>
 .spin-box.revealed{background:rgba(255,255,255,.2)!important;border-color:rgba(255,255,255,.6)!important;transform:scale(1.08)}
