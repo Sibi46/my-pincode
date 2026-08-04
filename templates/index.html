@@ -292,12 +292,12 @@ a{text-decoration:none;color:inherit}
       <!-- Right: Offering -->
       <div class="mp-split-col">
         <p class="mp-split-label"><i class="fas fa-bullhorn" style="color:#f3a000"></i> I want to offer</p>
-        <button class="mp-opt post" onclick="obChoose('post')">
+        <a class="mp-opt post" href="/post-job/" style="text-decoration:none">
           <i class="fas fa-briefcase"></i><span>Post a Job</span>
-        </button>
-        <button class="mp-opt biz" onclick="obChoose('post')">
+        </a>
+        <a class="mp-opt biz" href="/advertise/register/" style="text-decoration:none">
           <i class="fas fa-bullhorn"></i><span>Promote Business</span>
-        </button>
+        </a>
         <button class="mp-opt voucher-post" onclick="obChoose('voucher')">
           <i class="fas fa-tag"></i><span>Post a Gift Voucher</span>
         </button>
@@ -1757,6 +1757,12 @@ function obRemoveJob(i){
 
 {% endif %}
 <script>
+window.addEventListener('pageshow', function(e){
+  if(e.persisted){
+    var ov = document.getElementById('obOverlay');
+    if(ov) ov.classList.remove('show');
+  }
+});
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('input[type="tel"]').forEach(function(inp){
     inp.setAttribute('inputmode','numeric');
