@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0029_adsettings_renewal_days'),
+        ('jobs', '0031_merge_20260717_1630'),
     ]
 
     operations = [
