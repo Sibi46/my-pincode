@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Spin Gifts – Super Admin{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9;margin:0;padding:0}
+  .sa-wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+  .sa-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+  .sa-head a{color:#6b7280;text-decoration:none;font-size:13px}
+  .sa-head h2{font-size:20px;font-weight:900;color:#111;margin:0}
+  .sa-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.07);margin-bottom:20px}
+  .sa-card h3{font-size:14px;font-weight:800;color:#374151;margin:0 0 14px;display:flex;align-items:center;gap:7px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:4px}
+  .field input,.field textarea{width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit}
+  .field input:focus,.field textarea:focus{border-color:#7c3aed}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1}
+  .btn-primary{background:linear-gradient(135deg,#7c3aed,#0a66c2);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:800;cursor:pointer;width:100%}
+  .gift-list{display:flex;flex-direction:column;gap:12px}
+  .gift-row{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fafafa}
+  .gift-img{width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f0fdf4;border:1px solid #e5e7eb}
+  .gift-info{flex:1;min-width:0}
+  .gift-name{font-size:14px;font-weight:800;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gift-meta{font-size:11px;color:#6b7280;margin-top:2px}
+  .gift-code{font-size:16px;font-weight:900;color:#7c3aed;letter-spacing:.15em}
+  .badge-on{background:#dcfce7;color:#16a34a;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px}
+  .badge-off{background:#f3f4f6;color:#9ca3af;font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px}
+  .act-btn{border:none;background:none;cursor:pointer;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700}
+  .act-toggle{background:#f3f4f6;color:#374151}
+  .act-del{background:#fee2e2;color:#dc2626}
+  .empty{text-align:center;padding:2rem;color:#9ca3af;font-size:13px}
+</style>
+
+<div class="sa-wrap">
+  <div class="sa-head">
+    <a href="/super-admin/">← Dashboard</a>
+    <h2>🎰 Spin Gifts</h2>
+  </div>
+
+  <!-- Add Form -->
+  <div class="sa-card">
+    <h3><i class="fas fa-plus" style="color:#7c3aed"></i> Add New Gift</h3>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="field">
+        <label>Gift Name *</label>
+        <input type="text" name="name" placeholder="e.g. Bluetooth Earbuds" required>
+      </div>
+      <div class="field">
+        <label>Product Image *</label>
+        <input type="file" name="image" accept="image/*" required>
+      </div>
+      <div class="field">
+        <label>Pickup Address</label>
+        <input type="text" name="address" placeholder="Shop name, area...">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Win % (0–100)</label>
+          <input type="number" name="win_pct" value="10" min="0" max="100" step="0.1">
+        </div>
+        <div class="field">
+          <label>6-Digit Code *</label>
+          <input type="text" name="code" maxlength="6" pattern="\d{6}" placeholder="e.g. 482910" required>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary">Add Gift</button>
+    </form>
+  </div>
+
+  <!-- Gift List -->
+  <div class="sa-card">
+    <h3><i class="fas fa-gift" style="color:#7c3aed"></i> All Gifts ({{ gifts.count }})</h3>
+    {% if gifts %}
+    <div class="gift-list">
+      {% for g in gifts %}
+      <div class="gift-row">
+        {% if g.image %}
+        <img class="gift-img" src="{{ g.image.url }}" alt="{{ g.name }}">
+        {% else %}
+        <div class="gift-img" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem">🎁</div>
+        {% endif %}
+        <div class="gift-info">
+          <div class="gift-name">{{ g.name }}</div>
+          <div class="gift-meta">Win: {{ g.win_pct }}% &nbsp;|&nbsp; {% if g.address %}{{ g.address }}{% else %}No address{% endif %}</div>
+          <div class="gift-code">{{ g.code }}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+          <span class="{% if g.is_active %}badge-on{% else %}badge-off{% endif %}">{% if g.is_active %}Active{% else %}Off{% endif %}</span>
+          <form method="post" action="/super-admin/spin-gifts/{{ g.pk }}/toggle/" style="margin:0">{% csrf_token %}<button type="submit" class="act-btn act-toggle">{% if g.is_active %}Deactivate{% else %}Activate{% endif %}</button></form>
+          <form method="post" action="/super-admin/spin-gifts/{{ g.pk }}/delete/" style="margin:0" onsubmit="return confirm('Delete this gift?')">{% csrf_token %}<button type="submit" class="act-btn act-del">Delete</button></form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">No gifts added yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

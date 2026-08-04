@@ -166,6 +166,9 @@ urlpatterns = [
     path('flicks/<int:pk>/report/',                    views.report_flick,                 name='report_flick'),
     path('super-admin/flick-reports/',                 views.admin_flick_reports,          name='admin_flick_reports'),
     path('api/spin/',                                 views.spin_api,                    name='spin_api'),
+    path('super-admin/spin-gifts/',                   views.manage_spin_gifts,            name='manage_spin_gifts'),
+    path('super-admin/spin-gifts/<int:pk>/delete/',   views.delete_spin_gift,             name='delete_spin_gift'),
+    path('super-admin/spin-gifts/<int:pk>/toggle/',   views.toggle_spin_gift,             name='toggle_spin_gift'),
     path('health/',    include('health.urls')),
     path('vouchers/',  include('vouchers.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

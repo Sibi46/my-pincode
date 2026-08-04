@@ -3169,3 +3169,34 @@ def spin_api(request):
         'gift_image': gift.image.url if gift.image else '',
         'gift_address': gift.address,
     })
+
+
+# ── SUPER ADMIN: SPIN GIFTS ───────────────────────────────────────────────────
+@super_admin_required
+def manage_spin_gifts(request):
+    if request.method == 'POST':
+        name    = request.POST.get('name', '').strip()
+        address = request.POST.get('address', '').strip()
+        win_pct = float(request.POST.get('win_pct', 10))
+        code    = request.POST.get('code', '').strip()[:6]
+        image   = request.FILES.get('image')
+        if name and code and image:
+            SpinGift.objects.create(name=name, address=address, win_pct=win_pct, code=code, image=image)
+        return redirect('manage_spin_gifts')
+
+    gifts = SpinGift.objects.order_by('-created_at')
+    return render(request, 'super_admin_spin_gifts.html', {'gifts': gifts})
+
+
+@super_admin_required
+def delete_spin_gift(request, pk):
+    SpinGift.objects.filter(pk=pk).delete()
+    return redirect('manage_spin_gifts')
+
+
+@super_admin_required
+def toggle_spin_gift(request, pk):
+    gift = get_object_or_404(SpinGift, pk=pk)
+    gift.is_active = not gift.is_active
+    gift.save()
+    return redirect('manage_spin_gifts')
