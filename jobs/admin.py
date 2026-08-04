@@ -4,7 +4,8 @@ from .models import (User, CompanyProfile, ShopProfile, JobSeekerProfile,
                      Job, JobApplication, SavedJob, Interview,
                      Message, OfferLetter, Advertiser, AdPackage, Advertisement, AdPayment,
                      State, District, PinCode, AdminProfile, Industry, JobRole,
-                     PaymentPlan, Discount, Complaint, SystemNotification)
+                     PaymentPlan, Discount, Complaint, SystemNotification,
+                     SpinGift, UserSpin)
 
 
 @admin.register(User)
@@ -232,3 +233,16 @@ class SystemNotificationAdmin(admin.ModelAdmin):
     list_display  = ('title', 'notif_type', 'target_role', 'is_active', 'created_at')
     list_filter   = ('notif_type', 'is_active', 'target_role')
     search_fields = ('title',)
+
+
+@admin.register(SpinGift)
+class SpinGiftAdmin(admin.ModelAdmin):
+    list_display  = ('name', 'win_pct', 'code', 'is_active', 'created_at')
+    list_editable = ('is_active', 'win_pct')
+
+
+@admin.register(UserSpin)
+class UserSpinAdmin(admin.ModelAdmin):
+    list_display  = ('user', 'date', 'won', 'gift', 'code_shown', 'spun_at')
+    list_filter   = ('won', 'date')
+    search_fields = ('user__username',)

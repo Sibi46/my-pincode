@@ -1130,3 +1130,32 @@ class AdRenewal(models.Model):
 
     def __str__(self):
         return f"{self.ad.company_name} renewal [{self.status}]"
+
+
+class SpinGift(models.Model):
+    name        = models.CharField(max_length=200)
+    image       = models.ImageField(upload_to='spin_gifts/')
+    address     = models.TextField(blank=True)
+    win_pct     = models.FloatField(default=10.0, help_text="Chance of winning (0-100)")
+    code        = models.CharField(max_length=6, help_text="6-digit claim code")
+    is_active   = models.BooleanField(default=True)
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class UserSpin(models.Model):
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='spins')
+    date        = models.DateField()
+    won         = models.BooleanField(default=False)
+    gift        = models.ForeignKey(SpinGift, null=True, blank=True, on_delete=models.SET_NULL)
+    code_shown  = models.CharField(max_length=6, blank=True)
+    spun_at     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'date')
+        ordering = ['-spun_at']
+
+    def __str__(self):
+        return f"{self.user} {self.date} {'WIN' if self.won else 'LOSE'}"

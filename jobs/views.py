@@ -13,7 +13,8 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      PaymentPlan, Discount, Complaint, SystemNotification, PinCode,
                      UserNotification, SavedCandidate, Wallet, WalletTransaction,
                      EmployerSubscription, BillingRecord,
-                     PointsWallet, PointsTransaction, Referral)
+                     PointsWallet, PointsTransaction, Referral,
+                     SpinGift, UserSpin)
 
 User = get_user_model()
 
@@ -74,6 +75,13 @@ def home(request):
     total_seekers   = stats['total_seekers']
     total_districts = stats['total_districts']
 
+    # ── Spin to Win ─────────────────────────────────────
+    spin_gift = SpinGift.objects.filter(is_active=True).first()
+    already_spun = (
+        request.user.is_authenticated and
+        UserSpin.objects.filter(user=request.user, date=today).exists()
+    )
+
     # ── Industries ───────────────────────────────────────
     industries = Industry.objects.filter(is_active=True).order_by('order')[:12]
 
@@ -116,6 +124,8 @@ def home(request):
         'total_districts':     total_districts,
         'advertiser_banners':  advertiser_banners,
         'live_ads':            live_ads,
+        'spin_gift':           spin_gift,
+        'already_spun':        already_spun,
     })
 
 
@@ -3127,3 +3137,35 @@ def candidate_profile(request, user_id):
         from django.http import Http404
         raise Http404
     return render(request, 'candidate_profile.html', {'p': profile, 'seeker_user': seeker_user})
+
+
+# ── SPIN TO WIN ──────────────────────────────────────────────────────────────
+import random, string
+
+@login_required
+def spin_api(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+
+    today = timezone.now().date()
+    if UserSpin.objects.filter(user=request.user, date=today).exists():
+        return JsonResponse({'already_spun': True})
+
+    gift = SpinGift.objects.filter(is_active=True).order_by('?').first()
+    if not gift:
+        return JsonResponse({'error': 'No active gift'}, status=404)
+
+    won = random.random() * 100 < gift.win_pct
+    if won:
+        code = gift.code
+    else:
+        code = ''.join(random.choices(string.digits, k=6))
+
+    UserSpin.objects.create(user=request.user, date=today, won=won, gift=gift, code_shown=code)
+    return JsonResponse({
+        'won': won,
+        'code': code,
+        'gift_name': gift.name,
+        'gift_image': gift.image.url if gift.image else '',
+        'gift_address': gift.address,
+    })
