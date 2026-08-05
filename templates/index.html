@@ -312,6 +312,16 @@ a{text-decoration:none;color:inherit}
     </div>
     {% endif %}
 
+    <!-- Community Hub Button -->
+    <a href="/community/" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0a66c2,#7c3aed);border-radius:14px;padding:14px 18px;margin-bottom:16px;text-decoration:none;color:#fff">
+      <span style="font-size:28px">&#127968;</span>
+      <div style="text-align:left">
+        <div style="font-size:15px;font-weight:900">Community</div>
+        <div style="font-size:11px;opacity:.8">Family Stories · Schools · Events · Heroes & more</div>
+      </div>
+      <span style="margin-left:auto;font-size:18px;opacity:.7">&#8250;</span>
+    </a>
+
     {% if not request.user.is_authenticated %}
     <div class="mp-split-card">
 
