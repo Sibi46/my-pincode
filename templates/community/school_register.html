@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Register School – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #srTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #srTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #srTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+  .sr-form{padding:20px 16px 100px;max-width:600px;margin:0 auto}
+  .form-card{background:#fff;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:16px}
+  .form-card h3{font-size:12px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .field input,.field textarea,.field select{width:100%;padding:11px 13px;border:1.5px solid #d1d5db;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit}
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:#0a66c2}
+  .field textarea{min-height:90px;resize:vertical}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1}
+  .img-preview{width:100%;height:100px;border-radius:10px;border:2px dashed #e5e7eb;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;background:#f9fafb;overflow:hidden;position:relative}
+  .img-preview img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+  .img-preview span{font-size:12px;color:#9ca3af;position:relative}
+  .submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0a66c2,#0891b2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="srTopBar">
+  <a href="/community/school-corner/">&#8592;</a>
+  <h2>🏫 Register School</h2>
+</div>
+
+<div class="sr-form">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-card">
+      <h3>School Details</h3>
+      <div class="field">
+        <label>School Name *</label>
+        <input type="text" name="name" placeholder="e.g. Government Higher Secondary School" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Type</label>
+          <select name="school_type">
+            {% for val, label in type_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Pincode</label>
+          <input type="text" name="pincode" maxlength="6" placeholder="600001">
+        </div>
+      </div>
+      <div class="field">
+        <label>Address</label>
+        <textarea name="address" placeholder="Full school address..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" name="phone" placeholder="Contact number">
+        </div>
+        <div class="field">
+          <label>Website</label>
+          <input type="url" name="website" placeholder="https://...">
+        </div>
+      </div>
+      <div class="field">
+        <label>About the School</label>
+        <textarea name="about" placeholder="Brief description about your school..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Photos</h3>
+      <div class="field">
+        <label>School Logo</label>
+        <div class="img-preview" onclick="document.getElementById('logoInput').click()">
+          <span style="font-size:24px">🏫</span>
+          <span>Tap to upload logo</span>
+        </div>
+        <input type="file" id="logoInput" name="logo" accept="image/*" style="display:none" onchange="previewImg(this,'logoInput')">
+      </div>
+      <div class="field">
+        <label>Cover Photo</label>
+        <div class="img-preview" onclick="document.getElementById('coverInput').click()">
+          <span style="font-size:24px">🖼️</span>
+          <span>Tap to upload cover photo</span>
+        </div>
+        <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Register School 🏫</button>
+  </form>
+</div>
+<script>
+function previewImg(input, id){
+  if(input.files && input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){
+      var p=input.previousElementSibling;
+      p.innerHTML='<img src="'+e.target.result+'">';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+document.getElementById('coverInput').onchange=function(){ previewImg(this); };
+</script>
+{% endblock %}

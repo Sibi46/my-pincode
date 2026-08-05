@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block title %}Student Success – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #ssTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #ssTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #ssTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .ss-hero{background:linear-gradient(135deg,#7c3aed,#a855f7);padding:20px 16px;text-align:center;color:#fff}
+  .ss-hero h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .ss-hero p{font-size:12px;opacity:.85;margin:0}
+
+  .ss-cats{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:#fff;border-bottom:1px solid #f3f4f6;scrollbar-width:none}
+  .ss-cats::-webkit-scrollbar{display:none}
+  .ss-cat{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;background:#f3f4f6;color:#374151;border:1.5px solid transparent;white-space:nowrap}
+  .ss-cat.active{background:#ede9fe;color:#7c3aed;border-color:#c4b5fd}
+
+  .ss-fab{position:fixed;bottom:80px;right:16px;z-index:100;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,.45);display:flex;align-items:center;justify-content:center;text-decoration:none}
+
+  .ss-feed{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+  .ss-card{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+  .ss-card-img{width:100%;max-height:220px;object-fit:cover;display:block}
+  .ss-card-body{padding:14px}
+  .ss-badge-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+  .ss-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:8px;background:#ede9fe;color:#7c3aed}
+  .ss-student{font-size:11px;color:#6b7280;margin-left:auto}
+  .ss-title{font-size:15px;font-weight:900;color:#111;margin-bottom:5px}
+  .ss-text{font-size:13px;color:#374151;line-height:1.6}
+  .ss-meta{font-size:11px;color:#9ca3af;margin-top:6px}
+  .ss-actions{display:flex;border-top:1px solid #f3f4f6;margin-top:10px}
+  .ss-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#6b7280;font-family:inherit;text-decoration:none}
+  .ss-action.liked{color:#7c3aed}
+  .ss-divider{width:1px;background:#f3f4f6;height:36px;flex-shrink:0;align-self:center}
+
+  .ss-empty{text-align:center;padding:3rem 1rem;color:#9ca3af}
+</style>
+
+<div id="ssTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>🎓 Student Success</h2>
+</div>
+
+<div class="ss-hero">
+  <h1>🎓 Student Success</h1>
+  <p>Celebrating academic, sports, arts & cultural achievements</p>
+</div>
+
+<!-- Category tabs -->
+<div class="ss-cats">
+  <a href="/community/student-success/" class="ss-cat {% if not active_cat %}active{% endif %}">🎓 All</a>
+  {% for val, label in cat_icons.items %}
+  <a href="/community/student-success/?cat={{ val }}" class="ss-cat {% if active_cat == val %}active{% endif %}">{{ cat_icons|default:"🎓" }} {{ cat_labels|default:val }}</a>
+  {% endfor %}
+</div>
+
+<!-- Post FAB -->
+{% if request.user.is_authenticated %}
+<a href="/community/student-success/post/" class="ss-fab">✏️</a>
+{% endif %}
+
+<div class="ss-feed">
+  {% if stories %}
+  {% for story in stories %}
+  <div class="ss-card">
+    {% if story.image %}<img class="ss-card-img" src="{{ story.image.url }}" alt="{{ story.title }}">{% endif %}
+    <div class="ss-card-body">
+      <div class="ss-badge-row">
+        <span class="ss-badge">{{ story.get_category_display }}</span>
+        <span class="ss-student">👤 {{ story.student_name }}{% if story.grade %} · {{ story.grade }}{% endif %}</span>
+      </div>
+      <div class="ss-title"><a href="/community/student-success/{{ story.pk }}/" style="color:inherit;text-decoration:none">{{ story.title }}</a></div>
+      <div class="ss-text">{{ story.content|truncatewords:25 }}</div>
+      <div class="ss-meta">{{ story.created_at|timesince }} ago{% if story.school_name %} · 🏫 {{ story.school_name }}{% endif %}{% if story.pincode %} · 📍 {{ story.pincode }}{% endif %}</div>
+    </div>
+    <div class="ss-actions">
+      <button class="ss-action {% if story.pk in liked_ids %}liked{% endif %}"
+        onclick="likeStory({{ story.pk }}, this)">
+        🏅 <span id="slc-{{ story.pk }}">{{ story.like_count }}</span> Congrats
+      </button>
+      <div class="ss-divider"></div>
+      <a href="/community/student-success/{{ story.pk }}/" class="ss-action">💬 {{ story.comment_count }} Comments</a>
+      {% if request.user == story.user %}
+      <div class="ss-divider"></div>
+      <a href="/community/student-success/{{ story.pk }}/delete/" class="ss-action" style="color:#ef4444" onclick="return confirm('Delete this story?')">🗑️</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="ss-empty">
+    <div style="font-size:3rem;margin-bottom:8px">🏅</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No stories yet</p>
+    <p style="font-size:13px">Share your child's achievement and inspire others!</p>
+    {% if request.user.is_authenticated %}
+    <a href="/community/student-success/post/" style="display:inline-block;margin-top:12px;background:#7c3aed;color:#fff;padding:10px 24px;border-radius:24px;font-weight:800;font-size:13px;text-decoration:none">Share Achievement</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Build category tabs properly using JS since Django can't do dict lookups in templates
+(function(){
+  var icons={academics:'📚',sports:'⚽',arts:'🎨',music:'🎵',scholarship:'🏅',competition:'🏆',other:'🎓'};
+  var labels={academics:'Academics',sports:'Sports',arts:'Arts',music:'Music',scholarship:'Scholarship',competition:'Competition',other:'Other'};
+  var cats=document.querySelector('.ss-cats');
+  // rebuild non-All tabs
+  var tabs=cats.querySelectorAll('.ss-cat:not([href$="student-success/"])');
+  tabs.forEach(function(t){
+    var href=t.getAttribute('href');
+    var val=href.split('cat=')[1];
+    if(val && icons[val]) t.textContent=(icons[val]||'🎓')+' '+(labels[val]||val);
+  });
+})();
+
+function likeStory(pk, btn){
+  fetch('/community/student-success/'+pk+'/like/',{
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    btn.classList.toggle('liked', d.liked);
+    document.getElementById('slc-'+pk).textContent=d.count;
+  });
+}
+</script>
+{% endblock %}

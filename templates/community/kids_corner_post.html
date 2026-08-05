@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Post to Kids Corner – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#fffbeb}
+  #kcpTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #fde68a;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #kcpTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #kcpTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .kcp-form{padding:16px 16px 100px;max-width:600px;margin:0 auto}
+  .form-card{background:#fff;border-radius:18px;padding:20px;border:2px solid #fde68a;margin-bottom:14px}
+  .form-card h3{font-size:11px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .field input,.field textarea{width:100%;padding:11px 13px;border:1.5px solid #fde68a;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;background:#fffbeb}
+  .field input:focus,.field textarea:focus{border-color:#f59e0b;background:#fff}
+  .field textarea{min-height:90px;resize:vertical}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1;min-width:0}
+
+  .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .type-opt{position:relative}
+  .type-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+  .type-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;border:2px solid #fde68a;cursor:pointer;font-size:10px;font-weight:800;color:#92400e;text-align:center;line-height:1.2;transition:all .15s;background:#fffbeb}
+  .type-opt label .icon{font-size:22px}
+  .type-opt input:checked + label{border-color:#f59e0b;background:#fef3c7;color:#b45309}
+
+  .img-upload{width:100%;height:110px;border:2px dashed #fde68a;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:#fffbeb;position:relative;overflow:hidden;transition:border-color .15s}
+  .img-upload:hover{border-color:#f59e0b}
+  .img-upload span{font-size:12px;color:#b45309;position:relative}
+  .img-upload .preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+  .submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="kcpTopBar">
+  <a href="/community/kids-corner/">&#8592;</a>
+  <h2>🧒 Share on Kids Corner</h2>
+</div>
+
+<div class="kcp-form">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-card">
+      <h3>What is it?</h3>
+      <div class="type-grid">
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_story" value="story" checked><label for="kpt_story"><span class="icon">📖</span>Story</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_drawing" value="drawing"><label for="kpt_drawing"><span class="icon">🎨</span>Drawing</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_craft" value="craft"><label for="kpt_craft"><span class="icon">✂️</span>Craft</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_poem" value="poem"><label for="kpt_poem"><span class="icon">✍️</span>Poem</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_joke" value="joke"><label for="kpt_joke"><span class="icon">😄</span>Joke</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_activity" value="activity"><label for="kpt_activity"><span class="icon">🎯</span>Activity</label></div>
+        <div class="type-opt"><input type="radio" name="post_type" id="kpt_other" value="other"><label for="kpt_other"><span class="icon">🧒</span>Other</label></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>About the Child</h3>
+      <div class="field-row">
+        <div class="field">
+          <label>Child's Name *</label>
+          <input type="text" name="kid_name" placeholder="e.g. Priya" required>
+        </div>
+        <div class="field" style="max-width:90px">
+          <label>Age</label>
+          <input type="number" name="age" placeholder="8" min="1" max="18">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>The Content</h3>
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="e.g. My Butterfly Drawing!" required>
+      </div>
+      <div class="field">
+        <label>Story / Poem / Description *</label>
+        <textarea name="content" placeholder="Write the story, poem, or describe the activity..." required></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Photo (optional)</h3>
+      <div class="img-upload" onclick="document.getElementById('kcImg').click()">
+        <span style="font-size:2rem">📷</span>
+        <span>Tap to add a photo of the drawing or craft</span>
+        <input type="file" id="kcImg" name="image" accept="image/*" style="display:none" onchange="previewImg(this)">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Post to Kids Corner 🌟</button>
+  </form>
+</div>
+
+<script>
+function previewImg(input){
+  if(input.files&&input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){
+      var box=input.closest('.img-upload');
+      var img=box.querySelector('.preview')||document.createElement('img');
+      img.className='preview';img.src=e.target.result;
+      box.appendChild(img);
+      box.querySelectorAll('span').forEach(function(s){s.style.display='none'});
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

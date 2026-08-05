@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block title %}Community Events – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0f9ff}
+  #evTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #bae6fd;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #evTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #evTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .ev-hero{background:linear-gradient(135deg,#0891b2,#0ea5e9);padding:20px 16px;text-align:center;color:#fff}
+  .ev-hero h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .ev-hero p{font-size:12px;opacity:.85;margin:0}
+
+  .ev-cats{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:#fff;border-bottom:1px solid #e0f2fe;scrollbar-width:none}
+  .ev-cats::-webkit-scrollbar{display:none}
+  .ev-cat{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;background:#e0f2fe;color:#0c4a6e;border:1.5px solid transparent;white-space:nowrap}
+  .ev-cat.active{background:#bae6fd;color:#075985;border-color:#7dd3fc}
+
+  .ev-fab{position:fixed;bottom:80px;right:16px;z-index:100;background:linear-gradient(135deg,#0891b2,#0ea5e9);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(8,145,178,.4);display:flex;align-items:center;justify-content:center;text-decoration:none}
+
+  .ev-feed{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+  .ev-card{background:#fff;border-radius:16px;border:1.5px solid #bae6fd;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(8,145,178,.07)}
+  .ev-card-img{width:100%;max-height:200px;object-fit:cover;display:block}
+  .ev-date-bar{background:linear-gradient(135deg,#0891b2,#0ea5e9);color:#fff;padding:8px 14px;display:flex;align-items:center;gap:8px}
+  .ev-date-big{font-size:22px;font-weight:900;line-height:1}
+  .ev-date-info{font-size:11px;opacity:.9}
+  .ev-date-badge{margin-left:auto;font-size:10px;font-weight:800;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:8px}
+  .ev-card-body{padding:14px}
+  .ev-cat-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:8px;background:#e0f2fe;color:#0891b2;margin-bottom:8px;display:inline-block}
+  .ev-title{font-size:15px;font-weight:900;color:#111;margin-bottom:4px}
+  .ev-venue{font-size:12px;color:#6b7280;margin-bottom:6px}
+  .ev-actions{display:flex;gap:8px;margin-top:10px;border-top:1px solid #f0f9ff;padding-top:10px}
+  .ev-btn{flex:1;padding:9px 0;border-radius:10px;font-size:12px;font-weight:800;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
+  .ev-btn.going{background:#0891b2;color:#fff}
+  .ev-btn.going.active{background:#065f46;color:#fff}
+  .ev-btn.interested{background:#e0f2fe;color:#0c4a6e}
+  .ev-btn.interested.active{background:#fef3c7;color:#b45309}
+  .ev-stats{display:flex;gap:12px;font-size:11px;color:#6b7280;margin-top:6px}
+  .ev-empty{text-align:center;padding:3rem 1rem;color:#9ca3af}
+</style>
+
+<div id="evTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>📅 Community Events</h2>
+</div>
+
+<div class="ev-hero">
+  <h1>📅 Community Events</h1>
+  <p>Local gatherings, festivals & announcements near you</p>
+</div>
+
+<div class="ev-cats">
+  <a href="/community/events/" class="ev-cat {% if not active_cat %}active{% endif %}">📅 All</a>
+  {% for val, label in categories %}
+  <a href="/community/events/?cat={{ val }}" class="ev-cat {% if active_cat == val %}active{% endif %}" data-val="{{ val }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if request.user.is_authenticated %}
+<a href="/community/events/post/" class="ev-fab">✏️</a>
+{% endif %}
+
+<div class="ev-feed">
+  {% if events %}
+  {% for event in events %}
+  <div class="ev-card">
+    {% if event.image %}<img class="ev-card-img" src="{{ event.image.url }}" alt="{{ event.title }}">{% endif %}
+    <div class="ev-date-bar">
+      <div>
+        <div class="ev-date-big">{{ event.event_date|date:"d" }}</div>
+        <div class="ev-date-info">{{ event.event_date|date:"M Y" }}{% if event.event_time %} · {{ event.event_time|time:"g:i A" }}{% endif %}</div>
+      </div>
+      <span class="ev-date-badge" data-cat="{{ event.category }}">{{ event.get_category_display }}</span>
+    </div>
+    <div class="ev-card-body">
+      <div class="ev-title"><a href="/community/events/{{ event.pk }}/" style="color:inherit;text-decoration:none">{{ event.title }}</a></div>
+      <div class="ev-venue">📍 {{ event.venue }}{% if event.pincode %} · {{ event.pincode }}{% endif %}</div>
+      <div class="ev-stats">
+        <span id="going-{{ event.pk }}">✅ {{ event.going_count }} Going</span>
+        <span id="int-{{ event.pk }}">⭐ {{ event.interested_count }} Interested</span>
+        <span>💬 {{ event.comment_count }}</span>
+      </div>
+      {% if request.user.is_authenticated %}
+      <div class="ev-actions">
+        <button class="ev-btn going {% if my_rsvps|default:'' %}{% if my_rsvps[event.pk] == 'going' %}active{% endif %}{% endif %}"
+          id="going-btn-{{ event.pk }}"
+          onclick="rsvp({{ event.pk }}, 'going')">✅ Going</button>
+        <button class="ev-btn interested {% if my_rsvps|default:'' %}{% if my_rsvps[event.pk] == 'interested' %}active{% endif %}{% endif %}"
+          id="int-btn-{{ event.pk }}"
+          onclick="rsvp({{ event.pk }}, 'interested')">⭐ Interested</button>
+        <a href="/community/events/{{ event.pk }}/" class="ev-btn" style="display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#374151;text-decoration:none">💬 Details</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="ev-empty">
+    <div style="font-size:3rem;margin-bottom:8px">📅</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No upcoming events</p>
+    <p style="font-size:13px">Be the first to post a community event!</p>
+    {% if request.user.is_authenticated %}
+    <a href="/community/events/post/" style="display:inline-block;margin-top:12px;background:#0891b2;color:#fff;padding:10px 24px;border-radius:24px;font-weight:800;font-size:13px;text-decoration:none">Post an Event</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  var icons={festival:'🎉',sports:'⚽',cultural:'🎭',health:'🏥',education:'📚',religious:'🕌',cleanup:'🧹',other:'📅'};
+  document.querySelectorAll('.ev-cat[data-val]').forEach(function(el){
+    var v=el.getAttribute('data-val');if(icons[v])el.textContent=icons[v]+' '+el.textContent.trim();
+  });
+  document.querySelectorAll('.ev-date-badge[data-cat]').forEach(function(el){
+    var v=el.getAttribute('data-cat');if(icons[v])el.textContent=icons[v]+' '+el.textContent.replace(/^\S+\s/,'').trim();
+  });
+  // restore RSVP button states from server data
+  var rsvps = { {% for eid, st in my_rsvps.items %}"{{ eid }}":"{{ st }}"{% if not forloop.last %},{% endif %}{% endfor %} };
+  Object.keys(rsvps).forEach(function(eid){
+    var st=rsvps[eid];
+    var gb=document.getElementById('going-btn-'+eid);
+    var ib=document.getElementById('int-btn-'+eid);
+    if(gb)gb.classList.toggle('active',st==='going');
+    if(ib)ib.classList.toggle('active',st==='interested');
+  });
+})();
+
+function rsvp(pk, status){
+  fetch('/community/events/'+pk+'/rsvp/',{
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},
+    body:'status='+status
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('going-'+pk).textContent='✅ '+d.going+' Going';
+    document.getElementById('int-'+pk).textContent='⭐ '+d.interested+' Interested';
+    var gb=document.getElementById('going-btn-'+pk);
+    var ib=document.getElementById('int-btn-'+pk);
+    gb.classList.toggle('active', d.status==='going');
+    ib.classList.toggle('active', d.status==='interested');
+  });
+}
+</script>
+{% endblock %}

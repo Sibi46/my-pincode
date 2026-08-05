@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#fffbeb}
+  #kcdTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #fde68a;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #kcdTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #kcdTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .kcd-wrap{padding:14px 16px 120px;max-width:600px;margin:0 auto}
+  .kcd-card{background:#fff;border-radius:20px;border:2px solid #fde68a;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(245,158,11,.1)}
+  .kcd-img{width:100%;max-height:300px;object-fit:cover;display:block}
+  .kcd-body{padding:16px}
+  .kcd-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .kcd-badge{font-size:11px;font-weight:800;padding:4px 12px;border-radius:8px;background:#fef3c7;color:#b45309}
+  .kcd-kid{font-size:11px;font-weight:700;color:#6b7280;background:#f9fafb;padding:3px 10px;border-radius:8px}
+  .kcd-title{font-size:19px;font-weight:900;color:#111;margin-bottom:10px;line-height:1.3}
+  .kcd-content{font-size:14px;color:#374151;line-height:1.75;white-space:pre-line}
+  .kcd-meta{font-size:11px;color:#9ca3af;margin-top:10px}
+  .kcd-actions{display:flex;border-top:1px solid #fef3c7;margin-top:12px}
+  .kcd-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:11px 0;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;font-family:inherit}
+  .kcd-action.liked{color:#f59e0b}
+  .kcd-divider{width:1px;background:#fef3c7;height:36px;flex-shrink:0;align-self:center}
+
+  .kcd-comments{background:#fff;border-radius:18px;border:2px solid #fde68a;overflow:hidden;margin-bottom:12px}
+  .kcd-comments h3{font-size:12px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 0;margin:0}
+  .kcd-comment{padding:12px 16px;border-top:1px solid #fef3c7}
+  .kcd-comment-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .kcd-comment-user{font-size:12px;font-weight:800;color:#111}
+  .kcd-comment-time{font-size:10px;color:#9ca3af;margin-left:auto}
+  .kcd-comment-text{font-size:13px;color:#374151;line-height:1.5}
+  .kcd-no-comment{padding:16px;text-align:center;font-size:13px;color:#9ca3af}
+
+  .kcd-comment-form{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #fde68a;padding:10px 16px;display:flex;gap:8px;z-index:100;max-width:600px;margin:0 auto}
+  .kcd-comment-form input{flex:1;padding:10px 14px;border:1.5px solid #fde68a;border-radius:24px;font-size:14px;outline:none;font-family:inherit;background:#fffbeb}
+  .kcd-comment-form input:focus{border-color:#f59e0b;background:#fff}
+  .kcd-comment-form button{background:#f59e0b;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="kcdTopBar">
+  <a href="/community/kids-corner/" class="back">&#8592;</a>
+  <h2>{{ post.title }}</h2>
+</div>
+
+<div class="kcd-wrap">
+  <div class="kcd-card">
+    {% if post.image %}<img class="kcd-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
+    <div class="kcd-body">
+      <div class="kcd-top">
+        <span class="kcd-badge" id="typeBadge">{{ post.get_post_type_display }}</span>
+        <span class="kcd-kid">👦 {{ post.kid_name }}{% if post.age %}, {{ post.age }} yrs{% endif %}</span>
+      </div>
+      <div class="kcd-title">{{ post.title }}</div>
+      <div class="kcd-content">{{ post.content }}</div>
+      <div class="kcd-meta">Posted {{ post.created_at|timesince }} ago{% if post.pincode %} · 📍 {{ post.pincode }}{% endif %}</div>
+    </div>
+    <div class="kcd-actions">
+      <button class="kcd-action {% if liked %}liked{% endif %}" id="likeBtn" onclick="likePost({{ post.pk }})">
+        ⭐ <span id="likeCount">{{ post.like_count }}</span> Awesome
+      </button>
+      {% if request.user == post.posted_by %}
+      <div class="kcd-divider"></div>
+      <a href="/community/kids-corner/{{ post.pk }}/delete/" class="kcd-action" style="color:#ef4444" onclick="return confirm('Delete?')">🗑️ Delete</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="kcd-comments">
+    <h3>Comments ({{ comments.count }})</h3>
+    {% if comments %}
+    {% for c in comments %}
+    <div class="kcd-comment">
+      <div class="kcd-comment-head">
+        <span class="kcd-comment-user">{{ c.user.get_full_name|default:c.user.username }}</span>
+        <span class="kcd-comment-time">{{ c.created_at|timesince }} ago</span>
+      </div>
+      <div class="kcd-comment-text">{{ c.text }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="kcd-no-comment">Be the first to say "Awesome!" 🌟</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="kcd-comment-form">
+  <form method="post" style="display:contents">
+    {% csrf_token %}
+    <input type="text" name="comment" placeholder="Say something encouraging..." required>
+    <button type="submit">Send</button>
+  </form>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  var icons={story:'📖',drawing:'🎨',craft:'✂️',poem:'✍️',joke:'😄',activity:'🎯',other:'🧒'};
+  var t='{{ post.post_type }}';
+  var el=document.getElementById('typeBadge');
+  if(el && icons[t]) el.textContent=(icons[t])+' '+el.textContent.trim();
+})();
+function likePost(pk){
+  fetch('/community/kids-corner/'+pk+'/like/',{
+    method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    var btn=document.getElementById('likeBtn');
+    btn.classList.toggle('liked',d.liked);
+    document.getElementById('likeCount').textContent=d.count;
+  });
+}
+</script>
+{% endblock %}

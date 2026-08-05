@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Post Update – {{ school.name }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #spTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #spTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #spTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .sp-form{padding:16px 16px 100px;max-width:600px;margin:0 auto}
+  .sp-school-chip{display:flex;align-items:center;gap:10px;background:#dbeafe;border-radius:12px;padding:10px 14px;margin-bottom:16px}
+  .sp-school-chip .logo{width:36px;height:36px;border-radius:8px;object-fit:cover;background:#0a66c2;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+  .sp-school-chip .info{font-size:13px;font-weight:800;color:#0a66c2}
+  .sp-school-chip .sub{font-size:11px;color:#3b82f6}
+
+  .form-card{background:#fff;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:14px}
+  .form-card h3{font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .field input,.field textarea{width:100%;padding:11px 13px;border:1.5px solid #d1d5db;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit}
+  .field input:focus,.field textarea:focus{border-color:#0a66c2}
+  .field textarea{min-height:100px;resize:vertical}
+
+  /* post type grid */
+  .pt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .pt-option{position:relative}
+  .pt-option input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+  .pt-option label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 4px;border-radius:12px;border:1.5px solid #e5e7eb;cursor:pointer;font-size:10px;font-weight:700;color:#374151;text-align:center;line-height:1.2;transition:all .15s}
+  .pt-option label .icon{font-size:22px}
+  .pt-option input[type=radio]:checked + label{border-color:#0a66c2;background:#dbeafe;color:#0a66c2}
+
+  /* image upload */
+  .img-upload{width:100%;height:120px;border:2px dashed #d1d5db;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:#f9fafb;position:relative;overflow:hidden;transition:border-color .15s}
+  .img-upload:hover{border-color:#0a66c2}
+  .img-upload span{font-size:12px;color:#9ca3af}
+  .img-upload img.preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+  .submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#0a66c2,#0891b2);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="spTopBar">
+  <a href="/community/school-corner/{{ school.pk }}/">&#8592;</a>
+  <h2>Post Update</h2>
+</div>
+
+<div class="sp-form">
+  <!-- School chip -->
+  <div class="sp-school-chip">
+    {% if school.logo %}<img class="logo" src="{{ school.logo.url }}" alt="">
+    {% else %}<div class="logo">🏫</div>{% endif %}
+    <div>
+      <div class="info">{{ school.name }}</div>
+      <div class="sub">{{ school.get_school_type_display }}</div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-card">
+      <h3>Post Type</h3>
+      <div class="pt-grid">
+        {% for val, label in post_types %}
+        <div class="pt-option">
+          <input type="radio" name="post_type" id="pt_{{ val }}" value="{{ val }}" {% if forloop.first %}checked{% endif %}>
+          <label for="pt_{{ val }}">
+            <span class="icon" data-type="{{ val }}">📌</span>
+            {{ label|slice:"3:" }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Content</h3>
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="e.g. Annual Day 2025 — Grand Celebration!" required>
+      </div>
+      <div class="field">
+        <label>Details *</label>
+        <textarea name="content" placeholder="Share what happened, who participated, highlights..." required></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Photo (optional)</h3>
+      <div class="img-upload" onclick="document.getElementById('imgInput').click()">
+        <span style="font-size:2rem">📷</span>
+        <span>Tap to add a photo</span>
+        <input type="file" id="imgInput" name="image" accept="image/*" style="display:none" onchange="previewImg(this)">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Publish Post 📢</button>
+  </form>
+</div>
+
+<script>
+(function(){
+  var icons={'annual_day':'🎭','sports_day':'⚽','science_fair':'🔬',
+             'admission':'📋','achievement':'🏆','event':'📅',
+             'announcement':'📢','other':'📌'};
+  document.querySelectorAll('.pt-option').forEach(function(el){
+    var val=el.querySelector('input').value;
+    var iconEl=el.querySelector('.icon[data-type]');
+    if(iconEl && icons[val]) iconEl.textContent=icons[val];
+  });
+})();
+
+function previewImg(input){
+  if(input.files&&input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){
+      var box=input.closest('.img-upload');
+      var img=box.querySelector('img.preview')||document.createElement('img');
+      img.className='preview';
+      img.src=e.target.result;
+      box.appendChild(img);
+      box.querySelectorAll('span').forEach(function(s){s.style.display='none'});
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

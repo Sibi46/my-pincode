@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.title }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0f9ff}
+  #evdTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #bae6fd;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #evdTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #evdTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .evd-wrap{padding:14px 16px 120px;max-width:600px;margin:0 auto}
+  .evd-card{background:#fff;border-radius:16px;border:1.5px solid #bae6fd;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(8,145,178,.07)}
+  .evd-img{width:100%;max-height:240px;object-fit:cover;display:block}
+  .evd-date-banner{background:linear-gradient(135deg,#0891b2,#0ea5e9);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:14px}
+  .evd-cal{background:rgba(255,255,255,.2);border-radius:12px;padding:8px 14px;text-align:center;min-width:56px}
+  .evd-cal-day{font-size:26px;font-weight:900;line-height:1}
+  .evd-cal-mon{font-size:10px;font-weight:800;text-transform:uppercase;opacity:.9}
+  .evd-date-info{flex:1}
+  .evd-date-info .time{font-size:13px;font-weight:800}
+  .evd-date-info .venue{font-size:12px;opacity:.85;margin-top:2px}
+  .evd-body{padding:16px}
+  .evd-badge{display:inline-block;font-size:11px;font-weight:800;padding:4px 12px;border-radius:8px;background:#e0f2fe;color:#0891b2;margin-bottom:10px}
+  .evd-title{font-size:18px;font-weight:900;color:#111;margin-bottom:8px;line-height:1.3}
+  .evd-desc{font-size:14px;color:#374151;line-height:1.75;white-space:pre-line}
+  .evd-meta{font-size:11px;color:#9ca3af;margin-top:10px}
+
+  .evd-rsvp{display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #f0f9ff}
+  .evd-rsvp-btn{flex:1;padding:11px;border-radius:12px;font-size:13px;font-weight:800;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
+  .evd-rsvp-btn.going{background:#0891b2;color:#fff}
+  .evd-rsvp-btn.going.active{background:#065f46}
+  .evd-rsvp-btn.interested{background:#e0f2fe;color:#0c4a6e}
+  .evd-rsvp-btn.interested.active{background:#fef3c7;color:#b45309}
+  .evd-counts{display:flex;gap:16px;font-size:12px;color:#6b7280;margin-top:10px}
+
+  .evd-comments{background:#fff;border-radius:16px;border:1.5px solid #bae6fd;overflow:hidden;margin-bottom:12px}
+  .evd-comments h3{font-size:12px;font-weight:800;color:#0891b2;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 0;margin:0}
+  .evd-comment{padding:12px 16px;border-top:1px solid #f0f9ff}
+  .evd-comment-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .evd-comment-user{font-size:12px;font-weight:800;color:#111}
+  .evd-comment-time{font-size:10px;color:#9ca3af;margin-left:auto}
+  .evd-comment-text{font-size:13px;color:#374151;line-height:1.5}
+  .evd-no-comment{padding:16px;text-align:center;font-size:13px;color:#9ca3af}
+
+  .evd-comment-form{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #bae6fd;padding:10px 16px;display:flex;gap:8px;z-index:100;max-width:600px;margin:0 auto}
+  .evd-comment-form input{flex:1;padding:10px 14px;border:1.5px solid #bae6fd;border-radius:24px;font-size:14px;outline:none;font-family:inherit;background:#f0f9ff}
+  .evd-comment-form input:focus{border-color:#0891b2;background:#fff}
+  .evd-comment-form button{background:#0891b2;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="evdTopBar">
+  <a href="/community/events/" class="back">&#8592;</a>
+  <h2>{{ event.title }}</h2>
+</div>
+
+<div class="evd-wrap">
+  <div class="evd-card">
+    {% if event.image %}<img class="evd-img" src="{{ event.image.url }}" alt="{{ event.title }}">{% endif %}
+    <div class="evd-date-banner">
+      <div class="evd-cal">
+        <div class="evd-cal-day">{{ event.event_date|date:"d" }}</div>
+        <div class="evd-cal-mon">{{ event.event_date|date:"M" }}</div>
+      </div>
+      <div class="evd-date-info">
+        <div class="time">{{ event.event_date|date:"l, F Y" }}{% if event.event_time %} · {{ event.event_time|time:"g:i A" }}{% endif %}</div>
+        <div class="venue">📍 {{ event.venue }}{% if event.pincode %} · {{ event.pincode }}{% endif %}</div>
+      </div>
+    </div>
+    <div class="evd-body">
+      <span class="evd-badge" id="catBadge">{{ event.get_category_display }}</span>
+      <div class="evd-title">{{ event.title }}</div>
+      <div class="evd-desc">{{ event.description }}</div>
+      <div class="evd-meta">Posted {{ event.created_at|timesince }} ago by {{ event.posted_by.get_full_name|default:event.posted_by.username }}</div>
+
+      {% if request.user.is_authenticated %}
+      <div class="evd-rsvp">
+        <button class="evd-rsvp-btn going {% if my_rsvp == 'going' %}active{% endif %}" id="goingBtn" onclick="rsvp({{ event.pk }},'going')">
+          ✅ {% if my_rsvp == 'going' %}You're Going{% else %}Going{% endif %}
+        </button>
+        <button class="evd-rsvp-btn interested {% if my_rsvp == 'interested' %}active{% endif %}" id="intBtn" onclick="rsvp({{ event.pk }},'interested')">
+          ⭐ {% if my_rsvp == 'interested' %}Interested{% else %}Interested{% endif %}
+        </button>
+      </div>
+      {% endif %}
+      <div class="evd-counts">
+        <span id="goingCount">✅ {{ event.going_count }} Going</span>
+        <span id="intCount">⭐ {{ event.interested_count }} Interested</span>
+      </div>
+      {% if request.user == event.posted_by %}
+      <a href="/community/events/{{ event.pk }}/delete/" style="display:inline-block;margin-top:10px;color:#ef4444;font-size:12px;font-weight:700;text-decoration:none" onclick="return confirm('Delete this event?')">🗑️ Delete Event</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="evd-comments">
+    <h3>Comments ({{ comments.count }})</h3>
+    {% if comments %}
+    {% for c in comments %}
+    <div class="evd-comment">
+      <div class="evd-comment-head">
+        <span class="evd-comment-user">{{ c.user.get_full_name|default:c.user.username }}</span>
+        <span class="evd-comment-time">{{ c.created_at|timesince }} ago</span>
+      </div>
+      <div class="evd-comment-text">{{ c.text }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="evd-no-comment">Be the first to comment on this event! 💬</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="evd-comment-form">
+  <form method="post" style="display:contents">
+    {% csrf_token %}
+    <input type="text" name="comment" placeholder="Ask a question or share your excitement..." required>
+    <button type="submit">Send</button>
+  </form>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  var icons={festival:'🎉',sports:'⚽',cultural:'🎭',health:'🏥',education:'📚',religious:'🕌',cleanup:'🧹',other:'📅'};
+  var c='{{ event.category }}';
+  var el=document.getElementById('catBadge');
+  if(el&&icons[c]) el.textContent=icons[c]+' '+el.textContent.trim();
+})();
+function rsvp(pk, status){
+  fetch('/community/events/'+pk+'/rsvp/',{
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/x-www-form-urlencoded'},
+    body:'status='+status
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('goingCount').textContent='✅ '+d.going+' Going';
+    document.getElementById('intCount').textContent='⭐ '+d.interested+' Interested';
+    var gb=document.getElementById('goingBtn');
+    var ib=document.getElementById('intBtn');
+    gb.classList.toggle('active',d.status==='going');
+    ib.classList.toggle('active',d.status==='interested');
+    gb.textContent=d.status==='going'?"✅ You're Going":'✅ Going';
+    ib.textContent=d.status==='interested'?'⭐ Interested':'⭐ Interested';
+  });
+}
+</script>
+{% endblock %}

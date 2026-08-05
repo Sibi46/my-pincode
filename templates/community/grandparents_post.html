@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block title %}Preserve a Story – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#fdf8f0}
+  #gppTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e8d5b7;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #gppTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #gppTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1}
+  .gpp-form{padding:16px 16px 100px;max-width:600px;margin:0 auto}
+  .form-card{background:#fff;border-radius:16px;padding:20px;border:1.5px solid #e8d5b7;margin-bottom:14px}
+  .form-card h3{font-size:11px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .field input,.field textarea{width:100%;padding:11px 13px;border:1.5px solid #e8d5b7;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;background:#fdf8f0}
+  .field input:focus,.field textarea:focus{border-color:#92400e;background:#fff}
+  .field textarea{min-height:100px;resize:vertical}
+  .field-row{display:flex;gap:10px}
+  .field-row .field{flex:1;min-width:0}
+
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .cat-opt{position:relative}
+  .cat-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+  .cat-opt label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;border:1.5px solid #e8d5b7;cursor:pointer;font-size:10px;font-weight:700;color:#78350f;text-align:center;line-height:1.2;transition:all .15s;background:#fdf8f0}
+  .cat-opt label .icon{font-size:22px}
+  .cat-opt input:checked + label{border-color:#92400e;background:#fef3c7;color:#78350f}
+
+  .img-upload{width:100%;height:110px;border:2px dashed #e8d5b7;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:#fdf8f0;position:relative;overflow:hidden;transition:border-color .15s}
+  .img-upload:hover{border-color:#92400e}
+  .img-upload span{font-size:12px;color:#92400e;position:relative}
+  .img-upload .preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:sepia(10%)}
+  .submit-btn{width:100%;padding:14px;background:linear-gradient(135deg,#92400e,#b45309);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="gppTopBar">
+  <a href="/community/grandparents-archive/">&#8592;</a>
+  <h2>📜 Preserve a Story</h2>
+</div>
+
+<div class="gpp-form">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-card">
+      <h3>Category</h3>
+      <div class="cat-grid">
+        <div class="cat-opt"><input type="radio" name="category" id="cat_memory" value="memory" checked><label for="cat_memory"><span class="icon">🕰️</span>Memory</label></div>
+        <div class="cat-opt"><input type="radio" name="category" id="cat_wisdom" value="wisdom"><label for="cat_wisdom"><span class="icon">📜</span>Wisdom</label></div>
+        <div class="cat-opt"><input type="radio" name="category" id="cat_recipe" value="recipe"><label for="cat_recipe"><span class="icon">🍲</span>Recipe</label></div>
+        <div class="cat-opt"><input type="radio" name="category" id="cat_tradition" value="tradition"><label for="cat_tradition"><span class="icon">🎎</span>Tradition</label></div>
+        <div class="cat-opt"><input type="radio" name="category" id="cat_history" value="history"><label for="cat_history"><span class="icon">🏛️</span>History</label></div>
+        <div class="cat-opt"><input type="radio" name="category" id="cat_other" value="other"><label for="cat_other"><span class="icon">👴</span>Other</label></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>About the Elder</h3>
+      <div class="field-row">
+        <div class="field">
+          <label>Elder's Name *</label>
+          <input type="text" name="elder_name" placeholder="e.g. Thatha, Nana, Dadaji" required>
+        </div>
+        <div class="field" style="max-width:80px">
+          <label>Age</label>
+          <input type="number" name="age" placeholder="78" min="50" max="120">
+        </div>
+      </div>
+      <div class="field">
+        <label>Era / Time Period</label>
+        <input type="text" name="era" placeholder="e.g. 1960s, Pre-independence, British era">
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>The Story</h3>
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="e.g. How Thatha walked 10 km to school every day" required>
+      </div>
+      <div class="field">
+        <label>The Full Story *</label>
+        <textarea name="content" placeholder="Write the story in your elder's own words or as you remember it..." required></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Photo (optional)</h3>
+      <div class="img-upload" onclick="document.getElementById('gpImg').click()">
+        <span style="font-size:2rem">📷</span>
+        <span>Add an old photo or memory</span>
+        <input type="file" id="gpImg" name="image" accept="image/*" style="display:none" onchange="previewImg(this)">
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Preserve This Story 📜</button>
+  </form>
+</div>
+
+<script>
+function previewImg(input){
+  if(input.files&&input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){
+      var box=input.closest('.img-upload');
+      var img=box.querySelector('.preview')||document.createElement('img');
+      img.className='preview';img.src=e.target.result;
+      box.appendChild(img);
+      box.querySelectorAll('span').forEach(function(s){s.style.display='none'});
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

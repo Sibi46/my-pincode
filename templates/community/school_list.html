@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}School Corner – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #scTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #scTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #scTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .sc-hero{background:linear-gradient(135deg,#0a66c2,#0891b2);padding:20px 16px;text-align:center;color:#fff}
+  .sc-hero h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .sc-hero p{font-size:12px;opacity:.85;margin:0 0 14px}
+
+  .sc-search{display:flex;gap:8px;max-width:500px;margin:0 auto}
+  .sc-search input{flex:1;padding:10px 14px;border-radius:10px;border:none;font-size:13px;outline:none}
+  .sc-search button{background:#fff;color:#0a66c2;border:none;border-radius:10px;padding:10px 14px;font-weight:800;font-size:13px;cursor:pointer}
+
+  .sc-body{padding:14px 16px 90px;max-width:600px;margin:0 auto}
+  .sc-register-btn{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:12px 16px;margin-bottom:14px;border:1.5px dashed #bfdbfe;text-decoration:none;color:#0a66c2;font-size:13px;font-weight:700}
+  .sc-register-btn span.icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#0891b2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+
+  .sc-card{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;margin-bottom:12px;overflow:hidden;text-decoration:none;display:block;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:transform .15s}
+  .sc-card:hover{transform:translateY(-2px)}
+  .sc-cover{width:100%;height:80px;object-fit:cover;background:linear-gradient(135deg,#dbeafe,#e0f2fe);display:block}
+  .sc-cover-ph{width:100%;height:80px;background:linear-gradient(135deg,#dbeafe,#e0f2fe);display:flex;align-items:center;justify-content:center;font-size:2rem}
+  .sc-card-body{display:flex;align-items:center;gap:12px;padding:12px 14px}
+  .sc-logo{width:50px;height:50px;border-radius:12px;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+  .sc-info{flex:1;min-width:0}
+  .sc-name{font-size:14px;font-weight:900;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sc-meta{font-size:11px;color:#6b7280;margin-top:2px}
+  .sc-badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;background:#dbeafe;color:#0a66c2;white-space:nowrap;flex-shrink:0}
+  .sc-verified{background:#dcfce7;color:#16a34a}
+
+  .sc-empty{text-align:center;padding:3rem 1rem;color:#9ca3af}
+</style>
+
+<div id="scTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>🏫 School Corner</h2>
+  <a href="/community/school-corner/register/" style="background:#0a66c2;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:800;text-decoration:none">+ Register</a>
+</div>
+
+<div class="sc-hero">
+  <h1>School Corner</h1>
+  <p>Find schools, follow updates & celebrate achievements</p>
+  <form method="get" class="sc-search">
+    <input name="q" value="{{ q }}" placeholder="Search school name...">
+    <input name="pin" value="{{ pincode }}" placeholder="Pincode" style="width:90px;flex:none">
+    <button type="submit">Search</button>
+  </form>
+</div>
+
+<div class="sc-body">
+  {% if request.user.is_authenticated %}
+  <a href="/community/school-corner/register/" class="sc-register-btn">
+    <span class="icon">🏫</span>
+    Register your school and start sharing updates...
+  </a>
+  {% endif %}
+
+  {% if schools %}
+  {% for school in schools %}
+  <a class="sc-card" href="/community/school-corner/{{ school.pk }}/">
+    {% if school.cover %}<img class="sc-cover" src="{{ school.cover.url }}" alt="">
+    {% else %}<div class="sc-cover-ph">🏫</div>{% endif %}
+    <div class="sc-card-body">
+      {% if school.logo %}<img class="sc-logo" src="{{ school.logo.url }}" alt="">
+      {% else %}<div class="sc-logo">🏫</div>{% endif %}
+      <div class="sc-info">
+        <div class="sc-name">{{ school.name }}</div>
+        <div class="sc-meta">{{ school.get_school_type_display }} · {{ school.post_count }} posts · {{ school.follower_count }} followers{% if school.pincode %} · 📍 {{ school.pincode }}{% endif %}</div>
+      </div>
+      <span class="sc-badge {% if school.is_verified %}sc-verified{% endif %}">{% if school.is_verified %}✓ Verified{% else %}{{ school.get_school_type_display|truncatewords:1 }}{% endif %}</span>
+    </div>
+  </a>
+  {% endfor %}
+  {% else %}
+  <div class="sc-empty">
+    <div style="font-size:3rem;margin-bottom:8px">🏫</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No schools yet</p>
+    <p style="font-size:13px">Be the first to register your school!</p>
+    {% if request.user.is_authenticated %}
+    <a href="/community/school-corner/register/" style="display:inline-block;margin-top:12px;background:#0a66c2;color:#fff;padding:10px 24px;border-radius:24px;font-weight:800;font-size:13px;text-decoration:none">Register School</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

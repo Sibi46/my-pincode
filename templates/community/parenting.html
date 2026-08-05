@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Parenting – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0fdf4}
+  #ptTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #bbf7d0;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #ptTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #ptTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .pt-hero{background:linear-gradient(135deg,#059669,#10b981);padding:20px 16px;text-align:center;color:#fff}
+  .pt-hero h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .pt-hero p{font-size:12px;opacity:.85;margin:0}
+
+  .pt-cats{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:#fff;border-bottom:1px solid #dcfce7;scrollbar-width:none}
+  .pt-cats::-webkit-scrollbar{display:none}
+  .pt-cat{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;background:#dcfce7;color:#065f46;border:1.5px solid transparent;white-space:nowrap}
+  .pt-cat.active{background:#a7f3d0;color:#047857;border-color:#6ee7b7}
+
+  .pt-fab{position:fixed;bottom:80px;right:16px;z-index:100;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(5,150,105,.4);display:flex;align-items:center;justify-content:center;text-decoration:none}
+
+  .pt-feed{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+  .pt-card{background:#fff;border-radius:16px;border:1.5px solid #d1fae5;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 4px rgba(5,150,105,.07)}
+  .pt-card-img{width:100%;max-height:220px;object-fit:cover;display:block}
+  .pt-card-body{padding:14px}
+  .pt-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:4px 10px;border-radius:8px;background:#dcfce7;color:#047857;margin-bottom:8px}
+  .pt-title{font-size:15px;font-weight:900;color:#111;margin-bottom:5px}
+  .pt-text{font-size:13px;color:#374151;line-height:1.65}
+  .pt-meta{font-size:11px;color:#9ca3af;margin-top:6px}
+  .pt-actions{display:flex;border-top:1px solid #f0fdf4;margin-top:10px}
+  .pt-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#6b7280;font-family:inherit;text-decoration:none}
+  .pt-action.liked{color:#059669}
+  .pt-divider{width:1px;background:#dcfce7;height:36px;flex-shrink:0;align-self:center}
+  .pt-empty{text-align:center;padding:3rem 1rem;color:#9ca3af}
+</style>
+
+<div id="ptTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>👨‍👩‍👧 Parenting</h2>
+</div>
+
+<div class="pt-hero">
+  <h1>👨‍👩‍👧 Parenting</h1>
+  <p>Tips, advice & family activity ideas from parents like you</p>
+</div>
+
+<div class="pt-cats">
+  <a href="/community/parenting/" class="pt-cat {% if not active_cat %}active{% endif %}">🌿 All</a>
+  {% for val, label in categories %}
+  <a href="/community/parenting/?cat={{ val }}" class="pt-cat {% if active_cat == val %}active{% endif %}" data-val="{{ val }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if request.user.is_authenticated %}
+<a href="/community/parenting/post/" class="pt-fab">✏️</a>
+{% endif %}
+
+<div class="pt-feed">
+  {% if posts %}
+  {% for post in posts %}
+  <div class="pt-card">
+    {% if post.image %}<img class="pt-card-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
+    <div class="pt-card-body">
+      <span class="pt-badge" data-cat="{{ post.category }}">{{ post.get_category_display }}</span>
+      <div class="pt-title"><a href="/community/parenting/{{ post.pk }}/" style="color:inherit;text-decoration:none">{{ post.title }}</a></div>
+      <div class="pt-text">{{ post.content|truncatewords:28 }}</div>
+      <div class="pt-meta">{{ post.created_at|timesince }} ago · by {{ post.user.get_full_name|default:post.user.username }}{% if post.pincode %} · 📍 {{ post.pincode }}{% endif %}</div>
+    </div>
+    <div class="pt-actions">
+      <button class="pt-action {% if post.pk in liked_ids %}liked{% endif %}" onclick="likePost({{ post.pk }}, this)">
+        💛 <span id="plc-{{ post.pk }}">{{ post.like_count }}</span> Helpful
+      </button>
+      <div class="pt-divider"></div>
+      <a href="/community/parenting/{{ post.pk }}/" class="pt-action">💬 {{ post.comment_count }}</a>
+      {% if request.user == post.user %}
+      <div class="pt-divider"></div>
+      <a href="/community/parenting/{{ post.pk }}/delete/" class="pt-action" style="color:#ef4444" onclick="return confirm('Delete this post?')">🗑️</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="pt-empty">
+    <div style="font-size:3rem;margin-bottom:8px">👨‍👩‍👧</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No posts yet</p>
+    <p style="font-size:13px">Share a tip that helped your family!</p>
+    {% if request.user.is_authenticated %}
+    <a href="/community/parenting/post/" style="display:inline-block;margin-top:12px;background:#059669;color:#fff;padding:10px 24px;border-radius:24px;font-weight:800;font-size:13px;text-decoration:none">Share a Tip</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  var icons={tips:'💡',activity:'🎯',health:'🏥',education:'📚',food:'🥗',emotion:'💛',other:'👨‍👩‍👧'};
+  document.querySelectorAll('.pt-cat[data-val]').forEach(function(el){
+    var v=el.getAttribute('data-val');
+    if(icons[v]) el.textContent=icons[v]+' '+el.textContent.trim();
+  });
+  document.querySelectorAll('.pt-badge[data-cat]').forEach(function(el){
+    var v=el.getAttribute('data-cat');
+    if(icons[v]) el.textContent=icons[v]+' '+el.textContent.trim();
+  });
+})();
+function likePost(pk,btn){
+  fetch('/community/parenting/'+pk+'/like/',{
+    method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    btn.classList.toggle('liked',d.liked);
+    document.getElementById('plc-'+pk).textContent=d.count;
+  });
+}
+</script>
+{% endblock %}

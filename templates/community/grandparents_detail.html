@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}{{ story.title }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#fdf8f0}
+  #gpdTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e8d5b7;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #gpdTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #gpdTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .gpd-wrap{padding:14px 16px 120px;max-width:600px;margin:0 auto}
+  .gpd-card{background:#fff;border-radius:16px;border:1.5px solid #e8d5b7;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(146,64,14,.07)}
+  .gpd-img{width:100%;max-height:280px;object-fit:cover;display:block;filter:sepia(15%)}
+  .gpd-body{padding:16px}
+  .gpd-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .gpd-badge{font-size:11px;font-weight:800;padding:4px 12px;border-radius:8px;background:#fef3c7;color:#92400e}
+  .gpd-elder{font-size:11px;font-weight:700;color:#6b7280;background:#fdf8f0;padding:3px 10px;border-radius:8px}
+  .gpd-era{font-size:10px;color:#b45309;font-weight:700;background:#fef3c7;padding:3px 8px;border-radius:6px}
+  .gpd-title{font-size:19px;font-weight:900;color:#111;margin-bottom:10px;line-height:1.3}
+  .gpd-content{font-size:14px;color:#374151;line-height:1.8;white-space:pre-line;font-style:italic;border-left:3px solid #e8d5b7;padding-left:12px}
+  .gpd-meta{font-size:11px;color:#9ca3af;margin-top:12px}
+  .gpd-actions{display:flex;border-top:1px solid #fef3c7;margin-top:12px}
+  .gpd-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:11px 0;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;font-family:inherit}
+  .gpd-action.liked{color:#92400e}
+  .gpd-divider{width:1px;background:#fef3c7;height:36px;flex-shrink:0;align-self:center}
+
+  .gpd-comments{background:#fff;border-radius:16px;border:1.5px solid #e8d5b7;overflow:hidden;margin-bottom:12px}
+  .gpd-comments h3{font-size:12px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 0;margin:0}
+  .gpd-comment{padding:12px 16px;border-top:1px solid #fef3c7}
+  .gpd-comment-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .gpd-comment-user{font-size:12px;font-weight:800;color:#111}
+  .gpd-comment-time{font-size:10px;color:#9ca3af;margin-left:auto}
+  .gpd-comment-text{font-size:13px;color:#374151;line-height:1.5}
+  .gpd-no-comment{padding:16px;text-align:center;font-size:13px;color:#9ca3af}
+
+  .gpd-comment-form{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8d5b7;padding:10px 16px;display:flex;gap:8px;z-index:100;max-width:600px;margin:0 auto}
+  .gpd-comment-form input{flex:1;padding:10px 14px;border:1.5px solid #e8d5b7;border-radius:24px;font-size:14px;outline:none;font-family:inherit;background:#fdf8f0}
+  .gpd-comment-form input:focus{border-color:#92400e;background:#fff}
+  .gpd-comment-form button{background:#92400e;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="gpdTopBar">
+  <a href="/community/grandparents-archive/" class="back">&#8592;</a>
+  <h2>{{ story.title }}</h2>
+</div>
+
+<div class="gpd-wrap">
+  <div class="gpd-card">
+    {% if story.image %}<img class="gpd-img" src="{{ story.image.url }}" alt="{{ story.title }}">{% endif %}
+    <div class="gpd-body">
+      <div class="gpd-top">
+        <span class="gpd-badge" id="catBadge">{{ story.get_category_display }}</span>
+        <span class="gpd-elder">👴 {{ story.elder_name }}{% if story.age %}, {{ story.age }} yrs{% endif %}</span>
+        {% if story.era %}<span class="gpd-era">📅 {{ story.era }}</span>{% endif %}
+      </div>
+      <div class="gpd-title">{{ story.title }}</div>
+      <div class="gpd-content">{{ story.content }}</div>
+      <div class="gpd-meta">Preserved {{ story.created_at|timesince }} ago by {{ story.user.get_full_name|default:story.user.username }}{% if story.pincode %} · 📍 {{ story.pincode }}{% endif %}</div>
+    </div>
+    <div class="gpd-actions">
+      <button class="gpd-action {% if liked %}liked{% endif %}" id="likeBtn" onclick="likeStory({{ story.pk }})">
+        🙏 <span id="likeCount">{{ story.like_count }}</span> Cherish
+      </button>
+      {% if request.user == story.user %}
+      <div class="gpd-divider"></div>
+      <a href="/community/grandparents-archive/{{ story.pk }}/delete/" class="gpd-action" style="color:#ef4444" onclick="return confirm('Delete this story?')">🗑️ Delete</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="gpd-comments">
+    <h3>Comments ({{ comments.count }})</h3>
+    {% if comments %}
+    {% for c in comments %}
+    <div class="gpd-comment">
+      <div class="gpd-comment-head">
+        <span class="gpd-comment-user">{{ c.user.get_full_name|default:c.user.username }}</span>
+        <span class="gpd-comment-time">{{ c.created_at|timesince }} ago</span>
+      </div>
+      <div class="gpd-comment-text">{{ c.text }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="gpd-no-comment">This story deserves to be remembered. Add a comment 🙏</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="gpd-comment-form">
+  <form method="post" style="display:contents">
+    {% csrf_token %}
+    <input type="text" name="comment" placeholder="Share a memory or reaction..." required>
+    <button type="submit">Send</button>
+  </form>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  var icons={memory:'🕰️',wisdom:'📜',recipe:'🍲',tradition:'🎎',history:'🏛️',other:'👴'};
+  var c='{{ story.category }}';
+  var el=document.getElementById('catBadge');
+  if(el&&icons[c]) el.textContent=icons[c]+' '+el.textContent.trim();
+})();
+function likeStory(pk){
+  fetch('/community/grandparents-archive/'+pk+'/like/',{
+    method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('likeBtn').classList.toggle('liked',d.liked);
+    document.getElementById('likeCount').textContent=d.count;
+  });
+}
+</script>
+{% endblock %}

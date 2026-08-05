@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}Kids Corner – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#fffbeb}
+  #kcTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #fde68a;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #kcTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #kcTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .kc-hero{background:linear-gradient(135deg,#f59e0b,#fbbf24);padding:20px 16px;text-align:center;color:#fff}
+  .kc-hero h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .kc-hero p{font-size:12px;opacity:.9;margin:0}
+
+  .kc-types{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:#fff;border-bottom:1px solid #fef3c7;scrollbar-width:none}
+  .kc-types::-webkit-scrollbar{display:none}
+  .kc-type{flex-shrink:0;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;background:#fef3c7;color:#92400e;border:1.5px solid transparent;white-space:nowrap}
+  .kc-type.active{background:#fde68a;color:#b45309;border-color:#fbbf24}
+
+  .kc-fab{position:fixed;bottom:80px;right:16px;z-index:100;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;border:none;width:52px;height:52px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,.45);display:flex;align-items:center;justify-content:center;text-decoration:none}
+
+  .kc-feed{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+  .kc-card{background:#fff;border-radius:20px;border:2px solid #fde68a;margin-bottom:14px;overflow:hidden;box-shadow:0 2px 8px rgba(245,158,11,.1)}
+  .kc-card-img{width:100%;max-height:240px;object-fit:cover;display:block}
+  .kc-card-body{padding:14px}
+  .kc-type-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:4px 10px;border-radius:8px;background:#fef3c7;color:#b45309;margin-bottom:8px}
+  .kc-kid-chip{float:right;font-size:11px;font-weight:700;color:#6b7280;background:#f9fafb;padding:3px 8px;border-radius:8px}
+  .kc-title{font-size:15px;font-weight:900;color:#111;margin-bottom:6px;clear:both}
+  .kc-text{font-size:13px;color:#374151;line-height:1.65}
+  .kc-meta{font-size:11px;color:#9ca3af;margin-top:6px}
+  .kc-actions{display:flex;border-top:1px solid #fef3c7;margin-top:10px}
+  .kc-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#6b7280;font-family:inherit;text-decoration:none}
+  .kc-action.liked{color:#f59e0b}
+  .kc-divider{width:1px;background:#fef3c7;height:36px;flex-shrink:0;align-self:center}
+
+  .kc-empty{text-align:center;padding:3rem 1rem;color:#9ca3af}
+</style>
+
+<div id="kcTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>🧒 Kids Corner</h2>
+</div>
+
+<div class="kc-hero">
+  <h1>🧒 Kids Corner</h1>
+  <p>Stories, drawings, poems & fun from little minds</p>
+</div>
+
+<div class="kc-types">
+  <a href="/community/kids-corner/" class="kc-type {% if not active_type %}active{% endif %}">🌟 All</a>
+  {% for val, label in post_types %}
+  <a href="/community/kids-corner/?type={{ val }}" class="kc-type {% if active_type == val %}active{% endif %}" data-val="{{ val }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if request.user.is_authenticated %}
+<a href="/community/kids-corner/post/" class="kc-fab">✏️</a>
+{% endif %}
+
+<div class="kc-feed">
+  {% if posts %}
+  {% for post in posts %}
+  <div class="kc-card">
+    {% if post.image %}<img class="kc-card-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
+    <div class="kc-card-body">
+      <span class="kc-type-badge" data-type="{{ post.post_type }}">📌 {{ post.get_post_type_display }}</span>
+      <span class="kc-kid-chip">👦 {{ post.kid_name }}{% if post.age %}, {{ post.age }} yrs{% endif %}</span>
+      <div class="kc-title"><a href="/community/kids-corner/{{ post.pk }}/" style="color:inherit;text-decoration:none">{{ post.title }}</a></div>
+      <div class="kc-text">{{ post.content|truncatewords:28 }}</div>
+      <div class="kc-meta">{{ post.created_at|timesince }} ago{% if post.pincode %} · 📍 {{ post.pincode }}{% endif %}</div>
+    </div>
+    <div class="kc-actions">
+      <button class="kc-action {% if post.pk in liked_ids %}liked{% endif %}" onclick="likePost({{ post.pk }}, this)">
+        ⭐ <span id="klc-{{ post.pk }}">{{ post.like_count }}</span> Awesome
+      </button>
+      <div class="kc-divider"></div>
+      <a href="/community/kids-corner/{{ post.pk }}/" class="kc-action">💬 {{ post.comment_count }}</a>
+      {% if request.user == post.posted_by %}
+      <div class="kc-divider"></div>
+      <a href="/community/kids-corner/{{ post.pk }}/delete/" class="kc-action" style="color:#ef4444" onclick="return confirm('Delete this post?')">🗑️</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="kc-empty">
+    <div style="font-size:3rem;margin-bottom:8px">🧒</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">Nothing here yet!</p>
+    <p style="font-size:13px">Share your child's story, drawing or poem</p>
+    {% if request.user.is_authenticated %}
+    <a href="/community/kids-corner/post/" style="display:inline-block;margin-top:12px;background:#f59e0b;color:#fff;padding:10px 24px;border-radius:24px;font-weight:800;font-size:13px;text-decoration:none">Post Now</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  var icons={story:'📖',drawing:'🎨',craft:'✂️',poem:'✍️',joke:'😄',activity:'🎯',other:'🧒'};
+  document.querySelectorAll('.kc-type[data-val]').forEach(function(el){
+    var v=el.getAttribute('data-val');
+    if(icons[v]) el.textContent=(icons[v]||'📌')+' '+el.textContent.trim();
+  });
+  document.querySelectorAll('.kc-type-badge[data-type]').forEach(function(el){
+    var v=el.getAttribute('data-type');
+    var lbl=el.textContent.replace(/^📌\s*/,'').trim();
+    if(icons[v]) el.textContent=(icons[v]||'📌')+' '+lbl;
+  });
+})();
+
+function likePost(pk, btn){
+  fetch('/community/kids-corner/'+pk+'/like/',{
+    method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    btn.classList.toggle('liked', d.liked);
+    document.getElementById('klc-'+pk).textContent=d.count;
+  });
+}
+</script>
+{% endblock %}

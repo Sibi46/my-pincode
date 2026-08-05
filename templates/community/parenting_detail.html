@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0fdf4}
+  #ptdTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #bbf7d0;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #ptdTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #ptdTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .ptd-wrap{padding:14px 16px 120px;max-width:600px;margin:0 auto}
+  .ptd-card{background:#fff;border-radius:16px;border:1.5px solid #d1fae5;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(5,150,105,.07)}
+  .ptd-img{width:100%;max-height:280px;object-fit:cover;display:block}
+  .ptd-body{padding:16px}
+  .ptd-badge{display:inline-block;font-size:11px;font-weight:800;padding:4px 12px;border-radius:8px;background:#dcfce7;color:#047857;margin-bottom:10px}
+  .ptd-title{font-size:18px;font-weight:900;color:#111;margin-bottom:8px;line-height:1.3}
+  .ptd-content{font-size:14px;color:#374151;line-height:1.75;white-space:pre-line}
+  .ptd-meta{font-size:11px;color:#9ca3af;margin-top:10px}
+  .ptd-actions{display:flex;border-top:1px solid #f0fdf4;margin-top:12px}
+  .ptd-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:11px 0;background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#6b7280;font-family:inherit}
+  .ptd-action.liked{color:#059669}
+  .ptd-divider{width:1px;background:#dcfce7;height:36px;flex-shrink:0;align-self:center}
+
+  .ptd-comments{background:#fff;border-radius:16px;border:1.5px solid #d1fae5;overflow:hidden;margin-bottom:12px}
+  .ptd-comments h3{font-size:12px;font-weight:800;color:#047857;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 0;margin:0}
+  .ptd-comment{padding:12px 16px;border-top:1px solid #f0fdf4}
+  .ptd-comment-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .ptd-comment-user{font-size:12px;font-weight:800;color:#111}
+  .ptd-comment-time{font-size:10px;color:#9ca3af;margin-left:auto}
+  .ptd-comment-text{font-size:13px;color:#374151;line-height:1.5}
+  .ptd-no-comment{padding:16px;text-align:center;font-size:13px;color:#9ca3af}
+
+  .ptd-comment-form{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #bbf7d0;padding:10px 16px;display:flex;gap:8px;z-index:100;max-width:600px;margin:0 auto}
+  .ptd-comment-form input{flex:1;padding:10px 14px;border:1.5px solid #bbf7d0;border-radius:24px;font-size:14px;outline:none;font-family:inherit;background:#f0fdf4}
+  .ptd-comment-form input:focus{border-color:#059669;background:#fff}
+  .ptd-comment-form button{background:#059669;color:#fff;border:none;border-radius:24px;padding:10px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+</style>
+
+<div id="ptdTopBar">
+  <a href="/community/parenting/" class="back">&#8592;</a>
+  <h2>{{ post.title }}</h2>
+</div>
+
+<div class="ptd-wrap">
+  <div class="ptd-card">
+    {% if post.image %}<img class="ptd-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
+    <div class="ptd-body">
+      <span class="ptd-badge" id="catBadge">{{ post.get_category_display }}</span>
+      <div class="ptd-title">{{ post.title }}</div>
+      <div class="ptd-content">{{ post.content }}</div>
+      <div class="ptd-meta">Shared {{ post.created_at|timesince }} ago by {{ post.user.get_full_name|default:post.user.username }}{% if post.pincode %} · 📍 {{ post.pincode }}{% endif %}</div>
+    </div>
+    <div class="ptd-actions">
+      <button class="ptd-action {% if liked %}liked{% endif %}" id="likeBtn" onclick="likePost({{ post.pk }})">
+        💛 <span id="likeCount">{{ post.like_count }}</span> Helpful
+      </button>
+      {% if request.user == post.user %}
+      <div class="ptd-divider"></div>
+      <a href="/community/parenting/{{ post.pk }}/delete/" class="ptd-action" style="color:#ef4444" onclick="return confirm('Delete this post?')">🗑️ Delete</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="ptd-comments">
+    <h3>Comments ({{ comments.count }})</h3>
+    {% if comments %}
+    {% for c in comments %}
+    <div class="ptd-comment">
+      <div class="ptd-comment-head">
+        <span class="ptd-comment-user">{{ c.user.get_full_name|default:c.user.username }}</span>
+        <span class="ptd-comment-time">{{ c.created_at|timesince }} ago</span>
+      </div>
+      <div class="ptd-comment-text">{{ c.text }}</div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="ptd-no-comment">No comments yet. Share your thoughts! 💬</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<div class="ptd-comment-form">
+  <form method="post" style="display:contents">
+    {% csrf_token %}
+    <input type="text" name="comment" placeholder="Share your thoughts or experience..." required>
+    <button type="submit">Send</button>
+  </form>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  var icons={tips:'💡',activity:'🎯',health:'🏥',education:'📚',food:'🥗',emotion:'💛',other:'👨‍👩‍👧'};
+  var c='{{ post.category }}';
+  var el=document.getElementById('catBadge');
+  if(el&&icons[c]) el.textContent=icons[c]+' '+el.textContent.trim();
+})();
+function likePost(pk){
+  fetch('/community/parenting/'+pk+'/like/',{
+    method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('likeBtn').classList.toggle('liked',d.liked);
+    document.getElementById('likeCount').textContent=d.count;
+  });
+}
+</script>
+{% endblock %}
