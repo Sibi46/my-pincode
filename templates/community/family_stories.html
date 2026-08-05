@@ -100,7 +100,7 @@
 <div class="fs-cats">
   <a href="/community/family-stories/" class="fs-cat {% if not active_cat %}active{% endif %}">🌟 All</a>
   {% for key, label in cat_labels.items %}
-  <a href="/community/family-stories/?cat={{ key }}" class="fs-cat {% if active_cat == key %}active{% endif %}">{{ cat_icons|default_if_none:'' }}{{ label }}</a>
+  <a href="/community/family-stories/?cat={{ key }}" class="fs-cat {% if active_cat == key %}active{% endif %}" data-cat="{{ key }}">{{ label }}</a>
   {% endfor %}
 </div>
 
@@ -123,7 +123,7 @@
         <div class="fs-username">{{ story.user.get_full_name|default:story.user.username }}</div>
         <div class="fs-meta">{{ story.created_at|timesince }} ago {% if story.pincode %}· 📍 {{ story.pincode }}{% endif %}</div>
       </div>
-      <span class="fs-cat-badge">{{ cat_icons|default_if_none:"" }} {{ story.get_category_display }}</span>
+      <span class="fs-cat-badge" data-cat="{{ story.category }}">{{ story.get_category_display }}</span>
     </div>
     {% if story.image %}
     <img class="fs-card-img" src="{{ story.image.url }}" alt="{{ story.title }}">
@@ -168,6 +168,13 @@
 </div>
 
 <script>
+(function(){
+  var icons={birthday:'🎂',achievement:'🏅',tradition:'🎎',celebration:'🎉',vacation:'✈️',gardening:'🌱',other:'📸'};
+  document.querySelectorAll('[data-cat]').forEach(function(el){
+    var v=el.getAttribute('data-cat');
+    if(icons[v]) el.textContent=icons[v]+' '+el.textContent.trim();
+  });
+})();
 function likeStory(pk, btn){
   {% if not request.user.is_authenticated %}
   location.href='/login/?next=/community/family-stories/';return;
