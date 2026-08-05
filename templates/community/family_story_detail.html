@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}{{ story.title }} – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #detTopBar{
+    position:sticky;top:0;z-index:200;
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    padding:12px 16px;display:flex;align-items:center;gap:10px;
+  }
+  #detTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #detTopBar h2{font-size:15px;font-weight:900;color:#111;margin:0;flex:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .det-wrap{max-width:600px;margin:0 auto;padding:0 0 100px}
+  .det-card{background:#fff;border-bottom:1.5px solid #e5e7eb}
+  .det-head{display:flex;align-items:center;gap:10px;padding:14px 16px}
+  .det-avatar{
+    width:44px;height:44px;border-radius:50%;flex-shrink:0;
+    background:linear-gradient(135deg,#e11d48,#f43f5e);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;font-weight:900;
+  }
+  .det-user{flex:1}
+  .det-username{font-size:14px;font-weight:800;color:#111}
+  .det-meta{font-size:11px;color:#9ca3af}
+  .det-badge{
+    background:#fff0f3;color:#e11d48;
+    font-size:10px;font-weight:800;padding:4px 10px;border-radius:8px;
+  }
+  .det-img{width:100%;max-height:360px;object-fit:cover;display:block}
+  .det-body{padding:16px}
+  .det-title{font-size:20px;font-weight:900;color:#111;margin-bottom:10px;line-height:1.3}
+  .det-content{font-size:14px;color:#374151;line-height:1.8}
+  .det-actions{
+    display:flex;border-top:1px solid #f3f4f6;
+  }
+  .det-action{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+    padding:12px;background:none;border:none;cursor:pointer;
+    font-size:13px;font-weight:700;color:#6b7280;font-family:inherit;
+  }
+  .det-action.liked{color:#e11d48}
+  .det-divider{width:1px;background:#f3f4f6;height:40px;flex-shrink:0;align-self:center}
+
+  /* comments */
+  .com-section{padding:16px}
+  .com-section h3{font-size:13px;font-weight:800;color:#374151;margin:0 0 12px}
+  .com-item{display:flex;gap:10px;margin-bottom:12px}
+  .com-avatar{
+    width:34px;height:34px;border-radius:50%;flex-shrink:0;
+    background:#e5e7eb;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:900;color:#374151;
+  }
+  .com-bubble{background:#f3f4f6;border-radius:12px;padding:10px 12px;flex:1}
+  .com-name{font-size:12px;font-weight:800;color:#111;margin-bottom:2px}
+  .com-text{font-size:13px;color:#374151;line-height:1.5}
+  .com-time{font-size:10px;color:#9ca3af;margin-top:3px}
+
+  /* comment form */
+  .com-form{
+    position:fixed;bottom:56px;left:0;right:0;
+    background:#fff;border-top:1px solid #e5e7eb;
+    padding:10px 16px;display:flex;gap:8px;align-items:center;
+  }
+  .com-input{
+    flex:1;padding:10px 14px;border:1.5px solid #e5e7eb;
+    border-radius:24px;font-size:13px;outline:none;font-family:inherit;
+  }
+  .com-input:focus{border-color:#e11d48}
+  .com-send{
+    background:#e11d48;color:#fff;border:none;border-radius:50%;
+    width:38px;height:38px;font-size:16px;cursor:pointer;flex-shrink:0;
+  }
+  .no-comments{text-align:center;padding:1.5rem;color:#9ca3af;font-size:13px}
+</style>
+
+<div id="detTopBar">
+  <a href="/community/family-stories/">&#8592;</a>
+  <h2>{{ story.title }}</h2>
+</div>
+
+<div class="det-wrap">
+  <div class="det-card">
+    <div class="det-head">
+      <div class="det-avatar">{{ story.user.get_full_name|first|upper|default:story.user.username|first|upper }}</div>
+      <div class="det-user">
+        <div class="det-username">{{ story.user.get_full_name|default:story.user.username }}</div>
+        <div class="det-meta">{{ story.created_at|timesince }} ago {% if story.pincode %}· 📍 {{ story.pincode }}{% endif %}</div>
+      </div>
+      <span class="det-badge">{{ cat_icons|default_if_none:"" }} {{ story.get_category_display }}</span>
+    </div>
+
+    {% if story.image %}
+    <img class="det-img" src="{{ story.image.url }}" alt="{{ story.title }}">
+    {% endif %}
+
+    <div class="det-body">
+      <div class="det-title">{{ story.title }}</div>
+      <div class="det-content">{{ story.content|linebreaks }}</div>
+    </div>
+
+    <div class="det-actions">
+      <button class="det-action {% if liked %}liked{% endif %}" id="likeBtn" onclick="likeStory({{ story.pk }})">
+        <span id="likeIcon">{% if liked %}❤️{% else %}🤍{% endif %}</span>
+        <span id="likeCount">{{ story.like_count }}</span> Likes
+      </button>
+      <div class="det-divider"></div>
+      <span class="det-action">💬 {{ story.comment_count }} Comments</span>
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div class="com-section">
+    <h3>Comments ({{ story.comment_count }})</h3>
+    {% if comments %}
+    {% for c in comments %}
+    <div class="com-item">
+      <div class="com-avatar">{{ c.user.get_full_name|first|upper|default:c.user.username|first|upper }}</div>
+      <div class="com-bubble">
+        <div class="com-name">{{ c.user.get_full_name|default:c.user.username }}</div>
+        <div class="com-text">{{ c.text }}</div>
+        <div class="com-time">{{ c.created_at|timesince }} ago</div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="no-comments">No comments yet. Be the first!</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if request.user.is_authenticated %}
+<form method="post" class="com-form">
+  {% csrf_token %}
+  <input class="com-input" name="comment" placeholder="Write a comment..." required>
+  <button type="submit" class="com-send">&#10148;</button>
+</form>
+{% endif %}
+
+<script>
+function likeStory(pk){
+  {% if not request.user.is_authenticated %}
+  location.href='/login/?next=/community/family-stories/'+pk+'/';return;
+  {% endif %}
+  fetch('/community/family-stories/'+pk+'/like/',{
+    method:'POST',
+    headers:{'X-CSRFToken':'{{ csrf_token }}'}
+  }).then(r=>r.json()).then(d=>{
+    document.getElementById('likeIcon').textContent=d.liked?'❤️':'🤍';
+    document.getElementById('likeCount').textContent=d.count;
+    document.getElementById('likeBtn').classList.toggle('liked',d.liked);
+  });
+}
+</script>
+{% endblock %}

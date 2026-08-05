@@ -1,4 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.contrib import messages
+from .models import FamilyStory, FamilyStoryLike, FamilyStoryComment
 
 MODULES = [
     {'slug': 'family-stories',      'icon': '📸', 'name': 'Family Stories',        'desc': 'Birthdays, achievements, traditions & celebrations',  'color': '#e11d48', 'soon': False},
@@ -18,7 +22,28 @@ MODULES = [
     {'slug': 'notifications',       'icon': '🔔', 'name': 'Notifications & Search', 'desc': 'Alerts, reminders & pincode-based search',            'color': '#0891b2', 'soon': True},
 ]
 
+CAT_ICONS = {
+    'birthday':    '🎂',
+    'achievement': '🏅',
+    'tradition':   '🎎',
+    'celebration': '🎉',
+    'vacation':    '✈️',
+    'gardening':   '🌱',
+    'other':       '📸',
+}
 
+CAT_LABELS = {
+    'birthday':    'Birthday',
+    'achievement': 'Achievement',
+    'tradition':   'Tradition',
+    'celebration': 'Celebration',
+    'vacation':    'Vacation',
+    'gardening':   'Gardening',
+    'other':       'Other',
+}
+
+
+# ── COMMUNITY HUB ──────────────────────────────────────────────────────────────
 def hub(request):
     return render(request, 'community/hub.html', {'modules': MODULES})
 
@@ -28,10 +53,95 @@ def module_page(request, slug):
     if not module:
         from django.http import Http404
         raise Http404
-    # redirect live modules to their real pages
     if slug == 'jobs':
-        from django.shortcuts import redirect
         return redirect('/jobs/')
     if slug == 'family-stories':
-        return render(request, 'community/family_stories.html', {'module': module})
+        return redirect('/community/family-stories/')
     return render(request, 'community/coming_soon.html', {'module': module})
+
+
+# ── FAMILY STORIES ─────────────────────────────────────────────────────────────
+def family_stories_feed(request):
+    cat = request.GET.get('cat', '')
+    stories = FamilyStory.objects.filter(is_active=True).select_related('user')
+    if cat:
+        stories = stories.filter(category=cat)
+
+    liked_ids = set()
+    if request.user.is_authenticated:
+        liked_ids = set(FamilyStoryLike.objects.filter(user=request.user).values_list('story_id', flat=True))
+
+    return render(request, 'community/family_stories.html', {
+        'stories':   stories,
+        'liked_ids': liked_ids,
+        'active_cat': cat,
+        'cat_icons': CAT_ICONS,
+        'cat_labels': CAT_LABELS,
+    })
+
+
+@login_required
+def family_story_post(request):
+    if request.method == 'POST':
+        title    = request.POST.get('title', '').strip()
+        content  = request.POST.get('content', '').strip()
+        category = request.POST.get('category', 'other')
+        image    = request.FILES.get('image')
+        pincode  = getattr(request.user, 'pincode', '') or ''
+
+        if title and content:
+            FamilyStory.objects.create(
+                user=request.user,
+                title=title,
+                content=content,
+                category=category,
+                image=image,
+                pincode=pincode,
+            )
+            messages.success(request, 'Your story has been shared!')
+            return redirect('/community/family-stories/')
+
+    return render(request, 'community/family_story_post.html', {
+        'cat_icons':  CAT_ICONS,
+        'cat_labels': CAT_LABELS,
+    })
+
+
+def family_story_detail(request, pk):
+    story = get_object_or_404(FamilyStory, pk=pk, is_active=True)
+    comments = story.comments.select_related('user').all()
+    liked = (
+        request.user.is_authenticated and
+        FamilyStoryLike.objects.filter(user=request.user, story=story).exists()
+    )
+    if request.method == 'POST' and request.user.is_authenticated:
+        text = request.POST.get('comment', '').strip()
+        if text:
+            FamilyStoryComment.objects.create(user=request.user, story=story, text=text)
+        return redirect(f'/community/family-stories/{pk}/')
+
+    return render(request, 'community/family_story_detail.html', {
+        'story':    story,
+        'comments': comments,
+        'liked':    liked,
+        'cat_icons': CAT_ICONS,
+    })
+
+
+@login_required
+def family_story_like(request, pk):
+    story = get_object_or_404(FamilyStory, pk=pk)
+    like, created = FamilyStoryLike.objects.get_or_create(user=request.user, story=story)
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+    return JsonResponse({'liked': liked, 'count': story.like_count()})
+
+
+@login_required
+def family_story_delete(request, pk):
+    story = get_object_or_404(FamilyStory, pk=pk, user=request.user)
+    story.delete()
+    return redirect('/community/family-stories/')

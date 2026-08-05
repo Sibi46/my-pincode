@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Share a Family Story – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  #postTopBar{
+    position:sticky;top:0;z-index:200;
+    background:#fff;border-bottom:1px solid #e5e7eb;
+    padding:12px 16px;display:flex;align-items:center;gap:10px;
+  }
+  #postTopBar a{color:#374151;text-decoration:none;font-size:20px}
+  #postTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .post-form{padding:20px 16px 100px;max-width:600px;margin:0 auto}
+  .form-card{background:#fff;border-radius:16px;padding:20px;border:1.5px solid #e5e7eb;margin-bottom:16px}
+  .form-card h3{font-size:13px;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 14px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .field input,.field textarea,.field select{
+    width:100%;padding:11px 13px;border:1.5px solid #d1d5db;
+    border-radius:10px;font-size:14px;box-sizing:border-box;
+    outline:none;font-family:inherit;background:#fff;
+  }
+  .field input:focus,.field textarea:focus,.field select:focus{border-color:#e11d48}
+  .field textarea{min-height:120px;resize:vertical;line-height:1.6}
+
+  /* category grid */
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .cat-opt{display:none}
+  .cat-label{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:10px 6px;border-radius:10px;border:1.5px solid #e5e7eb;
+    cursor:pointer;font-size:11px;font-weight:700;color:#374151;
+    text-align:center;transition:all .15s;background:#fafafa;
+  }
+  .cat-label span.em{font-size:22px}
+  .cat-opt:checked + .cat-label{border-color:#e11d48;background:#fff0f3;color:#e11d48}
+
+  /* image preview */
+  .img-preview{
+    width:100%;aspect-ratio:16/9;border-radius:10px;
+    border:2px dashed #e5e7eb;display:flex;align-items:center;
+    justify-content:center;flex-direction:column;gap:6px;
+    cursor:pointer;overflow:hidden;position:relative;background:#fafafa;
+  }
+  .img-preview img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+  .img-preview-txt{font-size:12px;color:#9ca3af;font-weight:600;text-align:center;position:relative}
+  .img-preview-icon{font-size:28px;position:relative}
+
+  .submit-btn{
+    width:100%;padding:14px;background:linear-gradient(135deg,#e11d48,#f43f5e);
+    color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;
+    cursor:pointer;font-family:inherit;
+  }
+</style>
+
+<div id="postTopBar">
+  <a href="/community/family-stories/">&#8592;</a>
+  <h2>📸 Share Family Story</h2>
+</div>
+
+<div class="post-form">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-card">
+      <h3>Story Details</h3>
+      <div class="field">
+        <label>Title *</label>
+        <input type="text" name="title" placeholder="e.g. My daughter won the district chess championship!" required maxlength="200">
+      </div>
+      <div class="field">
+        <label>Story *</label>
+        <textarea name="content" placeholder="Share your family story, achievement, memory or celebration..." required></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Category</h3>
+      <div class="cat-grid">
+        {% for key, label in cat_labels.items %}
+        <input class="cat-opt" type="radio" name="category" id="cat_{{ key }}" value="{{ key }}" {% if forloop.first %}checked{% endif %}>
+        <label class="cat-label" for="cat_{{ key }}">
+          <span class="em">{% if key == 'birthday' %}🎂{% elif key == 'achievement' %}🏅{% elif key == 'tradition' %}🎎{% elif key == 'celebration' %}🎉{% elif key == 'vacation' %}✈️{% elif key == 'gardening' %}🌱{% else %}📸{% endif %}</span>
+          {{ label }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Photo (Optional)</h3>
+      <div class="img-preview" id="imgPreview" onclick="document.getElementById('imgInput').click()">
+        <span class="img-preview-icon">📷</span>
+        <span class="img-preview-txt">Tap to add a photo</span>
+      </div>
+      <input type="file" name="image" id="imgInput" accept="image/*" style="display:none" onchange="previewImg(this)">
+    </div>
+
+    <button type="submit" class="submit-btn">Share Story 📸</button>
+  </form>
+</div>
+
+<script>
+function previewImg(input){
+  if(input.files && input.files[0]){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var p = document.getElementById('imgPreview');
+      p.innerHTML = '<img src="'+e.target.result+'">';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}
