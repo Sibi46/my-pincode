@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}School & Kids – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0f4ff}
+
+  #skTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #dbeafe;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #skTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
+  #skTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+
+  .sk-tabs{display:flex;background:#fff;border-bottom:2px solid #dbeafe;position:sticky;top:49px;z-index:190}
+  .sk-tab{flex:1;text-align:center;padding:12px 6px;font-size:13px;font-weight:800;color:#9ca3af;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;text-decoration:none}
+  .sk-tab.active-school{color:#0a66c2;border-color:#0a66c2}
+  .sk-tab.active-student{color:#7c3aed;border-color:#7c3aed}
+  .sk-tab.active-kids{color:#f59e0b;border-color:#f59e0b}
+
+  .sk-fab{position:fixed;bottom:80px;right:16px;z-index:100;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);font-weight:900}
+
+  .sk-pane{display:none;padding:12px 16px 100px;max-width:600px;margin:0 auto}
+  .sk-pane.active{display:block}
+
+  /* shared card */
+  .sk-card{background:#fff;border-radius:16px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+  .sk-card-head{display:flex;align-items:center;gap:10px;padding:12px 14px 0}
+  .sk-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;flex-shrink:0}
+  .sk-user-info{flex:1;min-width:0}
+  .sk-username{font-size:13px;font-weight:800;color:#111}
+  .sk-meta{font-size:11px;color:#9ca3af}
+  .sk-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:8px;flex-shrink:0}
+  .sk-card-img{width:100%;max-height:240px;object-fit:cover;display:block;margin-top:10px}
+  .sk-card-body{padding:12px 14px}
+  .sk-title{font-size:15px;font-weight:900;color:#111;margin-bottom:5px}
+  .sk-text{font-size:13px;color:#374151;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .sk-actions{display:flex;border-top:1px solid #f3f4f6;margin-top:10px}
+  .sk-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#6b7280;font-family:inherit;text-decoration:none}
+  .sk-divider{width:1px;background:#f3f4f6;height:32px;flex-shrink:0;align-self:center}
+
+  /* school list */
+  .sk-school-card{background:#fff;border-radius:14px;border:1.5px solid #dbeafe;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;text-decoration:none;box-shadow:0 1px 3px rgba(10,102,194,.06)}
+  .sk-school-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0a66c2,#2563eb);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+  .sk-school-name{font-size:14px;font-weight:800;color:#111}
+  .sk-school-sub{font-size:11px;color:#9ca3af;margin-top:2px}
+
+  .sk-empty{text-align:center;padding:2.5rem 1rem;color:#9ca3af}
+
+  /* post chooser sheet */
+  .sk-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300}
+  .sk-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 40px;z-index:301;transform:translateY(100%);transition:transform .3s ease}
+  .sk-sheet.open{transform:translateY(0)}
+  .sk-sheet h3{font-size:14px;font-weight:900;color:#111;margin:0 0 16px;text-align:center}
+  .sk-sheet-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .sk-sheet-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:14px;text-decoration:none;font-size:12px;font-weight:700;border:1.5px solid}
+  .sk-sheet-opt span:first-child{font-size:1.6rem}
+</style>
+
+<div id="skTopBar">
+  <a href="/community/" class="back">&#8592;</a>
+  <h2>🏫 School & Kids</h2>
+  {% if request.user.is_authenticated %}
+  <button onclick="openSheet()" style="background:#0a66c2;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer">+ Post</button>
+  {% endif %}
+</div>
+
+<div class="sk-tabs">
+  <a class="sk-tab {% if tab == 'school' %}active-school{% endif %}" href="/community/school-kids/?tab=school">🏫 Schools</a>
+  <a class="sk-tab {% if tab == 'student' %}active-student{% endif %}" href="/community/school-kids/?tab=student">🎓 Students</a>
+  <a class="sk-tab {% if tab == 'kids' %}active-kids{% endif %}" href="/community/school-kids/?tab=kids">🧒 Kids</a>
+</div>
+
+<!-- ── SCHOOL CORNER PANE ── -->
+<div class="sk-pane {% if tab == 'school' %}active{% endif %}" id="pane-school">
+  <a href="/community/school-corner/register/" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;border:1.5px dashed #93c5fd;padding:12px 16px;margin-bottom:12px;text-decoration:none;color:#0a66c2;font-size:13px;font-weight:700">
+    <span style="font-size:1.4rem">🏫</span> Register your school
+  </a>
+  {% if schools %}
+  {% for school in schools %}
+  <a href="/community/school-corner/{{ school.pk }}/" class="sk-school-card">
+    <div class="sk-school-icon">🏫</div>
+    <div>
+      <div class="sk-school-name">{{ school.name }}</div>
+      <div class="sk-school-sub">{{ school.get_type_display }}{% if school.pincode %} · 📍 {{ school.pincode }}{% endif %} · {{ school.posts.count }} posts</div>
+    </div>
+  </a>
+  {% endfor %}
+  {% else %}
+  <div class="sk-empty">
+    <div style="font-size:2.5rem;margin-bottom:8px">🏫</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No schools registered yet</p>
+    <a href="/community/school-corner/register/" style="display:inline-block;margin-top:10px;background:#0a66c2;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Register School</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── STUDENT SUCCESS PANE ── -->
+<div class="sk-pane {% if tab == 'student' %}active{% endif %}" id="pane-student">
+  {% if ss_stories %}
+  {% for story in ss_stories %}
+  <div class="sk-card" style="border:1.5px solid #ede9fe">
+    <div class="sk-card-head">
+      <div class="sk-avatar" style="background:linear-gradient(135deg,#7c3aed,#9333ea)">{{ story.user.get_full_name|first|upper|default:story.user.username|first|upper }}</div>
+      <div class="sk-user-info">
+        <div class="sk-username">{{ story.user.get_full_name|default:story.user.username }}</div>
+        <div class="sk-meta">{{ story.created_at|timesince }} ago{% if story.pincode %} · 📍 {{ story.pincode }}{% endif %}</div>
+      </div>
+      <span class="sk-badge" style="background:#f5f3ff;color:#7c3aed" data-sscat="{{ story.category }}">{{ story.get_category_display }}</span>
+    </div>
+    {% if story.image %}<img class="sk-card-img" src="{{ story.image.url }}" alt="{{ story.title }}">{% endif %}
+    <div class="sk-card-body">
+      <div class="sk-title">{{ story.title }}</div>
+      <div class="sk-text">{{ story.story }}</div>
+    </div>
+    <div class="sk-actions">
+      <button class="sk-action {% if story.pk in ss_liked %}liked{% endif %}" style="{% if story.pk in ss_liked %}color:#7c3aed{% endif %}" onclick="likeSS({{ story.pk }},this)">
+        {% if story.pk in ss_liked %}💜{% else %}🤍{% endif %} <span id="ssl-{{ story.pk }}">{{ story.like_count }}</span>
+      </button>
+      <div class="sk-divider"></div>
+      <a href="/community/student-success/{{ story.pk }}/" class="sk-action">💬 {{ story.comment_count }}</a>
+      <div class="sk-divider"></div>
+      <a href="/community/student-success/{{ story.pk }}/" class="sk-action">📖 Read</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="sk-empty">
+    <div style="font-size:2.5rem;margin-bottom:8px">🎓</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No success stories yet</p>
+    {% if request.user.is_authenticated %}<a href="/community/student-success/post/" style="display:inline-block;margin-top:10px;background:#7c3aed;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Share Achievement</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- ── KIDS CORNER PANE ── -->
+<div class="sk-pane {% if tab == 'kids' %}active{% endif %}" id="pane-kids">
+  {% if kids_posts %}
+  {% for post in kids_posts %}
+  <div class="sk-card" style="border:1.5px solid #fde68a">
+    <div class="sk-card-head">
+      <div class="sk-avatar" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">{{ post.posted_by.get_full_name|first|upper|default:post.posted_by.username|first|upper }}</div>
+      <div class="sk-user-info">
+        <div class="sk-username">{{ post.posted_by.get_full_name|default:post.posted_by.username }}</div>
+        <div class="sk-meta">{{ post.created_at|timesince }} ago{% if post.child_age %} · Age {{ post.child_age }}{% endif %}</div>
+      </div>
+      <span class="sk-badge" style="background:#fef3c7;color:#d97706" data-ktype="{{ post.post_type }}">{{ post.get_post_type_display }}</span>
+    </div>
+    {% if post.image %}<img class="sk-card-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
+    <div class="sk-card-body">
+      <div class="sk-title">{{ post.title }}</div>
+      <div class="sk-text">{{ post.content }}</div>
+    </div>
+    <div class="sk-actions">
+      <button class="sk-action {% if post.pk in kids_liked %}liked{% endif %}" style="{% if post.pk in kids_liked %}color:#f59e0b{% endif %}" onclick="likeKids({{ post.pk }},this)">
+        {% if post.pk in kids_liked %}⭐{% else %}☆{% endif %} <span id="kl-{{ post.pk }}">{{ post.like_count }}</span>
+      </button>
+      <div class="sk-divider"></div>
+      <a href="/community/kids-corner/{{ post.pk }}/" class="sk-action">💬 {{ post.comment_count }}</a>
+      <div class="sk-divider"></div>
+      <a href="/community/kids-corner/{{ post.pk }}/" class="sk-action">📖 Read</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="sk-empty">
+    <div style="font-size:2.5rem;margin-bottom:8px">🧒</div>
+    <p style="font-weight:700;color:#374151;margin-bottom:4px">No kids posts yet</p>
+    {% if request.user.is_authenticated %}<a href="/community/kids-corner/post/" style="display:inline-block;margin-top:10px;background:#f59e0b;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Post Now</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- POST CHOOSER SHEET -->
+{% if request.user.is_authenticated %}
+<div class="sk-sheet-overlay" id="skOverlay" onclick="closeSheet()"></div>
+<div class="sk-sheet" id="skSheet">
+  <h3>What do you want to post?</h3>
+  <div class="sk-sheet-opts">
+    <a href="/community/school-corner/register/" class="sk-sheet-opt" style="background:#eff6ff;color:#0a66c2;border-color:#bfdbfe"><span>🏫</span>Register School</a>
+    <a href="/community/student-success/post/" class="sk-sheet-opt" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe"><span>🎓</span>Student Win</a>
+    <a href="/community/kids-corner/post/" class="sk-sheet-opt" style="background:#fffbeb;color:#d97706;border-color:#fde68a"><span>🧒</span>Kids Story</a>
+  </div>
+</div>
+{% endif %}
+
+<script>
+(function(){
+  var ssIcons={academics:'📚',sports:'⚽',arts:'🎨',music:'🎵',coding:'💻',social:'🤝',other:'🎓'};
+  var kIcons={drawing:'🎨',poem:'📝',story:'📖',photo:'📸',sports:'⚽',craft:'✂️',other:'🧒'};
+  document.querySelectorAll('[data-sscat]').forEach(function(el){var v=el.getAttribute('data-sscat');if(ssIcons[v])el.textContent=ssIcons[v]+' '+el.textContent.trim();});
+  document.querySelectorAll('[data-ktype]').forEach(function(el){var v=el.getAttribute('data-ktype');if(kIcons[v])el.textContent=kIcons[v]+' '+el.textContent.trim();});
+})();
+
+function likeSS(pk,btn){
+  fetch('/community/student-success/'+pk+'/like/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
+  .then(r=>r.json()).then(d=>{btn.classList.toggle('liked',d.liked);btn.querySelector('span:first-child').textContent=d.liked?'💜':'🤍';document.getElementById('ssl-'+pk).textContent=d.count;});
+}
+function likeKids(pk,btn){
+  fetch('/community/kids-corner/'+pk+'/like/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
+  .then(r=>r.json()).then(d=>{btn.classList.toggle('liked',d.liked);btn.querySelector('span:first-child').textContent=d.liked?'⭐':'☆';document.getElementById('kl-'+pk).textContent=d.count;});
+}
+function openSheet(){document.getElementById('skOverlay').style.display='block';document.getElementById('skSheet').classList.add('open');}
+function closeSheet(){document.getElementById('skOverlay').style.display='none';document.getElementById('skSheet').classList.remove('open');}
+</script>
+{% endblock %}

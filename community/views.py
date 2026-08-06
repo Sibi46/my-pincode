@@ -17,12 +17,8 @@ from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      Notification)
 
 MODULES = [
-    {'slug': 'family-stories',      'icon': '📸', 'name': 'Family Stories',        'desc': 'Birthdays, achievements, traditions & celebrations',  'color': '#e11d48', 'soon': False},
-    {'slug': 'school-corner',       'icon': '🏫', 'name': 'School Corner',          'desc': 'Events, sports day, science fair & admissions',       'color': '#0a66c2', 'soon': False},
-    {'slug': 'student-success',     'icon': '🎓', 'name': 'Student Success',        'desc': 'Academics, sports, art, music & scholarships',        'color': '#7c3aed', 'soon': False},
-    {'slug': 'kids-corner',         'icon': '🧒', 'name': 'Kids Corner',            'desc': 'Safe space for children\'s stories & activities',     'color': '#f59e0b', 'soon': False},
-    {'slug': 'parenting',           'icon': '👨‍👩‍👧', 'name': 'Parenting',              'desc': 'Tips, advice & family activity ideas',               'color': '#059669', 'soon': False},
-    {'slug': 'grandparents-archive','icon': '👴', 'name': 'Grandparents Archive',   'desc': 'Elder stories, memories & community wisdom',          'color': '#92400e', 'soon': False},
+    {'slug': 'family',       'icon': '👨‍👩‍👧', 'name': 'Family Hub',     'desc': 'Family Stories · Parenting · Grandparents Archive',  'color': '#e11d48', 'soon': False},
+    {'slug': 'school-kids', 'icon': '🏫', 'name': 'School & Kids',  'desc': 'School Corner · Student Success · Kids Corner',       'color': '#0a66c2', 'soon': False},
     {'slug': 'local-heroes',        'icon': '🦸', 'name': 'Local Heroes',           'desc': 'Celebrate unsung heroes in your community',           'color': '#dc2626', 'soon': False},
     {'slug': 'community-events',    'icon': '📅', 'name': 'Community Events',       'desc': 'Local gatherings, festivals & announcements',         'color': '#0891b2', 'soon': False},
     {'slug': 'volunteer',           'icon': '🤝', 'name': 'Volunteer Activities',   'desc': 'Blood donation, tree plantation & health camps',      'color': '#16a34a', 'soon': False},
@@ -67,18 +63,22 @@ def module_page(request, slug):
         raise Http404
     if slug == 'jobs':
         return redirect('/jobs/')
+    if slug == 'family':
+        return redirect('/community/family/')
+    if slug == 'school-kids':
+        return redirect('/community/school-kids/')
     if slug == 'family-stories':
-        return redirect('/community/family-stories/')
-    if slug == 'school-corner':
-        return redirect('/community/school-corner/')
-    if slug == 'student-success':
-        return redirect('/community/student-success/')
-    if slug == 'kids-corner':
-        return redirect('/community/kids-corner/')
+        return redirect('/community/family/')
     if slug == 'parenting':
-        return redirect('/community/parenting/')
+        return redirect('/community/family/?tab=parenting')
     if slug == 'grandparents-archive':
-        return redirect('/community/grandparents-archive/')
+        return redirect('/community/family/?tab=grandparents')
+    if slug == 'school-corner':
+        return redirect('/community/school-kids/')
+    if slug == 'student-success':
+        return redirect('/community/school-kids/?tab=student')
+    if slug == 'kids-corner':
+        return redirect('/community/school-kids/?tab=kids')
     if slug == 'local-heroes':
         return redirect('/community/local-heroes/')
     if slug == 'community-events':
@@ -96,6 +96,82 @@ def module_page(request, slug):
     if slug == 'notifications':
         return redirect('/community/notifications/')
     return render(request, 'community/coming_soon.html', {'module': module})
+
+
+# ── FAMILY HUB ────────────────────────────────────────────────────────────────
+def family_hub(request):
+    tab = request.GET.get('tab', 'stories')
+
+    # Family Stories
+    stories   = FamilyStory.objects.filter(is_active=True).select_related('user')
+    fs_liked  = set()
+    if request.user.is_authenticated:
+        fs_liked = set(FamilyStoryLike.objects.filter(
+            user=request.user).values_list('story_id', flat=True))
+
+    # Parenting
+    parenting_posts = ParentingPost.objects.filter(is_active=True).select_related('user')
+    pt_liked = set()
+    if request.user.is_authenticated:
+        pt_liked = set(ParentingLike.objects.filter(
+            user=request.user).values_list('post_id', flat=True))
+
+    # Grandparents
+    gp_stories = GrandparentStory.objects.filter(is_active=True).select_related('user')
+    gp_liked   = set()
+    if request.user.is_authenticated:
+        gp_liked = set(GrandparentLike.objects.filter(
+            user=request.user).values_list('story_id', flat=True))
+
+    return render(request, 'community/family_hub.html', {
+        'tab':            tab,
+        'stories':        stories,
+        'fs_liked':       fs_liked,
+        'cat_icons':      CAT_ICONS,
+        'cat_labels':     CAT_LABELS,
+        'parenting_posts': parenting_posts,
+        'pt_liked':       pt_liked,
+        'pt_cat_icons':   PT_CAT_ICONS,
+        'pt_categories':  ParentingPost.CAT_CHOICES,
+        'gp_stories':     gp_stories,
+        'gp_liked':       gp_liked,
+        'gp_cat_icons':   GP_CAT_ICONS,
+        'gp_categories':  GrandparentStory.CAT_CHOICES,
+    })
+
+
+# ── SCHOOL & KIDS HUB ──────────────────────────────────────────────────────────
+def school_kids_hub(request):
+    tab = request.GET.get('tab', 'school')
+
+    # School Corner
+    schools = School.objects.all().order_by('-created_at')
+
+    # Student Success
+    ss_stories = StudentSuccess.objects.filter(is_active=True).select_related('user')
+    ss_liked   = set()
+    if request.user.is_authenticated:
+        ss_liked = set(StudentSuccessLike.objects.filter(
+            user=request.user).values_list('success_id', flat=True))
+
+    # Kids Corner
+    kids_posts = KidsPost.objects.filter(is_active=True).select_related('posted_by')
+    kids_liked = set()
+    if request.user.is_authenticated:
+        kids_liked = set(KidsPostLike.objects.filter(
+            user=request.user).values_list('post_id', flat=True))
+
+    return render(request, 'community/school_kids_hub.html', {
+        'tab':          tab,
+        'schools':      schools,
+        'ss_stories':   ss_stories,
+        'ss_liked':     ss_liked,
+        'ss_cat_icons': SS_CAT_ICONS,
+        'kids_posts':   kids_posts,
+        'kids_liked':   kids_liked,
+        'kids_type_icons': KIDS_TYPE_ICONS,
+        'kids_types':   KidsPost.TYPE_CHOICES,
+    })
 
 
 # ── FAMILY STORIES ─────────────────────────────────────────────────────────────

@@ -4,6 +4,10 @@ from . import views
 urlpatterns = [
     path('',                               views.hub,                   name='community_hub'),
 
+    # Grouped hubs
+    path('family/',                        views.family_hub,            name='family_hub'),
+    path('school-kids/',                   views.school_kids_hub,       name='school_kids_hub'),
+
     # Family Stories
     path('family-stories/',                views.family_stories_feed,   name='family_stories'),
     path('family-stories/post/',           views.family_story_post,     name='family_story_post'),
