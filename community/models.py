@@ -93,6 +93,24 @@ class School(models.Model):
         return self.posts.count()
 
 
+class SchoolAdmin(models.Model):
+    ROLE_CHOICES = [
+        ('owner', 'Owner'),
+        ('admin', 'Admin'),
+    ]
+    school     = models.ForeignKey(School, on_delete=models.CASCADE, related_name='admins')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='school_admin_roles')
+    role       = models.CharField(max_length=10, choices=ROLE_CHOICES, default='admin')
+    added_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='school_admins_added')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('school', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} — {self.role} @ {self.school.name}"
+
+
 class SchoolFollow(models.Model):
     user   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='school_follows')
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='followers')

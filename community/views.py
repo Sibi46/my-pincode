@@ -262,7 +262,7 @@ def family_story_delete(request, pk):
 
 
 # ── SCHOOL CORNER ──────────────────────────────────────────────────────────────
-from .models import School, SchoolPost, SchoolPostLike, SchoolPostComment, SchoolFollow
+from .models import School, SchoolPost, SchoolPostLike, SchoolPostComment, SchoolFollow, SchoolAdmin
 
 POST_TYPE_ICONS = {
     'annual_day':   '🎭',
@@ -306,6 +306,9 @@ def school_detail(request, pk):
             user=request.user, post__school=school
         ).values_list('post_id', flat=True))
 
+    is_admin = (request.user.is_authenticated and
+                SchoolAdmin.objects.filter(school=school, user=request.user).exists())
+
     return render(request, 'community/school_detail.html', {
         'school':      school,
         'posts':       posts,
@@ -314,6 +317,7 @@ def school_detail(request, pk):
         'post_type':   post_type,
         'type_icons':  POST_TYPE_ICONS,
         'post_types':  SchoolPost.POST_TYPE_CHOICES,
+        'is_admin':    is_admin,
     })
 
 
@@ -334,8 +338,9 @@ def school_register(request):
                 pincode=pin, about=about, phone=phone,
                 logo=logo, cover=cover, created_by=request.user,
             )
-            messages.success(request, f'{name} has been registered!')
-            return redirect(f'/community/school-corner/{school.pk}/')
+            SchoolAdmin.objects.create(school=school, user=request.user, role='owner', added_by=request.user)
+            messages.success(request, f'{name} has been registered! You are the owner.')
+            return redirect(f'/community/school-corner/{school.pk}/dashboard/')
     return render(request, 'community/school_register.html', {
         'type_choices': School.TYPE_CHOICES,
     })
@@ -344,6 +349,9 @@ def school_register(request):
 @login_required
 def school_post_create(request, pk):
     school = get_object_or_404(School, pk=pk)
+    if not SchoolAdmin.objects.filter(school=school, user=request.user).exists():
+        messages.error(request, 'Only school admins can post.')
+        return redirect(f'/community/school-corner/{pk}/')
     if request.method == 'POST':
         title     = request.POST.get('title', '').strip()
         content   = request.POST.get('content', '').strip()
@@ -356,11 +364,60 @@ def school_post_create(request, pk):
                 post_type=post_type, image=image,
             )
             messages.success(request, 'Post published!')
-        return redirect(f'/community/school-corner/{pk}/')
+        return redirect(f'/community/school-corner/{pk}/dashboard/')
     return render(request, 'community/school_post_form.html', {
         'school':      school,
         'post_types':  SchoolPost.POST_TYPE_CHOICES,
         'type_icons':  POST_TYPE_ICONS,
+    })
+
+
+@login_required
+def school_dashboard(request, pk):
+    school = get_object_or_404(School, pk=pk)
+    admin_rec = SchoolAdmin.objects.filter(school=school, user=request.user).first()
+    if not admin_rec:
+        messages.error(request, 'Access denied.')
+        return redirect(f'/community/school-corner/{pk}/')
+
+    admins = SchoolAdmin.objects.filter(school=school).select_related('user', 'added_by')
+    posts  = school.posts.filter(is_active=True).select_related('posted_by')
+    error  = None
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'add_admin' and admin_rec.role == 'owner':
+            username = request.POST.get('username', '').strip()
+            try:
+                from django.contrib.auth import get_user_model
+                User2 = get_user_model()
+                new_user = User2.objects.get(username=username)
+                SchoolAdmin.objects.get_or_create(
+                    school=school, user=new_user,
+                    defaults={'role': 'admin', 'added_by': request.user}
+                )
+                messages.success(request, f'{username} added as admin.')
+            except Exception:
+                error = f'User "{username}" not found.'
+
+        elif action == 'remove_admin' and admin_rec.role == 'owner':
+            uid = request.POST.get('user_id')
+            SchoolAdmin.objects.filter(school=school, user_id=uid).exclude(role='owner').delete()
+
+        elif action == 'delete_post':
+            post_id = request.POST.get('post_id')
+            SchoolPost.objects.filter(pk=post_id, school=school).update(is_active=False)
+
+        return redirect(f'/community/school-corner/{pk}/dashboard/')
+
+    return render(request, 'community/school_dashboard.html', {
+        'school':     school,
+        'admin_rec':  admin_rec,
+        'admins':     admins,
+        'posts':      posts,
+        'error':      error,
+        'post_types': SchoolPost.POST_TYPE_CHOICES,
     })
 
 

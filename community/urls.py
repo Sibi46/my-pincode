@@ -20,6 +20,7 @@ urlpatterns = [
     path('school-corner/register/',                 views.school_register,      name='school_register'),
     path('school-corner/<int:pk>/',                 views.school_detail,        name='school_detail'),
     path('school-corner/<int:pk>/post/',            views.school_post_create,   name='school_post_create'),
+    path('school-corner/<int:pk>/dashboard/',       views.school_dashboard,     name='school_dashboard'),
     path('school-corner/<int:pk>/follow/',          views.school_follow,        name='school_follow'),
     path('school-corner/post/<int:pk>/like/',       views.school_post_like,     name='school_post_like'),
 

@@ -88,8 +88,11 @@
     <div class="sd-stat"><div class="sd-stat-n">{{ school.post_count }}</div><div class="sd-stat-l">Posts</div></div>
   </div>
   {% if school.about %}<div class="sd-about">{{ school.about }}</div>{% endif %}
-  {% if request.user.is_authenticated %}
-  <a href="#" class="sd-post-btn" onclick="document.getElementById('postModal').classList.add('open');return false">📝 Add Post</a>
+  {% if is_admin %}
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-post-btn">✏️ New Post</a>
+    <a href="/community/school-corner/{{ school.pk }}/dashboard/" class="sd-post-btn" style="background:#f3f4f6;color:#0a66c2">⚙️ Dashboard</a>
+  </div>
   {% endif %}
 </div>
 

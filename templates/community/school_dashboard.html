@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block title %}{{ school.name }} – Admin Dashboard{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0f4ff}
+  #sdTopBar{position:sticky;top:0;z-index:200;background:#0a66c2;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #sdTopBar a.back{color:rgba(255,255,255,.7);text-decoration:none;font-size:20px}
+  #sdTopBar h2{font-size:15px;font-weight:900;color:#fff;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #sdTopBar a.view{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);background:rgba(255,255,255,.15);padding:6px 12px;border-radius:8px;text-decoration:none}
+
+  .sd-wrap{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+  .sd-school-banner{background:linear-gradient(135deg,#0a66c2,#2563eb);border-radius:16px;padding:16px;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+  .sd-school-logo{width:56px;height:56px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;overflow:hidden}
+  .sd-school-logo img{width:100%;height:100%;object-fit:cover}
+  .sd-school-name{font-size:17px;font-weight:900}
+  .sd-school-sub{font-size:11px;opacity:.8;margin-top:2px}
+  .sd-role-badge{font-size:10px;font-weight:800;background:rgba(255,255,255,.25);padding:3px 10px;border-radius:8px;display:inline-block;margin-top:6px}
+
+  /* stats */
+  .sd-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  .sd-stat{background:#fff;border-radius:14px;padding:14px;text-align:center;border:1.5px solid #dbeafe}
+  .sd-stat-num{font-size:22px;font-weight:900;color:#0a66c2}
+  .sd-stat-label{font-size:11px;color:#6b7280;margin-top:2px}
+
+  /* section */
+  .sd-section{background:#fff;border-radius:16px;border:1.5px solid #dbeafe;overflow:hidden;margin-bottom:14px}
+  .sd-section-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eff6ff}
+  .sd-section-title{font-size:13px;font-weight:900;color:#0a66c2;text-transform:uppercase;letter-spacing:.06em}
+  .sd-section-action{font-size:12px;font-weight:700;color:#0a66c2;background:#eff6ff;padding:6px 14px;border-radius:8px;text-decoration:none;border:none;cursor:pointer;font-family:inherit}
+
+  /* admin list */
+  .sd-admin-item{display:flex;align-items:center;gap:10px;padding:12px 16px;border-top:1px solid #f0f4ff}
+  .sd-admin-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#2563eb);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;flex-shrink:0}
+  .sd-admin-name{font-size:13px;font-weight:800;color:#111}
+  .sd-admin-sub{font-size:11px;color:#9ca3af}
+  .sd-admin-role{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;flex-shrink:0}
+  .sd-role-owner{background:#fef3c7;color:#92400e}
+  .sd-role-admin{background:#dbeafe;color:#1e40af}
+  .sd-remove-btn{margin-left:auto;background:#fee2e2;color:#dc2626;border:none;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+
+  /* add admin form */
+  .sd-add-form{padding:14px 16px;background:#f8faff;display:none}
+  .sd-add-form.open{display:block}
+  .sd-add-row{display:flex;gap:8px}
+  .sd-add-input{flex:1;padding:10px 14px;border:1.5px solid #bfdbfe;border-radius:10px;font-size:13px;font-family:inherit;outline:none;background:#fff}
+  .sd-add-input:focus{border-color:#0a66c2}
+  .sd-add-btn{padding:10px 16px;background:#0a66c2;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+  .sd-error{background:#fee2e2;color:#991b1b;font-size:12px;padding:8px 12px;border-radius:8px;margin-top:8px}
+
+  /* post list */
+  .sd-post-item{display:flex;gap:10px;padding:12px 16px;border-top:1px solid #f0f4ff;align-items:flex-start}
+  .sd-post-thumb{width:54px;height:54px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden}
+  .sd-post-thumb img{width:100%;height:100%;object-fit:cover}
+  .sd-post-info{flex:1;min-width:0}
+  .sd-post-title{font-size:13px;font-weight:800;color:#111;margin-bottom:2px}
+  .sd-post-meta{font-size:11px;color:#9ca3af}
+  .sd-post-delete{margin-left:auto;background:#fee2e2;color:#dc2626;border:none;padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+
+  /* new post button */
+  .sd-new-post-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:linear-gradient(135deg,#0a66c2,#2563eb);color:#fff;border-radius:14px;text-decoration:none;font-size:14px;font-weight:800;margin-bottom:14px}
+</style>
+
+<div id="sdTopBar">
+  <a href="/community/school-corner/{{ school.pk }}/" class="back">&#8592;</a>
+  <h2>⚙️ {{ school.name }}</h2>
+  <a href="/community/school-corner/{{ school.pk }}/" class="view">View Page</a>
+</div>
+
+<div class="sd-wrap">
+
+  <!-- School banner -->
+  <div class="sd-school-banner">
+    <div class="sd-school-logo">
+      {% if school.logo %}<img src="{{ school.logo.url }}" alt="">{% else %}🏫{% endif %}
+    </div>
+    <div>
+      <div class="sd-school-name">{{ school.name }}</div>
+      <div class="sd-school-sub">{{ school.get_school_type_display }}{% if school.pincode %} · 📍 {{ school.pincode }}{% endif %}</div>
+      <span class="sd-role-badge">{{ admin_rec.get_role_display }}</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="sd-stats">
+    <div class="sd-stat">
+      <div class="sd-stat-num">{{ posts.count }}</div>
+      <div class="sd-stat-label">Posts</div>
+    </div>
+    <div class="sd-stat">
+      <div class="sd-stat-num">{{ school.follower_count }}</div>
+      <div class="sd-stat-label">Followers</div>
+    </div>
+    <div class="sd-stat">
+      <div class="sd-stat-num">{{ admins.count }}</div>
+      <div class="sd-stat-label">Admins</div>
+    </div>
+  </div>
+
+  <!-- New post button -->
+  <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-new-post-btn">✏️ Create New Post</a>
+
+  <!-- Admins section -->
+  <div class="sd-section">
+    <div class="sd-section-head">
+      <span class="sd-section-title">👤 School Admins</span>
+      {% if admin_rec.role == 'owner' %}
+      <button class="sd-section-action" onclick="toggleAddForm()">+ Add Admin</button>
+      {% endif %}
+    </div>
+
+    {% if admin_rec.role == 'owner' %}
+    <div class="sd-add-form" id="addForm">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_admin">
+        <div class="sd-add-row">
+          <input class="sd-add-input" type="text" name="username" placeholder="Enter username to add as admin" required>
+          <button type="submit" class="sd-add-btn">Add</button>
+        </div>
+        {% if error %}<div class="sd-error">{{ error }}</div>{% endif %}
+      </form>
+    </div>
+    {% endif %}
+
+    {% for a in admins %}
+    <div class="sd-admin-item">
+      <div class="sd-admin-avatar">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
+      <div>
+        <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
+        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
+      </div>
+      <span class="sd-admin-role {% if a.role == 'owner' %}sd-role-owner{% else %}sd-role-admin{% endif %}">{{ a.get_role_display }}</span>
+      {% if admin_rec.role == 'owner' and a.role != 'owner' %}
+      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove admin?')">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove_admin">
+        <input type="hidden" name="user_id" value="{{ a.user.pk }}">
+        <button type="submit" class="sd-remove-btn">Remove</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Posts section -->
+  <div class="sd-section">
+    <div class="sd-section-head">
+      <span class="sd-section-title">📝 Activity Posts</span>
+    </div>
+
+    {% if posts %}
+    {% for post in posts %}
+    <div class="sd-post-item">
+      <div class="sd-post-thumb">
+        {% if post.image %}<img src="{{ post.image.url }}" alt="">{% else %}📌{% endif %}
+      </div>
+      <div class="sd-post-info">
+        <div class="sd-post-title">{{ post.title }}</div>
+        <div class="sd-post-meta">{{ post.get_post_type_display }} · {{ post.created_at|timesince }} ago · by {{ post.posted_by.get_full_name|default:post.posted_by.username }}</div>
+      </div>
+      <form method="post" onsubmit="return confirm('Delete this post?')" style="flex-shrink:0">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete_post">
+        <input type="hidden" name="post_id" value="{{ post.pk }}">
+        <button type="submit" class="sd-post-delete">🗑️</button>
+      </form>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div style="padding:20px;text-align:center;color:#9ca3af;font-size:13px">No posts yet. Create your first post!</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+{% if error %}
+document.getElementById('addForm').classList.add('open');
+{% endif %}
+function toggleAddForm(){
+  var f=document.getElementById('addForm');
+  f.classList.toggle('open');
+}
+</script>
+{% endblock %}
