@@ -113,14 +113,44 @@ def family_hub(request):
             setup.save()
             return redirect('/community/family/')
 
-    setup_list = setup.as_list() if setup else []
-    active_tabs = [(val, label, icon, cnt) for val, label, icon, cnt in setup_list if cnt > 0]
+    ROWS = [
+        ('👴', 'Grandfather', 'grandfather_count'),
+        ('👵', 'Grandmother', 'grandmother_count'),
+        ('👨', 'Father',      'father_count'),
+        ('👩', 'Mother',      'mother_count'),
+        ('👦', 'Son',         'son_count'),
+        ('👧', 'Daughter',    'daughter_count'),
+        ('🧔', 'Uncle',       'uncle_count'),
+        ('👩‍🦳', 'Aunt',      'aunt_count'),
+        ('🧑', 'Cousin',      'cousin_count'),
+        ('🐾', 'Pet',         'pet_count'),
+    ]
+    TYPE_ICON = {
+        'grandfather':'👴','grandmother':'👵','father':'👨','mother':'👩',
+        'son':'👦','daughter':'👧','uncle':'🧔','aunt':'👩‍🦳','cousin':'🧑','pet':'🐾',
+    }
+    FIELD_TO_TYPE = {
+        'grandfather_count':'grandfather','grandmother_count':'grandmother',
+        'father_count':'father','mother_count':'mother','son_count':'son',
+        'daughter_count':'daughter','uncle_count':'uncle','aunt_count':'aunt',
+        'cousin_count':'cousin','pet_count':'pet',
+    }
+    setup_rows = [(icon, label, field, getattr(setup, field, 0) if setup else 0)
+                  for icon, label, field in ROWS]
+    active_tabs = []
+    if setup:
+        for icon, label, field in ROWS:
+            cnt = getattr(setup, field, 0)
+            if cnt > 0:
+                mtype = FIELD_TO_TYPE[field]
+                active_tabs.append((mtype, label, icon, cnt))
+
     active_type = request.GET.get('tab', active_tabs[0][0] if active_tabs else '')
     members = FamilyMember.objects.filter(member_type=active_type).select_related('creator') if active_type else []
 
     return render(request, 'community/family_hub.html', {
         'setup':       setup,
-        'setup_list':  setup_list,
+        'setup_rows':  setup_rows,
         'active_tabs': active_tabs,
         'active_type': active_type,
         'members':     members,
