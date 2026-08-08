@@ -48,20 +48,6 @@
   <h2>👨‍👩‍👧 Family Hub</h2>
 </div>
 
-<!-- Family Summary -->
-<div class="fh-summary">
-  <div class="fh-summary-title">👨‍👩‍👧 My Family</div>
-  <div class="fh-summary-grid">
-    {% for val, label, icon, count in summary %}
-    <a href="/community/family/?type={{ val }}" class="fh-sum-item {% if count == 0 %}zero{% endif %}" style="text-decoration:none">
-      <span class="fh-sum-icon">{{ icon }}</span>
-      <span class="fh-sum-count">{{ count }}</span>
-      <span class="fh-sum-label">{{ label }}</span>
-    </a>
-    {% endfor %}
-  </div>
-</div>
-
 <!-- Type filter chips -->
 <div class="fh-filter">
   <a href="/community/family/" class="fh-chip {% if not active_type %}active{% endif %}">All ({{ total_count }})</a>
