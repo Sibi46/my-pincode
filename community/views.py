@@ -110,7 +110,6 @@ def family_hub(request):
         ('aunt',        'Aunt',        '👩‍🦳'),
         ('cousin',      'Cousin',      '🧑'),
         ('pet',         'Pet',         '🐾'),
-        ('other',       'Other',       '👤'),
     ]
     summary = [(val, label, icon, all_members.filter(member_type=val).count())
                for val, label, icon in TYPE_META]
