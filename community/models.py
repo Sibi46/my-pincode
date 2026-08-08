@@ -75,8 +75,10 @@ class School(models.Model):
     cover       = models.ImageField(upload_to='school_covers/', blank=True, null=True)
     about       = models.TextField(blank=True)
     website     = models.URLField(blank=True)
-    phone       = models.CharField(max_length=15, blank=True)
-    is_verified = models.BooleanField(default=False)
+    phone            = models.CharField(max_length=15, blank=True)
+    principal_name   = models.CharField(max_length=150, blank=True)
+    vice_principal   = models.CharField(max_length=150, blank=True)
+    is_verified      = models.BooleanField(default=False)
     created_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='schools_created')
     created_at  = models.DateTimeField(auto_now_add=True)
 

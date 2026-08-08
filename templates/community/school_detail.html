@@ -87,6 +87,12 @@
     <div class="sd-stat"><div class="sd-stat-n" id="followerCount">{{ school.follower_count }}</div><div class="sd-stat-l">Followers</div></div>
     <div class="sd-stat"><div class="sd-stat-n">{{ school.post_count }}</div><div class="sd-stat-l">Posts</div></div>
   </div>
+  {% if school.principal_name or school.vice_principal %}
+  <div style="display:flex;gap:16px;margin-bottom:8px;flex-wrap:wrap">
+    {% if school.principal_name %}<div style="font-size:12px;color:#374151"><span style="color:#9ca3af;font-weight:700">Principal:</span> {{ school.principal_name }}</div>{% endif %}
+    {% if school.vice_principal %}<div style="font-size:12px;color:#374151"><span style="color:#9ca3af;font-weight:700">Vice Principal:</span> {{ school.vice_principal }}</div>{% endif %}
+  </div>
+  {% endif %}
   {% if school.about %}<div class="sd-about">{{ school.about }}</div>{% endif %}
   {% if is_admin %}
   <div style="display:flex;gap:8px;margin-top:10px">

@@ -341,13 +341,16 @@ def school_register(request):
         addr  = request.POST.get('address', '').strip()
         pin   = request.POST.get('pincode', '').strip()
         about = request.POST.get('about', '').strip()
-        phone = request.POST.get('phone', '').strip()
+        phone     = request.POST.get('phone', '').strip()
+        principal = request.POST.get('principal_name', '').strip()
+        vice_prin = request.POST.get('vice_principal', '').strip()
         logo  = request.FILES.get('logo')
         cover = request.FILES.get('cover')
         if name:
             school = School.objects.create(
                 name=name, school_type=stype, address=addr,
                 pincode=pin, about=about, phone=phone,
+                principal_name=principal, vice_principal=vice_prin,
                 logo=logo, cover=cover, created_by=request.user,
             )
             SchoolAdmin.objects.create(school=school, user=request.user, role='owner', added_by=request.user)
