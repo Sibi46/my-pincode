@@ -10,14 +10,14 @@
 
   /* setup form */
   .fh-setup{margin:14px 14px 0;background:#fff;border-radius:18px;border:1.5px solid #fce7f3;padding:16px;box-shadow:0 1px 6px rgba(225,29,72,.06)}
-  .fh-setup-title{font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
-  .fh-setup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-  .fh-setup-row{display:flex;align-items:center;gap:10px;background:#fff8f9;border-radius:12px;padding:10px 12px;border:1.5px solid #fce7f3}
-  .fh-setup-icon{font-size:1.5rem;flex-shrink:0}
-  .fh-setup-label{font-size:12px;font-weight:800;color:#374151;flex:1}
-  .fh-setup-input{width:48px;padding:6px 8px;border:1.5px solid #fda4af;border-radius:8px;font-size:14px;font-weight:900;color:#e11d48;text-align:center;font-family:inherit;outline:none}
-  .fh-setup-input:focus{border-color:#e11d48}
-  .fh-save-btn{width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
+  .fh-setup-title{font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+  .fh-setup-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .fh-setup-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1.5px solid #fce7f3;border-radius:14px;background:#fff8f9}
+  .fh-setup-icon{font-size:1.6rem;flex-shrink:0;width:32px;text-align:center}
+  .fh-setup-label{font-size:14px;font-weight:800;color:#374151;flex:1}
+  .fh-setup-input{width:100%;max-width:80px;padding:9px 12px;border:1.5px solid #fda4af;border-radius:10px;font-size:16px;font-weight:900;color:#e11d48;text-align:center;font-family:inherit;outline:none;background:#fff}
+  .fh-setup-input:focus{border-color:#e11d48;box-shadow:0 0 0 3px rgba(225,29,72,.1)}
+  .fh-save-btn{width:100%;padding:13px;background:#e11d48;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
 
   /* type tabs */
   .fh-tabs{display:flex;gap:0;overflow-x:auto;background:#fff;border-bottom:2px solid #fce7f3;scrollbar-width:none;margin-top:14px}
@@ -58,60 +58,20 @@
 <form method="post" action="/community/family/">
 {% csrf_token %}
 <div class="fh-setup">
-  <div class="fh-setup-title">👨‍👩‍👧 Fill Your Family Details</div>
-  <div class="fh-setup-grid">
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👴</span>
-      <span class="fh-setup-label">Grandfather</span>
-      <input class="fh-setup-input" type="number" name="grandfather_count" min="0" max="20" value="{{ setup.grandfather_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👵</span>
-      <span class="fh-setup-label">Grandmother</span>
-      <input class="fh-setup-input" type="number" name="grandmother_count" min="0" max="20" value="{{ setup.grandmother_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👨</span>
-      <span class="fh-setup-label">Father</span>
-      <input class="fh-setup-input" type="number" name="father_count" min="0" max="20" value="{{ setup.father_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👩</span>
-      <span class="fh-setup-label">Mother</span>
-      <input class="fh-setup-input" type="number" name="mother_count" min="0" max="20" value="{{ setup.mother_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👦</span>
-      <span class="fh-setup-label">Son</span>
-      <input class="fh-setup-input" type="number" name="son_count" min="0" max="20" value="{{ setup.son_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👧</span>
-      <span class="fh-setup-label">Daughter</span>
-      <input class="fh-setup-input" type="number" name="daughter_count" min="0" max="20" value="{{ setup.daughter_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">🧔</span>
-      <span class="fh-setup-label">Uncle</span>
-      <input class="fh-setup-input" type="number" name="uncle_count" min="0" max="20" value="{{ setup.uncle_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">👩‍🦳</span>
-      <span class="fh-setup-label">Aunt</span>
-      <input class="fh-setup-input" type="number" name="aunt_count" min="0" max="20" value="{{ setup.aunt_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">🧑</span>
-      <span class="fh-setup-label">Cousin</span>
-      <input class="fh-setup-input" type="number" name="cousin_count" min="0" max="20" value="{{ setup.cousin_count|default:0 }}">
-    </div>
-    <div class="fh-setup-row">
-      <span class="fh-setup-icon">🐾</span>
-      <span class="fh-setup-label">Pet</span>
-      <input class="fh-setup-input" type="number" name="pet_count" min="0" max="20" value="{{ setup.pet_count|default:0 }}">
-    </div>
+  <div class="fh-setup-title">👨‍👩‍👧 How many family members do you have?</div>
+  <div class="fh-setup-list">
+    <div class="fh-setup-row"><span class="fh-setup-icon">👴</span><span class="fh-setup-label">Grandfather</span><input class="fh-setup-input" type="number" name="grandfather_count" min="0" max="20" value="{{ setup.grandfather_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👵</span><span class="fh-setup-label">Grandmother</span><input class="fh-setup-input" type="number" name="grandmother_count" min="0" max="20" value="{{ setup.grandmother_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👨</span><span class="fh-setup-label">Father</span><input class="fh-setup-input" type="number" name="father_count" min="0" max="20" value="{{ setup.father_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👩</span><span class="fh-setup-label">Mother</span><input class="fh-setup-input" type="number" name="mother_count" min="0" max="20" value="{{ setup.mother_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👦</span><span class="fh-setup-label">Son</span><input class="fh-setup-input" type="number" name="son_count" min="0" max="20" value="{{ setup.son_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👧</span><span class="fh-setup-label">Daughter</span><input class="fh-setup-input" type="number" name="daughter_count" min="0" max="20" value="{{ setup.daughter_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">🧔</span><span class="fh-setup-label">Uncle</span><input class="fh-setup-input" type="number" name="uncle_count" min="0" max="20" value="{{ setup.uncle_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">👩‍🦳</span><span class="fh-setup-label">Aunt</span><input class="fh-setup-input" type="number" name="aunt_count" min="0" max="20" value="{{ setup.aunt_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">🧑</span><span class="fh-setup-label">Cousin</span><input class="fh-setup-input" type="number" name="cousin_count" min="0" max="20" value="{{ setup.cousin_count|default:0 }}" placeholder="0"></div>
+    <div class="fh-setup-row"><span class="fh-setup-icon">🐾</span><span class="fh-setup-label">Pet</span><input class="fh-setup-input" type="number" name="pet_count" min="0" max="20" value="{{ setup.pet_count|default:0 }}" placeholder="0"></div>
   </div>
-  <button type="submit" class="fh-save-btn">Save Family Details</button>
+  <button type="submit" class="fh-save-btn">Save</button>
 </div>
 </form>
 {% endif %}
