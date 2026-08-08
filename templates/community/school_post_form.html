@@ -66,7 +66,7 @@
           <input type="radio" name="post_type" id="pt_{{ val }}" value="{{ val }}" {% if forloop.first %}checked{% endif %}>
           <label for="pt_{{ val }}">
             <span class="icon" data-type="{{ val }}">📌</span>
-            {{ label|slice:"3:" }}
+            {{ label }}
           </label>
         </div>
         {% endfor %}
