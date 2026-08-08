@@ -23,11 +23,7 @@ MODULES = [
     {'slug': 'community-events',    'icon': '📅', 'name': 'Community Events',       'desc': 'Local gatherings, festivals & announcements',         'color': '#0891b2', 'soon': False},
     {'slug': 'volunteer',           'icon': '🤝', 'name': 'Volunteer Activities',   'desc': 'Blood donation, tree plantation & health camps',      'color': '#16a34a', 'soon': False},
     {'slug': 'business-stories',    'icon': '🏪', 'name': 'Business Stories',       'desc': 'Local business journeys — not ads, real stories',     'color': '#ea580c', 'soon': False},
-    {'slug': 'hall-of-fame',        'icon': '🏆', 'name': 'Hall of Fame',           'desc': 'Top achievers per pincode — recognised & celebrated', 'color': '#ca8a04', 'soon': False},
-    {'slug': 'jobs',                'icon': '💼', 'name': 'Jobs',                   'desc': 'Local employment opportunities near your pincode',    'color': '#0a66c2', 'soon': False},
-    {'slug': 'marketplace',         'icon': '🛒', 'name': 'Marketplace',            'desc': 'Buy & sell locally within your community',            'color': '#7c3aed', 'soon': False},
     {'slug': 'community-watch',     'icon': '👁️', 'name': 'Community Watch',        'desc': 'Report, block & keep the community safe',             'color': '#374151', 'soon': False},
-    {'slug': 'notifications',       'icon': '🔔', 'name': 'Notifications & Search', 'desc': 'Alerts, reminders & pincode-based search',            'color': '#0891b2', 'soon': False},
 ]
 
 CAT_ICONS = {
