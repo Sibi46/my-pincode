@@ -96,10 +96,32 @@ def module_page(request, slug):
 
 # ── FAMILY HUB ────────────────────────────────────────────────────────────────
 def family_hub(request):
-    members = FamilyMember.objects.select_related('creator')
+    active_type = request.GET.get('type', '')
+    all_members = FamilyMember.objects.select_related('creator')
+
+    TYPE_META = [
+        ('grandfather', 'Grandfather', '👴'),
+        ('grandmother', 'Grandmother', '👵'),
+        ('father',      'Father',      '👨'),
+        ('mother',      'Mother',      '👩'),
+        ('son',         'Son',         '👦'),
+        ('daughter',    'Daughter',    '👧'),
+        ('uncle',       'Uncle',       '🧔'),
+        ('aunt',        'Aunt',        '👩‍🦳'),
+        ('cousin',      'Cousin',      '🧑'),
+        ('pet',         'Pet',         '🐾'),
+        ('other',       'Other',       '👤'),
+    ]
+    summary = [(val, label, icon, all_members.filter(member_type=val).count())
+               for val, label, icon in TYPE_META]
+
+    members = all_members.filter(member_type=active_type) if active_type else all_members
+
     return render(request, 'community/family_hub.html', {
         'members':      members,
-        'type_choices': FamilyMember.TYPE_CHOICES,
+        'summary':      summary,
+        'active_type':  active_type,
+        'total_count':  all_members.count(),
     })
 
 

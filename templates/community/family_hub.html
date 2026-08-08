@@ -7,86 +7,79 @@
   #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:10px 16px;display:flex;align-items:center;gap:10px}
   #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
   #fhTop h2{font-size:16px;font-weight:900;color:#fff;margin:0;flex:1}
-  #fhTop a.create-btn{background:rgba(255,255,255,.2);color:#fff;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:800;text-decoration:none}
 
-  /* tabs */
-  .fh-tabs{display:flex;gap:0;background:#fff;border-bottom:2px solid #fce7f3}
-  .fh-tab{flex:1;text-align:center;padding:12px 8px;font-size:13px;font-weight:800;color:#9ca3af;text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px}
-  .fh-tab.active{color:#e11d48;border-bottom-color:#e11d48}
+  /* family summary card */
+  .fh-summary{margin:14px 14px 0;background:#fff;border-radius:18px;border:1.5px solid #fce7f3;padding:16px;box-shadow:0 1px 6px rgba(225,29,72,.06)}
+  .fh-summary-title{font-size:11px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+  .fh-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .fh-sum-item{text-align:center;background:#fff8f9;border-radius:12px;padding:10px 4px;border:1.5px solid #fce7f3}
+  .fh-sum-icon{font-size:1.4rem;display:block;margin-bottom:3px}
+  .fh-sum-count{font-size:18px;font-weight:900;color:#e11d48;display:block;line-height:1}
+  .fh-sum-label{font-size:9px;color:#9ca3af;font-weight:700;margin-top:2px;display:block}
+  .fh-sum-item.zero .fh-sum-count{color:#d1d5db}
+
+  /* filter chips */
+  .fh-filter{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 8px;scrollbar-width:none}
+  .fh-filter::-webkit-scrollbar{display:none}
+  .fh-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;background:#fff;color:#374151;border:1.5px solid #fce7f3;cursor:pointer;text-decoration:none;white-space:nowrap}
+  .fh-chip.active{background:#e11d48;color:#fff;border-color:#e11d48}
+  .fh-chip.create{background:#e11d48;color:#fff;border-color:#e11d48;font-weight:900}
 
   /* member grid */
-  .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:14px 14px 90px}
+  .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:10px 14px 90px}
   @media(min-width:500px){.fh-grid{grid-template-columns:repeat(3,1fr)}}
 
   .fh-card{background:#fff;border-radius:18px;overflow:hidden;border:1.5px solid #fce7f3;box-shadow:0 1px 6px rgba(225,29,72,.07);text-decoration:none;display:block}
-  .fh-card-img{width:100%;height:130px;object-fit:cover;background:linear-gradient(135deg,#fce7f3,#ffe4e6);display:flex;align-items:center;justify-content:center;font-size:3rem}
-  .fh-card-img img{width:100%;height:100%;object-fit:cover}
+  .fh-card-img{width:100%;height:120px;background:linear-gradient(135deg,#fce7f3,#ffe4e6);display:flex;align-items:center;justify-content:center;font-size:2.8rem;overflow:hidden;position:relative}
+  .fh-card-img img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+  .fh-card-status{position:absolute;top:7px;right:8px;font-size:9px;font-weight:800;padding:2px 7px;border-radius:8px}
+  .fh-card-status.living{background:#dcfce7;color:#166534}
+  .fh-card-status.passed{background:#fee2e2;color:#991b1b}
   .fh-card-body{padding:10px 12px 12px}
-  .fh-card-type{font-size:10px;font-weight:800;color:#e11d48;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .fh-card-type{font-size:10px;font-weight:800;color:#e11d48;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
   .fh-card-name{font-size:14px;font-weight:900;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fh-card-desc{font-size:11px;color:#6b7280;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  .fh-card-by{font-size:10px;color:#d1d5db;margin-top:6px}
+  .fh-card-sub{font-size:11px;color:#6b7280;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 
-  .fh-empty{text-align:center;padding:4rem 1rem;color:#9ca3af}
-  .fh-empty-icon{font-size:3.5rem;margin-bottom:10px}
-
-  /* filter bar */
-  .fh-filter{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;background:#fff;border-bottom:1px solid #fce7f3;scrollbar-width:none}
-  .fh-filter::-webkit-scrollbar{display:none}
-  .fh-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f3f4f6;color:#374151;border:1.5px solid transparent;cursor:pointer;text-decoration:none}
-  .fh-chip.active{background:#fce7f3;color:#e11d48;border-color:#fda4af}
+  .fh-empty{text-align:center;padding:3rem 1rem;color:#9ca3af;grid-column:1/-1}
 </style>
 
 <div id="fhTop">
   <a href="/community/" class="back">&#8592;</a>
   <h2>👨‍👩‍👧 Family Hub</h2>
-  <a href="/community/family/create/" class="create-btn">+ Create Page</a>
 </div>
 
-<!-- Tabs -->
-<div class="fh-tabs">
-  <a href="/community/family/" class="fh-tab {% if not request.GET.type %}active{% endif %}">👨‍👩‍👧 Familys</a>
-  <a href="/community/family/create/" class="fh-tab">➕ Create Page</a>
+<!-- Family Summary -->
+<div class="fh-summary">
+  <div class="fh-summary-title">👨‍👩‍👧 My Family</div>
+  <div class="fh-summary-grid">
+    {% for val, label, icon, count in summary %}
+    <a href="/community/family/?type={{ val }}" class="fh-sum-item {% if count == 0 %}zero{% endif %}" style="text-decoration:none">
+      <span class="fh-sum-icon">{{ icon }}</span>
+      <span class="fh-sum-count">{{ count }}</span>
+      <span class="fh-sum-label">{{ label }}</span>
+    </a>
+    {% endfor %}
+  </div>
 </div>
 
 <!-- Type filter chips -->
 <div class="fh-filter">
-  <a href="/community/family/" class="fh-chip {% if not request.GET.type %}active{% endif %}">All</a>
-  {% for val, label in type_choices %}
-  <a href="/community/family/?type={{ val }}" class="fh-chip {% if request.GET.type == val %}active{% endif %}">{{ label }}</a>
+  <a href="/community/family/" class="fh-chip {% if not active_type %}active{% endif %}">All ({{ total_count }})</a>
+  {% for val, label, icon, count in summary %}
+  {% if count > 0 %}
+  <a href="/community/family/?type={{ val }}" class="fh-chip {% if active_type == val %}active{% endif %}">{{ icon }} {{ label }}</a>
+  {% endif %}
   {% endfor %}
+  <a href="/community/family/create/" class="fh-chip create">➕ Create Page</a>
 </div>
 
 <!-- Member grid -->
-{% with type_filter=request.GET.type %}
-{% if type_filter %}
-  {% with filtered=members|dictsort:"created_at" %}
-  <div class="fh-grid">
-    {% for m in members %}
-      {% if m.member_type == type_filter %}
-      <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
-        <div class="fh-card-img">
-          {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">
-          {% else %}{{ m.get_member_type_display|slice:":1" }}{% endif %}
-        </div>
-        <div class="fh-card-body">
-          <div class="fh-card-type">{{ m.get_member_type_display }}</div>
-          <div class="fh-card-name">{{ m.name }}</div>
-          {% if m.description %}<div class="fh-card-desc">{{ m.description }}</div>{% endif %}
-          <div class="fh-card-by">by {{ m.creator.get_full_name|default:m.creator.username }}</div>
-        </div>
-      </a>
-      {% endif %}
-    {% endfor %}
-  </div>
-  {% endwith %}
-{% else %}
 <div class="fh-grid">
   {% for m in members %}
   <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
     <div class="fh-card-img">
-      {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">
-      {% else %}
+      {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">{% endif %}
+      <span style="position:relative;z-index:1">
         {% if m.member_type == 'grandfather' %}👴
         {% elif m.member_type == 'grandmother' %}👵
         {% elif m.member_type == 'father' %}👨
@@ -98,26 +91,25 @@
         {% elif m.member_type == 'cousin' %}🧑
         {% elif m.member_type == 'pet' %}🐾
         {% else %}👤{% endif %}
-      {% endif %}
+      </span>
+      <span class="fh-card-status {% if m.status == 'living' %}living{% else %}passed{% endif %}">
+        {% if m.status == 'living' %}❤️ Living{% else %}🕊️ Gone{% endif %}
+      </span>
     </div>
     <div class="fh-card-body">
       <div class="fh-card-type">{{ m.get_member_type_display }}</div>
       <div class="fh-card-name">{{ m.name }}</div>
-      {% if m.description %}<div class="fh-card-desc">{{ m.description }}</div>{% endif %}
-      <div class="fh-card-by">by {{ m.creator.get_full_name|default:m.creator.username }}</div>
+      {% if m.description %}<div class="fh-card-sub">{{ m.description }}</div>
+      {% elif m.village %}<div class="fh-card-sub">📍 {{ m.village }}</div>{% endif %}
     </div>
   </a>
   {% empty %}
-  <div style="grid-column:1/-1">
-    <div class="fh-empty">
-      <div class="fh-empty-icon">👨‍👩‍👧</div>
-      <p style="font-weight:800;color:#374151;font-size:15px;margin-bottom:6px">No family pages yet</p>
-      <p style="font-size:13px;margin-bottom:16px">Create the first family member page</p>
-      <a href="/community/family/create/" style="background:#e11d48;color:#fff;padding:10px 24px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">+ Create Page</a>
-    </div>
+  <div class="fh-empty">
+    <div style="font-size:3rem;margin-bottom:8px">👨‍👩‍👧</div>
+    <p style="font-weight:800;color:#374151;font-size:15px;margin-bottom:6px">No family pages yet</p>
+    <p style="font-size:13px;margin-bottom:16px">Start adding your family members</p>
+    <a href="/community/family/create/" style="background:#e11d48;color:#fff;padding:10px 24px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">➕ Create First Page</a>
   </div>
   {% endfor %}
 </div>
-{% endif %}
-{% endwith %}
 {% endblock %}
