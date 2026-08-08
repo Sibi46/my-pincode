@@ -3,226 +3,121 @@
 {% block content %}
 <style>
   nav.navbar{display:none!important}
-  body{background:#f4f6f9}
-
-  #fhTopBar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #fce7f3;padding:10px 16px;display:flex;align-items:center;gap:10px}
-  #fhTopBar a.back{color:#374151;text-decoration:none;font-size:20px}
-  #fhTopBar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+  body{background:#f9f0f3}
+  #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
+  #fhTop h2{font-size:16px;font-weight:900;color:#fff;margin:0;flex:1}
+  #fhTop a.create-btn{background:rgba(255,255,255,.2);color:#fff;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:800;text-decoration:none}
 
   /* tabs */
-  .fh-tabs{display:flex;background:#fff;border-bottom:2px solid #fce7f3;position:sticky;top:49px;z-index:190}
-  .fh-tab{flex:1;text-align:center;padding:12px 6px;font-size:13px;font-weight:800;color:#9ca3af;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;text-decoration:none}
-  .fh-tab.active{color:#e11d48;border-color:#e11d48}
+  .fh-tabs{display:flex;gap:0;background:#fff;border-bottom:2px solid #fce7f3}
+  .fh-tab{flex:1;text-align:center;padding:12px 8px;font-size:13px;font-weight:800;color:#9ca3af;text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .fh-tab.active{color:#e11d48;border-bottom-color:#e11d48}
 
-  /* post button */
-  .fh-fab{position:fixed;bottom:80px;right:16px;z-index:100;background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;text-decoration:none;box-shadow:0 4px 14px rgba(225,29,72,.4);font-weight:900}
+  /* member grid */
+  .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:14px 14px 90px}
+  @media(min-width:500px){.fh-grid{grid-template-columns:repeat(3,1fr)}}
 
-  /* feed panes */
-  .fh-pane{display:none;padding:12px 16px 100px;max-width:600px;margin:0 auto}
-  .fh-pane.active{display:block}
+  .fh-card{background:#fff;border-radius:18px;overflow:hidden;border:1.5px solid #fce7f3;box-shadow:0 1px 6px rgba(225,29,72,.07);text-decoration:none;display:block}
+  .fh-card-img{width:100%;height:130px;object-fit:cover;background:linear-gradient(135deg,#fce7f3,#ffe4e6);display:flex;align-items:center;justify-content:center;font-size:3rem}
+  .fh-card-img img{width:100%;height:100%;object-fit:cover}
+  .fh-card-body{padding:10px 12px 12px}
+  .fh-card-type{font-size:10px;font-weight:800;color:#e11d48;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+  .fh-card-name{font-size:14px;font-weight:900;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fh-card-desc{font-size:11px;color:#6b7280;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .fh-card-by{font-size:10px;color:#d1d5db;margin-top:6px}
 
-  /* cards — shared */
-  .fh-card{background:#fff;border-radius:16px;border:1.5px solid #fce7f3;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 4px rgba(225,29,72,.06)}
-  .fh-card-head{display:flex;align-items:center;gap:10px;padding:12px 14px 0}
-  .fh-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f43f5e);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;flex-shrink:0}
-  .fh-user-info{flex:1;min-width:0}
-  .fh-username{font-size:13px;font-weight:800;color:#111}
-  .fh-meta{font-size:11px;color:#9ca3af}
-  .fh-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:8px;background:#fff0f3;color:#e11d48;flex-shrink:0}
-  .fh-card-img{width:100%;max-height:260px;object-fit:cover;display:block;margin-top:10px}
-  .fh-card-body{padding:12px 14px}
-  .fh-title{font-size:15px;font-weight:900;color:#111;margin-bottom:5px}
-  .fh-text{font-size:13px;color:#374151;line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .fh-actions{display:flex;border-top:1px solid #fce7f3;margin-top:10px}
-  .fh-action{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 0;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#6b7280;font-family:inherit;text-decoration:none}
-  .fh-action.liked{color:#e11d48}
-  .fh-divider{width:1px;background:#fce7f3;height:32px;flex-shrink:0;align-self:center}
+  .fh-empty{text-align:center;padding:4rem 1rem;color:#9ca3af}
+  .fh-empty-icon{font-size:3.5rem;margin-bottom:10px}
 
-  /* grandparent italic style */
-  .gp-text{font-style:italic;color:#78350f}
-
-  /* school section */
-  .fh-school-card{background:#fff;border-radius:14px;border:1.5px solid #fce7f3;padding:14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;text-decoration:none}
-  .fh-school-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#e11d48,#f43f5e);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
-  .fh-school-name{font-size:14px;font-weight:800;color:#111}
-  .fh-school-sub{font-size:11px;color:#9ca3af;margin-top:2px}
-
-  .fh-empty{text-align:center;padding:2.5rem 1rem;color:#9ca3af}
-
-  /* post chooser sheet */
-  .fh-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300}
-  .fh-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 40px;z-index:301;transform:translateY(100%);transition:transform .3s ease}
-  .fh-sheet.open{transform:translateY(0)}
-  .fh-sheet h3{font-size:14px;font-weight:900;color:#111;margin:0 0 16px;text-align:center}
-  .fh-sheet-opts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .fh-sheet-opt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:14px;background:#fff0f3;text-decoration:none;font-size:12px;font-weight:700;color:#e11d48;border:1.5px solid #fce7f3}
-  .fh-sheet-opt span:first-child{font-size:1.6rem}
+  /* filter bar */
+  .fh-filter{display:flex;gap:8px;overflow-x:auto;padding:10px 14px;background:#fff;border-bottom:1px solid #fce7f3;scrollbar-width:none}
+  .fh-filter::-webkit-scrollbar{display:none}
+  .fh-chip{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;background:#f3f4f6;color:#374151;border:1.5px solid transparent;cursor:pointer;text-decoration:none}
+  .fh-chip.active{background:#fce7f3;color:#e11d48;border-color:#fda4af}
 </style>
 
-<div id="fhTopBar">
+<div id="fhTop">
   <a href="/community/" class="back">&#8592;</a>
   <h2>👨‍👩‍👧 Family Hub</h2>
-  {% if request.user.is_authenticated %}
-  <button onclick="openSheet()" style="background:#e11d48;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer">+ Post</button>
-  {% endif %}
+  <a href="/community/family/create/" class="create-btn">+ Create Page</a>
 </div>
 
+<!-- Tabs -->
 <div class="fh-tabs">
-  <a class="fh-tab {% if tab == 'stories' %}active{% endif %}" href="/community/family/?tab=stories">📸 Stories</a>
-  <a class="fh-tab {% if tab == 'parenting' %}active{% endif %}" href="/community/family/?tab=parenting">👨‍👩‍👧 Parenting</a>
-  <a class="fh-tab {% if tab == 'grandparents' %}active{% endif %}" href="/community/family/?tab=grandparents">👴 Grandparents</a>
+  <a href="/community/family/" class="fh-tab {% if not request.GET.type %}active{% endif %}">👨‍👩‍👧 Familys</a>
+  <a href="/community/family/create/" class="fh-tab">➕ Create Page</a>
 </div>
 
-<!-- ── FAMILY STORIES PANE ── -->
-<div class="fh-pane {% if tab == 'stories' %}active{% endif %}" id="pane-stories">
-  {% if stories %}
-  {% for story in stories %}
-  <div class="fh-card">
-    <div class="fh-card-head">
-      <div class="fh-avatar">{{ story.user.get_full_name|first|upper|default:story.user.username|first|upper }}</div>
-      <div class="fh-user-info">
-        <div class="fh-username">{{ story.user.get_full_name|default:story.user.username }}</div>
-        <div class="fh-meta">{{ story.created_at|timesince }} ago{% if story.pincode %} · 📍 {{ story.pincode }}{% endif %}</div>
-      </div>
-      <span class="fh-badge" data-cat="{{ story.category }}">{{ story.get_category_display }}</span>
+<!-- Type filter chips -->
+<div class="fh-filter">
+  <a href="/community/family/" class="fh-chip {% if not request.GET.type %}active{% endif %}">All</a>
+  {% for val, label in type_choices %}
+  <a href="/community/family/?type={{ val }}" class="fh-chip {% if request.GET.type == val %}active{% endif %}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<!-- Member grid -->
+{% with type_filter=request.GET.type %}
+{% if type_filter %}
+  {% with filtered=members|dictsort:"created_at" %}
+  <div class="fh-grid">
+    {% for m in members %}
+      {% if m.member_type == type_filter %}
+      <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
+        <div class="fh-card-img">
+          {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">
+          {% else %}{{ m.get_member_type_display|slice:":1" }}{% endif %}
+        </div>
+        <div class="fh-card-body">
+          <div class="fh-card-type">{{ m.get_member_type_display }}</div>
+          <div class="fh-card-name">{{ m.name }}</div>
+          {% if m.description %}<div class="fh-card-desc">{{ m.description }}</div>{% endif %}
+          <div class="fh-card-by">by {{ m.creator.get_full_name|default:m.creator.username }}</div>
+        </div>
+      </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endwith %}
+{% else %}
+<div class="fh-grid">
+  {% for m in members %}
+  <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
+    <div class="fh-card-img">
+      {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">
+      {% else %}
+        {% if m.member_type == 'grandfather' %}👴
+        {% elif m.member_type == 'grandmother' %}👵
+        {% elif m.member_type == 'father' %}👨
+        {% elif m.member_type == 'mother' %}👩
+        {% elif m.member_type == 'son' %}👦
+        {% elif m.member_type == 'daughter' %}👧
+        {% elif m.member_type == 'uncle' %}🧔
+        {% elif m.member_type == 'aunt' %}👩‍🦳
+        {% elif m.member_type == 'cousin' %}🧑
+        {% elif m.member_type == 'pet' %}🐾
+        {% else %}👤{% endif %}
+      {% endif %}
     </div>
-    {% if story.image %}<img class="fh-card-img" src="{{ story.image.url }}" alt="{{ story.title }}">{% endif %}
     <div class="fh-card-body">
-      <div class="fh-title">{{ story.title }}</div>
-      <div class="fh-text">{{ story.content }}</div>
+      <div class="fh-card-type">{{ m.get_member_type_display }}</div>
+      <div class="fh-card-name">{{ m.name }}</div>
+      {% if m.description %}<div class="fh-card-desc">{{ m.description }}</div>{% endif %}
+      <div class="fh-card-by">by {{ m.creator.get_full_name|default:m.creator.username }}</div>
     </div>
-    <div class="fh-actions">
-      <button class="fh-action {% if story.pk in fs_liked %}liked{% endif %}" onclick="likeFS({{ story.pk }},this)">
-        {% if story.pk in fs_liked %}❤️{% else %}🤍{% endif %} <span id="fsl-{{ story.pk }}">{{ story.like_count }}</span>
-      </button>
-      <div class="fh-divider"></div>
-      <a href="/community/family-stories/{{ story.pk }}/" class="fh-action">💬 {{ story.comment_count }}</a>
-      <div class="fh-divider"></div>
-      <a href="/community/family-stories/{{ story.pk }}/" class="fh-action">📖 Read</a>
+  </a>
+  {% empty %}
+  <div style="grid-column:1/-1">
+    <div class="fh-empty">
+      <div class="fh-empty-icon">👨‍👩‍👧</div>
+      <p style="font-weight:800;color:#374151;font-size:15px;margin-bottom:6px">No family pages yet</p>
+      <p style="font-size:13px;margin-bottom:16px">Create the first family member page</p>
+      <a href="/community/family/create/" style="background:#e11d48;color:#fff;padding:10px 24px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">+ Create Page</a>
     </div>
   </div>
   {% endfor %}
-  {% else %}
-  <div class="fh-empty">
-    <div style="font-size:2.5rem;margin-bottom:8px">📸</div>
-    <p style="font-weight:700;color:#374151;margin-bottom:4px">No stories yet</p>
-    {% if request.user.is_authenticated %}<a href="/community/family-stories/post/" style="display:inline-block;margin-top:10px;background:#e11d48;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Share Now</a>{% endif %}
-  </div>
-  {% endif %}
-</div>
-
-<!-- ── PARENTING PANE ── -->
-<div class="fh-pane {% if tab == 'parenting' %}active{% endif %}" id="pane-parenting">
-  {% if parenting_posts %}
-  {% for post in parenting_posts %}
-  <div class="fh-card">
-    <div class="fh-card-head">
-      <div class="fh-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">{{ post.user.get_full_name|first|upper|default:post.user.username|first|upper }}</div>
-      <div class="fh-user-info">
-        <div class="fh-username">{{ post.user.get_full_name|default:post.user.username }}</div>
-        <div class="fh-meta">{{ post.created_at|timesince }} ago</div>
-      </div>
-      <span class="fh-badge" style="background:#ecfdf5;color:#059669" data-ptcat="{{ post.category }}">{{ post.get_category_display }}</span>
-    </div>
-    {% if post.image %}<img class="fh-card-img" src="{{ post.image.url }}" alt="{{ post.title }}">{% endif %}
-    <div class="fh-card-body">
-      <div class="fh-title">{{ post.title }}</div>
-      <div class="fh-text">{{ post.content }}</div>
-    </div>
-    <div class="fh-actions">
-      <button class="fh-action {% if post.pk in pt_liked %}liked{% endif %}" style="{% if post.pk in pt_liked %}color:#059669{% endif %}" onclick="likePT({{ post.pk }},this)">
-        {% if post.pk in pt_liked %}💚{% else %}🤍{% endif %} <span id="ptl-{{ post.pk }}">{{ post.like_count }}</span>
-      </button>
-      <div class="fh-divider"></div>
-      <a href="/community/parenting/{{ post.pk }}/" class="fh-action">💬 {{ post.comment_count }}</a>
-      <div class="fh-divider"></div>
-      <a href="/community/parenting/{{ post.pk }}/" class="fh-action">📖 Read</a>
-    </div>
-  </div>
-  {% endfor %}
-  {% else %}
-  <div class="fh-empty">
-    <div style="font-size:2.5rem;margin-bottom:8px">👨‍👩‍👧</div>
-    <p style="font-weight:700;color:#374151;margin-bottom:4px">No parenting posts yet</p>
-    {% if request.user.is_authenticated %}<a href="/community/parenting/post/" style="display:inline-block;margin-top:10px;background:#059669;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Share a Tip</a>{% endif %}
-  </div>
-  {% endif %}
-</div>
-
-<!-- ── GRANDPARENTS PANE ── -->
-<div class="fh-pane {% if tab == 'grandparents' %}active{% endif %}" id="pane-grandparents">
-  {% if gp_stories %}
-  {% for story in gp_stories %}
-  <div class="fh-card" style="border-color:#fde68a">
-    <div class="fh-card-head">
-      <div class="fh-avatar" style="background:linear-gradient(135deg,#92400e,#b45309)">{{ story.user.get_full_name|first|upper|default:story.user.username|first|upper }}</div>
-      <div class="fh-user-info">
-        <div class="fh-username">{{ story.user.get_full_name|default:story.user.username }}</div>
-        <div class="fh-meta">{{ story.created_at|timesince }} ago{% if story.pincode %} · 📍 {{ story.pincode }}{% endif %}</div>
-      </div>
-      <span class="fh-badge" style="background:#fef3c7;color:#92400e" data-gpcat="{{ story.category }}">{{ story.get_category_display }}</span>
-    </div>
-    {% if story.image %}<img class="fh-card-img" src="{{ story.image.url }}" alt="{{ story.title }}">{% endif %}
-    <div class="fh-card-body">
-      <div class="fh-title">{{ story.title }}</div>
-      <div class="fh-text gp-text">{{ story.story }}</div>
-    </div>
-    <div class="fh-actions">
-      <button class="fh-action {% if story.pk in gp_liked %}liked{% endif %}" style="{% if story.pk in gp_liked %}color:#92400e{% endif %}" onclick="likeGP({{ story.pk }},this)">
-        {% if story.pk in gp_liked %}🧡{% else %}🤍{% endif %} <span id="gpl-{{ story.pk }}">{{ story.like_count }}</span>
-      </button>
-      <div class="fh-divider"></div>
-      <a href="/community/grandparents-archive/{{ story.pk }}/" class="fh-action">💬 {{ story.comment_count }}</a>
-      <div class="fh-divider"></div>
-      <a href="/community/grandparents-archive/{{ story.pk }}/" class="fh-action">📖 Read</a>
-    </div>
-  </div>
-  {% endfor %}
-  {% else %}
-  <div class="fh-empty">
-    <div style="font-size:2.5rem;margin-bottom:8px">👴</div>
-    <p style="font-weight:700;color:#374151;margin-bottom:4px">No stories yet</p>
-    {% if request.user.is_authenticated %}<a href="/community/grandparents-archive/post/" style="display:inline-block;margin-top:10px;background:#92400e;color:#fff;padding:8px 20px;border-radius:20px;font-weight:800;font-size:13px;text-decoration:none">Share Memory</a>{% endif %}
-  </div>
-  {% endif %}
-</div>
-
-<!-- POST CHOOSER SHEET -->
-{% if request.user.is_authenticated %}
-<div class="fh-sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
-<div class="fh-sheet" id="postSheet">
-  <h3>What do you want to share?</h3>
-  <div class="fh-sheet-opts">
-    <a href="/community/family-stories/post/" class="fh-sheet-opt"><span>📸</span>Family Story</a>
-    <a href="/community/parenting/post/" class="fh-sheet-opt" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0"><span>👨‍👩‍👧</span>Parenting Tip</a>
-    <a href="/community/grandparents-archive/post/" class="fh-sheet-opt" style="background:#fef3c7;color:#92400e;border-color:#fde68a"><span>👴</span>Elder Memory</a>
-  </div>
 </div>
 {% endif %}
-
-<script>
-(function(){
-  var fsIcons={birthday:'🎂',achievement:'🏅',tradition:'🎎',celebration:'🎉',vacation:'✈️',gardening:'🌱',other:'📸'};
-  var ptIcons={advice:'💡',activity:'🎮',health:'🏥',education:'📚',food:'🍽️',milestone:'🏁',other:'👨‍👩‍👧'};
-  var gpIcons={memory:'🕰️',wisdom:'📜',recipe:'🍛',tradition:'🎎',story:'📖',other:'👴'};
-  document.querySelectorAll('[data-cat]').forEach(function(el){var v=el.getAttribute('data-cat');if(fsIcons[v])el.textContent=fsIcons[v]+' '+el.textContent.trim();});
-  document.querySelectorAll('[data-ptcat]').forEach(function(el){var v=el.getAttribute('data-ptcat');if(ptIcons[v])el.textContent=ptIcons[v]+' '+el.textContent.trim();});
-  document.querySelectorAll('[data-gpcat]').forEach(function(el){var v=el.getAttribute('data-gpcat');if(gpIcons[v])el.textContent=gpIcons[v]+' '+el.textContent.trim();});
-})();
-
-function likeFS(pk,btn){
-  fetch('/community/family-stories/'+pk+'/like/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
-  .then(r=>r.json()).then(d=>{btn.classList.toggle('liked',d.liked);btn.querySelector('span:first-child').textContent=d.liked?'❤️':'🤍';document.getElementById('fsl-'+pk).textContent=d.count;});
-}
-function likePT(pk,btn){
-  fetch('/community/parenting/'+pk+'/like/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
-  .then(r=>r.json()).then(d=>{btn.classList.toggle('liked',d.liked);btn.querySelector('span:first-child').textContent=d.liked?'💚':'🤍';document.getElementById('ptl-'+pk).textContent=d.count;});
-}
-function likeGP(pk,btn){
-  fetch('/community/grandparents-archive/'+pk+'/like/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}'}})
-  .then(r=>r.json()).then(d=>{btn.classList.toggle('liked',d.liked);btn.querySelector('span:first-child').textContent=d.liked?'🧡':'🤍';document.getElementById('gpl-'+pk).textContent=d.count;});
-}
-function openSheet(){document.getElementById('sheetOverlay').style.display='block';document.getElementById('postSheet').classList.add('open');}
-function closeSheet(){document.getElementById('sheetOverlay').style.display='none';document.getElementById('postSheet').classList.remove('open');}
-</script>
+{% endwith %}
 {% endblock %}

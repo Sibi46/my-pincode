@@ -805,3 +805,52 @@ class Notification(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class FamilyMember(models.Model):
+    TYPE_CHOICES = [
+        ('grandfather', 'Grandfather'),
+        ('grandmother', 'Grandmother'),
+        ('father',      'Father'),
+        ('mother',      'Mother'),
+        ('son',         'Son'),
+        ('daughter',    'Daughter'),
+        ('uncle',       'Uncle'),
+        ('aunt',        'Aunt'),
+        ('cousin',      'Cousin'),
+        ('pet',         'Pet / Animal'),
+        ('other',       'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('living', 'Living'),
+        ('passed', 'Passed Away'),
+    ]
+
+    creator     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_members')
+    member_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    name        = models.CharField(max_length=150)
+    why         = models.CharField(max_length=300, blank=True)
+    photo       = models.ImageField(upload_to='family_members/', blank=True, null=True)
+    description = models.CharField(max_length=300, blank=True)
+    about       = models.TextField(blank=True)
+
+    dob         = models.DateField(blank=True, null=True)
+    age         = models.PositiveIntegerField(blank=True, null=True)
+    village     = models.CharField(max_length=150, blank=True)
+    house_name  = models.CharField(max_length=150, blank=True)
+    occupation  = models.CharField(max_length=150, blank=True)
+    education   = models.CharField(max_length=150, blank=True)
+    phone       = models.CharField(max_length=20, blank=True)
+    status      = models.CharField(max_length=10, choices=STATUS_CHOICES, default='living')
+    death_date  = models.DateField(blank=True, null=True)
+
+    species     = models.CharField(max_length=100, blank=True)
+    breed       = models.CharField(max_length=100, blank=True)
+
+    created_at  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_member_type_display()})"

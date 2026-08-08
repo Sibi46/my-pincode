@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% block title %}Create Family Page – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f9f0f3}
+  #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
+  #fhTop h2{font-size:15px;font-weight:900;color:#fff;margin:0;flex:1}
+
+  .fm-wrap{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+
+  /* type selector */
+  .fm-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+  .fm-type-btn{background:#fff;border:2px solid #fce7f3;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .15s}
+  .fm-type-btn:hover,.fm-type-btn.selected{border-color:#e11d48;background:#fff0f5}
+  .fm-type-btn input{display:none}
+  .fm-type-icon{font-size:1.8rem;display:block;margin-bottom:4px}
+  .fm-type-label{font-size:11px;font-weight:800;color:#374151}
+
+  /* form */
+  .fm-section{background:#fff;border-radius:16px;border:1.5px solid #fce7f3;padding:16px;margin-bottom:14px}
+  .fm-section-title{font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+  .fm-field{margin-bottom:14px}
+  .fm-field:last-child{margin-bottom:0}
+  .fm-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .fm-input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;background:#fafafa}
+  .fm-input:focus{border-color:#e11d48;background:#fff}
+  textarea.fm-input{min-height:90px;resize:vertical}
+  .fm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fm-submit{width:100%;padding:14px;background:#e11d48;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px}
+
+  /* conditional sections */
+  .pet-fields,.person-fields,.death-row{display:none}
+</style>
+
+<div id="fhTop">
+  <a href="/community/family/" class="back">&#8592;</a>
+  <h2>➕ Create Family Page</h2>
+</div>
+
+<div class="fm-wrap">
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<!-- Step 1: Choose type -->
+<div class="fm-section">
+  <div class="fm-section-title">Who is this page for?</div>
+  <div class="fm-type-grid">
+    {% for val, label in type_choices %}
+    <label class="fm-type-btn" onclick="selectType('{{ val }}', this)">
+      <input type="radio" name="member_type" value="{{ val }}" {% if forloop.first %}checked{% endif %}>
+      <span class="fm-type-icon">
+        {% if val == 'grandfather' %}👴
+        {% elif val == 'grandmother' %}👵
+        {% elif val == 'father' %}👨
+        {% elif val == 'mother' %}👩
+        {% elif val == 'son' %}👦
+        {% elif val == 'daughter' %}👧
+        {% elif val == 'uncle' %}🧔
+        {% elif val == 'aunt' %}👩‍🦳
+        {% elif val == 'cousin' %}🧑
+        {% elif val == 'pet' %}🐾
+        {% else %}👤{% endif %}
+      </span>
+      <span class="fm-type-label">{{ label }}</span>
+    </label>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Step 2: Why this page + basic info -->
+<div class="fm-section">
+  <div class="fm-section-title">About this page</div>
+  <div class="fm-field">
+    <label class="fm-label">Why are you creating this page? *</label>
+    <input class="fm-input" type="text" name="why" placeholder="e.g. To remember my grandfather's life & stories" required>
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Name *</label>
+    <input class="fm-input" type="text" name="name" placeholder="Full name" required>
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Photo</label>
+    <input class="fm-input" type="file" name="photo" accept="image/*">
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Short Description</label>
+    <input class="fm-input" type="text" name="description" placeholder="One line about them (e.g. Farmer, Poet, Loving Grandfather)">
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">About</label>
+    <textarea class="fm-input" name="about" placeholder="Write about their life, memories, personality…"></textarea>
+  </div>
+</div>
+
+<!-- Person-specific fields -->
+<div class="fm-section person-fields" id="personFields">
+  <div class="fm-section-title">Personal Details</div>
+  <div class="fm-row">
+    <div class="fm-field">
+      <label class="fm-label">Date of Birth</label>
+      <input class="fm-input" type="date" name="dob">
+    </div>
+    <div class="fm-field">
+      <label class="fm-label">Age</label>
+      <input class="fm-input" type="number" name="age" min="0" max="150" placeholder="Years">
+    </div>
+  </div>
+  <div class="fm-row">
+    <div class="fm-field">
+      <label class="fm-label">Village / Town</label>
+      <input class="fm-input" type="text" name="village" placeholder="Native village">
+    </div>
+    <div class="fm-field">
+      <label class="fm-label">House Name</label>
+      <input class="fm-input" type="text" name="house_name" placeholder="House / family name">
+    </div>
+  </div>
+  <div class="fm-row">
+    <div class="fm-field">
+      <label class="fm-label">Occupation</label>
+      <input class="fm-input" type="text" name="occupation" placeholder="e.g. Farmer, Teacher">
+    </div>
+    <div class="fm-field">
+      <label class="fm-label">Education</label>
+      <input class="fm-input" type="text" name="education" placeholder="e.g. B.Sc, 10th">
+    </div>
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Phone</label>
+    <input class="fm-input" type="tel" name="phone" placeholder="Contact number">
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Status</label>
+    <select class="fm-input" name="status" onchange="toggleDeath(this.value)">
+      <option value="living">Living</option>
+      <option value="passed">Passed Away</option>
+    </select>
+  </div>
+  <div class="fm-field death-row" id="deathRow">
+    <label class="fm-label">Date of Passing</label>
+    <input class="fm-input" type="date" name="death_date">
+  </div>
+</div>
+
+<!-- Pet-specific fields -->
+<div class="fm-section pet-fields" id="petFields">
+  <div class="fm-section-title">Pet Details</div>
+  <div class="fm-row">
+    <div class="fm-field">
+      <label class="fm-label">Species</label>
+      <input class="fm-input" type="text" name="species" placeholder="e.g. Dog, Cat, Bird">
+    </div>
+    <div class="fm-field">
+      <label class="fm-label">Breed</label>
+      <input class="fm-input" type="text" name="breed" placeholder="e.g. Labrador">
+    </div>
+  </div>
+  <div class="fm-row">
+    <div class="fm-field">
+      <label class="fm-label">Date of Birth</label>
+      <input class="fm-input" type="date" name="dob">
+    </div>
+    <div class="fm-field">
+      <label class="fm-label">Age (years)</label>
+      <input class="fm-input" type="number" name="age" min="0">
+    </div>
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Status</label>
+    <select class="fm-input" name="status" onchange="toggleDeath(this.value)">
+      <option value="living">Alive</option>
+      <option value="passed">Passed Away</option>
+    </select>
+  </div>
+  <div class="fm-field death-row" id="petDeathRow">
+    <label class="fm-label">Date of Passing</label>
+    <input class="fm-input" type="date" name="death_date">
+  </div>
+</div>
+
+<button type="submit" class="fm-submit">Create Family Page</button>
+</form>
+</div>
+
+<script>
+const PET_TYPES = ['pet'];
+const PERSON_TYPES = ['grandfather','grandmother','father','mother','son','daughter','uncle','aunt','cousin','other'];
+
+function selectType(val, el) {
+  document.querySelectorAll('.fm-type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  var pf = document.getElementById('personFields');
+  var ptf = document.getElementById('petFields');
+  if (PET_TYPES.includes(val)) {
+    pf.style.display = 'none';
+    ptf.style.display = 'block';
+  } else {
+    pf.style.display = 'block';
+    ptf.style.display = 'none';
+  }
+}
+
+function toggleDeath(val) {
+  var dr = document.getElementById('deathRow');
+  var pdr = document.getElementById('petDeathRow');
+  var show = val === 'passed';
+  if (dr) dr.style.display = show ? 'block' : 'none';
+  if (pdr) pdr.style.display = show ? 'block' : 'none';
+}
+
+// init with first type selected (grandfather)
+document.addEventListener('DOMContentLoaded', function(){
+  var first = document.querySelector('.fm-type-btn');
+  if (first) first.classList.add('selected');
+  document.getElementById('personFields').style.display = 'block';
+});
+</script>
+{% endblock %}

@@ -14,7 +14,7 @@ from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      HallOfFameEntry, HallOfFameVote, HallOfFameComment,
                      MarketplaceListing, ListingInterest, ListingComment,
                      WatchReport, WatchConfirm, WatchComment,
-                     Notification)
+                     Notification, FamilyMember)
 
 MODULES = [
     {'slug': 'family',       'icon': '👨‍👩‍👧', 'name': 'Family Hub',     'desc': 'Family Stories · Parenting · Grandparents Archive',  'color': '#e11d48', 'soon': False},
@@ -96,44 +96,60 @@ def module_page(request, slug):
 
 # ── FAMILY HUB ────────────────────────────────────────────────────────────────
 def family_hub(request):
-    tab = request.GET.get('tab', 'stories')
-
-    # Family Stories
-    stories   = FamilyStory.objects.filter(is_active=True).select_related('user')
-    fs_liked  = set()
-    if request.user.is_authenticated:
-        fs_liked = set(FamilyStoryLike.objects.filter(
-            user=request.user).values_list('story_id', flat=True))
-
-    # Parenting
-    parenting_posts = ParentingPost.objects.filter(is_active=True).select_related('user')
-    pt_liked = set()
-    if request.user.is_authenticated:
-        pt_liked = set(ParentingLike.objects.filter(
-            user=request.user).values_list('post_id', flat=True))
-
-    # Grandparents
-    gp_stories = GrandparentStory.objects.filter(is_active=True).select_related('user')
-    gp_liked   = set()
-    if request.user.is_authenticated:
-        gp_liked = set(GrandparentLike.objects.filter(
-            user=request.user).values_list('story_id', flat=True))
-
+    members = FamilyMember.objects.select_related('creator')
     return render(request, 'community/family_hub.html', {
-        'tab':            tab,
-        'stories':        stories,
-        'fs_liked':       fs_liked,
-        'cat_icons':      CAT_ICONS,
-        'cat_labels':     CAT_LABELS,
-        'parenting_posts': parenting_posts,
-        'pt_liked':       pt_liked,
-        'pt_cat_icons':   PT_CAT_ICONS,
-        'pt_categories':  ParentingPost.CAT_CHOICES,
-        'gp_stories':     gp_stories,
-        'gp_liked':       gp_liked,
-        'gp_cat_icons':   GP_CAT_ICONS,
-        'gp_categories':  GrandparentStory.CAT_CHOICES,
+        'members':      members,
+        'type_choices': FamilyMember.TYPE_CHOICES,
     })
+
+
+@login_required
+def family_member_create(request):
+    if request.method == 'POST':
+        m = FamilyMember(
+            creator     = request.user,
+            member_type = request.POST.get('member_type', 'other'),
+            name        = request.POST.get('name', '').strip(),
+            why         = request.POST.get('why', '').strip(),
+            description = request.POST.get('description', '').strip(),
+            about       = request.POST.get('about', '').strip(),
+            village     = request.POST.get('village', '').strip(),
+            house_name  = request.POST.get('house_name', '').strip(),
+            occupation  = request.POST.get('occupation', '').strip(),
+            education   = request.POST.get('education', '').strip(),
+            phone       = request.POST.get('phone', '').strip(),
+            status      = request.POST.get('status', 'living'),
+            species     = request.POST.get('species', '').strip(),
+            breed       = request.POST.get('breed', '').strip(),
+        )
+        if request.POST.get('age'):
+            try: m.age = int(request.POST['age'])
+            except ValueError: pass
+        if request.POST.get('dob'):
+            from datetime import date
+            try:
+                parts = request.POST['dob'].split('-')
+                m.dob = date(int(parts[0]), int(parts[1]), int(parts[2]))
+            except Exception: pass
+        if request.POST.get('death_date') and m.status == 'passed':
+            from datetime import date
+            try:
+                parts = request.POST['death_date'].split('-')
+                m.death_date = date(int(parts[0]), int(parts[1]), int(parts[2]))
+            except Exception: pass
+        if request.FILES.get('photo'):
+            m.photo = request.FILES['photo']
+        if m.name:
+            m.save()
+            return redirect(f'/community/family/member/{m.pk}/')
+    return render(request, 'community/family_member_create.html', {
+        'type_choices': FamilyMember.TYPE_CHOICES,
+    })
+
+
+def family_member_detail(request, pk):
+    member = get_object_or_404(FamilyMember, pk=pk)
+    return render(request, 'community/family_member_detail.html', {'member': member})
 
 
 # ── SCHOOL & KIDS HUB ──────────────────────────────────────────────────────────
