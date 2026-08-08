@@ -49,7 +49,7 @@
   <div class="fm-type-grid">
     {% for val, label in type_choices %}
     <label class="fm-type-btn" onclick="selectType('{{ val }}', this)">
-      <input type="radio" name="member_type" value="{{ val }}" {% if forloop.first %}checked{% endif %}>
+      <input type="radio" name="member_type" value="{{ val }}" {% if request.GET.type == val %}checked{% elif not request.GET.type and forloop.first %}checked{% endif %}>
       <span class="fm-type-icon">
         {% if val == 'grandfather' %}👴
         {% elif val == 'grandmother' %}👵
@@ -210,11 +210,12 @@ function toggleDeath(val) {
   if (pdr) pdr.style.display = show ? 'block' : 'none';
 }
 
-// init with first type selected (grandfather)
 document.addEventListener('DOMContentLoaded', function(){
-  var first = document.querySelector('.fm-type-btn');
-  if (first) first.classList.add('selected');
-  document.getElementById('personFields').style.display = 'block';
+  var checked = document.querySelector('input[name=member_type]:checked');
+  if (checked) {
+    checked.closest('.fm-type-btn').classList.add('selected');
+    selectType(checked.value, checked.closest('.fm-type-btn'));
+  }
 });
 </script>
 {% endblock %}

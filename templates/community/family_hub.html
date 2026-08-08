@@ -8,25 +8,25 @@
   #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
   #fhTop h2{font-size:16px;font-weight:900;color:#fff;margin:0;flex:1}
 
-  /* family summary card */
-  .fh-summary{margin:14px 14px 0;background:#fff;border-radius:18px;border:1.5px solid #fce7f3;padding:16px;box-shadow:0 1px 6px rgba(225,29,72,.06)}
-  .fh-summary-title{font-size:11px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
-  .fh-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-  .fh-sum-item{text-align:center;background:#fff8f9;border-radius:12px;padding:10px 4px;border:1.5px solid #fce7f3}
-  .fh-sum-icon{font-size:1.4rem;display:block;margin-bottom:3px}
-  .fh-sum-count{font-size:18px;font-weight:900;color:#e11d48;display:block;line-height:1}
-  .fh-sum-label{font-size:9px;color:#9ca3af;font-weight:700;margin-top:2px;display:block}
-  .fh-sum-item.zero .fh-sum-count{color:#d1d5db}
+  /* setup form */
+  .fh-setup{margin:14px 14px 0;background:#fff;border-radius:18px;border:1.5px solid #fce7f3;padding:16px;box-shadow:0 1px 6px rgba(225,29,72,.06)}
+  .fh-setup-title{font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+  .fh-setup-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+  .fh-setup-row{display:flex;align-items:center;gap:10px;background:#fff8f9;border-radius:12px;padding:10px 12px;border:1.5px solid #fce7f3}
+  .fh-setup-icon{font-size:1.5rem;flex-shrink:0}
+  .fh-setup-label{font-size:12px;font-weight:800;color:#374151;flex:1}
+  .fh-setup-input{width:48px;padding:6px 8px;border:1.5px solid #fda4af;border-radius:8px;font-size:14px;font-weight:900;color:#e11d48;text-align:center;font-family:inherit;outline:none}
+  .fh-setup-input:focus{border-color:#e11d48}
+  .fh-save-btn{width:100%;padding:12px;background:#e11d48;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit}
 
-  /* filter chips */
-  .fh-filter{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 8px;scrollbar-width:none}
-  .fh-filter::-webkit-scrollbar{display:none}
-  .fh-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;background:#fff;color:#374151;border:1.5px solid #fce7f3;cursor:pointer;text-decoration:none;white-space:nowrap}
-  .fh-chip.active{background:#e11d48;color:#fff;border-color:#e11d48}
-  .fh-chip.create{background:#e11d48;color:#fff;border-color:#e11d48;font-weight:900}
+  /* type tabs */
+  .fh-tabs{display:flex;gap:0;overflow-x:auto;background:#fff;border-bottom:2px solid #fce7f3;scrollbar-width:none;margin-top:14px}
+  .fh-tabs::-webkit-scrollbar{display:none}
+  .fh-tab{flex-shrink:0;padding:12px 16px;font-size:12px;font-weight:800;color:#9ca3af;text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:5px}
+  .fh-tab.active{color:#e11d48;border-bottom-color:#e11d48}
 
   /* member grid */
-  .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:10px 14px 90px}
+  .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:12px 14px 16px}
   @media(min-width:500px){.fh-grid{grid-template-columns:repeat(3,1fr)}}
 
   .fh-card{background:#fff;border-radius:18px;overflow:hidden;border:1.5px solid #fce7f3;box-shadow:0 1px 6px rgba(225,29,72,.07);text-decoration:none;display:block}
@@ -36,11 +36,16 @@
   .fh-card-status.living{background:#dcfce7;color:#166534}
   .fh-card-status.passed{background:#fee2e2;color:#991b1b}
   .fh-card-body{padding:10px 12px 12px}
-  .fh-card-type{font-size:10px;font-weight:800;color:#e11d48;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
   .fh-card-name{font-size:14px;font-weight:900;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fh-card-sub{font-size:11px;color:#6b7280;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .fh-card-sub{font-size:11px;color:#6b7280}
 
-  .fh-empty{text-align:center;padding:3rem 1rem;color:#9ca3af;grid-column:1/-1}
+  /* add details card */
+  .fh-add-card{background:#fff8f9;border-radius:18px;border:2px dashed #fda4af;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px 12px;text-decoration:none;min-height:180px}
+  .fh-add-icon{font-size:2rem}
+  .fh-add-label{font-size:12px;font-weight:800;color:#e11d48}
+
+  .fh-section{padding:0 14px 80px}
+  .fh-empty-msg{text-align:center;padding:2rem 1rem;color:#9ca3af;font-size:13px}
 </style>
 
 <div id="fhTop">
@@ -48,54 +53,128 @@
   <h2>👨‍👩‍👧 Family Hub</h2>
 </div>
 
-<!-- Type filter chips -->
-<div class="fh-filter">
-  <a href="/community/family/" class="fh-chip {% if not active_type %}active{% endif %}">All ({{ total_count }})</a>
-  {% for val, label, icon, count in summary %}
-  {% if count > 0 %}
-  <a href="/community/family/?type={{ val }}" class="fh-chip {% if active_type == val %}active{% endif %}">{{ icon }} {{ label }}</a>
-  {% endif %}
+<!-- Family Setup Form -->
+{% if request.user.is_authenticated %}
+<form method="post" action="/community/family/">
+{% csrf_token %}
+<div class="fh-setup">
+  <div class="fh-setup-title">👨‍👩‍👧 Fill Your Family Details</div>
+  <div class="fh-setup-grid">
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👴</span>
+      <span class="fh-setup-label">Grandfather</span>
+      <input class="fh-setup-input" type="number" name="grandfather_count" min="0" max="20" value="{{ setup.grandfather_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👵</span>
+      <span class="fh-setup-label">Grandmother</span>
+      <input class="fh-setup-input" type="number" name="grandmother_count" min="0" max="20" value="{{ setup.grandmother_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👨</span>
+      <span class="fh-setup-label">Father</span>
+      <input class="fh-setup-input" type="number" name="father_count" min="0" max="20" value="{{ setup.father_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👩</span>
+      <span class="fh-setup-label">Mother</span>
+      <input class="fh-setup-input" type="number" name="mother_count" min="0" max="20" value="{{ setup.mother_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👦</span>
+      <span class="fh-setup-label">Son</span>
+      <input class="fh-setup-input" type="number" name="son_count" min="0" max="20" value="{{ setup.son_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👧</span>
+      <span class="fh-setup-label">Daughter</span>
+      <input class="fh-setup-input" type="number" name="daughter_count" min="0" max="20" value="{{ setup.daughter_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">🧔</span>
+      <span class="fh-setup-label">Uncle</span>
+      <input class="fh-setup-input" type="number" name="uncle_count" min="0" max="20" value="{{ setup.uncle_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">👩‍🦳</span>
+      <span class="fh-setup-label">Aunt</span>
+      <input class="fh-setup-input" type="number" name="aunt_count" min="0" max="20" value="{{ setup.aunt_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">🧑</span>
+      <span class="fh-setup-label">Cousin</span>
+      <input class="fh-setup-input" type="number" name="cousin_count" min="0" max="20" value="{{ setup.cousin_count|default:0 }}">
+    </div>
+    <div class="fh-setup-row">
+      <span class="fh-setup-icon">🐾</span>
+      <span class="fh-setup-label">Pet</span>
+      <input class="fh-setup-input" type="number" name="pet_count" min="0" max="20" value="{{ setup.pet_count|default:0 }}">
+    </div>
+  </div>
+  <button type="submit" class="fh-save-btn">Save Family Details</button>
+</div>
+</form>
+{% endif %}
+
+<!-- Type tabs (only if setup has any counts) -->
+{% if active_tabs %}
+<div class="fh-tabs">
+  {% for val, label, icon, cnt in active_tabs %}
+  <a href="/community/family/?tab={{ val }}" class="fh-tab {% if active_type == val %}active{% endif %}">
+    {{ icon }} {{ label }} <span style="background:#fce7f3;color:#e11d48;font-size:10px;padding:1px 6px;border-radius:8px;font-weight:900">{{ cnt }}</span>
+  </a>
   {% endfor %}
-  <a href="/community/family/create/" class="fh-chip create">➕ Create Page</a>
 </div>
 
-<!-- Member grid -->
-<div class="fh-grid">
-  {% for m in members %}
-  <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
-    <div class="fh-card-img">
-      {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">{% endif %}
-      <span style="position:relative;z-index:1">
-        {% if m.member_type == 'grandfather' %}👴
-        {% elif m.member_type == 'grandmother' %}👵
-        {% elif m.member_type == 'father' %}👨
-        {% elif m.member_type == 'mother' %}👩
-        {% elif m.member_type == 'son' %}👦
-        {% elif m.member_type == 'daughter' %}👧
-        {% elif m.member_type == 'uncle' %}🧔
-        {% elif m.member_type == 'aunt' %}👩‍🦳
-        {% elif m.member_type == 'cousin' %}🧑
-        {% elif m.member_type == 'pet' %}🐾
-        {% else %}👤{% endif %}
-      </span>
-      <span class="fh-card-status {% if m.status == 'living' %}living{% else %}passed{% endif %}">
-        {% if m.status == 'living' %}❤️ Living{% else %}🕊️ Gone{% endif %}
-      </span>
-    </div>
-    <div class="fh-card-body">
-      <div class="fh-card-type">{{ m.get_member_type_display }}</div>
-      <div class="fh-card-name">{{ m.name }}</div>
-      {% if m.description %}<div class="fh-card-sub">{{ m.description }}</div>
-      {% elif m.village %}<div class="fh-card-sub">📍 {{ m.village }}</div>{% endif %}
-    </div>
-  </a>
-  {% empty %}
-  <div class="fh-empty">
-    <div style="font-size:3rem;margin-bottom:8px">👨‍👩‍👧</div>
-    <p style="font-weight:800;color:#374151;font-size:15px;margin-bottom:6px">No family pages yet</p>
-    <p style="font-size:13px;margin-bottom:16px">Start adding your family members</p>
-    <a href="/community/family/create/" style="background:#e11d48;color:#fff;padding:10px 24px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none">➕ Create First Page</a>
+<!-- Members for active tab -->
+<div class="fh-section">
+  <div class="fh-grid">
+    {% for m in members %}
+    <a href="/community/family/member/{{ m.pk }}/" class="fh-card">
+      <div class="fh-card-img">
+        {% if m.photo %}<img src="{{ m.photo.url }}" alt="{{ m.name }}">{% endif %}
+        <span style="position:relative;z-index:1">
+          {% if active_type == 'grandfather' %}👴
+          {% elif active_type == 'grandmother' %}👵
+          {% elif active_type == 'father' %}👨
+          {% elif active_type == 'mother' %}👩
+          {% elif active_type == 'son' %}👦
+          {% elif active_type == 'daughter' %}👧
+          {% elif active_type == 'uncle' %}🧔
+          {% elif active_type == 'aunt' %}👩‍🦳
+          {% elif active_type == 'cousin' %}🧑
+          {% elif active_type == 'pet' %}🐾
+          {% else %}👤{% endif %}
+        </span>
+        <span class="fh-card-status {% if m.status == 'living' %}living{% else %}passed{% endif %}">
+          {% if m.status == 'living' %}❤️ Living{% else %}🕊️ Gone{% endif %}
+        </span>
+      </div>
+      <div class="fh-card-body">
+        <div class="fh-card-name">{{ m.name }}</div>
+        {% if m.description %}<div class="fh-card-sub">{{ m.description }}</div>
+        {% elif m.village %}<div class="fh-card-sub">📍 {{ m.village }}</div>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+
+    <!-- Add Details card for each remaining slot -->
+    {% for val, label, icon, cnt in active_tabs %}
+      {% if val == active_type %}
+        {% with filled=members|length %}
+          {% for i in "x"|ljust:cnt %}
+            {% if forloop.counter > filled %}
+            <a href="/community/family/create/?type={{ active_type }}" class="fh-add-card">
+              <span class="fh-add-icon">➕</span>
+              <span class="fh-add-label">Add Details</span>
+            </a>
+            {% endif %}
+          {% endfor %}
+        {% endwith %}
+      {% endif %}
+    {% endfor %}
   </div>
-  {% endfor %}
 </div>
+{% endif %}
+
 {% endblock %}

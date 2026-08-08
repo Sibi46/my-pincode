@@ -14,7 +14,7 @@ from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      HallOfFameEntry, HallOfFameVote, HallOfFameComment,
                      MarketplaceListing, ListingInterest, ListingComment,
                      WatchReport, WatchConfirm, WatchComment,
-                     Notification, FamilyMember)
+                     Notification, FamilyMember, FamilySetup)
 
 MODULES = [
     {'slug': 'family',       'icon': '👨‍👩‍👧', 'name': 'Family Hub',     'desc': 'Family Stories · Parenting · Grandparents Archive',  'color': '#e11d48', 'soon': False},
@@ -96,31 +96,34 @@ def module_page(request, slug):
 
 # ── FAMILY HUB ────────────────────────────────────────────────────────────────
 def family_hub(request):
-    active_type = request.GET.get('type', '')
-    all_members = FamilyMember.objects.select_related('creator')
+    setup = None
+    if request.user.is_authenticated:
+        setup, _ = FamilySetup.objects.get_or_create(user=request.user)
+        if request.method == 'POST':
+            setup.grandfather_count = int(request.POST.get('grandfather_count', 0))
+            setup.grandmother_count = int(request.POST.get('grandmother_count', 0))
+            setup.father_count      = int(request.POST.get('father_count', 0))
+            setup.mother_count      = int(request.POST.get('mother_count', 0))
+            setup.son_count         = int(request.POST.get('son_count', 0))
+            setup.daughter_count    = int(request.POST.get('daughter_count', 0))
+            setup.uncle_count       = int(request.POST.get('uncle_count', 0))
+            setup.aunt_count        = int(request.POST.get('aunt_count', 0))
+            setup.cousin_count      = int(request.POST.get('cousin_count', 0))
+            setup.pet_count         = int(request.POST.get('pet_count', 0))
+            setup.save()
+            return redirect('/community/family/')
 
-    TYPE_META = [
-        ('grandfather', 'Grandfather', '👴'),
-        ('grandmother', 'Grandmother', '👵'),
-        ('father',      'Father',      '👨'),
-        ('mother',      'Mother',      '👩'),
-        ('son',         'Son',         '👦'),
-        ('daughter',    'Daughter',    '👧'),
-        ('uncle',       'Uncle',       '🧔'),
-        ('aunt',        'Aunt',        '👩‍🦳'),
-        ('cousin',      'Cousin',      '🧑'),
-        ('pet',         'Pet',         '🐾'),
-    ]
-    summary = [(val, label, icon, all_members.filter(member_type=val).count())
-               for val, label, icon in TYPE_META]
-
-    members = all_members.filter(member_type=active_type) if active_type else all_members
+    setup_list = setup.as_list() if setup else []
+    active_tabs = [(val, label, icon, cnt) for val, label, icon, cnt in setup_list if cnt > 0]
+    active_type = request.GET.get('tab', active_tabs[0][0] if active_tabs else '')
+    members = FamilyMember.objects.filter(member_type=active_type).select_related('creator') if active_type else []
 
     return render(request, 'community/family_hub.html', {
-        'members':      members,
-        'summary':      summary,
-        'active_type':  active_type,
-        'total_count':  all_members.count(),
+        'setup':       setup,
+        'setup_list':  setup_list,
+        'active_tabs': active_tabs,
+        'active_type': active_type,
+        'members':     members,
     })
 
 

@@ -809,6 +809,38 @@ class Notification(models.Model):
         ordering = ['-created_at']
 
 
+class FamilySetup(models.Model):
+    user             = models.OneToOneField(User, on_delete=models.CASCADE, related_name='family_setup')
+    grandfather_count = models.PositiveSmallIntegerField(default=0)
+    grandmother_count = models.PositiveSmallIntegerField(default=0)
+    father_count      = models.PositiveSmallIntegerField(default=0)
+    mother_count      = models.PositiveSmallIntegerField(default=0)
+    son_count         = models.PositiveSmallIntegerField(default=0)
+    daughter_count    = models.PositiveSmallIntegerField(default=0)
+    uncle_count       = models.PositiveSmallIntegerField(default=0)
+    aunt_count        = models.PositiveSmallIntegerField(default=0)
+    cousin_count      = models.PositiveSmallIntegerField(default=0)
+    pet_count         = models.PositiveSmallIntegerField(default=0)
+    updated_at        = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s family setup"
+
+    def as_list(self):
+        return [
+            ('grandfather', 'Grandfather', '👴', self.grandfather_count),
+            ('grandmother', 'Grandmother', '👵', self.grandmother_count),
+            ('father',      'Father',      '👨', self.father_count),
+            ('mother',      'Mother',      '👩', self.mother_count),
+            ('son',         'Son',         '👦', self.son_count),
+            ('daughter',    'Daughter',    '👧', self.daughter_count),
+            ('uncle',       'Uncle',       '🧔', self.uncle_count),
+            ('aunt',        'Aunt',        '👩‍🦳', self.aunt_count),
+            ('cousin',      'Cousin',      '🧑', self.cousin_count),
+            ('pet',         'Pet',         '🐾', self.pet_count),
+        ]
+
+
 class FamilyMember(models.Model):
     TYPE_CHOICES = [
         ('grandfather', 'Grandfather'),
