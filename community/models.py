@@ -97,8 +97,9 @@ class School(models.Model):
 
 class SchoolAdmin(models.Model):
     ROLE_CHOICES = [
-        ('owner', 'Owner'),
-        ('admin', 'Admin'),
+        ('owner',   'Owner'),
+        ('admin',   'Admin'),
+        ('teacher', 'Teacher'),
     ]
     school     = models.ForeignKey(School, on_delete=models.CASCADE, related_name='admins')
     user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='school_admin_roles')

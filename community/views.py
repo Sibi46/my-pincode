@@ -456,23 +456,33 @@ def school_dashboard(request, pk):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action == 'add_admin' and admin_rec.role == 'owner':
+        if action in ('add_admin', 'add_teacher') and admin_rec.role in ('owner', 'admin'):
             username = request.POST.get('username', '').strip()
-            try:
-                from django.contrib.auth import get_user_model
-                User2 = get_user_model()
-                new_user = User2.objects.get(username=username)
-                SchoolAdmin.objects.get_or_create(
-                    school=school, user=new_user,
-                    defaults={'role': 'admin', 'added_by': request.user}
-                )
-                messages.success(request, f'{username} added as admin.')
-            except Exception:
-                error = f'User "{username}" not found.'
+            new_role = 'teacher' if action == 'add_teacher' else 'admin'
+            if new_role == 'admin' and admin_rec.role != 'owner':
+                error = 'Only owners can add admins.'
+            else:
+                try:
+                    from django.contrib.auth import get_user_model
+                    User2 = get_user_model()
+                    new_user = User2.objects.get(username=username)
+                    obj, created = SchoolAdmin.objects.get_or_create(
+                        school=school, user=new_user,
+                        defaults={'role': new_role, 'added_by': request.user}
+                    )
+                    if not created:
+                        error = f'"{username}" already has a role in this school.'
+                    else:
+                        messages.success(request, f'{username} added as {new_role}.')
+                except Exception:
+                    error = f'User "{username}" not found.'
 
-        elif action == 'remove_admin' and admin_rec.role == 'owner':
+        elif action == 'remove_admin' and admin_rec.role in ('owner', 'admin'):
             uid = request.POST.get('user_id')
-            SchoolAdmin.objects.filter(school=school, user_id=uid).exclude(role='owner').delete()
+            qs = SchoolAdmin.objects.filter(school=school, user_id=uid).exclude(role='owner')
+            if admin_rec.role == 'admin':
+                qs = qs.filter(role='teacher')
+            qs.delete()
 
         elif action == 'delete_post':
             post_id = request.POST.get('post_id')

@@ -101,16 +101,16 @@
   <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-new-post-btn">✏️ Create New Post</a>
 
   <!-- Admins section -->
+  <!-- Admins section -->
   <div class="sd-section">
     <div class="sd-section-head">
-      <span class="sd-section-title">👤 School Admins</span>
+      <span class="sd-section-title">👤 Admins</span>
       {% if admin_rec.role == 'owner' %}
-      <button class="sd-section-action" onclick="toggleAddForm()">+ Add Admin</button>
+      <button class="sd-section-action" onclick="toggleForm('addAdminForm')">+ Add Admin</button>
       {% endif %}
     </div>
-
     {% if admin_rec.role == 'owner' %}
-    <div class="sd-add-form" id="addForm">
+    <div class="sd-add-form" id="addAdminForm">
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_admin">
@@ -122,17 +122,16 @@
       </form>
     </div>
     {% endif %}
-
-    {% for a in admins %}
+    {% for a in admins %}{% if a.role != 'teacher' %}
     <div class="sd-admin-item">
       <div class="sd-admin-avatar">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
       <div>
         <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
-        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
+        <div class="sd-admin-sub">@{{ a.user.username }} · {{ a.created_at|timesince }} ago</div>
       </div>
       <span class="sd-admin-role {% if a.role == 'owner' %}sd-role-owner{% else %}sd-role-admin{% endif %}">{{ a.get_role_display }}</span>
       {% if admin_rec.role == 'owner' and a.role != 'owner' %}
-      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove admin?')">
+      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove?')">
         {% csrf_token %}
         <input type="hidden" name="action" value="remove_admin">
         <input type="hidden" name="user_id" value="{{ a.user.pk }}">
@@ -140,7 +139,52 @@
       </form>
       {% endif %}
     </div>
+    {% endif %}{% endfor %}
+  </div>
+
+  <!-- Teachers section -->
+  <div class="sd-section">
+    <div class="sd-section-head">
+      <span class="sd-section-title">🎓 Teachers</span>
+      {% if admin_rec.role in 'owner admin' %}
+      <button class="sd-section-action" onclick="toggleForm('addTeacherForm')">+ Add Teacher</button>
+      {% endif %}
+    </div>
+    {% if admin_rec.role == 'owner' or admin_rec.role == 'admin' %}
+    <div class="sd-add-form" id="addTeacherForm">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_teacher">
+        <div class="sd-add-row">
+          <input class="sd-add-input" type="text" name="username" placeholder="Enter teacher's username" required>
+          <button type="submit" class="sd-add-btn">Add</button>
+        </div>
+        {% if error %}<div class="sd-error">{{ error }}</div>{% endif %}
+      </form>
+    </div>
+    {% endif %}
+    {% for a in admins %}{% if a.role == 'teacher' %}
+    <div class="sd-admin-item">
+      <div class="sd-admin-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
+      <div>
+        <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
+        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
+      </div>
+      <span class="sd-admin-role" style="background:#d1fae5;color:#065f46">🎓 Teacher</span>
+      {% if admin_rec.role == 'owner' or admin_rec.role == 'admin' %}
+      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove teacher?')">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove_admin">
+        <input type="hidden" name="user_id" value="{{ a.user.pk }}">
+        <button type="submit" class="sd-remove-btn">Remove</button>
+      </form>
+      {% endif %}
+    </div>
+    {% empty %}
     {% endfor %}
+    {% if not admins %}
+    <div style="padding:16px;text-align:center;color:#9ca3af;font-size:13px">No teachers added yet.</div>
+    {% endif %}
   </div>
 
   <!-- Posts section -->
@@ -176,11 +220,12 @@
 
 <script>
 {% if error %}
-document.getElementById('addForm').classList.add('open');
+document.getElementById('addAdminForm') && document.getElementById('addAdminForm').classList.add('open');
+document.getElementById('addTeacherForm') && document.getElementById('addTeacherForm').classList.add('open');
 {% endif %}
-function toggleAddForm(){
-  var f=document.getElementById('addForm');
-  f.classList.toggle('open');
+function toggleForm(id){
+  var f=document.getElementById(id);
+  if(f) f.classList.toggle('open');
 }
 </script>
 {% endblock %}
