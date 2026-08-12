@@ -113,47 +113,6 @@
     </div>
   </div>
 
-  <!-- Admins -->
-  <div class="sd-section">
-    <div class="sd-section-head">
-      <span class="sd-section-title">🛡️ Admins</span>
-      {% if admin_rec.role == 'owner' %}
-      <button class="sd-section-action" onclick="toggleForm('addAdminForm')">+ Add Admin</button>
-      {% endif %}
-    </div>
-    {% if admin_rec.role == 'owner' %}
-    <div class="sd-add-form" id="addAdminForm">
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add_admin">
-        <div class="sd-add-row">
-          <input class="sd-add-input" type="text" name="username" placeholder="Enter username to add as admin" required>
-          <button type="submit" class="sd-add-btn">Add</button>
-        </div>
-        {% if error %}<div class="sd-error">{{ error }}</div>{% endif %}
-      </form>
-    </div>
-    {% endif %}
-    {% for a in admins %}
-    <div class="sd-admin-item">
-      <div class="sd-admin-avatar">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
-      <div>
-        <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
-        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
-      </div>
-      <span class="sd-admin-role sd-role-admin">🛡️ Admin</span>
-      {% if admin_rec.role == 'owner' %}
-      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove admin?')">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="remove_admin">
-        <input type="hidden" name="user_id" value="{{ a.user.pk }}">
-        <button type="submit" class="sd-remove-btn">Remove</button>
-      </form>
-      {% endif %}
-    </div>
-    {% endfor %}
-  </div>
-
   <!-- Teachers -->
   <div class="sd-section">
     <div class="sd-section-head">
