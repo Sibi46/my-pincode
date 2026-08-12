@@ -441,6 +441,48 @@ def school_post_create(request, pk):
     })
 
 
+def teacher_register(request):
+    from django.contrib.auth import get_user_model, login as auth_login
+    User2 = get_user_model()
+    schools = School.objects.all().order_by('name')
+    error = None
+    if request.method == 'POST':
+        full_name  = request.POST.get('full_name', '').strip()
+        phone      = request.POST.get('phone', '').strip()
+        school_id  = request.POST.get('school_id', '').strip()
+        password   = request.POST.get('password', '').strip()
+        confirm    = request.POST.get('confirm_password', '').strip()
+        if not all([full_name, phone, school_id, password]):
+            error = 'All fields are required.'
+        elif password != confirm:
+            error = 'Passwords do not match.'
+        elif User2.objects.filter(username=phone).exists():
+            error = 'This phone number is already registered.'
+        else:
+            try:
+                school = School.objects.get(pk=school_id)
+                parts  = full_name.split(' ', 1)
+                user   = User2.objects.create_user(
+                    username=phone,
+                    password=password,
+                    first_name=parts[0],
+                    last_name=parts[1] if len(parts) > 1 else '',
+                )
+                SchoolAdmin.objects.create(
+                    school=school, user=user, role='teacher',
+                    added_by=None, phone=phone,
+                )
+                auth_login(request, user)
+                messages.success(request, f'Welcome {full_name}! You can now post updates for {school.name}.')
+                return redirect(f'/community/school-corner/{school.pk}/')
+            except Exception as e:
+                error = f'Registration failed: {e}'
+    return render(request, 'community/teacher_register.html', {
+        'schools': schools,
+        'error':   error,
+    })
+
+
 @login_required
 def school_dashboard(request, pk):
     school = get_object_or_404(School, pk=pk)

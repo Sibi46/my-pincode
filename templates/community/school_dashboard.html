@@ -129,7 +129,7 @@
       <div class="sd-admin-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
       <div>
         <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
-        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
+        <div class="sd-admin-sub">{% if a.phone %}📞 {{ a.phone }}{% else %}@{{ a.user.username }}{% endif %} · Added {{ a.created_at|timesince }} ago</div>
       </div>
       <span class="sd-admin-role" style="background:#d1fae5;color:#065f46">🎓 Teacher</span>
       {% if admin_rec.role == 'owner' or admin_rec.role == 'admin' %}

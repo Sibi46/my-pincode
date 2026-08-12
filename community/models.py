@@ -105,6 +105,7 @@ class SchoolAdmin(models.Model):
     user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='school_admin_roles')
     role       = models.CharField(max_length=10, choices=ROLE_CHOICES, default='admin')
     added_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='school_admins_added')
+    phone      = models.CharField(max_length=15, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
