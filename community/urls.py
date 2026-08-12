@@ -21,6 +21,7 @@ urlpatterns = [
     path('school-corner/',                          views.school_list,          name='school_list'),
     path('school-corner/register/',                 views.school_register,      name='school_register'),
     path('school-corner/teacher/register/',         views.teacher_register,     name='teacher_register'),
+    path('school-corner/teacher/login/',            views.teacher_login,        name='teacher_login'),
     path('school-corner/<int:pk>/',                 views.school_detail,        name='school_detail'),
     path('school-corner/<int:pk>/post/',            views.school_post_create,   name='school_post_create'),
     path('school-corner/<int:pk>/dashboard/',       views.school_dashboard,     name='school_dashboard'),

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Login – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f0f9ff}
+  #tlTop{position:sticky;top:0;z-index:200;background:#0a66c2;padding:10px 16px;display:flex;align-items:center;gap:10px}
+  #tlTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
+  #tlTop h2{font-size:15px;font-weight:900;color:#fff;margin:0}
+
+  .tl-wrap{padding:0 0 80px;max-width:520px;margin:0 auto}
+
+  .tl-hero{background:linear-gradient(135deg,#0a66c2,#2563eb);padding:28px 20px 32px;text-align:center;color:#fff}
+  .tl-hero-icon{font-size:3rem;display:block;margin-bottom:8px}
+  .tl-hero-title{font-size:22px;font-weight:900;margin-bottom:4px}
+  .tl-hero-sub{font-size:13px;opacity:.85}
+
+  .tl-card{background:#fff;border-radius:20px;margin:14px 14px 0;box-shadow:0 4px 20px rgba(10,102,194,.1);overflow:hidden}
+  .tl-card-head{padding:16px 18px 4px;font-size:12px;font-weight:900;color:#0a66c2;text-transform:uppercase;letter-spacing:.06em}
+
+  .tl-field{padding:10px 18px}
+  .tl-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+  .tl-input{width:100%;padding:12px 14px;border:1.5px solid #dbeafe;border-radius:12px;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#111}
+  .tl-input:focus{border-color:#0a66c2;background:#fff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}
+
+  .tl-divider{height:1px;background:#f0f7ff;margin:4px 0}
+  .tl-error{background:#fee2e2;color:#991b1b;font-size:13px;font-weight:700;padding:12px 16px;margin:0 18px 10px;border-radius:10px}
+
+  .tl-submit{width:calc(100% - 36px);margin:14px 18px 18px;display:block;padding:14px;background:#0a66c2;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+  .tl-submit:active{background:#1d4ed8}
+
+  .tl-footer{text-align:center;padding:10px;font-size:13px;color:#6b7280}
+  .tl-footer a{color:#0a66c2;font-weight:700;text-decoration:none}
+</style>
+
+<div id="tlTop">
+  <a href="/community/school-corner/" class="back">&#8592;</a>
+  <h2>🎓 Teacher Login</h2>
+</div>
+
+<div class="tl-wrap">
+
+  <div class="tl-hero">
+    <span class="tl-hero-icon">🎓</span>
+    <div class="tl-hero-title">Teacher Login</div>
+    <div class="tl-hero-sub">Login with your phone number and password</div>
+  </div>
+
+  <form method="post">
+  {% csrf_token %}
+  <div class="tl-card">
+    <div class="tl-card-head">Login Details</div>
+
+    {% if error %}
+    <div class="tl-error">⚠️ {{ error }}</div>
+    {% endif %}
+
+    <div class="tl-field">
+      <label class="tl-label">Phone Number</label>
+      <input class="tl-input" type="tel" name="phone" placeholder="e.g. 9876543210" required autofocus>
+    </div>
+    <div class="tl-divider"></div>
+    <div class="tl-field">
+      <label class="tl-label">Password</label>
+      <input class="tl-input" type="password" name="password" placeholder="Enter your password" required>
+    </div>
+  </div>
+
+  <button type="submit" class="tl-submit">Login →</button>
+  </form>
+
+  <div class="tl-footer">
+    New teacher? <a href="/community/school-corner/teacher/register/">Register here</a>
+  </div>
+
+</div>
+{% endblock %}

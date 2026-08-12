@@ -483,6 +483,28 @@ def teacher_register(request):
     })
 
 
+def teacher_login(request):
+    from django.contrib.auth import authenticate, login as auth_login
+    error = None
+    if request.method == 'POST':
+        phone    = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '').strip()
+        if not phone or not password:
+            error = 'Please enter your phone number and password.'
+        else:
+            user = authenticate(request, username=phone, password=password)
+            if user is None:
+                error = 'Invalid phone number or password.'
+            else:
+                sa = SchoolAdmin.objects.filter(user=user, role='teacher').select_related('school').first()
+                if sa is None:
+                    error = 'No teacher account found for this phone number.'
+                else:
+                    auth_login(request, user)
+                    return redirect(f'/community/school-corner/{sa.school.pk}/')
+    return render(request, 'community/teacher_login.html', {'error': error})
+
+
 @login_required
 def school_dashboard(request, pk):
     school = get_object_or_404(School, pk=pk)
