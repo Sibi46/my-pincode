@@ -449,8 +449,9 @@ def school_dashboard(request, pk):
         messages.error(request, 'Access denied.')
         return redirect(f'/community/school-corner/{pk}/')
 
-    admins = SchoolAdmin.objects.filter(school=school).select_related('user', 'added_by')
-    posts  = school.posts.filter(is_active=True).select_related('posted_by')
+    admins   = SchoolAdmin.objects.filter(school=school).exclude(role='teacher').select_related('user', 'added_by')
+    teachers = SchoolAdmin.objects.filter(school=school, role='teacher').select_related('user', 'added_by')
+    posts    = school.posts.filter(is_active=True).select_related('posted_by')
     error  = None
 
     if request.method == 'POST':
@@ -494,6 +495,7 @@ def school_dashboard(request, pk):
         'school':     school,
         'admin_rec':  admin_rec,
         'admins':     admins,
+        'teachers':   teachers,
         'posts':      posts,
         'error':      error,
         'post_types': SchoolPost.POST_TYPE_CHOICES,
