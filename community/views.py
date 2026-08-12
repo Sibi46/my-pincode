@@ -18,7 +18,7 @@ from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
 
 MODULES = [
     {'slug': 'family',       'icon': '👨‍👩‍👧', 'name': 'Family Hub',     'desc': 'Family Stories · Parenting · Grandparents Archive',  'color': '#e11d48', 'soon': False},
-    {'slug': 'school-kids', 'icon': '🏫', 'name': 'School & Kids',  'desc': 'School Corner · Student Success · Kids Corner',       'color': '#0a66c2', 'soon': False},
+    {'slug': 'school-corner', 'icon': '🏫', 'name': 'School & Kids',  'desc': 'School Corner · Student Success · Kids Corner',       'color': '#0a66c2', 'soon': False},
     {'slug': 'local-heroes',        'icon': '🦸', 'name': 'Local Heroes',           'desc': 'Celebrate unsung heroes in your community',           'color': '#dc2626', 'soon': False},
     {'slug': 'community-events',    'icon': '📅', 'name': 'Community Events',       'desc': 'Local gatherings, festivals & announcements',         'color': '#0891b2', 'soon': False},
     {'slug': 'volunteer',           'icon': '🤝', 'name': 'Volunteer Activities',   'desc': 'Blood donation, tree plantation & health camps',      'color': '#16a34a', 'soon': False},
