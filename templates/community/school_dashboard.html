@@ -100,19 +100,6 @@
   <!-- New post button -->
   <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-new-post-btn">✏️ Create New Post</a>
 
-  <!-- Owner -->
-  <div class="sd-section">
-    <div class="sd-section-head"><span class="sd-section-title">👑 Owner</span></div>
-    <div class="sd-admin-item">
-      <div class="sd-admin-avatar" style="background:linear-gradient(135deg,#b45309,#d97706)">{{ admin_rec.user.get_full_name|first|upper|default:admin_rec.user.username|first|upper }}</div>
-      <div>
-        <div class="sd-admin-name">{{ admin_rec.user.get_full_name|default:admin_rec.user.username }}</div>
-        <div class="sd-admin-sub">@{{ admin_rec.user.username }}</div>
-      </div>
-      <span class="sd-admin-role sd-role-owner">👑 Owner</span>
-    </div>
-  </div>
-
   <!-- Teachers -->
   <div class="sd-section">
     <div class="sd-section-head">
