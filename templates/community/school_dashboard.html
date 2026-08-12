@@ -100,11 +100,23 @@
   <!-- New post button -->
   <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-new-post-btn">✏️ Create New Post</a>
 
-  <!-- Admins section -->
-  <!-- Admins section -->
+  <!-- Owner -->
+  <div class="sd-section">
+    <div class="sd-section-head"><span class="sd-section-title">👑 Owner</span></div>
+    <div class="sd-admin-item">
+      <div class="sd-admin-avatar" style="background:linear-gradient(135deg,#b45309,#d97706)">{{ admin_rec.user.get_full_name|first|upper|default:admin_rec.user.username|first|upper }}</div>
+      <div>
+        <div class="sd-admin-name">{{ admin_rec.user.get_full_name|default:admin_rec.user.username }}</div>
+        <div class="sd-admin-sub">@{{ admin_rec.user.username }}</div>
+      </div>
+      <span class="sd-admin-role sd-role-owner">👑 Owner</span>
+    </div>
+  </div>
+
+  <!-- Admins -->
   <div class="sd-section">
     <div class="sd-section-head">
-      <span class="sd-section-title">👤 Admins</span>
+      <span class="sd-section-title">🛡️ Admins</span>
       {% if admin_rec.role == 'owner' %}
       <button class="sd-section-action" onclick="toggleForm('addAdminForm')">+ Add Admin</button>
       {% endif %}
@@ -122,16 +134,16 @@
       </form>
     </div>
     {% endif %}
-    {% for a in admins %}{% if a.role != 'teacher' %}
+    {% for a in admins %}
     <div class="sd-admin-item">
       <div class="sd-admin-avatar">{{ a.user.get_full_name|first|upper|default:a.user.username|first|upper }}</div>
       <div>
         <div class="sd-admin-name">{{ a.user.get_full_name|default:a.user.username }}</div>
-        <div class="sd-admin-sub">@{{ a.user.username }} · {{ a.created_at|timesince }} ago</div>
+        <div class="sd-admin-sub">@{{ a.user.username }} · Added {{ a.created_at|timesince }} ago</div>
       </div>
-      <span class="sd-admin-role {% if a.role == 'owner' %}sd-role-owner{% else %}sd-role-admin{% endif %}">{{ a.get_role_display }}</span>
-      {% if admin_rec.role == 'owner' and a.role != 'owner' %}
-      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove?')">
+      <span class="sd-admin-role sd-role-admin">🛡️ Admin</span>
+      {% if admin_rec.role == 'owner' %}
+      <form method="post" style="margin-left:auto" onsubmit="return confirm('Remove admin?')">
         {% csrf_token %}
         <input type="hidden" name="action" value="remove_admin">
         <input type="hidden" name="user_id" value="{{ a.user.pk }}">
@@ -139,10 +151,12 @@
       </form>
       {% endif %}
     </div>
-    {% endif %}{% endfor %}
+    {% empty %}
+    <div style="padding:14px 16px;font-size:13px;color:#9ca3af">No admins added yet.</div>
+    {% endfor %}
   </div>
 
-  <!-- Teachers section -->
+  <!-- Teachers -->
   <div class="sd-section">
     <div class="sd-section-head">
       <span class="sd-section-title">🎓 Teachers</span>
@@ -150,13 +164,16 @@
       <button class="sd-section-action" onclick="toggleForm('addTeacherForm')">+ Add Teacher</button>
       {% endif %}
     </div>
+    <div style="padding:8px 16px;font-size:11px;color:#6b7280;background:#f0fdf4;border-bottom:1px solid #dcfce7">
+      💡 Teachers login with their normal mypincod.com account to post school updates.
+    </div>
     {% if admin_rec.role == 'owner' or admin_rec.role == 'admin' %}
     <div class="sd-add-form" id="addTeacherForm">
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_teacher">
         <div class="sd-add-row">
-          <input class="sd-add-input" type="text" name="username" placeholder="Enter teacher's username" required>
+          <input class="sd-add-input" type="text" name="username" placeholder="Enter teacher's mypincod username" required>
           <button type="submit" class="sd-add-btn">Add</button>
         </div>
         {% if error %}<div class="sd-error">{{ error }}</div>{% endif %}
@@ -181,7 +198,7 @@
       {% endif %}
     </div>
     {% empty %}
-    <div style="padding:16px;text-align:center;color:#9ca3af;font-size:13px">No teachers added yet.</div>
+    <div style="padding:14px 16px;font-size:13px;color:#9ca3af">No teachers added yet. Add a teacher by their username above.</div>
     {% endfor %}
   </div>
 
