@@ -1,48 +1,77 @@
 {% extends 'base.html' %}
-{% block title %}{{ member.name }} – Family Page – MY PINCOD{% endblock %}
+{% block title %}{{ member.name }} – Family Hub – MY PINCOD{% endblock %}
 {% block content %}
 <style>
-  nav.navbar{display:none!important}
-  body{background:#f9f0f3}
-  #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:10px 16px;display:flex;align-items:center;gap:10px}
-  #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
-  #fhTop h2{font-size:15px;font-weight:900;color:#fff;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+nav.navbar{display:none!important}
+*{box-sizing:border-box}
+body{background:#F8FAFC;font-family:'Inter',sans-serif;color:#0F172A}
 
-  /* cover & avatar */
-  .fm-cover{width:100%;height:200px;background:linear-gradient(135deg,#fce7f3,#ffe4e6);display:flex;align-items:center;justify-content:center;font-size:6rem;position:relative;overflow:hidden}
-  .fm-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-  .fm-cover-emoji{position:relative;z-index:1}
-  .fm-status-badge{position:absolute;bottom:12px;right:14px;z-index:2;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800}
-  .fm-status-living{background:#dcfce7;color:#166534}
-  .fm-status-passed{background:#fee2e2;color:#991b1b}
+/* TOP BAR */
+#fhTop{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid #E2E8F0;padding:14px 20px;display:flex;align-items:center;gap:12px}
+#fhTop a.back{width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:16px;flex-shrink:0}
+#fhTop h2{font-size:16px;font-weight:700;color:#0F172A;margin:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  /* profile section */
-  .fm-profile{background:#fff;padding:18px 16px 14px;border-bottom:1.5px solid #fce7f3}
-  .fm-type-tag{display:inline-block;font-size:11px;font-weight:800;background:#fce7f3;color:#e11d48;padding:3px 10px;border-radius:8px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
-  .fm-name{font-size:22px;font-weight:900;color:#111;margin-bottom:4px}
-  .fm-desc{font-size:14px;color:#6b7280;margin-bottom:8px}
-  .fm-by{font-size:12px;color:#9ca3af}
+.fd-wrap{padding-bottom:40px;max-width:640px;margin:0 auto}
 
-  /* why section */
-  .fm-why{background:#fff8f9;border-left:4px solid #e11d48;padding:12px 16px;margin:14px 16px;border-radius:0 12px 12px 0}
-  .fm-why-label{font-size:10px;font-weight:800;color:#e11d48;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-  .fm-why-text{font-size:13px;color:#374151;font-style:italic}
+/* HERO COVER */
+.fd-cover{width:100%;height:220px;background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 60%,#6366F1 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.fd-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.fd-cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(15,23,42,.7) 100%)}
+.fd-cover-emoji{position:relative;z-index:2;font-size:5rem;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.fd-cover-decor{position:absolute;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);top:-40px;right:-40px}
+.fd-cover-decor2{position:absolute;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06);bottom:-20px;left:20px}
 
-  /* info cards */
-  .fm-section{background:#fff;border-radius:16px;border:1.5px solid #fce7f3;margin:0 14px 14px;overflow:hidden}
-  .fm-section-head{padding:12px 16px;border-bottom:1px solid #fce7f3;font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.06em}
-  .fm-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-  .fm-info-item{padding:12px 16px;border-bottom:1px solid #f9f0f3}
-  .fm-info-item:nth-child(odd){border-right:1px solid #f9f0f3}
-  .fm-info-label{font-size:10px;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
-  .fm-info-value{font-size:13px;font-weight:800;color:#111}
-  .fm-info-value.passed{color:#dc2626}
-  .fm-info-value.living{color:#16a34a}
+/* STATUS BADGE */
+.fd-status-pill{position:absolute;bottom:14px;right:16px;z-index:3;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.01em}
+.fd-status-living{background:#DCFCE7;color:#166534}
+.fd-status-passed{background:#FEE2E2;color:#991B1B}
 
-  /* about */
-  .fm-about{padding:14px 16px;font-size:14px;color:#374151;line-height:1.7}
+/* PROFILE CARD */
+.fd-profile-card{background:#fff;margin:0 16px;margin-top:-24px;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:20px;position:relative;z-index:4}
+.fd-type-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;background:#EEF2FF;color:#4F46E5;padding:4px 12px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.fd-name{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:4px;line-height:1.2}
+.fd-desc{font-size:14px;color:#64748B;margin-bottom:10px}
+.fd-meta{font-size:12px;color:#94A3B8;display:flex;align-items:center;gap:8px}
+.fd-meta-dot{width:3px;height:3px;border-radius:50%;background:#CBD5E1}
 
-  .fm-wrap{padding-bottom:80px}
+/* WHY CARD */
+.fd-why-card{margin:12px 16px 0;background:linear-gradient(135deg,#EEF2FF,#F5F3FF);border:1px solid #C7D2FE;border-radius:16px;padding:16px}
+.fd-why-label{font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.fd-why-text{font-size:14px;color:#374151;font-style:italic;line-height:1.6}
+.fd-why-text::before{content:'\201C';color:#A5B4FC;font-size:18px;line-height:0;vertical-align:-4px}
+.fd-why-text::after{content:'\201D';color:#A5B4FC;font-size:18px;line-height:0;vertical-align:-4px}
+
+/* SECTION CARD */
+.fd-card{background:#fff;margin:12px 16px 0;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,.04);overflow:hidden}
+.fd-card-head{padding:14px 18px;border-bottom:1px solid #F1F5F9;font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;letter-spacing:.08em}
+
+/* INFO GRID */
+.fd-info-grid{display:grid;grid-template-columns:1fr 1fr}
+.fd-info-item{padding:14px 18px;border-bottom:1px solid #F8FAFC}
+.fd-info-item:nth-child(odd){border-right:1px solid #F8FAFC}
+.fd-info-label{font-size:10px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.fd-info-value{font-size:13px;font-weight:700;color:#1E293B}
+.fd-info-value.living{color:#16A34A}
+.fd-info-value.passed{color:#DC2626}
+.fd-info-full{grid-column:1/-1}
+
+/* MEMORIAL CARD */
+.fd-memorial{margin:12px 16px 0;background:linear-gradient(135deg,#FFF7ED,#FEF2F2);border:1px solid #FED7AA;border-radius:20px;padding:20px;text-align:center}
+.fd-memorial-icon{font-size:2.5rem;display:block;margin-bottom:10px}
+.fd-memorial-title{font-size:15px;font-weight:700;color:#9A3412;margin-bottom:4px}
+.fd-memorial-date{font-size:13px;color:#C2410C}
+.fd-memorial-tribute{font-size:13px;color:#78350F;margin-top:10px;font-style:italic;line-height:1.6}
+
+/* ABOUT */
+.fd-about{padding:16px 18px;font-size:14px;color:#374151;line-height:1.8}
+
+/* EDIT BUTTON */
+.fd-edit-wrap{padding:16px;margin-top:4px}
+{% if request.user == member.creator %}
+.fd-edit-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;font-size:14px;font-weight:600;color:#64748B;text-decoration:none;transition:all .2s}
+.fd-edit-btn:hover{border-color:#4F46E5;color:#4F46E5;background:#EEF2FF}
+{% endif %}
 </style>
 
 <div id="fhTop">
@@ -50,12 +79,15 @@
   <h2>{{ member.name }}</h2>
 </div>
 
-<div class="fm-wrap">
+<div class="fd-wrap">
 
-<!-- Cover photo -->
-<div class="fm-cover">
+<!-- Cover -->
+<div class="fd-cover">
   {% if member.photo %}<img src="{{ member.photo.url }}" alt="{{ member.name }}">{% endif %}
-  <span class="fm-cover-emoji">
+  <div class="fd-cover-overlay"></div>
+  <div class="fd-cover-decor"></div>
+  <div class="fd-cover-decor2"></div>
+  <span class="fd-cover-emoji">
     {% if member.member_type == 'grandfather' %}👴
     {% elif member.member_type == 'grandmother' %}👵
     {% elif member.member_type == 'father' %}👨
@@ -68,61 +100,89 @@
     {% elif member.member_type == 'pet' %}🐾
     {% else %}👤{% endif %}
   </span>
-  <span class="fm-status-badge {% if member.status == 'living' %}fm-status-living{% else %}fm-status-passed{% endif %}">
-    {% if member.member_type == 'pet' %}{% if member.status == 'living' %}🐾 Alive{% else %}🌈 Rainbow Bridge{% endif %}
-    {% else %}{% if member.status == 'living' %}❤️ Living{% else %}🕊️ Passed Away{% endif %}{% endif %}
+  <span class="fd-status-pill {% if member.status == 'living' %}fd-status-living{% else %}fd-status-passed{% endif %}">
+    {% if member.member_type == 'pet' %}
+      {% if member.status == 'living' %}🐾 Alive{% else %}🌈 Rainbow Bridge{% endif %}
+    {% else %}
+      {% if member.status == 'living' %}❤️ Living{% else %}🕊️ Passed Away{% endif %}
+    {% endif %}
   </span>
 </div>
 
-<!-- Profile -->
-<div class="fm-profile">
-  <div class="fm-type-tag">{{ member.get_member_type_display }}</div>
-  <div class="fm-name">{{ member.name }}</div>
-  {% if member.description %}<div class="fm-desc">{{ member.description }}</div>{% endif %}
-  <div class="fm-by">Page by {{ member.creator.get_full_name|default:member.creator.username }} · {{ member.created_at|date:"M j, Y" }}</div>
+<!-- Profile Card -->
+<div class="fd-profile-card">
+  <div class="fd-type-chip">{{ member.get_member_type_display }}</div>
+  <div class="fd-name">{{ member.name }}</div>
+  {% if member.description %}<div class="fd-desc">{{ member.description }}</div>{% endif %}
+  <div class="fd-meta">
+    <span>By {{ member.creator.get_full_name|default:member.creator.username }}</span>
+    <span class="fd-meta-dot"></span>
+    <span>{{ member.created_at|date:"M j, Y" }}</span>
+  </div>
 </div>
 
 <!-- Why this page -->
 {% if member.why %}
-<div class="fm-why">
-  <div class="fm-why-label">Why this page</div>
-  <div class="fm-why-text">"{{ member.why }}"</div>
+<div class="fd-why-card">
+  <div class="fd-why-label">Why this page was created</div>
+  <div class="fd-why-text">{{ member.why }}</div>
 </div>
 {% endif %}
 
-<!-- Personal / Pet info -->
+<!-- Memorial banner for passed away -->
+{% if member.status == 'passed' %}
+<div class="fd-memorial">
+  <span class="fd-memorial-icon">{% if member.member_type == 'pet' %}🌈{% else %}🕊️{% endif %}</span>
+  <div class="fd-memorial-title">In Loving Memory</div>
+  {% if member.death_date %}
+  <div class="fd-memorial-date">
+    {% if member.dob %}{{ member.dob|date:"M j, Y" }} – {% endif %}{{ member.death_date|date:"M j, Y" }}
+  </div>
+  {% endif %}
+  <div class="fd-memorial-tribute">Forever in our hearts. Your memory lives on through this page.</div>
+</div>
+{% endif %}
+
+<!-- Personal / Pet details -->
 {% if member.member_type == 'pet' %}
-<div class="fm-section">
-  <div class="fm-section-head">🐾 Pet Details</div>
-  <div class="fm-info-grid">
-    {% if member.species %}<div class="fm-info-item"><div class="fm-info-label">Species</div><div class="fm-info-value">{{ member.species }}</div></div>{% endif %}
-    {% if member.breed %}<div class="fm-info-item"><div class="fm-info-label">Breed</div><div class="fm-info-value">{{ member.breed }}</div></div>{% endif %}
-    {% if member.dob %}<div class="fm-info-item"><div class="fm-info-label">Date of Birth</div><div class="fm-info-value">{{ member.dob|date:"M j, Y" }}</div></div>{% endif %}
-    {% if member.age %}<div class="fm-info-item"><div class="fm-info-label">Age</div><div class="fm-info-value">{{ member.age }} years</div></div>{% endif %}
-    {% if member.death_date %}<div class="fm-info-item" style="grid-column:1/-1"><div class="fm-info-label">Date of Passing</div><div class="fm-info-value passed">{{ member.death_date|date:"M j, Y" }}</div></div>{% endif %}
+<div class="fd-card">
+  <div class="fd-card-head">🐾 Pet Details</div>
+  <div class="fd-info-grid">
+    {% if member.species %}<div class="fd-info-item"><div class="fd-info-label">Species</div><div class="fd-info-value">{{ member.species }}</div></div>{% endif %}
+    {% if member.breed %}<div class="fd-info-item"><div class="fd-info-label">Breed</div><div class="fd-info-value">{{ member.breed }}</div></div>{% endif %}
+    {% if member.dob %}<div class="fd-info-item"><div class="fd-info-label">Date of Birth</div><div class="fd-info-value">{{ member.dob|date:"M j, Y" }}</div></div>{% endif %}
+    {% if member.age %}<div class="fd-info-item"><div class="fd-info-label">Age</div><div class="fd-info-value">{{ member.age }} yrs</div></div>{% endif %}
+    <div class="fd-info-item"><div class="fd-info-label">Status</div><div class="fd-info-value {% if member.status == 'living' %}living{% else %}passed{% endif %}">{% if member.status == 'living' %}🐾 Alive{% else %}🌈 Rainbow Bridge{% endif %}</div></div>
   </div>
 </div>
 {% else %}
-<div class="fm-section">
-  <div class="fm-section-head">👤 Personal Details</div>
-  <div class="fm-info-grid">
-    {% if member.dob %}<div class="fm-info-item"><div class="fm-info-label">Date of Birth</div><div class="fm-info-value">{{ member.dob|date:"M j, Y" }}</div></div>{% endif %}
-    {% if member.age %}<div class="fm-info-item"><div class="fm-info-label">Age</div><div class="fm-info-value">{{ member.age }} years</div></div>{% endif %}
-    {% if member.village %}<div class="fm-info-item"><div class="fm-info-label">Village / Town</div><div class="fm-info-value">{{ member.village }}</div></div>{% endif %}
-    {% if member.house_name %}<div class="fm-info-item"><div class="fm-info-label">House Name</div><div class="fm-info-value">{{ member.house_name }}</div></div>{% endif %}
-    {% if member.occupation %}<div class="fm-info-item"><div class="fm-info-label">Occupation</div><div class="fm-info-value">{{ member.occupation }}</div></div>{% endif %}
-    {% if member.education %}<div class="fm-info-item"><div class="fm-info-label">Education</div><div class="fm-info-value">{{ member.education }}</div></div>{% endif %}
-    {% if member.phone %}<div class="fm-info-item"><div class="fm-info-label">Phone</div><div class="fm-info-value">{{ member.phone }}</div></div>{% endif %}
-    {% if member.death_date %}<div class="fm-info-item" style="grid-column:1/-1"><div class="fm-info-label">Date of Passing</div><div class="fm-info-value passed">{{ member.death_date|date:"M j, Y" }}</div></div>{% endif %}
+<div class="fd-card">
+  <div class="fd-card-head">🧾 Personal Details</div>
+  <div class="fd-info-grid">
+    {% if member.dob %}<div class="fd-info-item"><div class="fd-info-label">Date of Birth</div><div class="fd-info-value">{{ member.dob|date:"M j, Y" }}</div></div>{% endif %}
+    {% if member.age %}<div class="fd-info-item"><div class="fd-info-label">Age</div><div class="fd-info-value">{{ member.age }} years</div></div>{% endif %}
+    {% if member.village %}<div class="fd-info-item"><div class="fd-info-label">Village / Town</div><div class="fd-info-value">{{ member.village }}</div></div>{% endif %}
+    {% if member.house_name %}<div class="fd-info-item"><div class="fd-info-label">House Name</div><div class="fd-info-value">{{ member.house_name }}</div></div>{% endif %}
+    {% if member.occupation %}<div class="fd-info-item"><div class="fd-info-label">Occupation</div><div class="fd-info-value">{{ member.occupation }}</div></div>{% endif %}
+    {% if member.education %}<div class="fd-info-item"><div class="fd-info-label">Education</div><div class="fd-info-value">{{ member.education }}</div></div>{% endif %}
+    {% if member.phone %}<div class="fd-info-item fd-info-full"><div class="fd-info-label">Phone</div><div class="fd-info-value">{{ member.phone }}</div></div>{% endif %}
+    <div class="fd-info-item fd-info-full"><div class="fd-info-label">Status</div><div class="fd-info-value {% if member.status == 'living' %}living{% else %}passed{% endif %}">{% if member.status == 'living' %}❤️ Living{% else %}🕊️ Passed Away{% endif %}</div></div>
   </div>
 </div>
 {% endif %}
 
 <!-- About -->
 {% if member.about %}
-<div class="fm-section">
-  <div class="fm-section-head">📖 About</div>
-  <div class="fm-about">{{ member.about|linebreaks }}</div>
+<div class="fd-card">
+  <div class="fd-card-head">📖 About</div>
+  <div class="fd-about">{{ member.about|linebreaks }}</div>
+</div>
+{% endif %}
+
+<!-- Edit button (only for creator) -->
+{% if request.user == member.creator %}
+<div class="fd-edit-wrap">
+  <a href="/community/family/member/{{ member.pk }}/edit/" class="fd-edit-btn">✏️ Edit this page</a>
 </div>
 {% endif %}
 

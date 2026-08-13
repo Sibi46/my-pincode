@@ -2,50 +2,82 @@
 {% block title %}Create Family Page – MY PINCOD{% endblock %}
 {% block content %}
 <style>
-  nav.navbar{display:none!important}
-  body{background:#f9f0f3}
-  #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:10px 16px;display:flex;align-items:center;gap:10px}
-  #fhTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
-  #fhTop h2{font-size:15px;font-weight:900;color:#fff;margin:0;flex:1}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+nav.navbar{display:none!important}
+*{box-sizing:border-box}
+body{background:#F8FAFC;font-family:'Inter',sans-serif;color:#0F172A}
 
-  .fm-wrap{padding:14px 16px 100px;max-width:600px;margin:0 auto}
+/* TOP BAR */
+#fhTop{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid #E2E8F0;padding:14px 20px;display:flex;align-items:center;gap:12px}
+#fhTop a.back{width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:16px;flex-shrink:0}
+#fhTop h2{font-size:16px;font-weight:700;color:#0F172A;margin:0;flex:1}
 
-  /* type selector */
-  .fm-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-  .fm-type-btn{background:#fff;border:2px solid #fce7f3;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .15s}
-  .fm-type-btn:hover,.fm-type-btn.selected{border-color:#e11d48;background:#fff0f5}
-  .fm-type-btn input{display:none}
-  .fm-type-icon{font-size:1.8rem;display:block;margin-bottom:4px}
-  .fm-type-label{font-size:11px;font-weight:800;color:#374151}
+.fm-wrap{padding:20px 20px 120px;max-width:640px;margin:0 auto}
 
-  /* form */
-  .fm-section{background:#fff;border-radius:16px;border:1.5px solid #fce7f3;padding:16px;margin-bottom:14px}
-  .fm-section-title{font-size:12px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
-  .fm-field{margin-bottom:14px}
-  .fm-field:last-child{margin-bottom:0}
-  .fm-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
-  .fm-input{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;background:#fafafa}
-  .fm-input:focus{border-color:#e11d48;background:#fff}
-  textarea.fm-input{min-height:90px;resize:vertical}
-  .fm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .fm-submit{width:100%;padding:14px;background:#e11d48;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px}
+/* SECTION CARD */
+.fm-card{background:#fff;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;margin-bottom:16px}
+.fm-card-title{font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:6px}
 
-  /* conditional sections */
-  .pet-fields,.person-fields,.death-row{display:none}
+/* TYPE GRID */
+.fm-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fm-type-btn{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.fm-type-btn:hover{border-color:#6366F1;background:#EEF2FF;transform:translateY(-2px)}
+.fm-type-btn.selected{border-color:#4F46E5;background:#EEF2FF;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.fm-type-btn input{display:none}
+.fm-type-icon{font-size:1.8rem;display:block;margin-bottom:6px}
+.fm-type-label{font-size:11px;font-weight:600;color:#374151}
+.fm-type-btn.selected .fm-type-label{color:#4F46E5}
+
+/* FIELDS */
+.fm-field{margin-bottom:16px}
+.fm-field:last-child{margin-bottom:0}
+.fm-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px}
+.fm-input{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none;background:#F8FAFC;color:#0F172A;transition:all .2s}
+.fm-input:focus{border-color:#4F46E5;background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+textarea.fm-input{min-height:100px;resize:vertical}
+.fm-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PHOTO UPLOAD */
+.fm-photo-area{border:2px dashed #C7D2FE;border-radius:16px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#FAFBFF}
+.fm-photo-area:hover{border-color:#4F46E5;background:#EEF2FF}
+.fm-photo-icon{font-size:2rem;display:block;margin-bottom:8px}
+.fm-photo-text{font-size:13px;font-weight:600;color:#6366F1}
+.fm-photo-hint{font-size:11px;color:#94A3B8;margin-top:4px}
+.fm-photo-area input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* STATUS RADIOS */
+.fm-status-row{display:flex;gap:10px}
+.fm-status-opt{flex:1;border:2px solid #E2E8F0;border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
+.fm-status-opt input{display:none}
+.fm-status-opt.living-opt:has(input:checked){border-color:#22C55E;background:#F0FDF4}
+.fm-status-opt.passed-opt:has(input:checked){border-color:#EF4444;background:#FEF2F2}
+.fm-status-icon{font-size:1.4rem;display:block;margin-bottom:4px}
+.fm-status-label{font-size:12px;font-weight:600;color:#374151}
+
+/* DEATH ROW */
+.pet-fields,.person-fields,.death-row{display:none}
+.death-row{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* STICKY BOTTOM */
+.fm-bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid #E2E8F0;padding:14px 20px;z-index:300;display:flex;gap:10px;max-width:640px;margin:0 auto}
+.fm-cancel-btn{flex:1;padding:13px;background:#F1F5F9;color:#64748B;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center}
+.fm-submit{flex:2;padding:13px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,70,229,.35);transition:all .2s}
+.fm-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.45)}
 </style>
 
 <div id="fhTop">
   <a href="/community/family/" class="back">&#8592;</a>
-  <h2>➕ Create Family Page</h2>
+  <h2>Add Family Member</h2>
 </div>
 
 <div class="fm-wrap">
-<form method="post" enctype="multipart/form-data">
+<form method="post" enctype="multipart/form-data" id="fmForm">
 {% csrf_token %}
 
-<!-- Step 1: Choose type -->
-<div class="fm-section">
-  <div class="fm-section-title">Who is this page for?</div>
+<!-- Type Selector -->
+<div class="fm-card">
+  <div class="fm-card-title">👤 Who is this page for?</div>
   <div class="fm-type-grid">
     {% for val, label in type_choices %}
     <label class="fm-type-btn" onclick="selectType('{{ val }}', this)">
@@ -69,24 +101,30 @@
   </div>
 </div>
 
-<!-- Step 2: Why this page + basic info -->
-<div class="fm-section">
-  <div class="fm-section-title">About this page</div>
+<!-- Basic Info -->
+<div class="fm-card">
+  <div class="fm-card-title">✍️ Basic Information</div>
   <div class="fm-field">
     <label class="fm-label">Why are you creating this page? *</label>
     <input class="fm-input" type="text" name="why" placeholder="e.g. To remember my grandfather's life & stories" required>
   </div>
   <div class="fm-field">
-    <label class="fm-label">Name *</label>
-    <input class="fm-input" type="text" name="name" placeholder="Full name" required>
-  </div>
-  <div class="fm-field">
-    <label class="fm-label">Photo</label>
-    <input class="fm-input" type="file" name="photo" accept="image/*">
+    <label class="fm-label">Full Name *</label>
+    <input class="fm-input" type="text" name="name" placeholder="Enter full name" required>
   </div>
   <div class="fm-field">
     <label class="fm-label">Short Description</label>
-    <input class="fm-input" type="text" name="description" placeholder="One line about them (e.g. Farmer, Poet, Loving Grandfather)">
+    <input class="fm-input" type="text" name="description" placeholder="e.g. Farmer, Poet, Loving Grandfather">
+  </div>
+  <div class="fm-field">
+    <label class="fm-label">Photo</label>
+    <div class="fm-photo-area">
+      <span class="fm-photo-icon">📸</span>
+      <div class="fm-photo-text">Upload a photo</div>
+      <div class="fm-photo-hint">JPG, PNG up to 10MB</div>
+      <input type="file" name="photo" accept="image/*" onchange="previewPhoto(this)">
+    </div>
+    <img id="photoPreview" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-top:10px" alt="Preview">
   </div>
   <div class="fm-field">
     <label class="fm-label">About</label>
@@ -94,9 +132,9 @@
   </div>
 </div>
 
-<!-- Person-specific fields -->
-<div class="fm-section person-fields" id="personFields">
-  <div class="fm-section-title">Personal Details</div>
+<!-- Person Details -->
+<div class="fm-card person-fields" id="personFields">
+  <div class="fm-card-title">🧾 Personal Details</div>
   <div class="fm-row">
     <div class="fm-field">
       <label class="fm-label">Date of Birth</label>
@@ -114,7 +152,7 @@
     </div>
     <div class="fm-field">
       <label class="fm-label">House Name</label>
-      <input class="fm-input" type="text" name="house_name" placeholder="House / family name">
+      <input class="fm-input" type="text" name="house_name" placeholder="Family house name">
     </div>
   </div>
   <div class="fm-row">
@@ -133,10 +171,18 @@
   </div>
   <div class="fm-field">
     <label class="fm-label">Status</label>
-    <select class="fm-input" name="status" onchange="toggleDeath(this.value)">
-      <option value="living">Living</option>
-      <option value="passed">Passed Away</option>
-    </select>
+    <div class="fm-status-row">
+      <label class="fm-status-opt living-opt">
+        <input type="radio" name="status" value="living" checked onchange="toggleDeath(this.value)">
+        <span class="fm-status-icon">❤️</span>
+        <span class="fm-status-label">Living</span>
+      </label>
+      <label class="fm-status-opt passed-opt">
+        <input type="radio" name="status" value="passed" onchange="toggleDeath(this.value)">
+        <span class="fm-status-icon">🕊️</span>
+        <span class="fm-status-label">Passed Away</span>
+      </label>
+    </div>
   </div>
   <div class="fm-field death-row" id="deathRow">
     <label class="fm-label">Date of Passing</label>
@@ -144,9 +190,9 @@
   </div>
 </div>
 
-<!-- Pet-specific fields -->
-<div class="fm-section pet-fields" id="petFields">
-  <div class="fm-section-title">Pet Details</div>
+<!-- Pet Details -->
+<div class="fm-card pet-fields" id="petFields">
+  <div class="fm-card-title">🐾 Pet Details</div>
   <div class="fm-row">
     <div class="fm-field">
       <label class="fm-label">Species</label>
@@ -169,10 +215,18 @@
   </div>
   <div class="fm-field">
     <label class="fm-label">Status</label>
-    <select class="fm-input" name="status" onchange="toggleDeath(this.value)">
-      <option value="living">Alive</option>
-      <option value="passed">Passed Away</option>
-    </select>
+    <div class="fm-status-row">
+      <label class="fm-status-opt living-opt">
+        <input type="radio" name="status" value="living" checked onchange="toggleDeath(this.value)">
+        <span class="fm-status-icon">🐾</span>
+        <span class="fm-status-label">Alive</span>
+      </label>
+      <label class="fm-status-opt passed-opt">
+        <input type="radio" name="status" value="passed" onchange="toggleDeath(this.value)">
+        <span class="fm-status-icon">🌈</span>
+        <span class="fm-status-label">Passed Away</span>
+      </label>
+    </div>
   </div>
   <div class="fm-field death-row" id="petDeathRow">
     <label class="fm-label">Date of Passing</label>
@@ -180,8 +234,13 @@
   </div>
 </div>
 
-<button type="submit" class="fm-submit">Create Family Page</button>
 </form>
+</div>
+
+<!-- Sticky Bottom Bar -->
+<div class="fm-bottom-bar">
+  <a href="/community/family/" class="fm-cancel-btn">Cancel</a>
+  <button type="submit" form="fmForm" class="fm-submit">✨ Save Family Member</button>
 </div>
 
 <script>
@@ -208,6 +267,18 @@ function toggleDeath(val) {
   var show = val === 'passed';
   if (dr) dr.style.display = show ? 'block' : 'none';
   if (pdr) pdr.style.display = show ? 'block' : 'none';
+}
+
+function previewPhoto(input) {
+  var preview = document.getElementById('photoPreview');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function(){
