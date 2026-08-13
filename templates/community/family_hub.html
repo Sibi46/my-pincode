@@ -3,74 +3,79 @@
 {% block content %}
 <style>
   nav.navbar{display:none!important}
-  body{background:#fdf2f4;font-family:inherit}
+  body{background:#fff5f7;font-family:inherit}
 
   /* top bar */
-  #fhTop{position:sticky;top:0;z-index:200;background:#e11d48;padding:12px 16px;display:flex;align-items:center;gap:12px}
-  #fhTop a.back{color:rgba(255,255,255,.8);text-decoration:none;font-size:22px;line-height:1}
-  #fhTop h2{font-size:17px;font-weight:900;color:#fff;margin:0;flex:1}
+  #fhTop{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #ffe4e6;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #fhTop a.back{color:#374151;text-decoration:none;font-size:20px;line-height:1}
+  #fhTop h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
 
-  /* hero banner */
-  .fh-hero{background:linear-gradient(135deg,#e11d48,#be123c);padding:20px 16px 24px;text-align:center;color:#fff}
-  .fh-hero-icon{font-size:3rem;display:block;margin-bottom:6px}
-  .fh-hero-title{font-size:18px;font-weight:900;margin-bottom:4px}
-  .fh-hero-sub{font-size:13px;opacity:.85}
+  /* hero */
+  .fh-hero{background:linear-gradient(135deg,#e11d48 0%,#9f1239 100%);padding:28px 20px 32px;text-align:center;color:#fff;position:relative;overflow:hidden}
+  .fh-hero::before{content:'👨‍👩‍👧‍👦';position:absolute;font-size:120px;opacity:.07;bottom:-20px;right:-20px;line-height:1}
+  .fh-hero-title{font-size:22px;font-weight:900;margin-bottom:6px}
+  .fh-hero-sub{font-size:13px;opacity:.85;line-height:1.5}
 
-  /* setup card */
-  .fh-card-wrap{margin:-10px 14px 0;position:relative;z-index:2;padding-bottom:4px}
-  .fh-setup-card{background:#fff;border-radius:20px;box-shadow:0 4px 20px rgba(225,29,72,.12);overflow:hidden}
-  .fh-setup-head{padding:16px 18px 12px;border-bottom:1px solid #fef2f4}
-  .fh-setup-head p{font-size:13px;font-weight:800;color:#374151;margin:0}
-  .fh-setup-head span{font-size:12px;color:#9ca3af;font-weight:500}
+  /* setup section */
+  .fh-section{margin:16px 14px 0}
+  .fh-section-title{font-size:11px;font-weight:900;color:#e11d48;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+  .fh-setup-card{background:#fff;border-radius:20px;box-shadow:0 2px 16px rgba(225,29,72,.08);overflow:hidden;border:1px solid #ffe4e6}
 
   /* stepper rows */
-  .fh-member-row{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid #fef2f4}
-  .fh-member-row:last-child{border-bottom:none}
-  .fh-member-emoji{font-size:1.8rem;width:36px;text-align:center;flex-shrink:0}
-  .fh-member-name{font-size:14px;font-weight:800;color:#111;flex:1}
-  .fh-stepper{display:flex;align-items:center;gap:0;border:1.5px solid #fda4af;border-radius:12px;overflow:hidden;flex-shrink:0}
-  .fh-step-btn{width:36px;height:36px;border:none;background:none;font-size:18px;font-weight:900;color:#e11d48;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:background .1s}
-  .fh-step-btn:active{background:#fff0f5}
-  .fh-step-val{width:36px;text-align:center;font-size:16px;font-weight:900;color:#111;border:none;outline:none;background:transparent;font-family:inherit;padding:0}
-  /* hide number arrows */
+  .fh-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #fff0f3}
+  .fh-row:last-child{border-bottom:none}
+  .fh-row-left{display:flex;align-items:center;gap:10px;flex:1}
+  .fh-emoji-box{width:42px;height:42px;border-radius:12px;background:#fff5f7;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+  .fh-row-name{font-size:14px;font-weight:800;color:#111}
+  .fh-row-hint{font-size:11px;color:#9ca3af;margin-top:1px}
+  .fh-stepper{display:flex;align-items:center;gap:0;background:#fff0f3;border-radius:50px;overflow:hidden;flex-shrink:0}
+  .fh-step-btn{width:34px;height:34px;border:none;background:none;font-size:20px;font-weight:900;color:#e11d48;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+  .fh-step-btn:active{background:#fda4af30}
+  .fh-step-val{width:32px;text-align:center;font-size:15px;font-weight:900;color:#111;border:none;outline:none;background:transparent;font-family:inherit;padding:0}
   .fh-step-val::-webkit-inner-spin-button,.fh-step-val::-webkit-outer-spin-button{-webkit-appearance:none}
   .fh-step-val[type=number]{-moz-appearance:textfield}
 
   /* save button */
-  .fh-save-wrap{padding:14px 18px 18px}
-  .fh-save-btn{width:100%;padding:14px;background:#e11d48;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;letter-spacing:.02em}
-  .fh-save-btn:active{background:#be123c}
+  .fh-save-wrap{padding:14px 16px 16px}
+  .fh-save-btn{width:100%;padding:14px;background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(225,29,72,.3)}
+  .fh-save-btn:active{opacity:.9}
 
   /* tabs */
-  .fh-tabs-wrap{background:#fff;border-bottom:2px solid #fce7f3;margin-top:14px}
-  .fh-tabs{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 10px}
+  .fh-tabs-wrap{background:#fff;border-bottom:1px solid #ffe4e6;margin-top:16px;position:sticky;top:49px;z-index:100}
+  .fh-tabs{display:flex;overflow-x:auto;scrollbar-width:none;gap:0}
   .fh-tabs::-webkit-scrollbar{display:none}
-  .fh-tab{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 14px;text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-2px;min-width:64px}
-  .fh-tab-icon{font-size:1.4rem}
+  .fh-tab{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 16px;text-decoration:none;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .fh-tab-icon{font-size:1.3rem}
   .fh-tab-label{font-size:10px;font-weight:800;color:#9ca3af;white-space:nowrap}
-  .fh-tab-count{font-size:10px;font-weight:900;background:#fce7f3;color:#e11d48;padding:1px 7px;border-radius:20px}
+  .fh-tab-count{font-size:9px;font-weight:900;background:#fce7f3;color:#e11d48;padding:1px 6px;border-radius:20px;line-height:1.4}
   .fh-tab.active .fh-tab-label{color:#e11d48}
   .fh-tab.active{border-bottom-color:#e11d48}
 
   /* member grid */
-  .fh-grid-wrap{padding:14px 14px 90px}
+  .fh-grid-wrap{padding:14px 14px 100px}
+  .fh-grid-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .fh-grid-label{font-size:13px;font-weight:800;color:#111}
+  .fh-grid-add{font-size:12px;font-weight:700;color:#e11d48;text-decoration:none;background:#fff0f3;padding:5px 12px;border-radius:20px}
   .fh-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
   @media(min-width:480px){.fh-grid{grid-template-columns:repeat(3,1fr)}}
 
-  .fh-mcard{background:#fff;border-radius:18px;overflow:hidden;border:1.5px solid #fce7f3;box-shadow:0 2px 8px rgba(225,29,72,.07);text-decoration:none;display:block}
-  .fh-mcard-img{width:100%;height:120px;background:linear-gradient(135deg,#fce7f3,#ffe4e6);display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;overflow:hidden}
+  /* member card */
+  .fh-mcard{background:#fff;border-radius:18px;overflow:hidden;border:1px solid #ffe4e6;box-shadow:0 2px 10px rgba(225,29,72,.06);text-decoration:none;display:block;transition:transform .15s}
+  .fh-mcard:active{transform:scale(.97)}
+  .fh-mcard-img{width:100%;height:110px;background:linear-gradient(135deg,#fff0f3,#fce7f3);display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;overflow:hidden}
   .fh-mcard-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .fh-mcard-img span{position:relative;z-index:1}
-  .fh-badge{position:absolute;top:8px;right:8px;z-index:2;font-size:9px;font-weight:800;padding:2px 8px;border-radius:8px}
+  .fh-mcard-img .emoji{position:relative;z-index:1}
+  .fh-badge{position:absolute;top:7px;right:7px;z-index:2;font-size:9px;font-weight:800;padding:2px 7px;border-radius:8px}
   .fh-badge.living{background:#dcfce7;color:#166534}
   .fh-badge.passed{background:#fee2e2;color:#991b1b}
   .fh-mcard-body{padding:10px 12px 12px}
-  .fh-mcard-name{font-size:14px;font-weight:900;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fh-mcard-sub{font-size:11px;color:#9ca3af;margin-top:2px}
+  .fh-mcard-name{font-size:13px;font-weight:900;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fh-mcard-sub{font-size:11px;color:#9ca3af;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
   /* add slot */
-  .fh-add-slot{background:#fff8f9;border-radius:18px;border:2px dashed #fda4af;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:28px 12px;text-decoration:none;min-height:180px}
-  .fh-add-slot span{font-size:11px;font-weight:900;color:#e11d48}
+  .fh-add-slot{background:#fff;border-radius:18px;border:2px dashed #fda4af;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px 8px;text-decoration:none;min-height:170px}
+  .fh-add-icon{width:40px;height:40px;background:#fff0f3;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+  .fh-add-label{font-size:11px;font-weight:800;color:#e11d48;text-align:center}
 </style>
 
 <div id="fhTop">
@@ -80,26 +85,26 @@
 
 <!-- Hero -->
 <div class="fh-hero">
-  <span class="fh-hero-icon">🏠</span>
-  <div class="fh-hero-title">Build Your Family</div>
-  <div class="fh-hero-sub">Add how many members are in your family</div>
+  <div class="fh-hero-title">Your Family, Your Story</div>
+  <div class="fh-hero-sub">Add family members and keep their memories alive</div>
 </div>
 
 <!-- Setup Card -->
 {% if request.user.is_authenticated %}
 <form method="post" action="/community/family/">
 {% csrf_token %}
-<div class="fh-card-wrap">
+<div class="fh-section">
+  <div class="fh-section-title">👥 Set Family Count</div>
   <div class="fh-setup-card">
-    <div class="fh-setup-head">
-      <p>Family Members</p>
-      <span>Tap + or − to set count</span>
-    </div>
-
     {% for icon,label,field,val in setup_rows %}
-    <div class="fh-member-row">
-      <span class="fh-member-emoji">{{ icon }}</span>
-      <span class="fh-member-name">{{ label }}</span>
+    <div class="fh-row">
+      <div class="fh-row-left">
+        <div class="fh-emoji-box">{{ icon }}</div>
+        <div>
+          <div class="fh-row-name">{{ label }}</div>
+          <div class="fh-row-hint">How many {{ label|lower }}s?</div>
+        </div>
+      </div>
       <div class="fh-stepper">
         <button type="button" class="fh-step-btn" onclick="step('{{ field }}',-1)">−</button>
         <input class="fh-step-val" type="number" id="{{ field }}" name="{{ field }}" value="{{ val }}" min="0" max="20" readonly>
@@ -107,16 +112,15 @@
       </div>
     </div>
     {% endfor %}
-
     <div class="fh-save-wrap">
-      <button type="submit" class="fh-save-btn">Save Family Details</button>
+      <button type="submit" class="fh-save-btn">💾 Save Family Setup</button>
     </div>
   </div>
 </div>
 </form>
 {% endif %}
 
-<!-- Tabs + Grid (shown when setup has values) -->
+<!-- Tabs + Grid -->
 {% if active_tabs %}
 <div class="fh-tabs-wrap">
   <div class="fh-tabs">
@@ -131,12 +135,21 @@
 </div>
 
 <div class="fh-grid-wrap">
+  {% if active_type %}
+  <div class="fh-grid-head">
+    <span class="fh-grid-label">
+      {% for val,label,icon,cnt in active_tabs %}{% if val == active_type %}{{ icon }} {{ label }}s{% endif %}{% endfor %}
+    </span>
+    <a href="/community/family/create/?type={{ active_type }}" class="fh-grid-add">+ Add</a>
+  </div>
+  {% endif %}
+
   <div class="fh-grid">
     {% for m in members %}
     <a href="/community/family/member/{{ m.pk }}/" class="fh-mcard">
       <div class="fh-mcard-img">
         {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% endif %}
-        <span>
+        <span class="emoji">
           {% if active_type == 'grandfather' %}👴{% elif active_type == 'grandmother' %}👵
           {% elif active_type == 'father' %}👨{% elif active_type == 'mother' %}👩
           {% elif active_type == 'son' %}👦{% elif active_type == 'daughter' %}👧
@@ -149,7 +162,7 @@
       </div>
       <div class="fh-mcard-body">
         <div class="fh-mcard-name">{{ m.name }}</div>
-        <div class="fh-mcard-sub">{% if m.description %}{{ m.description }}{% elif m.village %}📍 {{ m.village }}{% elif m.age %}Age {{ m.age }}{% endif %}</div>
+        <div class="fh-mcard-sub">{% if m.description %}{{ m.description }}{% elif m.village %}📍 {{ m.village }}{% elif m.age %}Age {{ m.age }}{% elif m.occupation %}{{ m.occupation }}{% endif %}</div>
       </div>
     </a>
     {% endfor %}
@@ -159,8 +172,8 @@
         {% for i in "xxxxxxxxxxxxxxxxxxxxxxxxxx"|make_list %}
           {% if forloop.counter > filled and forloop.counter <= cnt %}
           <a href="/community/family/create/?type={{ active_type }}" class="fh-add-slot">
-            <span style="font-size:2rem">➕</span>
-            <span>Add Details</span>
+            <div class="fh-add-icon">➕</div>
+            <span class="fh-add-label">Add {{ label }}</span>
           </a>
           {% endif %}
         {% endfor %}
