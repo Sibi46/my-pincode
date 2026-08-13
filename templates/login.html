@@ -4,24 +4,6 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/register.css' %}">{% endblock %}
 
 {% block content %}
-<style>
-  nav.navbar{display:none!important}
-  .bottom-nav{display:none!important}
-  .custom-login-nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #e5e7eb;padding:10px 16px;display:flex;align-items:center;gap:6px;justify-content:center}
-  .cln-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 14px;border-radius:10px;text-decoration:none;font-size:11px;font-weight:700;color:#6b7280;border:none;background:none;cursor:pointer;font-family:inherit}
-  .cln-btn span{font-size:18px}
-  .cln-btn.active{color:#0a66c2}
-  .cln-btn.signin{background:#0a66c2;color:#fff;border-radius:10px;padding:8px 18px;font-size:13px;flex-direction:row;gap:6px}
-</style>
-
-<div class="custom-login-nav">
-  <a class="cln-btn" href="/"><span>🏠</span>Home</a>
-  <a class="cln-btn" href="/health/"><span>❤️</span>Health</a>
-  <a class="cln-btn" href="/flicks/"><span>⚡</span>Flick</a>
-  <a class="cln-btn" href="/vouchers/marketplace/"><span>🎁</span>Voucher</a>
-  <a class="cln-btn signin active" href="/login/"><span>👤</span>Sign In</a>
-</div>
-
 <div class="register-wrapper">
   <div class="reg-card" style="max-width:440px;margin:40px auto">
     <div style="text-align:center;margin-bottom:28px">
