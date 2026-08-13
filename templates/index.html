@@ -1339,10 +1339,11 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
   document.getElementById('rpOtp').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,6); });
   document.getElementById('rpOtp').addEventListener('keydown', function(e){ if(e.key==='Enter') rpSubmit(); });
 
-  // Show popup on page load
+  // Show popup on page load (immediately if ?signup=1)
+  var delay = window.location.search.indexOf('signup=1') !== -1 ? 0 : 800;
   setTimeout(function(){
     document.getElementById('regPop').classList.add('show');
-  }, 800);
+  }, delay);
 })();
 </script>
 {% endif %}
