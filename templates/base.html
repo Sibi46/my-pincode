@@ -632,8 +632,8 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
         <i class="fas fa-user"></i><span>Profile</span>
       </a>
     {% else %}
-      <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
-        <i class="fas fa-briefcase"></i><span>Job</span>
+      <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
+        <i class="fas fa-home"></i><span>Home</span>
       </a>
       <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
         <i class="fas fa-heartbeat"></i><span>Health</span>
