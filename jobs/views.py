@@ -1014,8 +1014,7 @@ def phone_login(request):
     user     = User.objects.filter(phone=phone).first()
     if user and user.check_password(password):
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
-        return JsonResponse({'success': True, 'redirect': redirect_url})
+        return JsonResponse({'success': True, 'redirect': '/'})
     return JsonResponse({'success': False, 'error': 'Wrong password. Try again.'})
 
 
@@ -1070,15 +1069,7 @@ def quick_register(request):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
 
-    if job_type == 'post':
-        redirect_url = '/post-job/'
-    elif job_type == 'health':
-        redirect_url = '/health/guide/'
-    elif job_type == 'voucher':
-        redirect_url = '/vouchers/marketplace/'
-    else:
-        redirect_url = '/jobseeker/profile/'
-    return JsonResponse({'success': True, 'redirect': redirect_url})
+    return JsonResponse({'success': True, 'redirect': '/'})
 
 
 # ── SAVE JOB ──────────────────────────────────────────────────────────────────
