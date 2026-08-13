@@ -1,63 +1,84 @@
-﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}Sign In - MY PINCOD{% endblock %}
-{% block extra_css %}<link rel="stylesheet" href="{% static 'css/register.css' %}">{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In – MY PINCOD</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f0f4ff;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px}
+  .card{background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 8px 40px rgba(10,102,194,.12)}
+  .card-head{background:linear-gradient(135deg,#0a66c2,#004182);padding:28px 24px 22px;text-align:center}
+  .card-head img{height:38px;object-fit:contain;margin-bottom:10px}
+  .card-head h2{font-size:20px;font-weight:900;color:#fff;margin-bottom:3px}
+  .card-head p{font-size:13px;color:rgba(255,255,255,.8)}
+  .card-body{padding:24px 24px 28px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px}
+  .field input{width:100%;padding:12px 14px;border:1.5px solid #dbeafe;border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#f8faff;color:#111}
+  .field input:focus{border-color:#0a66c2;background:#fff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}
+  .pwd-wrap{position:relative}
+  .pwd-wrap input{padding-right:42px}
+  .pwd-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9ca3af;font-size:16px;padding:0}
+  .forgot{text-align:right;margin-bottom:20px}
+  .forgot a{font-size:12px;color:#0a66c2;text-decoration:none;font-weight:600}
+  .btn{width:100%;padding:13px;background:#0a66c2;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
+  .btn:active{background:#1d4ed8}
+  .err{background:#fee2e2;color:#991b1b;font-size:13px;font-weight:700;padding:10px 14px;border-radius:10px;margin-bottom:16px}
+</style>
+</head>
+<body>
 
-{% block content %}
-<div class="register-wrapper">
-  <div class="reg-card" style="max-width:440px;margin:40px auto">
-    <div style="text-align:center;margin-bottom:28px">
-      <a href="/"><img src="{% static 'images/logo.png' %}" alt="MY PINCOD" style="height:44px;width:auto;max-width:160px;object-fit:contain;margin-bottom:10px"></a>
-      <h2 style="font-size:26px;font-weight:800;color:#191919">Welcome Back</h2>
-      <p style="color:#666;font-size:14px">Sign in to your MY PINCOD account</p>
-    </div>
+<div class="card">
+  <div class="card-head">
+    <a href="/"><img src="{% static 'images/logo.png' %}" alt="MY PINCOD"></a>
+    <h2>Welcome Back</h2>
+    <p>Sign in to your MY PINCOD account</p>
+  </div>
+  <div class="card-body">
 
     {% if messages %}
-      {% for msg in messages %}
-      <div style="background:#fce4ec;color:#c62828;padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px">
-        <i class="fas fa-exclamation-circle"></i> {{ msg }}
-      </div>
-      {% endfor %}
+    {% for msg in messages %}
+    <div class="err">{{ msg }}</div>
+    {% endfor %}
     {% endif %}
 
     <form method="POST" action="/login/">
       {% csrf_token %}
       {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
-      <div class="form-group full" style="margin-bottom:16px">
-        <label><i class="fas fa-phone"></i> Phone Number or Email</label>
-        <input type="text" name="username" placeholder="Enter phone or email" required autofocus>
+
+      <div class="field">
+        <label>Phone Number</label>
+        <input type="tel" name="username" placeholder="Enter your phone number" required autofocus inputmode="numeric" maxlength="10">
       </div>
-      <div class="form-group full" style="margin-bottom:8px">
-        <label><i class="fas fa-lock"></i> Password</label>
-        <div style="position:relative">
+
+      <div class="field">
+        <label>Password</label>
+        <div class="pwd-wrap">
           <input type="password" name="password" id="pwdField" placeholder="Enter password" required>
-          <span onclick="togglePwd()" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#888">
-            <i class="fas fa-eye" id="eyeIcon"></i>
-          </span>
+          <button type="button" class="pwd-eye" onclick="togglePwd()">👁</button>
         </div>
       </div>
-      <div style="text-align:right;margin-bottom:20px">
-        <a href="/forgot-password/" style="font-size:13px;color:#0a66c2;text-decoration:none">Forgot password?</a>
-      </div>
-      <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-    </form>
 
-    <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid #eee">
-      <p style="font-size:14px;color:#666">New to MY PINCOD?
-        <a href="/register/" style="color:#0a66c2;font-weight:700;text-decoration:none">Join now</a>
-      </p>
-    </div>
+      <div class="forgot">
+        <a href="/forgot-password/">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn">Sign In →</button>
+    </form>
 
   </div>
 </div>
 
 <script>
-function togglePwd() {
-  const f = document.getElementById('pwdField');
-  const i = document.getElementById('eyeIcon');
-  if (f.type === 'password') { f.type = 'text'; i.className = 'fas fa-eye-slash'; }
-  else { f.type = 'password'; i.className = 'fas fa-eye'; }
+function togglePwd(){
+  var f=document.getElementById('pwdField');
+  f.type = f.type==='password' ? 'text' : 'password';
 }
+document.querySelector('input[name="username"]').addEventListener('input',function(){
+  this.value=this.value.replace(/\D/g,'').slice(0,10);
+});
 </script>
-{% endblock %}
-
+</body>
+</html>
