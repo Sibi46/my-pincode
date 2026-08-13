@@ -322,7 +322,6 @@ a{text-decoration:none;color:inherit}
       <span style="margin-left:auto;font-size:18px;opacity:.7">&#8250;</span>
     </a>
 
-    {% if not request.user.is_authenticated %}
     <div class="mp-split-card">
 
       <!-- Left: Looking for -->
@@ -331,11 +330,11 @@ a{text-decoration:none;color:inherit}
         <a class="mp-opt find" href="/jobs/" style="text-decoration:none">
           <i class="fas fa-search"></i><span>Find a Job</span>
         </a>
-        <a class="mp-opt health" href="/health/" style="text-decoration:none">
-          <i class="fas fa-heartbeat"></i><span>Health</span>
+        <a class="mp-opt health" href="/health/guide/" style="text-decoration:none">
+          <i class="fas fa-heartbeat"></i><span>Health Guide</span>
         </a>
         <a class="mp-opt voucher" href="/vouchers/marketplace/" style="text-decoration:none">
-          <i class="fas fa-gift"></i><span>Buy Gift Voucher</span>
+          <i class="fas fa-gift"></i><span>Get Vouchers</span>
         </a>
       </div>
 
@@ -352,11 +351,12 @@ a{text-decoration:none;color:inherit}
           <i class="fas fa-bullhorn"></i><span>Promote Business</span>
         </a>
         <a class="mp-opt voucher-post" href="/vouchers/marketplace/" style="text-decoration:none">
-          <i class="fas fa-tag"></i><span>Post a Gift Voucher</span>
+          <i class="fas fa-tag"></i><span>Post a Voucher</span>
         </a>
       </div>
 
     </div>
+    {% if not request.user.is_authenticated %}
     <div class="mp-or"><span>or</span></div>
     <a href="/login/" class="mp-signin">Already have an account? <strong>Sign In</strong></a>
     {% endif %}
