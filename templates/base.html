@@ -80,7 +80,6 @@
 
             {% else %}
                 <a href="/login/?next={{ request.path }}" class="btn-signin">Sign In</a>
-                <a href="/register/" class="btn-join">Join Now</a>
             {% endif %}
 
             {% else %}
@@ -141,7 +140,6 @@
                 <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
                 <a href="/login/?next=/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 <a href="/login/" class="btn-signin">Sign In</a>
-                <a href="/register/" class="btn-join">Join Now</a>
             {% endif %}
             {% endif %}
         </div>
@@ -183,7 +181,6 @@
             <a href="/logout/">Logout</a>
         {% else %}
             <a href="/login/">Sign In</a>
-            <a href="/register/">Join Now</a>
             <a href="/advertise/">Advertise</a>
         {% endif %}
     </div>
