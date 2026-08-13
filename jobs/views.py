@@ -1305,6 +1305,9 @@ def advertiser_register(request):
     """Only registered employer accounts can apply to advertise."""
     user = request.user
 
+    if not user.is_authenticated:
+        return redirect(f'/login/?next=/advertise/register/')
+
     # Block non-employer users
     if not user.is_employer():
         messages.error(request, 'Only registered business accounts (Company, Shop, Factory, etc.) can post advertisements. Please register as an employer first.')
