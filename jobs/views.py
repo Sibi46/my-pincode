@@ -1301,8 +1301,8 @@ def advertiser_register(request):
 
     # Block non-employer users
     if not user.is_employer():
-        messages.error(request, 'Only registered business accounts (Company, Shop, Factory, etc.) can post advertisements. Please register as an employer first.')
-        return redirect('register')
+        messages.error(request, 'Only registered business accounts (Company, Shop, Factory, etc.) can post advertisements. Please register as a business first.')
+        return redirect('/register/?type=company')
 
     # Already has an advertiser profile
     if hasattr(user, 'advertiser'):
