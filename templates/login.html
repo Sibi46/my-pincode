@@ -62,15 +62,17 @@ function togglePwd() {
   else { f.type = 'password'; i.className = 'fas fa-eye'; }
 }
 // Intercept bottom nav clicks on protected items
-document.querySelectorAll('.bn-item').forEach(function(a){
-  var href = a.getAttribute('href') || '';
-  if(href === '/' || href === '/login/' || href.startsWith('/login')) return;
-  a.addEventListener('click', function(e){
-    e.preventDefault();
-    var t = document.getElementById('signinToast');
-    t.style.display = 'block';
-    clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(function(){ t.style.display='none'; }, 2500);
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('.bn-item').forEach(function(a){
+    var href = a.getAttribute('href') || '';
+    if(href === '/' || href === '/login/' || href.startsWith('/login')) return;
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      var t = document.getElementById('signinToast');
+      t.style.display = 'block';
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function(){ t.style.display='none'; }, 2500);
+    });
   });
 });
 </script>
