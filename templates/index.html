@@ -1174,6 +1174,179 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
 })();
 </script>
 
+{% if not request.user.is_authenticated %}
+<style>
+#regPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center;padding:16px}
+#regPop.show{display:flex}
+.rp-box{background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:rpIn .22s ease}
+@keyframes rpIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.rp-head{background:linear-gradient(135deg,#0a66c2,#004182);padding:22px 20px 18px;text-align:center;color:#fff}
+.rp-head img{height:34px;object-fit:contain;margin-bottom:8px}
+.rp-head p{font-size:12px;opacity:.85;margin:0}
+.rp-body{padding:18px 20px 20px}
+.rp-field{margin-bottom:13px}
+.rp-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+.rp-input{width:100%;padding:11px 13px;border:1.5px solid #dbeafe;border-radius:11px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#111}
+.rp-input:focus{border-color:#0a66c2;background:#fff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}
+.rp-otp-row{display:flex;gap:8px}
+.rp-otp-row .rp-input{flex:1}
+.rp-otp-btn{padding:11px 14px;background:#0a66c2;color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.rp-otp-btn:disabled{background:#93c5fd;cursor:default}
+.rp-submit{width:100%;padding:13px;background:#0a66c2;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px}
+.rp-submit:active{background:#1d4ed8}
+.rp-err{background:#fee2e2;color:#991b1b;font-size:12px;font-weight:700;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
+.rp-footer{text-align:center;margin-top:14px;font-size:13px;color:#6b7280}
+.rp-footer a{color:#0a66c2;font-weight:700;text-decoration:none}
+.rp-timer{font-size:11px;color:#9ca3af;margin-top:4px;min-height:14px}
+</style>
+
+<div id="regPop">
+  <div class="rp-box">
+    <div class="rp-head">
+      <img src="/static/images/logo.png" alt="MY PINCOD">
+      <p>India's first local community portal</p>
+    </div>
+    <div class="rp-body">
+      <div class="rp-err" id="rpErr"></div>
+
+      <div class="rp-field">
+        <label class="rp-label">Full Name *</label>
+        <input class="rp-input" type="text" id="rpName" placeholder="Enter your name" autocomplete="name">
+      </div>
+      <div class="rp-field">
+        <label class="rp-label">Pincode *</label>
+        <input class="rp-input" type="text" id="rpPin" placeholder="6-digit pincode" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="rp-field">
+        <label class="rp-label">Mobile Number *</label>
+        <div class="rp-otp-row">
+          <input class="rp-input" type="tel" id="rpPhone" placeholder="10-digit mobile" maxlength="10" inputmode="numeric">
+          <button class="rp-otp-btn" id="rpSendBtn" onclick="rpSendOTP()">Send OTP</button>
+        </div>
+        <div class="rp-timer" id="rpTimer"></div>
+      </div>
+      <div class="rp-field" id="rpOtpField" style="display:none">
+        <label class="rp-label">OTP *</label>
+        <input class="rp-input" type="text" id="rpOtp" placeholder="Enter 6-digit OTP" maxlength="6" inputmode="numeric">
+      </div>
+      <div class="rp-field" id="rpPwdField" style="display:none">
+        <label class="rp-label">Set Password * <span style="font-weight:400;color:#9ca3af">(min 6 characters)</span></label>
+        <input class="rp-input" type="password" id="rpPwd" placeholder="Create a password">
+      </div>
+
+      <button class="rp-submit" onclick="rpSubmit()">Create Account →</button>
+
+      <div class="rp-footer">
+        Already have an account? <a href="/login/">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var timerInt = null;
+
+  function getCsrf(){
+    var c = document.cookie.match(/csrftoken=([^;]+)/);
+    return c ? c[1] : '';
+  }
+  function showErr(msg){
+    var el = document.getElementById('rpErr');
+    el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+  }
+  function startTimer(secs){
+    clearInterval(timerInt);
+    var el = document.getElementById('rpTimer');
+    var btn = document.getElementById('rpSendBtn');
+    btn.disabled = true;
+    timerInt = setInterval(function(){
+      el.textContent = 'Resend in ' + secs + 's';
+      secs--;
+      if(secs < 0){
+        clearInterval(timerInt);
+        el.textContent = '';
+        btn.disabled = false;
+        btn.textContent = 'Resend OTP';
+      }
+    }, 1000);
+  }
+
+  window.rpSendOTP = function(){
+    showErr('');
+    var phone = document.getElementById('rpPhone').value.trim();
+    if(phone.length !== 10){ showErr('Enter a valid 10-digit mobile number.'); return; }
+    var btn = document.getElementById('rpSendBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    fetch('/api/send-otp/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+      body: JSON.stringify({phone: phone})
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d.success){
+        document.getElementById('rpOtpField').style.display = 'block';
+        document.getElementById('rpPwdField').style.display = 'block';
+        document.getElementById('rpOtp').focus();
+        startTimer(60);
+      } else if(d.already_registered){
+        showErr('');
+        document.getElementById('regPop').classList.remove('show');
+        window.location.href = '/login/';
+      } else {
+        showErr(d.error || 'Failed to send OTP. Try again.');
+        btn.disabled = false; btn.textContent = 'Send OTP';
+      }
+    }).catch(function(){ showErr('Network error. Try again.'); btn.disabled = false; btn.textContent = 'Send OTP'; });
+  };
+
+  window.rpSubmit = function(){
+    showErr('');
+    var name  = document.getElementById('rpName').value.trim();
+    var pin   = document.getElementById('rpPin').value.trim();
+    var phone = document.getElementById('rpPhone').value.trim();
+    var otp   = document.getElementById('rpOtp').value.trim();
+    var pwd   = document.getElementById('rpPwd').value.trim();
+    if(!name){ showErr('Please enter your name.'); return; }
+    if(pin.length !== 6){ showErr('Enter a valid 6-digit pincode.'); return; }
+    if(phone.length !== 10){ showErr('Enter a valid 10-digit mobile number.'); return; }
+    if(!otp){ showErr('Please enter the OTP sent to your mobile.'); return; }
+    if(pwd.length < 6){ showErr('Password must be at least 6 characters.'); return; }
+    // Step 1: verify OTP
+    fetch('/api/verify-otp/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+      body: JSON.stringify({otp: otp})
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(!d.success){ showErr(d.error || 'Wrong OTP. Please try again.'); return; }
+      // Step 2: register
+      fetch('/api/quick-register/', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+        body: JSON.stringify({name: name, phone: phone, pincode: pin, password: pwd})
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if(d.success){
+          document.getElementById('regPop').classList.remove('show');
+          window.location.href = d.redirect || '/dashboard/';
+        } else {
+          showErr(d.error || 'Registration failed. Try again.');
+        }
+      }).catch(function(){ showErr('Network error. Try again.'); });
+    }).catch(function(){ showErr('Network error. Try again.'); });
+  };
+
+  document.getElementById('rpPhone').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,10); });
+  document.getElementById('rpPin').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,6); });
+  document.getElementById('rpOtp').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,6); });
+  document.getElementById('rpOtp').addEventListener('keydown', function(e){ if(e.key==='Enter') rpSubmit(); });
+
+  // Show popup on page load
+  setTimeout(function(){
+    document.getElementById('regPop').classList.add('show');
+  }, 800);
+})();
+</script>
+{% endif %}
+
 <script>
 window.addEventListener('pageshow', function(e){
   if(e.persisted){
