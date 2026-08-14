@@ -129,7 +129,6 @@ class SchoolPost(models.Model):
         ('annual_day',   '🎭 Annual Day'),
         ('sports_day',   '⚽ Sports Day'),
         ('science_fair', '🔬 Science Fair'),
-        ('admission',    '📋 Admissions'),
         ('achievement',  '🏆 Achievement'),
         ('event',        '📅 Event'),
         ('announcement', '📢 Announcement'),
