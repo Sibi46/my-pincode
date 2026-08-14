@@ -3,43 +3,44 @@
 {% block content %}
 <style>
   nav.navbar{display:none!important}
-  body{background:#f0f9ff}
-  #trTop{position:sticky;top:0;z-index:200;background:#0a66c2;padding:10px 16px;display:flex;align-items:center;gap:10px}
-  #trTop a.back{color:rgba(255,255,255,.75);text-decoration:none;font-size:20px}
-  #trTop h2{font-size:15px;font-weight:900;color:#fff;margin:0}
+  *{box-sizing:border-box}
+  body{background:#f0f9ff;font-family:'Inter','Segoe UI',sans-serif}
+  #trTop{position:sticky;top:0;z-index:200;background:#0a66c2;padding:12px 16px;display:flex;align-items:center;gap:10px}
+  #trTop a.back{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-size:18px;flex-shrink:0}
+  #trTop h2{font-size:16px;font-weight:800;color:#fff;margin:0}
 
-  .tr-wrap{padding:0 0 80px;max-width:520px;margin:0 auto}
+  .tr-wrap{padding:0 0 60px;max-width:480px;margin:0 auto}
 
-  /* hero */
-  .tr-hero{background:linear-gradient(135deg,#0a66c2,#2563eb);padding:24px 20px 28px;text-align:center;color:#fff}
-  .tr-hero-icon{font-size:3rem;display:block;margin-bottom:8px}
+  .tr-hero{background:linear-gradient(135deg,#0a66c2,#2563eb);padding:28px 20px 32px;text-align:center;color:#fff}
+  .tr-hero-icon{font-size:3rem;display:block;margin-bottom:10px}
   .tr-hero-title{font-size:20px;font-weight:900;margin-bottom:4px}
-  .tr-hero-sub{font-size:13px;opacity:.85}
+  .tr-hero-sub{font-size:13px;opacity:.8}
 
-  /* card */
-  .tr-card{background:#fff;border-radius:20px;margin:12px 14px 0;box-shadow:0 4px 20px rgba(10,102,194,.1);overflow:hidden}
-  .tr-card-head{padding:16px 18px 4px;font-size:12px;font-weight:900;color:#0a66c2;text-transform:uppercase;letter-spacing:.06em}
-
-  /* fields */
-  .tr-field{padding:10px 18px}
-  .tr-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
-  .tr-input{width:100%;padding:12px 14px;border:1.5px solid #dbeafe;border-radius:12px;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#111}
+  .tr-card{background:#fff;border-radius:20px;margin:16px 14px 0;box-shadow:0 4px 20px rgba(10,102,194,.1);overflow:hidden}
+  .tr-card-head{padding:14px 18px 0;font-size:11px;font-weight:800;color:#0a66c2;text-transform:uppercase;letter-spacing:.07em}
+  .tr-field{padding:12px 18px}
+  .tr-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px}
+  .tr-input{width:100%;padding:12px 14px;border:1.5px solid #dbeafe;border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:#f8faff;color:#111;transition:all .2s}
   .tr-input:focus{border-color:#0a66c2;background:#fff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}
   select.tr-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-
-  .tr-divider{height:1px;background:#f0f7ff;margin:4px 0}
-  .tr-error{background:#fee2e2;color:#991b1b;font-size:13px;font-weight:700;padding:12px 16px;margin:0 18px 10px;border-radius:10px}
-
-  .tr-submit{width:calc(100% - 36px);margin:14px 18px 18px;display:block;padding:14px;background:#0a66c2;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit}
-  .tr-submit:active{background:#1d4ed8}
-
-  .tr-login-link{text-align:center;padding:10px;font-size:13px;color:#6b7280}
+  .tr-divider{height:1px;background:#f0f7ff;margin:2px 0}
+  .tr-error{background:#fee2e2;color:#991b1b;font-size:13px;font-weight:700;padding:12px 16px;margin:12px 18px 0;border-radius:10px}
+  .tr-submit{width:calc(100% - 28px);margin:16px 14px 0;display:block;padding:15px;background:#0a66c2;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(10,102,194,.3)}
+  .tr-login-link{text-align:center;padding:14px;font-size:13px;color:#6b7280}
   .tr-login-link a{color:#0a66c2;font-weight:700;text-decoration:none}
 
-  /* info box */
-  .tr-info{margin:12px 14px 0;background:#eff6ff;border-radius:14px;padding:14px 16px;border:1.5px solid #dbeafe}
-  .tr-info-title{font-size:12px;font-weight:900;color:#1d4ed8;margin-bottom:8px}
-  .tr-info-item{font-size:12px;color:#374151;margin-bottom:4px;display:flex;gap:8px}
+  /* SUCCESS CARD */
+  .tr-success{background:#fff;border-radius:20px;margin:20px 14px 0;box-shadow:0 4px 20px rgba(10,102,194,.1);overflow:hidden;text-align:center;padding:30px 20px}
+  .tr-success-icon{font-size:3.5rem;display:block;margin-bottom:14px}
+  .tr-success-title{font-size:18px;font-weight:900;color:#111;margin-bottom:6px}
+  .tr-success-sub{font-size:13px;color:#6b7280;margin-bottom:20px}
+  .tr-cred-box{background:#f0f9ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:16px;margin-bottom:20px;text-align:left}
+  .tr-cred-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #dbeafe}
+  .tr-cred-row:last-child{border:none}
+  .tr-cred-label{font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.04em}
+  .tr-cred-value{font-size:15px;font-weight:800;color:#1d4ed8}
+  .tr-cred-note{font-size:11px;color:#ef4444;font-weight:600;margin-top:10px;text-align:center}
+  .tr-go-btn{display:block;padding:14px;background:#0a66c2;color:#fff;border-radius:14px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 14px rgba(10,102,194,.3)}
 </style>
 
 <div id="trTop">
@@ -48,28 +49,42 @@
 </div>
 
 <div class="tr-wrap">
-
-  <!-- Hero -->
   <div class="tr-hero">
     <span class="tr-hero-icon">🎓</span>
     <div class="tr-hero-title">Teacher Login Setup</div>
     <div class="tr-hero-sub">Register to post school activity updates</div>
   </div>
 
-  <!-- Info -->
-  <div class="tr-info">
-    <div class="tr-info-title">ℹ️ How it works</div>
-    <div class="tr-info-item"><span>1️⃣</span><span>Fill your details and select your school</span></div>
-    <div class="tr-info-item"><span>2️⃣</span><span>Set a password for your login</span></div>
-    <div class="tr-info-item"><span>3️⃣</span><span>Login with your phone number + password</span></div>
-    <div class="tr-info-item"><span>4️⃣</span><span>Post activity updates for your school</span></div>
+  {% if generated %}
+  <!-- SUCCESS — show generated credentials -->
+  <div class="tr-success">
+    <span class="tr-success-icon">✅</span>
+    <div class="tr-success-title">Registration Successful!</div>
+    <div class="tr-success-sub">Welcome, {{ generated.name }}! Your login details are below.</div>
+    <div class="tr-cred-box">
+      <div class="tr-cred-row">
+        <span class="tr-cred-label">School</span>
+        <span class="tr-cred-value">{{ generated.school.name }}</span>
+      </div>
+      <div class="tr-cred-row">
+        <span class="tr-cred-label">Phone</span>
+        <span class="tr-cred-value">{{ generated.phone }}</span>
+      </div>
+      <div class="tr-cred-row">
+        <span class="tr-cred-label">Password</span>
+        <span class="tr-cred-value">{{ generated.password }}</span>
+      </div>
+      <div class="tr-cred-note">⚠️ Note down your password — it won't be shown again</div>
+    </div>
+    <a href="/community/school-corner/teacher/login/" class="tr-go-btn">Go to Login →</a>
   </div>
 
-  <!-- Form -->
+  {% else %}
+  <!-- REGISTRATION FORM -->
   <form method="post">
   {% csrf_token %}
   <div class="tr-card">
-    <div class="tr-card-head">Personal Details</div>
+    <div class="tr-card-head">Your Details</div>
 
     {% if error %}
     <div class="tr-error">⚠️ {{ error }}</div>
@@ -81,12 +96,12 @@
     </div>
     <div class="tr-divider"></div>
     <div class="tr-field">
-      <label class="tr-label">Phone Number * <span style="color:#6b7280;font-weight:500">(used as your login ID)</span></label>
-      <input class="tr-input" type="tel" name="phone" placeholder="e.g. 9876543210" required>
+      <label class="tr-label">Phone Number * <span style="color:#94a3b8;font-weight:500">(used as login ID)</span></label>
+      <input class="tr-input" type="tel" name="phone" placeholder="10-digit mobile number" required>
     </div>
     <div class="tr-divider"></div>
     <div class="tr-field">
-      <label class="tr-label">School *</label>
+      <label class="tr-label">Select School *</label>
       <select class="tr-input" name="school_id" required>
         <option value="">— Select your school —</option>
         {% for school in schools %}
@@ -94,24 +109,15 @@
         {% endfor %}
       </select>
     </div>
-    <div class="tr-divider"></div>
-    <div class="tr-field">
-      <label class="tr-label">Password *</label>
-      <input class="tr-input" type="password" name="password" placeholder="Set a strong password" required>
-    </div>
-    <div class="tr-divider"></div>
-    <div class="tr-field">
-      <label class="tr-label">Confirm Password *</label>
-      <input class="tr-input" type="password" name="confirm_password" placeholder="Re-enter password" required>
-    </div>
   </div>
 
-  <button type="submit" class="tr-submit">Register & Login</button>
+  <button type="submit" class="tr-submit">Register — Get Password</button>
   </form>
 
   <div class="tr-login-link">
     Already registered? <a href="/community/school-corner/teacher/login/">Login here</a>
   </div>
+  {% endif %}
 
 </div>
 {% endblock %}
