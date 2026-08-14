@@ -1,0 +1,28 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Opportunities – Campus Admin{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/admin/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Admin</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Opportunities</div>
+  {% if opportunities %}
+  <div class="cp-card">
+    {% for opp in opportunities %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon">💼</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ opp.title }}</div>
+        <div class="cp-list-sub">{{ opp.company.company_name }} · {{ opp.openings }} openings</div>
+      </div>
+      <span class="cp-badge {% if opp.status == 'published' %}cp-badge-published{% elif opp.status == 'draft' %}cp-badge-draft{% else %}cp-badge-closed{% endif %}">{{ opp.status }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px;color:#94A3B8">No opportunities found.</div>
+  {% endif %}
+</div>
+{% endblock %}

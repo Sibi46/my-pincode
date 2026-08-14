@@ -1,0 +1,27 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Share Opportunity – HOD{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/hod/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">HOD</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Notify Students</div>
+  <div class="cp-card" style="margin-bottom:16px">
+    <div style="padding:16px">
+      <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opp.title }}</div>
+      <div style="font-size:12px;color:#64748B">{{ opp.company.company_name }}</div>
+    </div>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Note to Students</label><textarea name="note" class="cp-input" placeholder="Instructions or context..."></textarea></div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Notify Students</button>
+  </form>
+</div>
+{% endblock %}

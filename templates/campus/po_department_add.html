@@ -1,0 +1,34 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Add Department – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/po/departments/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">PO</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Add Department</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Department Name *</label><input name="name" class="cp-input" required placeholder="e.g. Computer Science"></div>
+          <div class="cp-field"><label class="cp-label">Code *</label><input name="code" class="cp-input" required placeholder="e.g. CSE"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Courses Offered</label><input name="courses" class="cp-input" placeholder="e.g. B.E CSE, M.E CSE"></div>
+        <div class="cp-field"><label class="cp-label">Year Structure</label>
+          <select name="year_structure" class="cp-input">
+            <option value="4">4 Year</option>
+            <option value="3">3 Year (Diploma/Polytechnic)</option>
+            <option value="5">5 Year</option>
+            <option value="2">2 Year (PG)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Add Department</button>
+  </form>
+</div>
+{% endblock %}

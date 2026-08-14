@@ -1,0 +1,38 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}My Applications – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/student/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Student</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">My Applications</div>
+
+  {% if applications %}
+  {% for app in applications %}
+  <a href="/campus/application/{{ app.pk }}/" style="text-decoration:none">
+    <div class="cp-card" style="margin-bottom:10px">
+      <div style="padding:16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="flex:1">
+            <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:3px">{{ app.opportunity.get_opp_type_display }}</div>
+            <div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ app.opportunity.title }}</div>
+            <div style="font-size:12px;color:#64748B;margin-bottom:8px">{{ app.opportunity.company.company_name }}</div>
+            <div style="font-size:11px;color:#94A3B8">Applied {{ app.applied_at|date:"d M Y" }}</div>
+          </div>
+          <span class="cp-badge {% if app.status == 'selected' %}cp-badge-selected{% elif app.status == 'rejected' %}cp-badge-rejected{% elif app.status == 'shortlisted' %}cp-badge-shortlisted{% elif app.status == 'interview' %}cp-badge-interview{% else %}cp-badge-applied{% endif %}">{{ app.get_status_display }}</span>
+        </div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:#94A3B8">
+    <div style="font-size:3rem;margin-bottom:10px">📋</div>
+    <div style="font-size:14px;font-weight:600">No applications yet</div>
+    <a href="/campus/student/opportunities/" class="cp-btn cp-btn-primary" style="margin-top:16px;display:inline-flex">Browse Opportunities</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

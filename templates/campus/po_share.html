@@ -1,0 +1,45 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Share Opportunity – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/po/opportunities/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">PO</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Share Opportunity</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+
+  <!-- Opportunity summary -->
+  <div class="cp-card" style="margin-bottom:16px">
+    <div style="padding:16px">
+      <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ opportunity.get_opp_type_display }}</div>
+      <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opportunity.title }}</div>
+      <div style="font-size:12px;color:#64748B">{{ opportunity.company.company_name }}</div>
+      {% if opportunity.description %}
+      <div style="font-size:12px;color:#475569;margin-top:10px;line-height:1.6">{{ opportunity.description|truncatechars:200 }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field">
+          <label class="cp-label">Share with Department (optional — leave blank for all)</label>
+          <select name="department" class="cp-input">
+            <option value="">All Departments</option>
+            {% for d in departments %}<option value="{{ d.pk }}">{{ d.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Note to Students (optional)</label>
+          <textarea name="note" class="cp-input" placeholder="Any instructions or context for students..."></textarea>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Share with Students</button>
+  </form>
+</div>
+{% endblock %}

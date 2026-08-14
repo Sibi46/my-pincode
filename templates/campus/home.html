@@ -1,0 +1,123 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Campus Career Program – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+.cp-hero{background:linear-gradient(145deg,#3730A3 0%,#4F46E5 50%,#7C3AED 100%);padding:36px 20px 56px;position:relative;overflow:hidden}
+.cp-hero-orb1{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);top:-80px;right:-60px;pointer-events:none}
+.cp-hero-orb2{position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%);bottom:-50px;left:-30px;pointer-events:none}
+.cp-hero-inner{position:relative;z-index:1;max-width:640px;margin:0 auto}
+.cp-hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9);margin-bottom:16px}
+.cp-hero-h{font-size:28px;font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.03em;margin-bottom:8px}
+.cp-hero-sub{font-size:14px;color:rgba(255,255,255,.75);line-height:1.6;margin-bottom:24px}
+.cp-hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.cp-hero-btn{padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;transition:all .2s}
+.cp-hero-btn-white{background:#fff;color:#4F46E5;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.cp-hero-btn-outline{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.cp-hero-btn-outline:hover{background:rgba(255,255,255,.2)}
+
+.cp-floatstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:640px;margin:-32px auto 0;padding:0 16px;position:relative;z-index:10}
+.cp-floatstat{background:#fff;border-radius:16px;padding:14px 8px;text-align:center;box-shadow:0 4px 20px rgba(79,70,229,.12);border:1px solid rgba(79,70,229,.06)}
+.cp-floatstat-n{font-size:22px;font-weight:800;color:#4F46E5;line-height:1}
+.cp-floatstat-l{font-size:9px;font-weight:600;color:#94A3B8;margin-top:4px;text-transform:uppercase}
+
+.cp-role-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.cp-role-card{background:#fff;border-radius:20px;border:1px solid #E0E7FF;padding:20px;text-decoration:none;transition:all .2s;display:block}
+.cp-role-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(79,70,229,.12);border-color:#A5B4FC}
+.cp-role-icon{font-size:2rem;display:block;margin-bottom:10px}
+.cp-role-title{font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px}
+.cp-role-desc{font-size:11px;color:#94A3B8;line-height:1.5}
+
+.cp-opp-card{background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:10px;text-decoration:none;display:block;transition:all .2s}
+.cp-opp-card:hover{border-color:#A5B4FC;box-shadow:0 4px 16px rgba(79,70,229,.08)}
+.cp-opp-type{font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.cp-opp-title{font-size:14px;font-weight:700;color:#0F172A;margin-bottom:4px}
+.cp-opp-company{font-size:12px;color:#64748B}
+.cp-opp-meta{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.cp-opp-tag{font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px}
+</style>
+
+<!-- TOP BAR -->
+<div class="cp-topbar">
+  <a href="/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  {% if request.user.is_authenticated %}
+    {% if role == 'po' %}<a href="/campus/po/dashboard/" class="cp-topbar-badge">PO Dashboard</a>
+    {% elif role == 'hod' %}<a href="/campus/hod/dashboard/" class="cp-topbar-badge">HOD Dashboard</a>
+    {% elif role == 'student' %}<a href="/campus/student/dashboard/" class="cp-topbar-badge">My Dashboard</a>
+    {% elif role == 'company' %}<a href="/campus/company/dashboard/" class="cp-topbar-badge">Company</a>
+    {% endif %}
+  {% endif %}
+</div>
+
+<!-- HERO -->
+<div class="cp-hero">
+  <div class="cp-hero-orb1"></div>
+  <div class="cp-hero-orb2"></div>
+  <div class="cp-hero-inner">
+    <div class="cp-hero-badge">🎓 College Career Program</div>
+    <div class="cp-hero-h">Local Opportunity.<br>College. Student. Career.</div>
+    <div class="cp-hero-sub">Connecting companies with nearby colleges for jobs, internships and practical learning — powered by pincode.</div>
+    <div class="cp-hero-btns">
+      <a href="/campus/company/register/" class="cp-hero-btn cp-hero-btn-white">Post Opportunities</a>
+      <a href="/campus/institution/register/" class="cp-hero-btn cp-hero-btn-outline">Register College</a>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING STATS -->
+<div class="cp-floatstats">
+  <div class="cp-floatstat"><div class="cp-floatstat-n">{{ total_institutions }}</div><div class="cp-floatstat-l">Colleges</div></div>
+  <div class="cp-floatstat"><div class="cp-floatstat-n">{{ total_companies }}</div><div class="cp-floatstat-l">Companies</div></div>
+  <div class="cp-floatstat"><div class="cp-floatstat-n">{{ total_opportunities }}</div><div class="cp-floatstat-l">Openings</div></div>
+  <div class="cp-floatstat"><div class="cp-floatstat-n">{{ total_applications }}</div><div class="cp-floatstat-l">Applied</div></div>
+</div>
+
+<div class="cp-body" style="margin-top:20px">
+
+{% if not request.user.is_authenticated %}
+<!-- ROLE CARDS -->
+<div class="cp-sec">Get Started</div>
+<div class="cp-role-cards">
+  <a href="/campus/company/register/" class="cp-role-card">
+    <span class="cp-role-icon">🏢</span>
+    <div class="cp-role-title">I'm a Company</div>
+    <div class="cp-role-desc">Post jobs & internships. Connect with nearby colleges.</div>
+  </a>
+  <a href="/campus/institution/register/" class="cp-role-card">
+    <span class="cp-role-icon">🏫</span>
+    <div class="cp-role-title">I'm a College</div>
+    <div class="cp-role-desc">Register institution. Manage departments & students.</div>
+  </a>
+  <a href="/campus/student/register/" class="cp-role-card">
+    <span class="cp-role-icon">👨‍🎓</span>
+    <div class="cp-role-title">I'm a Student</div>
+    <div class="cp-role-desc">Find opportunities. Apply. Track your career.</div>
+  </a>
+  <a href="/login/" class="cp-role-card">
+    <span class="cp-role-icon">🔑</span>
+    <div class="cp-role-title">Sign In</div>
+    <div class="cp-role-desc">Already registered? Access your dashboard.</div>
+  </a>
+</div>
+{% endif %}
+
+<!-- RECENT OPPORTUNITIES -->
+{% if recent_opportunities %}
+<div class="cp-sec">Latest Opportunities</div>
+{% for opp in recent_opportunities %}
+<a href="/campus/student/opportunities/{{ opp.pk }}/" class="cp-opp-card">
+  <div class="cp-opp-type">{{ opp.get_opp_type_display }}</div>
+  <div class="cp-opp-title">{{ opp.title }}</div>
+  <div class="cp-opp-company">{{ opp.company.company_name }}</div>
+  <div class="cp-opp-meta">
+    {% if opp.location %}<span class="cp-opp-tag">📍 {{ opp.location }}</span>{% endif %}
+    {% if opp.salary %}<span class="cp-opp-tag">💰 {{ opp.salary }}</span>{% endif %}
+    <span class="cp-opp-tag">{{ opp.openings }} opening{{ opp.openings|pluralize }}</span>
+    <span class="cp-opp-tag">{{ opp.get_work_mode_display }}</span>
+  </div>
+</a>
+{% endfor %}
+{% endif %}
+
+</div>
+{% endblock %}

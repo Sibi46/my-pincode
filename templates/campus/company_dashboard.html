@@ -1,0 +1,62 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Company Dashboard – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Company</span>
+</div>
+<div class="cp-body">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div style="font-size:18px;font-weight:800;color:#0F172A">{{ company.company_name }}</div>
+      <div style="font-size:12px;color:#64748B">{{ company.industry }}</div>
+    </div>
+    <span class="cp-badge {% if company.status == 'verified' %}cp-badge-verified{% elif company.status == 'pending' %}cp-badge-pending{% else %}cp-badge-rejected{% endif %}">{{ company.status }}</span>
+  </div>
+
+  {% if company.status == 'pending' %}
+  <div style="background:#FEF3C7;border-radius:12px;padding:12px 16px;font-size:12px;font-weight:600;color:#92400E;margin-bottom:16px">
+    ⏳ Account pending admin approval. You can draft opportunities but cannot publish yet.
+  </div>
+  {% endif %}
+
+  <div class="cp-stats">
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.opportunities }}</div><div class="cp-stat-l">Opportunities</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.applications }}</div><div class="cp-stat-l">Applied</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.selected }}</div><div class="cp-stat-l">Selected</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+    <a href="/campus/company/opportunity/post/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center;border:2px solid #4F46E5">
+      <div style="font-size:2rem;margin-bottom:6px">➕</div>
+      <div style="font-size:13px;font-weight:700;color:#4F46E5">Post Opportunity</div>
+    </a>
+    <a href="/campus/company/applications/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">📋</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A">Applications</div>
+    </a>
+  </div>
+
+  <!-- Opportunities list -->
+  {% if opportunities %}
+  <div class="cp-sec">My Opportunities</div>
+  <div class="cp-card">
+    {% for opp in opportunities %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon">💼</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ opp.title }}</div>
+        <div class="cp-list-sub">{{ opp.openings }} openings · {{ opp.applications_count }} applied</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="cp-badge {% if opp.status == 'published' %}cp-badge-published{% elif opp.status == 'draft' %}cp-badge-draft{% else %}cp-badge-closed{% endif %}">{{ opp.status }}</span>
+        <a href="/campus/company/opportunity/{{ opp.pk }}/edit/" style="font-size:11px;color:#6366F1;font-weight:600">Edit</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

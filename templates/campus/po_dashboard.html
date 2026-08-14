@@ -1,0 +1,83 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}PO Dashboard – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">PO</span>
+</div>
+<div class="cp-body">
+
+  <div style="margin-bottom:16px">
+    <div style="font-size:18px;font-weight:800;color:#0F172A">{{ po.institution.name }}</div>
+    <div style="font-size:12px;color:#64748B">Placement Officer · {{ po.institution.city }}</div>
+    {% if po.institution.status != 'verified' %}
+    <div style="background:#FEF3C7;border-radius:10px;padding:10px 14px;margin-top:10px;font-size:12px;font-weight:600;color:#92400E">
+      ⏳ Institution verification pending. Some features may be limited.
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- STATS -->
+  <div class="cp-stats">
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.departments }}</div><div class="cp-stat-l">Depts</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.students }}</div><div class="cp-stat-l">Students</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.new_opps }}</div><div class="cp-stat-l">New Opps</div></div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="cp-sec">Quick Actions</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+    <a href="/campus/po/departments/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">🏛️</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A">Departments</div>
+    </a>
+    <a href="/campus/po/students/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">👨‍🎓</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A">Students</div>
+    </a>
+    <a href="/campus/po/opportunities/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">💼</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A">Opportunities</div>
+    </a>
+    <a href="/campus/po/applications/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:2rem;margin-bottom:6px">📋</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A">Applications</div>
+    </a>
+  </div>
+
+  <!-- RECENT OPPORTUNITIES SHARED -->
+  {% if shared_opps %}
+  <div class="cp-sec">Recently Shared Opportunities</div>
+  <div class="cp-card">
+    {% for share in shared_opps %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon">💼</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ share.opportunity.title }}</div>
+        <div class="cp-list-sub">{{ share.opportunity.company.company_name }} · {{ share.shared_at|date:"d M" }}</div>
+      </div>
+      <span class="cp-badge cp-badge-published">Shared</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- NOTIFICATIONS -->
+  {% if notifs %}
+  <div class="cp-sec">Notifications</div>
+  <div class="cp-card">
+    {% for n in notifs %}
+    <div class="cp-list-row" style="{% if not n.is_read %}background:#FAFBFF{% endif %}">
+      <div class="cp-list-icon">🔔</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ n.title }}</div>
+        <div class="cp-list-sub">{{ n.message|truncatechars:60 }} · {{ n.created_at|timesince }} ago</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

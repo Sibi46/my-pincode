@@ -1,0 +1,46 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Opportunities – Campus PO{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/po/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">PO</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Available Opportunities</div>
+  <p style="font-size:12px;color:#64748B;margin-bottom:16px">Opportunities shared by companies matching your institution's pincode.</p>
+
+  {% if opportunities %}
+  {% for opp in opportunities %}
+  <div class="cp-card" style="margin-bottom:12px">
+    <div style="padding:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ opp.get_opp_type_display }}</div>
+          <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opp.title }}</div>
+          <div style="font-size:12px;color:#64748B;margin-bottom:10px">{{ opp.company.company_name }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            {% if opp.location %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">📍 {{ opp.location }}</span>{% endif %}
+            {% if opp.salary %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">💰 {{ opp.salary }}</span>{% endif %}
+            <span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">{{ opp.openings }} openings</span>
+            <span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">{{ opp.get_work_mode_display }}</span>
+          </div>
+        </div>
+        <span class="cp-badge {% if opp.status == 'published' %}cp-badge-published{% else %}cp-badge-draft{% endif %}">{{ opp.status }}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <a href="/campus/po/share/{{ opp.pk }}/" class="cp-btn cp-btn-primary" style="flex:1;justify-content:center">Share with Students</a>
+        <a href="/campus/student/opportunities/{{ opp.pk }}/" class="cp-btn cp-btn-ghost" style="padding:10px 14px">View</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:#94A3B8">
+    <div style="font-size:3rem;margin-bottom:10px">💼</div>
+    <div style="font-size:14px;font-weight:600">No opportunities yet</div>
+    <div style="font-size:12px;margin-top:4px">When companies post opportunities matching your pincode, they'll appear here.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

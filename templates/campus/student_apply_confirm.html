@@ -1,0 +1,44 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Apply – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/student/opportunities/{{ opportunity.pk }}/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Confirm Application</div>
+
+  <div class="cp-card" style="margin-bottom:16px">
+    <div style="padding:16px">
+      <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opportunity.title }}</div>
+      <div style="font-size:12px;color:#64748B">{{ opportunity.company.company_name }}</div>
+    </div>
+  </div>
+
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field">
+          <label class="cp-label">Resume</label>
+          {% if student.resume %}
+          <div style="background:#F8FAFF;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:#4F46E5;font-weight:600">
+            📄 Current resume on file
+          </div>
+          <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">Upload a new resume or leave blank to use existing.</div>
+          {% endif %}
+          <input name="resume" class="cp-input" type="file" accept=".pdf,.doc,.docx">
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Cover Note (optional)</label>
+          <textarea name="student_note" class="cp-input" placeholder="A brief note to the company..."></textarea>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Submit Application</button>
+    <a href="/campus/student/opportunities/{{ opportunity.pk }}/" class="cp-btn cp-btn-ghost cp-btn-full" style="margin-top:8px">Cancel</a>
+  </form>
+</div>
+{% endblock %}

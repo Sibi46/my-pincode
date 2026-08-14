@@ -1,0 +1,61 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Add Student – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/po/students/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">PO</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Add Student</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  {% if credentials %}
+  <div class="cp-card" style="margin-bottom:20px">
+    <div class="cp-card-head"><div class="cp-card-title">⚠️ Student Login Credentials</div></div>
+    <div style="padding:16px">
+      <p style="font-size:12px;color:#EF4444;font-weight:600;margin-bottom:12px">Share these with the student — password won't be shown again.</p>
+      <div style="background:#F8FAFF;border-radius:12px;padding:14px">
+        <div style="margin-bottom:8px"><span style="font-size:11px;color:#94A3B8;font-weight:600">NAME</span><div style="font-size:14px;font-weight:700;color:#0F172A">{{ credentials.name }}</div></div>
+        <div style="margin-bottom:8px"><span style="font-size:11px;color:#94A3B8;font-weight:600">ROLL NO</span><div style="font-size:14px;font-weight:700;color:#0F172A">{{ credentials.roll }}</div></div>
+        <div style="margin-bottom:8px"><span style="font-size:11px;color:#94A3B8;font-weight:600">PHONE</span><div style="font-size:14px;font-weight:700;color:#0F172A">{{ credentials.phone }}</div></div>
+        <div><span style="font-size:11px;color:#94A3B8;font-weight:600">PASSWORD</span>
+          <div style="font-size:22px;font-weight:800;color:#4F46E5;letter-spacing:.1em;background:#EEF2FF;border-radius:10px;padding:10px;text-align:center;margin-top:4px">{{ credentials.password }}</div>
+        </div>
+      </div>
+      <a href="/campus/po/student/add/" class="cp-btn cp-btn-ghost cp-btn-full" style="margin-top:12px">Add Another Student</a>
+      <a href="/campus/po/students/" class="cp-btn cp-btn-primary cp-btn-full" style="margin-top:8px">View All Students</a>
+    </div>
+  </div>
+  {% else %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Full Name *</label><input name="name" class="cp-input" required placeholder="Student full name"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Phone *</label><input name="phone" class="cp-input" required placeholder="Mobile"></div>
+          <div class="cp-field"><label class="cp-label">Roll Number *</label><input name="roll_number" class="cp-input" required placeholder="Roll No"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Department *</label>
+          <select name="department" class="cp-input" required>
+            <option value="">Select department</option>
+            {% for d in departments %}<option value="{{ d.pk }}">{{ d.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Course *</label><input name="course" class="cp-input" required placeholder="e.g. B.E CSE"></div>
+          <div class="cp-field"><label class="cp-label">Year *</label>
+            <select name="year" class="cp-input" required>
+              {% for y in "12345" %}<option value="{{ y }}">Year {{ y }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Email (optional)</label><input name="email" class="cp-input" type="email" placeholder="Student email"></div>
+        <div class="cp-field"><label class="cp-label">Skills (comma-separated)</label><input name="skills" class="cp-input" placeholder="e.g. Python, Java, SQL"></div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Register Student — Get Password</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

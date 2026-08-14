@@ -1,0 +1,103 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Application – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="javascript:history.back()" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+</div>
+<div class="cp-body">
+
+  <!-- Header -->
+  <div class="cp-card" style="margin-bottom:14px">
+    <div style="padding:18px">
+      <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ application.opportunity.title }}</div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:10px">{{ application.opportunity.company.company_name }}</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="cp-badge {% if application.status == 'selected' %}cp-badge-selected{% elif application.status == 'rejected' %}cp-badge-rejected{% elif application.status == 'shortlisted' %}cp-badge-shortlisted{% elif application.status == 'interview' %}cp-badge-interview{% else %}cp-badge-applied{% endif %}" style="font-size:12px;padding:5px 14px">{{ application.get_status_display }}</span>
+        <span style="font-size:11px;color:#94A3B8">Applied {{ application.applied_at|date:"d M Y" }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student info (for PO/company view) -->
+  {% if show_student %}
+  <div class="cp-card" style="margin-bottom:14px">
+    <div class="cp-card-head"><div class="cp-card-title">Student</div></div>
+    <div style="padding:16px">
+      <div style="font-size:14px;font-weight:700;color:#0F172A">{{ application.student.user.get_full_name }}</div>
+      <div style="font-size:12px;color:#64748B;margin-top:2px">{{ application.student.course }} · {{ application.student.department.name }} · Year {{ application.student.year }}</div>
+      <div style="font-size:12px;color:#64748B;margin-top:2px">{{ application.student.institution.name }}</div>
+      {% if application.student.skills %}<div style="font-size:12px;color:#4F46E5;margin-top:8px;font-weight:600">Skills: {{ application.student.skills }}</div>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Company Note -->
+  {% if application.company_note %}
+  <div class="cp-card" style="margin-bottom:14px;border:1px solid #A5B4FC">
+    <div style="padding:16px">
+      <div style="font-size:11px;font-weight:600;color:#6366F1;margin-bottom:6px">MESSAGE FROM COMPANY</div>
+      <div style="font-size:13px;color:#0F172A;line-height:1.6">{{ application.company_note }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Interview details -->
+  {% if interviews %}
+  {% with iv=interviews.0 %}
+  <div class="cp-card" style="margin-bottom:14px;border:1px solid #FCA5A5">
+    <div class="cp-card-head"><div class="cp-card-title">Interview Scheduled</div></div>
+    <div style="padding:16px">
+      <div style="margin-bottom:6px"><span style="font-size:11px;color:#94A3B8;font-weight:600">DATE & TIME</span><div style="font-size:14px;font-weight:700;color:#0F172A">{{ iv.scheduled_at|date:"d M Y, H:i" }}</div></div>
+      <div style="margin-bottom:6px"><span style="font-size:11px;color:#94A3B8;font-weight:600">MODE</span><div style="font-size:13px;color:#0F172A">{{ iv.get_mode_display }}</div></div>
+      {% if iv.location %}<div style="margin-bottom:6px"><span style="font-size:11px;color:#94A3B8;font-weight:600">LOCATION</span><div style="font-size:13px;color:#0F172A">{{ iv.location }}</div></div>{% endif %}
+      {% if iv.link %}<div><span style="font-size:11px;color:#94A3B8;font-weight:600">LINK</span><div><a href="{{ iv.link }}" style="font-size:13px;color:#4F46E5;font-weight:600">Join Interview</a></div></div>{% endif %}
+    </div>
+  </div>
+  {% endwith %}
+  {% endif %}
+
+  <!-- Status history timeline -->
+  {% if history %}
+  <div class="cp-sec">Status History</div>
+  <div class="cp-card">
+    <div class="cp-timeline">
+      {% for h in history %}
+      <div class="cp-tl-item">
+        <div class="cp-tl-dot {% if forloop.last %}active{% else %}done{% endif %}">✓</div>
+        <div class="cp-tl-content">
+          <div class="cp-tl-label">{{ h.get_status_display }}{% if h.note %} — {{ h.note }}{% endif %}</div>
+          <div class="cp-tl-time">{{ h.changed_at|date:"d M Y, H:i" }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Company actions -->
+  {% if is_company %}
+  <div class="cp-sec">Update Status</div>
+  <form method="post" action="/campus/company/applications/{{ application.pk }}/status/">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">New Status</label>
+          <select name="status" class="cp-input">
+            <option value="acknowledged">Acknowledged</option>
+            <option value="shortlisted">Shortlisted</option>
+            <option value="interview">Interview Scheduled</option>
+            <option value="interviewed">Interviewed</option>
+            <option value="selected">Selected</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="cp-field"><label class="cp-label">Note to Student</label><textarea name="note" class="cp-input" placeholder="Optional message..."></textarea></div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Update Status</button>
+  </form>
+  {% endif %}
+
+</div>
+{% endblock %}

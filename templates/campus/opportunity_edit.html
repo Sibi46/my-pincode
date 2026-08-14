@@ -1,0 +1,36 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Edit Opportunity – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/company/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Company</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Edit Opportunity</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Title *</label><input name="title" class="cp-input" required value="{{ opportunity.title }}"></div>
+        <div class="cp-field"><label class="cp-label">Description</label><textarea name="description" class="cp-input" style="min-height:100px">{{ opportunity.description }}</textarea></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Openings</label><input name="openings" class="cp-input" type="number" min="1" value="{{ opportunity.openings }}"></div>
+          <div class="cp-field"><label class="cp-label">Salary / Stipend</label><input name="salary" class="cp-input" value="{{ opportunity.salary }}"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Skills Required</label><input name="skills_required" class="cp-input" value="{{ opportunity.skills_required }}"></div>
+        <div class="cp-field"><label class="cp-label">Apply End Date</label><input name="apply_end" class="cp-input" type="date" value="{{ opportunity.apply_end|date:'Y-m-d' }}"></div>
+        <div class="cp-field"><label class="cp-label">Status</label>
+          <select name="status" class="cp-input">
+            <option value="draft" {% if opportunity.status == 'draft' %}selected{% endif %}>Draft</option>
+            <option value="published" {% if opportunity.status == 'published' %}selected{% endif %}>Published</option>
+            <option value="closed" {% if opportunity.status == 'closed' %}selected{% endif %}>Closed</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

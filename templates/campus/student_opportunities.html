@@ -1,0 +1,42 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Opportunities – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/student/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Student</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Opportunities for You</div>
+
+  {% if opportunities %}
+  {% for opp in opportunities %}
+  <a href="/campus/student/opportunities/{{ opp.pk }}/" style="text-decoration:none">
+    <div class="cp-card" style="margin-bottom:10px">
+      <div style="padding:16px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ opp.get_opp_type_display }}</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opp.title }}</div>
+            <div style="font-size:12px;color:#64748B;margin-bottom:8px">{{ opp.company.company_name }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              {% if opp.location %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">📍 {{ opp.location }}</span>{% endif %}
+              {% if opp.salary %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">💰 {{ opp.salary }}</span>{% endif %}
+              <span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">{{ opp.openings }} opening{{ opp.openings|pluralize }}</span>
+            </div>
+          </div>
+          {% if opp.apply_end %}<div style="font-size:10px;color:#EF4444;font-weight:700;text-align:right;white-space:nowrap">Apply by<br>{{ opp.apply_end|date:"d M" }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:#94A3B8">
+    <div style="font-size:3rem;margin-bottom:10px">💼</div>
+    <div style="font-size:14px;font-weight:600">No opportunities yet</div>
+    <div style="font-size:12px;margin-top:4px">Your Placement Officer will share opportunities when available.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

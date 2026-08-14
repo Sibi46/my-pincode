@@ -1,0 +1,39 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Companies – Campus Admin{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/admin/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Admin</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Companies</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto">
+    <a href="?filter=all" class="cp-btn {% if not request.GET.filter or request.GET.filter == 'all' %}cp-btn-primary{% else %}cp-btn-ghost{% endif %}" style="font-size:11px;padding:6px 14px;white-space:nowrap">All</a>
+    <a href="?filter=pending" class="cp-btn {% if request.GET.filter == 'pending' %}cp-btn-primary{% else %}cp-btn-ghost{% endif %}" style="font-size:11px;padding:6px 14px;white-space:nowrap">Pending</a>
+    <a href="?filter=verified" class="cp-btn {% if request.GET.filter == 'verified' %}cp-btn-primary{% else %}cp-btn-ghost{% endif %}" style="font-size:11px;padding:6px 14px;white-space:nowrap">Verified</a>
+  </div>
+  {% if companies %}
+  <div class="cp-card">
+    {% for co in companies %}
+    <div class="cp-list-row" style="flex-wrap:wrap;gap:8px">
+      <div class="cp-list-icon">🏢</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ co.company_name }}</div>
+        <div class="cp-list-sub">{{ co.industry }} · {{ co.pincode }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="cp-badge {% if co.status == 'verified' %}cp-badge-verified{% elif co.status == 'pending' %}cp-badge-pending{% else %}cp-badge-rejected{% endif %}">{{ co.status }}</span>
+        {% if co.status == 'pending' %}
+        <form method="post" action="/campus/admin/companies/{{ co.pk }}/verify/" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="verify"><button type="submit" class="cp-btn cp-btn-success" style="font-size:11px;padding:5px 10px">Approve</button></form>
+        <form method="post" action="/campus/admin/companies/{{ co.pk }}/verify/" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="reject"><button type="submit" class="cp-btn cp-btn-danger" style="font-size:11px;padding:5px 10px">Reject</button></form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px;color:#94A3B8">No companies found.</div>
+  {% endif %}
+</div>
+{% endblock %}

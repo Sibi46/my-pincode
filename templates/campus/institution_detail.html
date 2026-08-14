@@ -1,0 +1,35 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}{{ institution.name }} – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+</div>
+<div class="cp-body">
+  {% if institution.logo %}
+  <img src="{{ institution.logo.url }}" alt="{{ institution.name }}" style="width:80px;height:80px;border-radius:16px;object-fit:cover;margin-bottom:12px">
+  {% else %}
+  <div style="width:80px;height:80px;border-radius:16px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin-bottom:12px">🏫</div>
+  {% endif %}
+
+  <div style="font-size:20px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ institution.name }}</div>
+  <div style="font-size:13px;color:#64748B;margin-bottom:4px">{{ institution.get_institution_type_display }}</div>
+  {% if institution.affiliation %}<div style="font-size:12px;color:#94A3B8">{{ institution.affiliation }}</div>{% endif %}
+  <div style="font-size:12px;color:#94A3B8;margin-top:4px">📍 {{ institution.city }}{% if institution.district %}, {{ institution.district }}{% endif %} – {{ institution.pincode }}</div>
+
+  {% if departments %}
+  <div class="cp-sec">Departments</div>
+  <div class="cp-card">
+    {% for dept in departments %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon">🏛️</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ dept.name }}</div>
+        <div class="cp-list-sub">{{ dept.courses }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

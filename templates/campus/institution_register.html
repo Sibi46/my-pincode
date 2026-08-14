@@ -1,0 +1,70 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Register Institution – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Register Your Institution</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Basic Info</div></div>
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Institution Name *</label><input name="name" class="cp-input" required placeholder="e.g. ABC Engineering College"></div>
+        <div class="cp-field"><label class="cp-label">Type *</label>
+          <select name="institution_type" class="cp-input" required>
+            <option value="">Select type</option>
+            <option value="engineering">Engineering College</option>
+            <option value="arts_science">Arts & Science College</option>
+            <option value="polytechnic">Polytechnic</option>
+            <option value="medical">Medical College</option>
+            <option value="law">Law College</option>
+            <option value="management">Management Institute</option>
+            <option value="vocational">Vocational Institute</option>
+            <option value="other">Other</option>
+          </select></div>
+        <div class="cp-field"><label class="cp-label">Affiliation / University</label><input name="affiliation" class="cp-input" placeholder="e.g. Anna University"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Pincode *</label><input name="pincode" class="cp-input" required maxlength="6" placeholder="6-digit pincode"></div>
+          <div class="cp-field"><label class="cp-label">City *</label><input name="city" class="cp-input" required placeholder="City"></div>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">District</label><input name="district" class="cp-input" placeholder="District"></div>
+          <div class="cp-field"><label class="cp-label">State</label><input name="state" class="cp-input" placeholder="State"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Full Address</label><textarea name="address" class="cp-input" placeholder="Street, area..."></textarea></div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Contact & Logo</div></div>
+      <div style="padding:16px">
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Phone *</label><input name="phone" class="cp-input" required placeholder="Institution phone"></div>
+          <div class="cp-field"><label class="cp-label">Email</label><input name="email" class="cp-input" type="email" placeholder="Email"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Website</label><input name="website" class="cp-input" type="url" placeholder="https://..."></div>
+        <div class="cp-field"><label class="cp-label">Logo (optional)</label><input name="logo" class="cp-input" type="file" accept="image/*"></div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Placement Officer Account</div></div>
+      <div style="padding:16px">
+        <p style="font-size:12px;color:#64748B;margin-bottom:12px">This will create a login for the Placement Officer. A 6-digit password will be auto-generated and shown after registration.</p>
+        <div class="cp-field"><label class="cp-label">PO Full Name *</label><input name="po_name" class="cp-input" required placeholder="Full name"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">PO Phone *</label><input name="po_phone" class="cp-input" required placeholder="Mobile number"></div>
+          <div class="cp-field"><label class="cp-label">PO Email</label><input name="po_email" class="cp-input" type="email" placeholder="Email"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Designation</label><input name="po_designation" class="cp-input" placeholder="e.g. Placement Officer"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full" style="margin-top:4px">Register Institution &rarr;</button>
+  </form>
+</div>
+{% endblock %}

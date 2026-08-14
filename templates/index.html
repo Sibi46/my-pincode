@@ -360,10 +360,26 @@ a{text-decoration:none;color:inherit}
     <div class="mp-or"><span>or</span></div>
     <a href="/login/" class="mp-signin">Already have an account? <strong>Sign In</strong></a>
     {% endif %}
+
+    <!-- Campus Banner -->
+    <a href="/campus/" class="mp-campus-banner">
+      <div class="mp-campus-left">
+        <div class="mp-campus-badge">🎓 New</div>
+        <div class="mp-campus-title">Campus Career Program</div>
+        <div class="mp-campus-sub">Colleges · Students · Companies</div>
+      </div>
+      <div class="mp-campus-arrow">›</div>
+    </a>
   </div>
 </section>
 
 <style>
+.mp-campus-banner{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:14px;padding:14px 16px;margin-top:12px;text-decoration:none;transition:.2s}
+.mp-campus-banner:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.3)}
+.mp-campus-badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;margin-bottom:4px}
+.mp-campus-title{font-size:15px;font-weight:800;color:#fff}
+.mp-campus-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
+.mp-campus-arrow{font-size:24px;color:rgba(255,255,255,.6);font-weight:300}
 .mp-landing{background:transparent;padding:20px 16px}
 .mp-landing-inner{text-align:center;max-width:480px;width:100%;margin:0 auto}
 .mp-logo-wrap{margin-bottom:12px}

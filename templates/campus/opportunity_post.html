@@ -1,0 +1,100 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Post Opportunity – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/company/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Company</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">{% if opp %}Edit{% else %}Post{% endif %} Opportunity</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Basic Details</div></div>
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Title *</label><input name="title" class="cp-input" required value="{{ opp.title|default:'' }}" placeholder="e.g. Junior Software Developer"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Type *</label>
+            <select name="opp_type" class="cp-input" required>
+              <option value="fulltime" {% if opp.opp_type == 'fulltime' %}selected{% endif %}>Full-time Job</option>
+              <option value="parttime" {% if opp.opp_type == 'parttime' %}selected{% endif %}>Part-time</option>
+              <option value="internship" {% if opp.opp_type == 'internship' %}selected{% endif %}>Internship</option>
+              <option value="apprentice" {% if opp.opp_type == 'apprentice' %}selected{% endif %}>Apprenticeship</option>
+              <option value="project" {% if opp.opp_type == 'project' %}selected{% endif %}>Project</option>
+              <option value="volunteer" {% if opp.opp_type == 'volunteer' %}selected{% endif %}>Volunteer</option>
+            </select>
+          </div>
+          <div class="cp-field"><label class="cp-label">Openings *</label><input name="openings" class="cp-input" type="number" required min="1" value="{{ opp.openings|default:'1' }}"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Description</label><textarea name="description" class="cp-input" style="min-height:120px" placeholder="Role description, responsibilities...">{{ opp.description|default:'' }}</textarea></div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Eligibility</div></div>
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Qualification</label><input name="qualification" class="cp-input" value="{{ opp.qualification|default:'' }}" placeholder="e.g. B.E / B.Tech"></div>
+        <div class="cp-field"><label class="cp-label">Skills Required</label><input name="skills_required" class="cp-input" value="{{ opp.skills_required|default:'' }}" placeholder="e.g. Python, Communication"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Department Eligibility</label><input name="dept_eligibility" class="cp-input" value="{{ opp.dept_eligibility|default:'' }}" placeholder="e.g. CSE, ECE, All"></div>
+          <div class="cp-field"><label class="cp-label">Year Eligibility</label><input name="year_eligibility" class="cp-input" value="{{ opp.year_eligibility|default:'' }}" placeholder="e.g. 3rd & 4th year"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Location & Salary</div></div>
+      <div style="padding:16px">
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Location</label><input name="location" class="cp-input" value="{{ opp.location|default:'' }}" placeholder="City or Remote"></div>
+          <div class="cp-field"><label class="cp-label">Work Mode</label>
+            <select name="work_mode" class="cp-input">
+              <option value="onsite" {% if opp.work_mode == 'onsite' %}selected{% endif %}>On-site</option>
+              <option value="remote" {% if opp.work_mode == 'remote' %}selected{% endif %}>Remote</option>
+              <option value="hybrid" {% if opp.work_mode == 'hybrid' %}selected{% endif %}>Hybrid</option>
+            </select>
+          </div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Salary / Stipend</label><input name="salary" class="cp-input" value="{{ opp.salary|default:'' }}" placeholder="e.g. ₹15,000/month or Negotiable"></div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Target Pincodes</div></div>
+      <div style="padding:16px">
+        <div class="cp-field">
+          <label class="cp-label">Pincodes (comma-separated)</label>
+          <input name="pincodes" class="cp-input" value="{{ pincodes_str|default:'' }}" placeholder="e.g. 600001, 600002, 600003">
+          <div style="font-size:11px;color:#94A3B8;margin-top:4px">Colleges in these pincodes will be notified automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Dates</div></div>
+      <div style="padding:16px">
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Apply Start</label><input name="apply_start" class="cp-input" type="date" value="{{ opp.apply_start|date:'Y-m-d'|default:'' }}"></div>
+          <div class="cp-field"><label class="cp-label">Apply End</label><input name="apply_end" class="cp-input" type="date" value="{{ opp.apply_end|date:'Y-m-d'|default:'' }}"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Status</label>
+          <select name="status" class="cp-input">
+            <option value="draft" {% if opp.status == 'draft' or not opp %}selected{% endif %}>Save as Draft</option>
+            <option value="published" {% if opp.status == 'published' %}selected{% endif %}>Publish Now</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">{% if opp %}Save Changes{% else %}Post Opportunity{% endif %}</button>
+  </form>
+</div>
+{% endblock %}

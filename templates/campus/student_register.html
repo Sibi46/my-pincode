@@ -1,0 +1,63 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Student Registration – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Student Registration</div>
+  <p style="font-size:12px;color:#64748B;margin-bottom:16px">If your college has already registered you, use the credentials given by your Placement Officer to login. Otherwise register here.</p>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="cp-card">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Full Name *</label><input name="name" class="cp-input" required placeholder="Your full name"></div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Phone *</label><input name="phone" class="cp-input" required placeholder="Mobile"></div>
+          <div class="cp-field"><label class="cp-label">Email</label><input name="email" class="cp-input" type="email" placeholder="Email"></div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Institution *</label>
+          <select name="institution" class="cp-input" required id="inst-sel">
+            <option value="">Select institution</option>
+            {% for inst in institutions %}<option value="{{ inst.pk }}">{{ inst.name }} – {{ inst.city }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="cp-field"><label class="cp-label">Department *</label>
+          <select name="department" class="cp-input" required>
+            <option value="">Select department</option>
+            {% for dept in departments %}<option value="{{ dept.pk }}" data-inst="{{ dept.institution_id }}">{{ dept.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Roll Number *</label><input name="roll_number" class="cp-input" required placeholder="Roll No"></div>
+          <div class="cp-field"><label class="cp-label">Year *</label>
+            <select name="year" class="cp-input" required>
+              {% for y in "12345" %}<option value="{{ y }}">Year {{ y }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Course *</label><input name="course" class="cp-input" required placeholder="e.g. B.E Computer Science"></div>
+        <div class="cp-field"><label class="cp-label">Skills (comma-separated)</label><input name="skills" class="cp-input" placeholder="e.g. Python, Java, SQL"></div>
+        <div class="cp-field"><label class="cp-label">Resume (PDF)</label><input name="resume" class="cp-input" type="file" accept=".pdf,.doc,.docx"></div>
+        <div class="cp-field"><label class="cp-label">Password *</label><input name="password" class="cp-input" type="password" required minlength="6" placeholder="Min 6 characters"></div>
+      </div>
+    </div>
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Register as Student</button>
+    <div style="text-align:center;margin-top:12px;font-size:12px;color:#94A3B8">Already registered? <a href="/login/" style="color:#4F46E5;font-weight:600">Login</a></div>
+  </form>
+</div>
+<script>
+const instSel = document.getElementById('inst-sel');
+const deptSel = instSel.closest('form').querySelector('[name="department"]');
+const deptOptions = Array.from(deptSel.options);
+instSel.addEventListener('change', () => {
+  const val = instSel.value;
+  deptSel.innerHTML = '<option value="">Select department</option>';
+  deptOptions.filter(o => !o.dataset.inst || o.dataset.inst === val).forEach(o => {
+    if (o.value) deptSel.appendChild(o.cloneNode(true));
+  });
+});
+</script>
+{% endblock %}

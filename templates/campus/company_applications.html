@@ -1,0 +1,40 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Applications – Company{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/company/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Company</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Applications Received</div>
+
+  {% if applications %}
+  {% regroup applications by opportunity as by_opp %}
+  {% for opp_group in by_opp %}
+  <div class="cp-sec">{{ opp_group.grouper.title }} <span style="font-size:10px;font-weight:600;color:#94A3B8">({{ opp_group.list|length }})</span></div>
+  <div class="cp-card" style="margin-bottom:16px">
+    {% for app in opp_group.list %}
+    <a href="/campus/application/{{ app.pk }}/" style="text-decoration:none">
+      <div class="cp-list-row">
+        <div class="cp-list-icon">👨‍🎓</div>
+        <div class="cp-list-info">
+          <div class="cp-list-title">{{ app.student.user.get_full_name }}</div>
+          <div class="cp-list-sub">{{ app.student.department.name }} · {{ app.student.institution.name }}</div>
+          <div class="cp-list-sub">{{ app.applied_at|date:"d M Y" }}</div>
+        </div>
+        <span class="cp-badge {% if app.status == 'selected' %}cp-badge-selected{% elif app.status == 'rejected' %}cp-badge-rejected{% elif app.status == 'shortlisted' %}cp-badge-shortlisted{% elif app.status == 'interview' %}cp-badge-interview{% else %}cp-badge-applied{% endif %}">{{ app.get_status_display }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:#94A3B8">
+    <div style="font-size:3rem;margin-bottom:10px">📋</div>
+    <div style="font-size:14px;font-weight:600">No applications yet</div>
+    <div style="font-size:12px;margin-top:4px">Post and publish opportunities to start receiving applications.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Reports – Campus Admin{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/admin/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <span class="cp-topbar-badge">Admin</span>
+</div>
+<div class="cp-body">
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Reports & Analytics</div>
+
+  <div class="cp-stats">
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.total_institutions }}</div><div class="cp-stat-l">Colleges</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.total_companies }}</div><div class="cp-stat-l">Companies</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.total_students }}</div><div class="cp-stat-l">Students</div></div>
+  </div>
+  <div class="cp-stats" style="margin-top:10px">
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.total_opportunities }}</div><div class="cp-stat-l">Opportunities</div></div>
+    <div class="cp-stat"><div class="cp-stat-n">{{ stats.total_applications }}</div><div class="cp-stat-l">Applications</div></div>
+    <div class="cp-stat"><div class="cp-stat-n" style="color:#22C55E">{{ stats.total_selected }}</div><div class="cp-stat-l">Placed</div></div>
+  </div>
+
+  {% if placement_rate is not None %}
+  <div class="cp-card" style="margin-top:16px">
+    <div style="padding:20px;text-align:center">
+      <div style="font-size:11px;font-weight:600;color:#94A3B8;text-transform:uppercase;margin-bottom:8px">Overall Placement Rate</div>
+      <div style="font-size:48px;font-weight:800;color:#22C55E;line-height:1">{{ placement_rate }}%</div>
+      <div style="font-size:12px;color:#64748B;margin-top:4px">{{ stats.total_selected }} placed out of {{ stats.total_applications }} who applied</div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if top_institutions %}
+  <div class="cp-sec">Top Institutions by Placements</div>
+  <div class="cp-card">
+    {% for inst in top_institutions %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon" style="background:#D1FAE5;font-size:1rem;font-weight:800;color:#065F46">{{ forloop.counter }}</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ inst.name }}</div>
+        <div class="cp-list-sub">{{ inst.city }}</div>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:#4F46E5">{{ inst.placements }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if top_companies %}
+  <div class="cp-sec">Top Companies by Hiring</div>
+  <div class="cp-card">
+    {% for co in top_companies %}
+    <div class="cp-list-row">
+      <div class="cp-list-icon" style="background:#EEF2FF;font-size:1rem;font-weight:800;color:#4F46E5">{{ forloop.counter }}</div>
+      <div class="cp-list-info">
+        <div class="cp-list-title">{{ co.company_name }}</div>
+        <div class="cp-list-sub">{{ co.industry }}</div>
+      </div>
+      <div style="font-size:16px;font-weight:800;color:#22C55E">{{ co.hires }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
