@@ -37,6 +37,7 @@ PUBLIC_PREFIXES = [
     '/media/',
     '/ads/',
     '/admin/',
+    '/campus/',       # campus public pages
 ]
 
 

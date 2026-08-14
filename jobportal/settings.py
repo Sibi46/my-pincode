@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'health',
     'vouchers',
     'community',
+    'campus',
 ]
 
 AUTH_USER_MODEL = 'jobs.User'

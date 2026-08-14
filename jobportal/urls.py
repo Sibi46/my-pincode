@@ -172,4 +172,5 @@ urlpatterns = [
     path('health/',     include('health.urls')),
     path('vouchers/',   include('vouchers.urls')),
     path('community/',  include('community.urls')),
+    path('campus/',     include('campus.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
