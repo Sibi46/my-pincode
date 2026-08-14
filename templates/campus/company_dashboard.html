@@ -28,7 +28,7 @@
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
-    <a href="/campus/company/opportunity/post/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center;border:2px solid #4F46E5">
+    <a href="/campus/company/opportunities/post/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center;border:2px solid #4F46E5">
       <div style="font-size:2rem;margin-bottom:6px">➕</div>
       <div style="font-size:13px;font-weight:700;color:#4F46E5">Post Opportunity</div>
     </a>
@@ -51,7 +51,7 @@
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <span class="cp-badge {% if opp.status == 'published' %}cp-badge-published{% elif opp.status == 'draft' %}cp-badge-draft{% else %}cp-badge-closed{% endif %}">{{ opp.status }}</span>
-        <a href="/campus/company/opportunity/{{ opp.pk }}/edit/" style="font-size:11px;color:#6366F1;font-weight:600">Edit</a>
+        <a href="/campus/company/opportunities/{{ opp.pk }}/edit/" style="font-size:11px;color:#6366F1;font-weight:600">Edit</a>
       </div>
     </div>
     {% endfor %}
