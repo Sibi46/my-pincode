@@ -12,7 +12,7 @@ body{background:#F8FAFC;font-family:'Inter',sans-serif;color:#0F172A}
 #fhTop a.back{width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:16px;flex-shrink:0}
 #fhTop h2{font-size:16px;font-weight:700;color:#0F172A;margin:0;flex:1}
 
-.fm-wrap{padding:20px 20px 120px;max-width:640px;margin:0 auto}
+.fm-wrap{padding:20px 20px 32px;max-width:640px;margin:0 auto}
 
 /* SECTION CARD */
 .fm-card{background:#fff;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;margin-bottom:16px}
@@ -60,9 +60,8 @@ textarea.fm-input{min-height:100px;resize:vertical}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
 /* STICKY BOTTOM */
-.fm-bottom-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-top:1px solid #E2E8F0;padding:14px 20px;z-index:300;display:flex;gap:10px}
-.fm-cancel-btn{flex:1;padding:13px;background:#F1F5F9;color:#64748B;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center}
-.fm-submit{flex:2;padding:13px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,70,229,.35);transition:all .2s}
+.fm-submit{flex:2;padding:14px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(79,70,229,.35);transition:all .2s}
+.fm-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.45)}
 .fm-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.45)}
 </style>
 
@@ -234,13 +233,12 @@ textarea.fm-input{min-height:100px;resize:vertical}
   </div>
 </div>
 
-</form>
+<!-- Save buttons inside form -->
+<div style="display:flex;gap:10px;margin-top:4px;margin-bottom:40px">
+  <a href="/community/family/" class="fm-cancel-btn" style="flex:1;padding:14px;background:#F1F5F9;color:#64748B;border-radius:14px;font-size:14px;font-weight:600;text-decoration:none;text-align:center">Cancel</a>
+  <button type="submit" class="fm-submit" style="flex:2">✨ Save Family Member</button>
 </div>
-
-<!-- Sticky Bottom Bar -->
-<div class="fm-bottom-bar">
-  <a href="/community/family/" class="fm-cancel-btn">Cancel</a>
-  <button type="submit" form="fmForm" class="fm-submit">✨ Save Family Member</button>
+</form>
 </div>
 
 <script>
