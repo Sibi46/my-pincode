@@ -91,6 +91,8 @@ textarea.fm-input{min-height:100px;resize:vertical}
         {% elif val == 'uncle' %}🧔
         {% elif val == 'aunt' %}👩‍🦳
         {% elif val == 'cousin' %}🧑
+        {% elif val == 'brother' %}👱
+        {% elif val == 'sister' %}👱‍♀️
         {% elif val == 'pet' %}🐾
         {% else %}👤{% endif %}
       </span>
@@ -243,7 +245,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
 
 <script>
 const PET_TYPES = ['pet'];
-const PERSON_TYPES = ['grandfather','grandmother','father','mother','son','daughter','uncle','aunt','cousin','other'];
+const PERSON_TYPES = ['grandfather','grandmother','father','mother','son','daughter','uncle','aunt','cousin','brother','sister','other'];
 
 function selectType(val, el) {
   document.querySelectorAll('.fm-type-btn').forEach(b => b.classList.remove('selected'));

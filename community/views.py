@@ -109,6 +109,8 @@ def family_hub(request):
             setup.uncle_count       = int(request.POST.get('uncle_count', 0))
             setup.aunt_count        = int(request.POST.get('aunt_count', 0))
             setup.cousin_count      = int(request.POST.get('cousin_count', 0))
+            setup.brother_count     = int(request.POST.get('brother_count', 0))
+            setup.sister_count      = int(request.POST.get('sister_count', 0))
             setup.pet_count         = int(request.POST.get('pet_count', 0))
             setup.save()
             return redirect('/community/family/')
@@ -123,17 +125,21 @@ def family_hub(request):
         ('🧔', 'Uncle',       'uncle_count'),
         ('👩‍🦳', 'Aunt',      'aunt_count'),
         ('🧑', 'Cousin',      'cousin_count'),
+        ('👱', 'Brother',     'brother_count'),
+        ('👱‍♀️', 'Sister',  'sister_count'),
         ('🐾', 'Pet',         'pet_count'),
     ]
     TYPE_ICON = {
         'grandfather':'👴','grandmother':'👵','father':'👨','mother':'👩',
-        'son':'👦','daughter':'👧','uncle':'🧔','aunt':'👩‍🦳','cousin':'🧑','pet':'🐾',
+        'son':'👦','daughter':'👧','uncle':'🧔','aunt':'👩‍🦳','cousin':'🧑',
+        'brother':'👱','sister':'👱‍♀️','pet':'🐾',
     }
     FIELD_TO_TYPE = {
         'grandfather_count':'grandfather','grandmother_count':'grandmother',
         'father_count':'father','mother_count':'mother','son_count':'son',
         'daughter_count':'daughter','uncle_count':'uncle','aunt_count':'aunt',
-        'cousin_count':'cousin','pet_count':'pet',
+        'cousin_count':'cousin','brother_count':'brother','sister_count':'sister',
+        'pet_count':'pet',
     }
     setup_rows = [(icon, label, field, getattr(setup, field, 0) if setup else 0)
                   for icon, label, field in ROWS]

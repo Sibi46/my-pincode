@@ -821,6 +821,8 @@ class FamilySetup(models.Model):
     uncle_count       = models.PositiveSmallIntegerField(default=0)
     aunt_count        = models.PositiveSmallIntegerField(default=0)
     cousin_count      = models.PositiveSmallIntegerField(default=0)
+    brother_count     = models.PositiveSmallIntegerField(default=0)
+    sister_count      = models.PositiveSmallIntegerField(default=0)
     pet_count         = models.PositiveSmallIntegerField(default=0)
     updated_at        = models.DateTimeField(auto_now=True)
 
@@ -838,6 +840,8 @@ class FamilySetup(models.Model):
             ('uncle',       'Uncle',       '🧔', self.uncle_count),
             ('aunt',        'Aunt',        '👩‍🦳', self.aunt_count),
             ('cousin',      'Cousin',      '🧑', self.cousin_count),
+            ('brother',     'Brother',     '👱', self.brother_count),
+            ('sister',      'Sister',      '👱‍♀️', self.sister_count),
             ('pet',         'Pet',         '🐾', self.pet_count),
         ]
 
@@ -853,6 +857,8 @@ class FamilyMember(models.Model):
         ('uncle',       'Uncle'),
         ('aunt',        'Aunt'),
         ('cousin',      'Cousin'),
+        ('brother',     'Brother'),
+        ('sister',      'Sister'),
         ('pet',         'Pet / Animal'),
         ('other',       'Other'),
     ]
