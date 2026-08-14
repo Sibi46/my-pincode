@@ -95,25 +95,75 @@ def module_page(request, slug):
 
 
 # ── FAMILY HUB ────────────────────────────────────────────────────────────────
+@login_required
+def family_setup_wizard(request):
+    setup, _ = FamilySetup.objects.get_or_create(user=request.user)
+    step = request.POST.get('step') or request.GET.get('step', '1')
+
+    if request.method == 'POST':
+        if step == '1':
+            setup.gender         = request.POST.get('gender', '')
+            setup.display_name   = request.POST.get('display_name', '').strip()
+            setup.age            = request.POST.get('age') or None
+            setup.village        = request.POST.get('village', '').strip()
+            setup.save()
+            return redirect('/community/family/setup/?step=2')
+
+        elif step == '2':
+            setup.marital_status = request.POST.get('marital_status', '')
+            setup.save()
+            if setup.marital_status == 'married':
+                return redirect('/community/family/setup/?step=3')
+            return redirect('/community/family/setup/?step=4')
+
+        elif step == '3':
+            setup.spouse_name = request.POST.get('spouse_name', '').strip()
+            setup.save()
+            return redirect('/community/family/setup/?step=4')
+
+        elif step == '4':
+            setup.grandfather_count = int(request.POST.get('grandfather_count', 0) or 0)
+            setup.grandmother_count = int(request.POST.get('grandmother_count', 0) or 0)
+            setup.father_count      = int(request.POST.get('father_count', 0) or 0)
+            setup.mother_count      = int(request.POST.get('mother_count', 0) or 0)
+            setup.son_count         = int(request.POST.get('son_count', 0) or 0)
+            setup.daughter_count    = int(request.POST.get('daughter_count', 0) or 0)
+            setup.uncle_count       = int(request.POST.get('uncle_count', 0) or 0)
+            setup.aunt_count        = int(request.POST.get('aunt_count', 0) or 0)
+            setup.cousin_count      = int(request.POST.get('cousin_count', 0) or 0)
+            setup.brother_count     = int(request.POST.get('brother_count', 0) or 0)
+            setup.sister_count      = int(request.POST.get('sister_count', 0) or 0)
+            setup.pet_count         = int(request.POST.get('pet_count', 0) or 0)
+            setup.setup_done        = True
+            setup.save()
+            return redirect('/community/family/')
+
+    ROWS = [
+        ('👴', 'Grandfather', 'grandfather_count', getattr(setup, 'grandfather_count', 0)),
+        ('👵', 'Grandmother', 'grandmother_count', getattr(setup, 'grandmother_count', 0)),
+        ('👨', 'Father',      'father_count',      getattr(setup, 'father_count', 0)),
+        ('👩', 'Mother',      'mother_count',      getattr(setup, 'mother_count', 0)),
+        ('👦', 'Son',         'son_count',         getattr(setup, 'son_count', 0)),
+        ('👧', 'Daughter',    'daughter_count',    getattr(setup, 'daughter_count', 0)),
+        ('👱', 'Brother',     'brother_count',     getattr(setup, 'brother_count', 0)),
+        ('👱‍♀️', 'Sister',  'sister_count',      getattr(setup, 'sister_count', 0)),
+        ('🧔', 'Uncle',       'uncle_count',       getattr(setup, 'uncle_count', 0)),
+        ('👩‍🦳', 'Aunt',    'aunt_count',        getattr(setup, 'aunt_count', 0)),
+        ('🧑', 'Cousin',      'cousin_count',      getattr(setup, 'cousin_count', 0)),
+        ('🐾', 'Pet',         'pet_count',         getattr(setup, 'pet_count', 0)),
+    ]
+    return render(request, 'community/family_setup_wizard.html', {
+        'setup': setup, 'step': step, 'rows': ROWS,
+    })
+
+
 def family_hub(request):
     setup = None
     if request.user.is_authenticated:
         setup, _ = FamilySetup.objects.get_or_create(user=request.user)
-        if request.method == 'POST':
-            setup.grandfather_count = int(request.POST.get('grandfather_count', 0))
-            setup.grandmother_count = int(request.POST.get('grandmother_count', 0))
-            setup.father_count      = int(request.POST.get('father_count', 0))
-            setup.mother_count      = int(request.POST.get('mother_count', 0))
-            setup.son_count         = int(request.POST.get('son_count', 0))
-            setup.daughter_count    = int(request.POST.get('daughter_count', 0))
-            setup.uncle_count       = int(request.POST.get('uncle_count', 0))
-            setup.aunt_count        = int(request.POST.get('aunt_count', 0))
-            setup.cousin_count      = int(request.POST.get('cousin_count', 0))
-            setup.brother_count     = int(request.POST.get('brother_count', 0))
-            setup.sister_count      = int(request.POST.get('sister_count', 0))
-            setup.pet_count         = int(request.POST.get('pet_count', 0))
-            setup.save()
-            return redirect('/community/family/')
+        # redirect to wizard if not done
+        if not setup.setup_done and request.method == 'GET':
+            return redirect('/community/family/setup/?step=1')
 
     ROWS = [
         ('👴', 'Grandfather', 'grandfather_count'),

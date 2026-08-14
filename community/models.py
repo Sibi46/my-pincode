@@ -811,7 +811,19 @@ class Notification(models.Model):
 
 
 class FamilySetup(models.Model):
+    GENDER_CHOICES = [('male', 'Male'), ('female', 'Female')]
+    MARITAL_CHOICES = [('married', 'Married'), ('unmarried', 'Unmarried')]
+
     user             = models.OneToOneField(User, on_delete=models.CASCADE, related_name='family_setup')
+    # Step 1 — self info
+    gender           = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
+    marital_status   = models.CharField(max_length=12, choices=MARITAL_CHOICES, blank=True)
+    spouse_name      = models.CharField(max_length=150, blank=True)
+    display_name     = models.CharField(max_length=150, blank=True)
+    village          = models.CharField(max_length=150, blank=True)
+    age              = models.PositiveSmallIntegerField(null=True, blank=True)
+    setup_done       = models.BooleanField(default=False)
+    # counts
     grandfather_count = models.PositiveSmallIntegerField(default=0)
     grandmother_count = models.PositiveSmallIntegerField(default=0)
     father_count      = models.PositiveSmallIntegerField(default=0)

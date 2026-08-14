@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% block title %}Family Setup – MY PINCOD{% endblock %}
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+nav.navbar{display:none!important}
+*{box-sizing:border-box}
+body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:100vh}
+
+.wz-top{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-bottom:1px solid #E0E7FF;padding:0 20px;height:56px;display:flex;align-items:center;gap:12px}
+.wz-back{width:36px;height:36px;border-radius:12px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;color:#4F46E5;text-decoration:none;font-size:18px;flex-shrink:0}
+.wz-top-title{font-size:16px;font-weight:800;color:#0F172A;flex:1}
+.wz-top-step{font-size:11px;font-weight:700;color:#6366F1;background:#EEF2FF;padding:3px 10px;border-radius:20px}
+
+/* PROGRESS BAR */
+.wz-progress{background:#fff;padding:14px 20px 0;border-bottom:1px solid #E0E7FF}
+.wz-steps{display:flex;gap:0;margin-bottom:0}
+.wz-step{flex:1;text-align:center;padding-bottom:12px;position:relative;font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.04em}
+.wz-step.active{color:#4F46E5}
+.wz-step.done{color:#22C55E}
+.wz-step-dot{width:28px;height:28px;border-radius:50%;border:2px solid #E2E8F0;background:#fff;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#94A3B8;transition:all .3s}
+.wz-step.active .wz-step-dot{border-color:#4F46E5;background:#4F46E5;color:#fff}
+.wz-step.done .wz-step-dot{border-color:#22C55E;background:#22C55E;color:#fff}
+.wz-step-line{position:absolute;top:14px;left:50%;right:-50%;height:2px;background:#E2E8F0;z-index:0}
+.wz-step:last-child .wz-step-line{display:none}
+.wz-step.done .wz-step-line{background:#22C55E}
+
+.wz-body{padding:24px 20px 60px;max-width:520px;margin:0 auto}
+
+.wz-q{font-size:22px;font-weight:800;color:#0F172A;line-height:1.2;margin-bottom:6px;letter-spacing:-.02em}
+.wz-sub{font-size:13px;color:#64748B;margin-bottom:24px}
+
+/* BIG CHOICE CARDS */
+.wz-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+.wz-choice{border:2.5px solid #E0E7FF;border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;background:#fff;position:relative}
+.wz-choice:hover{border-color:#6366F1;background:#F5F3FF;transform:translateY(-2px)}
+.wz-choice input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.wz-choice.selected{border-color:#4F46E5;background:#EEF2FF;box-shadow:0 0 0 4px rgba(79,70,229,.10)}
+.wz-choice-icon{font-size:3rem;display:block;margin-bottom:10px}
+.wz-choice-label{font-size:15px;font-weight:700;color:#0F172A}
+.wz-choice.selected .wz-choice-label{color:#4F46E5}
+.wz-choice-check{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:#4F46E5;display:none;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800}
+.wz-choice.selected .wz-choice-check{display:flex}
+
+/* FIELD */
+.wz-field{margin-bottom:16px}
+.wz-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.wz-input{width:100%;padding:14px 16px;border:2px solid #E0E7FF;border-radius:14px;font-size:15px;font-family:'Inter',sans-serif;outline:none;background:#fff;color:#0F172A;transition:all .2s}
+.wz-input:focus{border-color:#4F46E5;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
+.wz-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* STEPPER */
+.wz-stepper-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.wz-stepper-row{background:#fff;border-radius:16px;border:1.5px solid #E0E7FF;padding:14px 16px;display:flex;align-items:center;gap:14px}
+.wz-stepper-icon{font-size:1.8rem;width:44px;text-align:center;flex-shrink:0}
+.wz-stepper-label{flex:1;font-size:14px;font-weight:700;color:#0F172A}
+.wz-stepper-ctrl{display:flex;align-items:center;gap:0;border:1.5px solid #E0E7FF;border-radius:12px;overflow:hidden}
+.wz-stepper-btn{width:36px;height:36px;border:none;background:#F8FAFF;font-size:18px;font-weight:700;cursor:pointer;color:#4F46E5;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.wz-stepper-btn:hover{background:#EEF2FF}
+.wz-stepper-val{width:36px;text-align:center;font-size:15px;font-weight:800;color:#0F172A;border:none;background:#fff;font-family:inherit}
+.wz-stepper-val:focus{outline:none}
+
+/* NEXT BTN */
+.wz-next{width:100%;padding:16px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,70,229,.3);transition:all .2s;margin-top:8px}
+.wz-next:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(79,70,229,.4)}
+
+/* SPOUSE CARD */
+.wz-spouse-banner{background:linear-gradient(135deg,#7C3AED,#EC4899);border-radius:20px;padding:20px;text-align:center;margin-bottom:24px}
+.wz-spouse-emoji{font-size:3rem;display:block;margin-bottom:8px}
+.wz-spouse-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
+.wz-spouse-sub{font-size:13px;color:rgba(255,255,255,.8)}
+</style>
+
+<!-- TOP BAR -->
+<div class="wz-top">
+  {% if step == '1' %}
+  <a href="/community/family/" class="wz-back">&#8592;</a>
+  {% elif step == '2' %}
+  <a href="/community/family/setup/?step=1" class="wz-back">&#8592;</a>
+  {% elif step == '3' %}
+  <a href="/community/family/setup/?step=2" class="wz-back">&#8592;</a>
+  {% elif step == '4' %}
+  <a href="/community/family/setup/?step={% if setup.marital_status == 'married' %}3{% else %}2{% endif %}" class="wz-back">&#8592;</a>
+  {% endif %}
+  <div class="wz-top-title">Family Hub Setup</div>
+  <span class="wz-top-step">Step {{ step }} of 4</span>
+</div>
+
+<!-- PROGRESS -->
+<div class="wz-progress">
+  <div class="wz-steps">
+    {% for s in "1234" %}
+    <div class="wz-step {% if s == step %}active{% elif s < step %}done{% endif %}">
+      <div style="position:relative;z-index:1">
+        <div class="wz-step-dot">{% if s < step %}✓{% else %}{{ s }}{% endif %}</div>
+        {% if s == '1' %}You
+        {% elif s == '2' %}Status
+        {% elif s == '3' %}Spouse
+        {% elif s == '4' %}Family
+        {% endif %}
+      </div>
+      <div class="wz-step-line"></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="wz-body">
+
+<!-- ── STEP 1: Gender + Basic Info ── -->
+{% if step == '1' %}
+<div class="wz-q">Tell us about yourself</div>
+<div class="wz-sub">This helps personalise your Family Hub.</div>
+
+<form method="post" action="/community/family/setup/">
+  {% csrf_token %}
+  <input type="hidden" name="step" value="1">
+
+  <div class="wz-field">
+    <label class="wz-label">Your Name</label>
+    <input name="display_name" class="wz-input" placeholder="e.g. Ravi Kumar" value="{{ setup.display_name }}" required>
+  </div>
+
+  <div class="wz-row">
+    <div class="wz-field">
+      <label class="wz-label">Age</label>
+      <input name="age" class="wz-input" type="number" min="1" max="120" placeholder="e.g. 35" value="{{ setup.age|default:'' }}">
+    </div>
+    <div class="wz-field">
+      <label class="wz-label">Village / Area</label>
+      <input name="village" class="wz-input" placeholder="e.g. Thanjavur" value="{{ setup.village }}">
+    </div>
+  </div>
+
+  <div class="wz-field">
+    <label class="wz-label">Are you Male or Female?</label>
+    <div class="wz-choices" id="genderChoices">
+      <label class="wz-choice {% if setup.gender == 'male' %}selected{% endif %}" id="c-male">
+        <input type="radio" name="gender" value="male" {% if setup.gender == 'male' %}checked{% endif %} onchange="pick('genderChoices',this)">
+        <div class="wz-choice-check">✓</div>
+        <span class="wz-choice-icon">👨</span>
+        <div class="wz-choice-label">Male</div>
+      </label>
+      <label class="wz-choice {% if setup.gender == 'female' %}selected{% endif %}" id="c-female">
+        <input type="radio" name="gender" value="female" {% if setup.gender == 'female' %}checked{% endif %} onchange="pick('genderChoices',this)">
+        <div class="wz-choice-check">✓</div>
+        <span class="wz-choice-icon">👩</span>
+        <div class="wz-choice-label">Female</div>
+      </label>
+    </div>
+  </div>
+
+  <button type="submit" class="wz-next">Next &rarr;</button>
+</form>
+
+
+<!-- ── STEP 2: Married or Unmarried ── -->
+{% elif step == '2' %}
+<div class="wz-q">What is your marital status?</div>
+<div class="wz-sub">We'll set up your spouse's page if you're married.</div>
+
+<form method="post" action="/community/family/setup/">
+  {% csrf_token %}
+  <input type="hidden" name="step" value="2">
+
+  <div class="wz-choices" id="maritalChoices">
+    <label class="wz-choice {% if setup.marital_status == 'married' %}selected{% endif %}">
+      <input type="radio" name="marital_status" value="married" {% if setup.marital_status == 'married' %}checked{% endif %} onchange="pick('maritalChoices',this)">
+      <div class="wz-choice-check">✓</div>
+      <span class="wz-choice-icon">💍</span>
+      <div class="wz-choice-label">Married</div>
+    </label>
+    <label class="wz-choice {% if setup.marital_status == 'unmarried' %}selected{% endif %}">
+      <input type="radio" name="marital_status" value="unmarried" {% if setup.marital_status == 'unmarried' %}checked{% endif %} onchange="pick('maritalChoices',this)">
+      <div class="wz-choice-check">✓</div>
+      <span class="wz-choice-icon">🙂</span>
+      <div class="wz-choice-label">Unmarried</div>
+    </label>
+  </div>
+
+  <button type="submit" class="wz-next">Next &rarr;</button>
+</form>
+
+
+<!-- ── STEP 3: Spouse Name ── -->
+{% elif step == '3' %}
+<div class="wz-spouse-banner">
+  <span class="wz-spouse-emoji">{% if setup.gender == 'male' %}👩{% else %}👨{% endif %}</span>
+  <div class="wz-spouse-title">{% if setup.gender == 'male' %}Your Wife{% else %}Your Husband{% endif %}</div>
+  <div class="wz-spouse-sub">We'll create a special page for them in your Family Hub.</div>
+</div>
+
+<form method="post" action="/community/family/setup/">
+  {% csrf_token %}
+  <input type="hidden" name="step" value="3">
+
+  <div class="wz-field">
+    <label class="wz-label">{% if setup.gender == 'male' %}Wife's Name{% else %}Husband's Name{% endif %}</label>
+    <input name="spouse_name" class="wz-input" placeholder="{% if setup.gender == 'male' %}e.g. Meena{% else %}e.g. Ravi{% endif %}" value="{{ setup.spouse_name }}" required>
+  </div>
+
+  <button type="submit" class="wz-next">Next &rarr;</button>
+</form>
+
+
+<!-- ── STEP 4: Family Member Counts ── -->
+{% elif step == '4' %}
+<div class="wz-q">How big is your family?</div>
+<div class="wz-sub">Set the count for each type. Use + / − to adjust.</div>
+
+<form method="post" action="/community/family/setup/">
+  {% csrf_token %}
+  <input type="hidden" name="step" value="4">
+
+  <div class="wz-stepper-list">
+    {% for icon, label, field, current in rows %}
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">{{ icon }}</span>
+      <span class="wz-stepper-label">{{ label }}</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('{{ field }}',-1)">−</button>
+        <input class="wz-stepper-val" id="{{ field }}" name="{{ field }}" type="number" value="{{ current }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('{{ field }}',1)">+</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="wz-next">✨ Save My Family</button>
+</form>
+{% endif %}
+
+</div>
+
+<script>
+function pick(groupId, radio) {
+  document.querySelectorAll('#' + groupId + ' .wz-choice').forEach(c => c.classList.remove('selected'));
+  radio.closest('.wz-choice').classList.add('selected');
+}
+function adj(field, delta) {
+  var el = document.getElementById(field);
+  var v = parseInt(el.value) + delta;
+  if (v < 0) v = 0;
+  if (v > 20) v = 20;
+  el.value = v;
+}
+</script>
+{% endblock %}
