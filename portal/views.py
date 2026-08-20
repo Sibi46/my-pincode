@@ -157,6 +157,12 @@ def event_detail(request, pk):
     if request.user.is_authenticated:
         registration = event.participants.filter(user=request.user).first()
         user_rating  = event.ratings.filter(user=request.user).first()
+        # Build ordered list of user's RSVP answers matching event questions
+        if registration and event.rsvp_questions:
+            registration.answers_list = [
+                (q, registration.rsvp_answers.get(str(i), ''))
+                for i, q in enumerate(event.rsvp_questions)
+            ]
     attendees   = event.participants.filter(status='approved').select_related('user')[:20]
     waitlist    = event.participants.filter(status='waitlist').select_related('user')
     comments    = event.comments.select_related('user').order_by('created_at')

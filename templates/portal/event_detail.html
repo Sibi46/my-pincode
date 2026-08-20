@@ -123,15 +123,11 @@
         {% if registration.status == 'approved' %}
         <div style="display:flex;flex-direction:column;gap:4px">
           <span style="background:rgba(255,255,255,.15);color:#fff;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700">✅ You're going!</span>
-          {% if event.rsvp_questions and registration.rsvp_answers %}
-          <div style="margin-top:4px">
-            {% for q in event.rsvp_questions %}
-            {% with idx=forloop.counter0|stringformat:"s" %}
-            {% if registration.rsvp_answers|default_if_none:"" %}
-            <span style="font-size:10px;color:rgba(255,255,255,.7);display:block">Q{{ forloop.counter }}: <strong style="color:#fff">{{ registration.rsvp_answers|default_if_none:"" }}</strong></span>
-            {% endif %}
-            {% endwith %}
-            {% endfor %}
+          {% if registration.answers_list %}
+          <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px">
+            {% for q, ans in registration.answers_list %}{% if ans %}
+            <span style="font-size:11px;color:rgba(255,255,255,.8)">{{ q }}: <strong style="color:#fff">{{ ans }}</strong></span>
+            {% endif %}{% endfor %}
           </div>
           {% endif %}
         </div>
