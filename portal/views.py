@@ -938,6 +938,42 @@ def event_cancel_registration(request, pk):
 
 
 @login_required
+def edit_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if event.created_by != request.user and not (event.community and event.community.is_admin(request.user)):
+        messages.error(request, 'Only the event creator or admin can edit this event.')
+        return redirect('portal_event_detail', pk=pk)
+
+    if request.method == 'POST':
+        p = request.POST
+        event.name        = p.get('name', '').strip()
+        event.description = p.get('description', '').strip()
+        event.date        = p.get('date')
+        event.time        = p.get('time')
+        event.location    = 'Online' if p.get('is_online') == 'on' else p.get('location', '').strip()
+        event.is_online   = p.get('is_online') == 'on'
+        event.online_link = p.get('online_link', '').strip()
+        event.map_link    = p.get('map_link', '').strip()
+        event.pincode     = p.get('pincode', '').strip()
+        event.tags        = p.get('tags', '').strip()
+        event.contact_person = p.get('contact_person', '').strip()
+        event.contact_phone  = p.get('contact_phone', '').strip()
+        event.is_paid     = p.get('is_paid') == 'on'
+        event.end_date    = p.get('end_date') or None
+        event.end_time    = p.get('end_time') or None
+        event.ticket_price = p.get('ticket_price') or None
+        event.max_participants = int(p.get('max_participants')) if p.get('max_participants') else None
+        event.rsvp_questions = [q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5]
+        if 'image' in request.FILES:
+            event.image = request.FILES['image']
+        event.save()
+        messages.success(request, 'Event updated successfully.')
+        return redirect('portal_event_detail', pk=pk)
+
+    return render(request, 'portal/event_edit.html', {'event': event})
+
+
+@login_required
 def manage_event(request, pk):
     event    = get_object_or_404(Event, pk=pk)
     community = event.community

@@ -1,0 +1,144 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Edit Event — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:700px">
+  <div class="psec-header">
+    <div class="psec-title">✏️ Edit Event</div>
+    <a href="/portal/event/{{ event.pk }}/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div class="pform-group"><label class="pform-label">Event Name *</label><input type="text" name="name" class="pform-input" required value="{{ event.name }}"></div>
+        <div class="pform-group"><label class="pform-label">Description *</label><textarea name="description" class="pform-input" rows="4" required>{{ event.description }}</textarea></div>
+        <div class="pform-group"><label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">(space-separated)</span></label>
+          <input type="text" name="tags" class="pform-input" value="{{ event.tags }}"></div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📅 Date &amp; Time</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" class="pform-input" required value="{{ event.date|date:'Y-m-d' }}"></div>
+          <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" class="pform-input" required value="{{ event.time|time:'H:i' }}"></div>
+          <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" class="pform-input" value="{{ event.end_date|date:'Y-m-d' }}"></div>
+          <div class="pform-group"><label class="pform-label">End Time</label><input type="time" name="end_time" class="pform-input" value="{{ event.end_time|time:'H:i' }}"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📍 Location</div>
+        <div class="pform-group" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <input type="checkbox" name="is_online" id="is_online" style="width:16px;height:16px" {% if event.is_online %}checked{% endif %} onchange="toggleOnline(this)">
+          <label for="is_online" class="pform-label" style="margin:0">📹 This is an online event</label>
+        </div>
+        <div id="offline-fields" {% if event.is_online %}style="display:none"{% endif %}>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="pform-group"><label class="pform-label">Venue / Address</label><input type="text" name="location" class="pform-input" id="location-input" value="{{ event.location }}" {% if not event.is_online %}required{% endif %}></div>
+            <div class="pform-group"><label class="pform-label">Pincode</label><input type="text" name="pincode" class="pform-input" value="{{ event.pincode }}"></div>
+            <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Google Maps Link</label><input type="url" name="map_link" class="pform-input" value="{{ event.map_link }}"></div>
+          </div>
+        </div>
+        <div id="online-fields" {% if not event.is_online %}style="display:none"{% endif %}>
+          <div class="pform-group"><label class="pform-label">Meeting Link</label>
+            <input type="url" name="online_link" class="pform-input" value="{{ event.online_link }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">🎟 Capacity &amp; Tickets</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Max Participants</label><input type="number" name="max_participants" class="pform-input" min="1" value="{{ event.max_participants }}"></div>
+          <div class="pform-group">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <input type="checkbox" name="is_paid" id="is_paid" style="width:16px;height:16px" {% if event.is_paid %}checked{% endif %} onchange="togglePaid(this)">
+              <label for="is_paid" class="pform-label" style="margin:0">💰 Paid Event</label>
+            </div>
+            <div id="price-field" {% if not event.is_paid %}style="display:none"{% endif %}>
+              <input type="number" name="ticket_price" class="pform-input" min="0" step="0.01" value="{{ event.ticket_price }}">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📞 Contact &amp; Media</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Contact Person</label><input type="text" name="contact_person" class="pform-input" value="{{ event.contact_person }}"></div>
+          <div class="pform-group"><label class="pform-label">Contact Phone</label><input type="text" name="contact_phone" class="pform-input" value="{{ event.contact_phone }}"></div>
+          <div class="pform-group" style="grid-column:1/-1">
+            <label class="pform-label">Event Poster {% if event.image %}<span style="color:#059669;font-size:11px">(current image kept if blank)</span>{% endif %}</label>
+            {% if event.image %}<img src="{{ event.image.url }}" style="display:block;max-height:100px;border-radius:8px;margin-bottom:8px">{% endif %}
+            <input type="file" name="image" accept="image/*" class="pform-input" style="padding:6px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RSVP Questions -->
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#0f172a">❓ RSVP Questions</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Max 5 questions.</div>
+          </div>
+          <button type="button" onclick="addQuestion()" class="pbtn pbtn-outline pbtn-sm" style="font-size:11px;white-space:nowrap">+ Add Question</button>
+        </div>
+        <div id="qList" style="display:flex;flex-direction:column;gap:10px">
+          {% for q in event.rsvp_questions %}
+          <div class="qItem" style="background:#f8faff;border:1.5px solid #c7d2fe;border-radius:14px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-size:12px;font-weight:800;color:#4f46e5;background:#ede9fe;border-radius:20px;padding:2px 10px">Q{{ forloop.counter }}</span>
+              <button type="button" onclick="this.closest('.qItem').remove()" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">✕ Remove</button>
+            </div>
+            <input type="text" name="rsvp_questions[]" class="pform-input" value="{{ q }}">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="margin-bottom:40px">💾 Save Changes</button>
+  </form>
+</div>
+
+<script>
+function toggleOnline(cb){
+  document.getElementById('offline-fields').style.display = cb.checked ? 'none' : 'block';
+  document.getElementById('online-fields').style.display  = cb.checked ? 'block' : 'none';
+  var loc = document.getElementById('location-input');
+  if(loc){ cb.checked ? loc.removeAttribute('required') : loc.setAttribute('required',''); }
+}
+function togglePaid(cb){
+  document.getElementById('price-field').style.display = cb.checked ? 'block' : 'none';
+}
+var qCount = {{ event.rsvp_questions|length }};
+function addQuestion(){
+  if(document.querySelectorAll('#qList .qItem').length >= 5){ alert('Maximum 5 questions allowed.'); return; }
+  qCount++;
+  var div = document.createElement('div');
+  div.className = 'qItem';
+  div.style.cssText = 'background:#f8faff;border:1.5px solid #c7d2fe;border-radius:14px;padding:14px';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800;color:#4f46e5;background:#ede9fe;border-radius:20px;padding:2px 10px">Q${qCount}</span>
+      <button type="button" onclick="this.closest('.qItem').remove()" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">✕ Remove</button>
+    </div>
+    <input type="text" name="rsvp_questions[]" class="pform-input" placeholder="Type your question…">`;
+  document.getElementById('qList').appendChild(div);
+  div.querySelector('input').focus();
+}
+</script>
+{% endblock %}

@@ -218,7 +218,10 @@
 <div class="ev-sect">
   <div class="ev-sect-head">
     <div class="ev-sect-title">👥 Attendees ({{ going_count }})</div>
-    {% if is_admin %}<a href="/portal/event/{{ event.pk }}/manage/" class="pbtn pbtn-primary pbtn-sm">Manage</a>{% endif %}
+    {% if is_admin %}
+    <a href="/portal/event/{{ event.pk }}/edit/" class="pbtn pbtn-outline pbtn-sm">✏️ Edit</a>
+    <a href="/portal/event/{{ event.pk }}/manage/" class="pbtn pbtn-primary pbtn-sm">Manage</a>
+    {% endif %}
   </div>
   <div class="ev-sect-body">
     <div class="ev-attendees">
@@ -335,6 +338,7 @@
 <div class="ev-sect" style="border-color:#4f46e5">
   <div class="ev-sect-head" style="background:#ede9fe"><div class="ev-sect-title" style="color:#4f46e5">🛠 Organiser Tools</div></div>
   <div class="ev-sect-body" style="display:flex;flex-wrap:wrap;gap:10px">
+    <a href="/portal/event/{{ event.pk }}/edit/" class="pbtn pbtn-outline" style="border-color:#4f46e5;color:#4f46e5">✏️ Edit Event</a>
     <a href="/portal/event/{{ event.pk }}/manage/" class="pbtn pbtn-primary">Manage Attendees</a>
 
     <!-- Announcement -->

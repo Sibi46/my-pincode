@@ -27,6 +27,7 @@ urlpatterns = [
 
     # Event management
     path('event/<int:pk>/register/',            views.event_register,         name='portal_event_register'),
+    path('event/<int:pk>/edit/',               views.edit_event,             name='portal_edit_event'),
     path('event/<int:pk>/manage/',              views.manage_event,           name='portal_manage_event'),
 
     # Event extended features
