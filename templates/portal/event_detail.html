@@ -191,9 +191,18 @@
     </div>
     {% endif %}
     {% if event.is_online and event.online_link and registration.status == 'approved' %}
-    <div style="margin-top:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px">
-      <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:4px">🔗 Online Meeting Link</div>
-      <a href="{{ event.online_link }}" target="_blank" style="font-size:13px;color:#2563eb;word-break:break-all">{{ event.online_link }}</a>
+    <div style="margin-top:14px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:8px">🔗 Online Meeting Details</div>
+      <div style="margin-bottom:6px">
+        <span style="font-size:11px;color:#3b82f6;font-weight:600">Meeting Link</span><br>
+        <a href="{{ event.online_link }}" target="_blank" style="font-size:13px;color:#2563eb;word-break:break-all">{{ event.online_link }}</a>
+      </div>
+      {% if event.meeting_password %}
+      <div style="margin-top:8px;background:#dbeafe;border-radius:8px;padding:8px 12px;display:inline-block">
+        <span style="font-size:11px;color:#1d4ed8;font-weight:600">Password: </span>
+        <span style="font-size:14px;font-weight:800;color:#1e40af;letter-spacing:.06em">{{ event.meeting_password }}</span>
+      </div>
+      {% endif %}
     </div>
     {% endif %}
     {% if event.map_link and not event.is_online %}

@@ -46,8 +46,11 @@
           </div>
         </div>
         <div id="online-fields" {% if not event.is_online %}style="display:none"{% endif %}>
-          <div class="pform-group"><label class="pform-label">Meeting Link</label>
+          <div class="pform-group"><label class="pform-label">Meeting Link <span style="font-weight:400;color:#94a3b8">(shared only with registered attendees)</span></label>
             <input type="url" name="online_link" class="pform-input" value="{{ event.online_link }}">
+          </div>
+          <div class="pform-group"><label class="pform-label">Meeting Password <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+            <input type="text" name="meeting_password" class="pform-input" value="{{ event.meeting_password }}">
           </div>
         </div>
       </div>

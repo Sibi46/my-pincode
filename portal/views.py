@@ -803,6 +803,7 @@ def create_event_standalone(request):
             is_paid=p.get('is_paid') == 'on',
             is_online=p.get('is_online') == 'on',
             online_link=p.get('online_link','').strip(),
+            meeting_password=p.get('meeting_password','').strip(),
             pincode=p.get('pincode','').strip(),
             tags=p.get('tags','').strip(),
             rsvp_questions=[q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5],
@@ -869,6 +870,7 @@ def create_event(request, page_id):
             is_paid=p.get('is_paid') == 'on',
             is_online=p.get('is_online') == 'on',
             online_link=p.get('online_link','').strip(),
+            meeting_password=p.get('meeting_password','').strip(),
             pincode=p.get('pincode','').strip(),
             tags=p.get('tags','').strip(),
             rsvp_questions=[q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5],
@@ -903,20 +905,30 @@ def event_register(request, pk):
     event = get_object_or_404(Event, pk=pk, is_active=True)
     existing = EventParticipant.objects.filter(event=event, user=request.user).first()
 
-    needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact
+    needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact or event.require_profile_photo
 
     if needs_rsvp_page and request.method == 'GET':
-        return render(request, 'portal/event_rsvp.html', {'event': event})
-
-    # --- Profile photo check ---
-    if event.require_profile_photo:
         try:
             has_photo = bool(request.user.seeker.photo)
         except Exception:
             has_photo = False
-        if not has_photo:
-            messages.error(request, 'This event requires a profile photo. Please upload one first.')
-            return redirect('portal_event_detail', pk=pk)
+        return render(request, 'portal/event_rsvp.html', {'event': event, 'has_photo': has_photo})
+
+    # --- Profile photo check / upload ---
+    if event.require_profile_photo:
+        if 'profile_photo' in request.FILES:
+            from jobs.models import JobSeekerProfile
+            profile, _ = JobSeekerProfile.objects.get_or_create(user=request.user)
+            profile.photo = request.FILES['profile_photo']
+            profile.save(update_fields=['photo'])
+        else:
+            try:
+                has_photo = bool(request.user.seeker.photo)
+            except Exception:
+                has_photo = False
+            if not has_photo:
+                messages.error(request, 'This event requires a profile photo. Please upload one on the RSVP page.')
+                return redirect('portal_event_detail', pk=pk)
 
     # --- Collect contact + answers ---
     rsvp_email = request.POST.get('rsvp_email', '').strip()
@@ -1005,9 +1017,10 @@ def edit_event(request, pk):
         event.date        = p.get('date')
         event.time        = p.get('time')
         event.location    = 'Online' if p.get('is_online') == 'on' else p.get('location', '').strip()
-        event.is_online   = p.get('is_online') == 'on'
-        event.online_link = p.get('online_link', '').strip()
-        event.map_link    = p.get('map_link', '').strip()
+        event.is_online        = p.get('is_online') == 'on'
+        event.online_link      = p.get('online_link', '').strip()
+        event.meeting_password = p.get('meeting_password', '').strip()
+        event.map_link         = p.get('map_link', '').strip()
         event.pincode     = p.get('pincode', '').strip()
         event.tags        = p.get('tags', '').strip()
         event.contact_person = p.get('contact_person', '').strip()
