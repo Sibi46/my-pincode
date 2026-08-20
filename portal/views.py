@@ -151,7 +151,8 @@ def events_list(request):
 
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk, is_active=True)
-    is_admin = event.community.is_admin(request.user)
+    is_admin = event.community and event.community.is_admin(request.user)
+    is_super_admin = request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
     registration = None
     user_rating = None
     if request.user.is_authenticated:
@@ -173,8 +174,13 @@ def event_detail(request, pk):
     similar     = Event.objects.filter(
         community=event.community, is_active=True
     ).exclude(pk=event.pk).order_by('date')[:3]
+    community_president = None
+    if event.community:
+        pres = event.community.president()
+        if pres:
+            community_president = pres.user
     return render(request, 'portal/event_detail.html', {
-        'event': event, 'is_admin': is_admin,
+        'event': event, 'is_admin': is_admin, 'is_super_admin': is_super_admin,
         'registration': registration, 'user_rating': user_rating,
         'attendees': attendees, 'waitlist': waitlist,
         'comments': comments, 'announcements': announcements,
@@ -182,6 +188,7 @@ def event_detail(request, pk):
         'similar': similar,
         'going_count': event.participants.filter(status='approved').count(),
         'waitlist_count': waitlist.count(),
+        'community_president': community_president,
     })
 
 
@@ -799,6 +806,9 @@ def create_event_standalone(request):
             pincode=p.get('pincode','').strip(),
             tags=p.get('tags','').strip(),
             rsvp_questions=[q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5],
+            require_profile_photo=p.get('require_profile_photo') == 'on',
+            collect_contact=p.get('collect_contact') == 'on',
+            upi_id=p.get('upi_id','').strip(),
         )
         if p.get('end_date'):
             event.end_date = p.get('end_date')
@@ -812,6 +822,8 @@ def create_event_standalone(request):
             event.cause_id = p.get('cause')
         if 'image' in request.FILES:
             event.image = request.FILES['image']
+        if 'payment_qr' in request.FILES:
+            event.payment_qr = request.FILES['payment_qr']
         event.save()
         # Notify community members if linked
         if community:
@@ -860,6 +872,9 @@ def create_event(request, page_id):
             pincode=p.get('pincode','').strip(),
             tags=p.get('tags','').strip(),
             rsvp_questions=[q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5],
+            require_profile_photo=p.get('require_profile_photo') == 'on',
+            collect_contact=p.get('collect_contact') == 'on',
+            upi_id=p.get('upi_id','').strip(),
         )
         if p.get('end_date'):
             event.end_date = p.get('end_date')
@@ -873,6 +888,8 @@ def create_event(request, page_id):
             event.cause_id = p.get('cause')
         if 'image' in request.FILES:
             event.image = request.FILES['image']
+        if 'payment_qr' in request.FILES:
+            event.payment_qr = request.FILES['payment_qr']
         event.save()
         for m in community.memberships.filter(status='approved').select_related('user'):
             _notify(m.user, 'new_event', f'New event in {community.name}: {event.name} on {event.date}', f'/portal/event/{event.pk}/')
@@ -885,27 +902,52 @@ def create_event(request, page_id):
 def event_register(request, pk):
     event = get_object_or_404(Event, pk=pk, is_active=True)
     existing = EventParticipant.objects.filter(event=event, user=request.user).first()
-    # If event has an RSVP question, require answer via GET form
-    if event.rsvp_questions and request.method == 'GET':
+
+    needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact
+
+    if needs_rsvp_page and request.method == 'GET':
         return render(request, 'portal/event_rsvp.html', {'event': event})
 
-    # Collect answers: rsvp_answer_0, rsvp_answer_1, ...
+    # --- Profile photo check ---
+    if event.require_profile_photo:
+        try:
+            has_photo = bool(request.user.seeker.photo)
+        except Exception:
+            has_photo = False
+        if not has_photo:
+            messages.error(request, 'This event requires a profile photo. Please upload one first.')
+            return redirect('portal_event_detail', pk=pk)
+
+    # --- Collect contact + answers ---
+    rsvp_email = request.POST.get('rsvp_email', '').strip()
+    rsvp_phone = request.POST.get('rsvp_phone', '').strip()
     rsvp_answers = {}
     for i, _ in enumerate(event.rsvp_questions):
         ans = request.POST.get(f'rsvp_answer_{i}', '').strip()
         if ans:
             rsvp_answers[str(i)] = ans
 
+    # --- Payment screenshot ---
+    payment_screenshot = request.FILES.get('payment_screenshot')
+    payment_status = 'pending' if (event.is_paid and payment_screenshot) else ''
+
+    # --- Status ---
+    initial_status = 'waitlist' if event.is_full() else ('pending' if event.is_paid else 'approved')
+
     if existing:
         if existing.status == 'cancelled':
-            if event.is_full():
-                existing.status = 'waitlist'
-            else:
-                existing.status = 'approved'
+            existing.status = initial_status
             existing.rsvp_answers = rsvp_answers
+            existing.rsvp_email = rsvp_email
+            existing.rsvp_phone = rsvp_phone
+            if payment_screenshot:
+                existing.payment_screenshot = payment_screenshot
+                existing.payment_status = 'pending'
             existing.save()
             if existing.status == 'waitlist':
                 messages.info(request, 'Event is full — added to waitlist.')
+            elif existing.status == 'pending':
+                messages.success(request, 'Payment screenshot submitted! Awaiting creator approval.')
             else:
                 messages.success(request, "You're going!")
         else:
@@ -913,13 +955,19 @@ def event_register(request, pk):
         return redirect('portal_event_detail', pk=pk)
 
     role = request.POST.get('role', 'attendee')
-    status = 'waitlist' if event.is_full() else 'approved'
-    EventParticipant.objects.create(
-        event=event, user=request.user, role=role, status=status,
-        rsvp_answers=rsvp_answers,
+    p = EventParticipant(
+        event=event, user=request.user, role=role, status=initial_status,
+        rsvp_answers=rsvp_answers, rsvp_email=rsvp_email, rsvp_phone=rsvp_phone,
+        payment_status=payment_status,
     )
-    if status == 'waitlist':
+    if payment_screenshot:
+        p.payment_screenshot = payment_screenshot
+    p.save()
+
+    if initial_status == 'waitlist':
         messages.info(request, 'Event is full — you have been added to the waitlist.')
+    elif initial_status == 'pending':
+        messages.success(request, 'Payment screenshot submitted! Awaiting creator approval.')
     else:
         messages.success(request, "You're going! See you there.")
     return redirect('portal_event_detail', pk=pk)
@@ -970,8 +1018,13 @@ def edit_event(request, pk):
         event.ticket_price = p.get('ticket_price') or None
         event.max_participants = int(p.get('max_participants')) if p.get('max_participants') else None
         event.rsvp_questions = [q.strip() for q in p.getlist('rsvp_questions[]') if q.strip()][:5]
+        event.require_profile_photo = p.get('require_profile_photo') == 'on'
+        event.collect_contact       = p.get('collect_contact') == 'on'
+        event.upi_id                = p.get('upi_id', '').strip()
         if 'image' in request.FILES:
             event.image = request.FILES['image']
+        if 'payment_qr' in request.FILES:
+            event.payment_qr = request.FILES['payment_qr']
         event.save()
         messages.success(request, 'Event updated successfully.')
         return redirect('portal_event_detail', pk=pk)
@@ -1000,11 +1053,20 @@ def manage_event(request, pk):
         elif action == 'attend':
             part.attended = not part.attended
             part.save()
+        elif action == 'approve_payment':
+            part.payment_status = 'approved'
+            part.status = 'approved'
+            part.save()
+            _notify(part.user, 'event_approved', f'Your payment for {event.name} has been approved!', f'/portal/event/{pk}/')
+        elif action == 'reject_payment':
+            part.payment_status = 'rejected'
+            part.status = 'rejected'
+            part.save()
+            _notify(part.user, 'event_approved', f'Your payment for {event.name} was rejected. Please contact the organiser.', f'/portal/event/{pk}/')
         return redirect('portal_manage_event', pk=pk)
 
-    status_filter = request.GET.get('status', 'approved')
+    status_filter = request.GET.get('status', 'pending' if event.is_paid else 'approved')
     participants = list(event.participants.filter(status=status_filter).select_related('user').order_by('role'))
-    # Annotate each participant with an ordered list of answers matching event.rsvp_questions
     for p in participants:
         p.answers_list = [p.rsvp_answers.get(str(i), '') for i in range(len(event.rsvp_questions))]
     all_counts = {s: event.participants.filter(status=s).count() for s, _ in EventParticipant.STATUSES}
@@ -1412,3 +1474,17 @@ def admin_delete_video(request, pk):
     video.save()
     messages.success(request, 'Video removed.')
     return redirect('portal_videos')
+
+
+@login_required
+def admin_delete_event(request, pk):
+    if not _require_staff(request):
+        return redirect('portal_home')
+    event = get_object_or_404(Event, pk=pk)
+    if request.method == 'POST':
+        name = event.name
+        event.is_active = False
+        event.save()
+        messages.success(request, f'Event "{name}" has been deleted.')
+        return redirect('portal_events')
+    return render(request, 'portal/admin_event_confirm_delete.html', {'event': event})

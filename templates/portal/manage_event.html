@@ -37,7 +37,17 @@
     <div style="overflow-x:auto">
       <table class="ptable">
         <thead>
-          <tr><th>Name</th><th>Role</th><th>Registered</th><th>Status</th>{% for q in event.rsvp_questions %}<th style="font-size:11px;max-width:120px">Q{{ forloop.counter }}</th>{% endfor %}<th>Attended</th><th>Actions</th></tr>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            {% if event.collect_contact %}<th>Email</th><th>Phone</th>{% endif %}
+            <th>Registered</th>
+            <th>Status</th>
+            {% for q in event.rsvp_questions %}<th style="font-size:11px;max-width:120px">Q{{ forloop.counter }}</th>{% endfor %}
+            {% if event.is_paid %}<th>Payment</th>{% endif %}
+            <th>Attended</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
           {% for p in participants %}
@@ -47,19 +57,44 @@
               <div style="font-size:11px;color:#64748b">{{ p.user.email }}</div>
             </td>
             <td><span class="pbadge pbadge-blue">{{ p.get_role_display }}</span></td>
+            {% if event.collect_contact %}
+            <td style="font-size:12px;color:#374151">{{ p.rsvp_email|default:"—" }}</td>
+            <td style="font-size:12px;color:#374151">{{ p.rsvp_phone|default:"—" }}</td>
+            {% endif %}
             <td style="font-size:12px;color:#64748b">{{ p.registered_at|date:"d M Y" }}</td>
             <td><span class="pbadge {% if p.status == 'approved' %}pbadge-green{% elif p.status == 'pending' %}pbadge-orange{% else %}pbadge-red{% endif %}">{{ p.get_status_display }}</span></td>
             {% for ans in p.answers_list %}<td style="font-size:12px;color:#374151;max-width:140px">
               {% if ans %}{{ ans }}{% else %}<span style="color:#94a3b8">—</span>{% endif %}
             </td>{% endfor %}
+            {% if event.is_paid %}
+            <td>
+              {% if p.payment_screenshot %}
+              <a href="{{ p.payment_screenshot.url }}" target="_blank" style="font-size:11px;color:#4f46e5;text-decoration:none">📷 View</a>
+              {% if p.payment_status == 'pending' %}
+              <span class="pbadge pbadge-orange" style="display:block;margin-top:4px">Pending</span>
+              {% elif p.payment_status == 'approved' %}
+              <span class="pbadge pbadge-green" style="display:block;margin-top:4px">Approved</span>
+              {% elif p.payment_status == 'rejected' %}
+              <span class="pbadge pbadge-red" style="display:block;margin-top:4px">Rejected</span>
+              {% endif %}
+              {% else %}
+              <span style="color:#94a3b8;font-size:12px">—</span>
+              {% endif %}
+            </td>
+            {% endif %}
             <td>{% if p.attended %}<span class="pbadge pbadge-green">✓</span>{% else %}<span style="color:#94a3b8">—</span>{% endif %}</td>
             <td>
               <form method="post" style="display:flex;gap:4px;flex-wrap:wrap">
                 {% csrf_token %}
                 <input type="hidden" name="participant_id" value="{{ p.pk }}">
                 {% if p.status == 'pending' %}
-                <button name="action" value="approve" class="pbtn pbtn-green pbtn-sm">Approve</button>
-                <button name="action" value="reject" class="pbtn pbtn-red pbtn-sm">Reject</button>
+                  {% if event.is_paid and p.payment_status == 'pending' and p.payment_screenshot %}
+                  <button name="action" value="approve_payment" class="pbtn pbtn-green pbtn-sm">✅ Pay OK</button>
+                  <button name="action" value="reject_payment" class="pbtn pbtn-red pbtn-sm">❌ Reject</button>
+                  {% else %}
+                  <button name="action" value="approve" class="pbtn pbtn-green pbtn-sm">Approve</button>
+                  <button name="action" value="reject" class="pbtn pbtn-red pbtn-sm">Reject</button>
+                  {% endif %}
                 {% endif %}
                 {% if p.status == 'approved' %}
                 <button name="action" value="attend" class="pbtn {% if p.attended %}pbtn-outline{% else %}pbtn-primary{% endif %} pbtn-sm">{% if p.attended %}Undo{% else %}Mark Attended{% endif %}</button>
@@ -68,7 +103,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">No {{ status_filter }} participants.</td></tr>
+          <tr><td colspan="10" style="text-align:center;color:#94a3b8;padding:24px">No {{ status_filter }} participants.</td></tr>
           {% endfor %}
         </tbody>
       </table>

@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('community', '0022_familysetup_age_familysetup_display_name_and_more'),
+        ('community', '0020_school_admin_phone'),
     ]
 
     operations = [

@@ -1,0 +1,18 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Delete Event{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:480px">
+  <div class="pcard">
+    <div class="pcard-body" style="text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:16px">🗑️</div>
+      <div style="font-size:18px;font-weight:900;color:#0f172a;margin-bottom:8px">Delete Event?</div>
+      <div style="font-size:14px;color:#64748b;margin-bottom:24px">Are you sure you want to delete <strong>{{ event.name }}</strong>? This will hide it from all users.</div>
+      <form method="post" style="display:flex;gap:12px;justify-content:center">
+        {% csrf_token %}
+        <a href="/portal/event/{{ event.pk }}/" class="pbtn pbtn-outline">Cancel</a>
+        <button type="submit" class="pbtn" style="background:#ef4444;color:#fff;border-color:#ef4444">Yes, Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

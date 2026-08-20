@@ -60,4 +60,5 @@ urlpatterns = [
     path('admin/communities/<int:pk>/reject/',  views.admin_reject_community, name='portal_admin_reject'),
     path('admin/communities/<int:pk>/delete/',  views.admin_delete_community, name='portal_admin_delete'),
     path('admin/video/<int:pk>/delete/',        views.admin_delete_video,     name='portal_admin_delete_video'),
+    path('admin/event/<int:pk>/delete/',        views.admin_delete_event,     name='portal_admin_delete_event'),
 ]

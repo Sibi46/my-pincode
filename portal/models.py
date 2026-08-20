@@ -197,7 +197,11 @@ class Event(models.Model):
     is_paid          = models.BooleanField(default=False)
     ticket_price     = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     tags             = models.CharField(max_length=300, blank=True)
-    rsvp_questions   = models.JSONField(default=list, blank=True, help_text='List of yes/no questions shown to attendees when they RSVP')
+    rsvp_questions        = models.JSONField(default=list, blank=True)
+    require_profile_photo = models.BooleanField(default=False)
+    collect_contact       = models.BooleanField(default=False)
+    upi_id                = models.CharField(max_length=100, blank=True)
+    payment_qr            = models.ImageField(upload_to='portal/payment_qr/', blank=True)
     contact_person   = models.CharField(max_length=200, blank=True)
     contact_phone    = models.CharField(max_length=20, blank=True)
     status           = models.CharField(max_length=12, choices=STATUS_CHOICES, default='upcoming')
@@ -227,13 +231,19 @@ class EventParticipant(models.Model):
     ROLES    = [('attendee','Attendee'),('volunteer','Volunteer'),('guest','Guest'),('sponsor','Sponsor'),('partner','Partner')]
     STATUSES = [('pending','Pending'),('approved','Approved'),('rejected','Rejected'),('waitlist','Waitlist'),('cancelled','Cancelled')]
 
-    event         = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='participants')
-    user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_participations')
-    role          = models.CharField(max_length=10, choices=ROLES, default='attendee')
-    status        = models.CharField(max_length=10, choices=STATUSES, default='pending')
-    rsvp_answers  = models.JSONField(default=dict, blank=True, help_text='Dict of {question_index: answer text}')
-    attended      = models.BooleanField(default=False)
-    registered_at = models.DateTimeField(auto_now_add=True)
+    PAYMENT_STATUSES = [('','—'),('pending','Pending'),('approved','Approved'),('rejected','Rejected')]
+
+    event              = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='participants')
+    user               = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_participations')
+    role               = models.CharField(max_length=10, choices=ROLES, default='attendee')
+    status             = models.CharField(max_length=10, choices=STATUSES, default='pending')
+    rsvp_answers       = models.JSONField(default=dict, blank=True)
+    rsvp_email         = models.EmailField(blank=True)
+    rsvp_phone         = models.CharField(max_length=20, blank=True)
+    payment_screenshot = models.ImageField(upload_to='portal/payment_screenshots/', blank=True)
+    payment_status     = models.CharField(max_length=10, choices=PAYMENT_STATUSES, blank=True)
+    attended           = models.BooleanField(default=False)
+    registered_at      = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('event', 'user')

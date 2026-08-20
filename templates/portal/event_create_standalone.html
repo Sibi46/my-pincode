@@ -184,14 +184,46 @@
       </div>
     </div>
 
+    <!-- Payment Info -->
+    <div class="ec-card" id="payment-info-card2" style="margin-bottom:14px;display:none">
+      <div class="ec-card-head">💳 Payment Info</div>
+      <div class="ec-card-body">
+        <div class="pform-group"><label class="pform-label">UPI ID</label>
+          <input type="text" name="upi_id" class="pform-input" placeholder="yourname@upi"></div>
+        <div class="pform-group"><label class="pform-label">GPay / UPI QR Code</label>
+          <input type="file" name="payment_qr" accept="image/*" class="pform-input" style="padding:6px"></div>
+      </div>
+    </div>
+
+    <!-- Attendee Settings -->
+    <div class="ec-card" style="margin-bottom:14px">
+      <div class="ec-card-head">⚙️ Attendee Settings</div>
+      <div class="ec-card-body" style="display:flex;flex-direction:column;gap:12px">
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;background:#f8faff;border:1.5px solid #e0e7ff;border-radius:12px">
+          <input type="checkbox" name="require_profile_photo" style="width:18px;height:18px;accent-color:#4f46e5">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a">📸 Require Profile Photo</div>
+            <div style="font-size:11px;color:#64748b">Users must have a profile photo to RSVP</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px">
+          <input type="checkbox" name="collect_contact" style="width:18px;height:18px;accent-color:#059669">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#0f172a">📞 Collect Email &amp; Phone</div>
+            <div style="font-size:11px;color:#64748b">Ask users for their email and phone number when they RSVP</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
     <!-- RSVP Questions Builder -->
     <div class="ec-card" style="margin-bottom:14px">
       <div class="ec-card-head" style="display:flex;align-items:center;justify-content:space-between">
-        <span>7. RSVP Questions</span>
+        <span>RSVP Questions</span>
         <button type="button" onclick="addQuestion2()" class="pbtn pbtn-outline pbtn-sm" style="font-size:11px;white-space:nowrap">+ Add Question</button>
       </div>
       <div class="ec-card-body">
-        <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Ask attendees yes / no questions when they RSVP. Optional.</div>
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Optional — max 5 questions.</div>
         <div id="qList2" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
     </div>
@@ -222,6 +254,7 @@ function toggleOnline(cb) {
 
 function togglePaid(cb) {
   document.getElementById('priceInput').style.display = cb.checked ? 'block' : 'none';
+  document.getElementById('payment-info-card2').style.display = cb.checked ? 'block' : 'none';
 }
 
 function previewBanner(input) {
