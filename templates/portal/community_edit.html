@@ -1,0 +1,122 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Edit — {{ community.name }}{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:700px">
+  <div class="psec-header">
+    <div class="psec-title">✏️ Edit Community</div>
+    <a href="/portal/c/{{ community.page_id }}/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="palert palert-{% if msg.tags == 'error' %}error{% else %}success{% endif %}" style="margin-bottom:14px">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Basic Info</div></div>
+      <div class="pcard-body">
+        <div class="pform-group">
+          <label class="pform-label">Community Name *</label>
+          <input type="text" name="name" class="pform-input" required value="{{ community.name }}">
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Purpose / Cause *</label>
+          <input type="text" name="purpose" class="pform-input" required value="{{ community.purpose }}">
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Description * <span style="font-weight:400;color:#94a3b8">(max 100 words)</span></label>
+          <textarea name="description" id="descInput" class="pform-input" required rows="4" oninput="countWords(this)">{{ community.description }}</textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px">
+            <span id="wordCount" style="font-size:11px;font-weight:700;color:#94a3b8">0 / 100 words</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Category</label>
+            <select name="category" class="pform-input">
+              <option value="">-- None --</option>
+              {% for cat in categories %}<option value="{{ cat.pk }}" {% if community.category_id == cat.pk %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Join Mode</label>
+            <select name="join_mode" class="pform-input">
+              <option value="open" {% if community.join_mode == 'open' %}selected{% endif %}>Open — Anyone can join</option>
+              <option value="approval" {% if community.join_mode == 'approval' %}selected{% endif %}>Admin Approval Required</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Location & Contact</div></div>
+      <div class="pcard-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Pincode *</label>
+            <input type="text" name="pincode" class="pform-input" required value="{{ community.pincode }}" maxlength="6">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Location *</label>
+            <input type="text" name="location" class="pform-input" required value="{{ community.location }}">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Community Email</label>
+            <input type="email" name="comm_email" class="pform-input" value="{{ community.email }}">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Community Phone</label>
+            <input type="text" name="comm_phone" class="pform-input" value="{{ community.phone }}">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Logo & Cover</div></div>
+      <div class="pcard-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Logo {% if community.logo %}<span style="color:#059669;font-size:11px">(current kept if blank)</span>{% endif %}</label>
+            {% if community.logo %}<img src="{{ community.logo.url }}" style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:8px">{% endif %}
+            <input type="file" name="logo" accept="image/*" class="pform-input" style="padding:6px">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Cover {% if community.cover %}<span style="color:#059669;font-size:11px">(current kept if blank)</span>{% endif %}</label>
+            {% if community.cover %}<img src="{{ community.cover.url }}" style="display:block;width:100%;max-height:60px;border-radius:8px;object-fit:cover;margin-bottom:8px">{% endif %}
+            <input type="file" name="cover" accept="image/*" class="pform-input" style="padding:6px">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px;margin-bottom:40px">💾 Save Changes</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function countWords(el) {
+  var words = el.value.trim().split(/\s+/).filter(function(w){ return w.length > 0; });
+  var count = words.length;
+  var counter = document.getElementById('wordCount');
+  if (count > 100) {
+    el.value = words.slice(0, 100).join(' ');
+    count = 100;
+  }
+  counter.textContent = count + ' / 100 words';
+  counter.style.color = count >= 100 ? '#ef4444' : count >= 80 ? '#f59e0b' : '#94a3b8';
+}
+// Init count on load
+document.addEventListener('DOMContentLoaded', function() {
+  var desc = document.getElementById('descInput');
+  if (desc) countWords(desc);
+});
+</script>
+{% endblock %}

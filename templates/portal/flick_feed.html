@@ -1,0 +1,282 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Flicks{% endblock %}
+{% block extra_css %}
+<style>
+body { background: #000; overflow-x: hidden; }
+.pnav { display: none; }
+.pfooter { display: none; }
+.u-share-fab { display: none; }
+
+.flick-container {
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.flick-container::-webkit-scrollbar { display: none; }
+
+.flick-slide {
+  height: 100dvh;
+  width: 100%;
+  scroll-snap-align: start;
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.flick-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+}
+
+.flick-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 40%, transparent 70%, rgba(0,0,0,.3) 100%);
+  pointer-events: none;
+}
+
+.flick-top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+.flick-back-btn {
+  background: rgba(255,255,255,.15);
+  border: none;
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; cursor: pointer; text-decoration: none;
+  backdrop-filter: blur(4px);
+}
+.flick-page-title {
+  font-size: 15px; font-weight: 800; color: #fff;
+}
+.flick-create-btn {
+  margin-left: auto;
+  background: rgba(255,255,255,.15);
+  border: none; border-radius: 20px;
+  padding: 6px 14px;
+  color: #fff; font-size: 12px; font-weight: 700;
+  cursor: pointer; text-decoration: none;
+  backdrop-filter: blur(4px);
+}
+
+.flick-info {
+  position: absolute;
+  bottom: 90px; left: 16px; right: 70px;
+  z-index: 10;
+}
+.flick-community-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 6px 12px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.flick-comm-logo {
+  width: 24px; height: 24px;
+  border-radius: 50%; object-fit: cover;
+  border: 1.5px solid rgba(255,255,255,.5);
+}
+.flick-comm-logo-placeholder {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #fff;
+  border: 1.5px solid rgba(255,255,255,.5);
+}
+.flick-comm-name {
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.flick-poster {
+  font-size: 12px; color: rgba(255,255,255,.8); margin-bottom: 6px;
+}
+.flick-caption {
+  font-size: 13px; color: #fff; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.flick-actions {
+  position: absolute;
+  bottom: 110px; right: 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  z-index: 10;
+}
+.flick-action-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; color: #fff; cursor: pointer;
+  font-size: 26px;
+}
+.flick-action-count {
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.flick-action-btn.liked { color: #ef4444; }
+
+.flick-play-icon {
+  position: absolute; font-size: 60px; color: rgba(255,255,255,.6);
+  pointer-events: none; z-index: 5;
+  transition: opacity .3s;
+}
+
+/* Bottom nav override for flick page */
+.pbot-nav { background: rgba(0,0,0,.8) !important; border-top: 1px solid rgba(255,255,255,.1) !important; }
+.pbot-nav-item { color: rgba(255,255,255,.6) !important; }
+.pbot-nav-item.active, .pbot-nav-item:hover { color: #fff !important; }
+.pbot-nav-item.active .pbot-icon { background: rgba(255,255,255,.15) !important; }
+
+.flick-empty {
+  height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: #fff; text-align: center; padding: 40px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flick-container" id="flickContainer">
+
+  <!-- Top bar -->
+  <div class="flick-top-bar" style="position:fixed;top:0;left:0;right:0;z-index:20;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 100%)">
+    <a href="/portal/" class="flick-back-btn">←</a>
+    <div class="flick-page-title">🎬 Flicks</div>
+    {% if request.user.is_authenticated %}
+    <a href="/portal/flicks/create/" class="flick-create-btn">+ Post</a>
+    {% endif %}
+  </div>
+
+  {% if flicks %}
+    {% for flick in flicks %}
+    <div class="flick-slide" id="flick-{{ flick.pk }}" data-type="{{ flick.media_type }}">
+
+      {% if flick.media_type == 'video' %}
+      <video class="flick-media" loop playsinline preload="none"
+             src="{{ flick.media.url }}"
+             onclick="togglePlay(this)"></video>
+      <div class="flick-play-icon" id="playIcon{{ flick.pk }}">▶</div>
+      {% else %}
+      <img class="flick-media" src="{{ flick.media.url }}" alt="{{ flick.caption }}">
+      {% endif %}
+
+      <div class="flick-overlay"></div>
+
+      <!-- Community + info -->
+      <div class="flick-info">
+        <a href="/portal/c/{{ flick.community.page_id }}/" class="flick-community-link">
+          {% if flick.community.logo %}
+          <img src="{{ flick.community.logo.url }}" class="flick-comm-logo" alt="">
+          {% else %}
+          <div class="flick-comm-logo-placeholder">{{ flick.community.name|slice:":1"|upper }}</div>
+          {% endif %}
+          <span class="flick-comm-name">{{ flick.community.name }}</span>
+        </a>
+        <div class="flick-poster">{{ flick.posted_by.get_full_name|default:flick.posted_by.username }}</div>
+        {% if flick.caption %}
+        <div class="flick-caption">{{ flick.caption }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div class="flick-actions">
+        <button class="flick-action-btn {% if flick.pk in liked_ids %}liked{% endif %}"
+                onclick="likeFlick({{ flick.pk }}, this)"
+                id="likeBtn{{ flick.pk }}">
+          ❤️
+          <span class="flick-action-count" id="likeCount{{ flick.pk }}">{{ flick.like_count }}</span>
+        </button>
+        <a href="/portal/c/{{ flick.community.page_id }}/" class="flick-action-btn" style="text-decoration:none">
+          🏘️
+          <span class="flick-action-count">Community</span>
+        </a>
+      </div>
+
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="flick-empty">
+    <div style="font-size:60px;margin-bottom:20px">🎬</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:10px">No Flicks yet</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px">Be the first to post a Flick from your community!</div>
+    {% if request.user.is_authenticated %}
+    <a href="/portal/flicks/create/" style="background:#4f46e5;color:#fff;padding:12px 28px;border-radius:20px;font-size:14px;font-weight:800;text-decoration:none">+ Post a Flick</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+var LIKE_URL_BASE = '/portal/flick/';
+var CSRF = '{{ csrf_token }}';
+var isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
+
+// Auto-play video when in view
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    var slide = entry.target;
+    var video = slide.querySelector('video');
+    var icon  = slide.querySelector('[id^="playIcon"]');
+    if (video) {
+      if (entry.isIntersecting) {
+        video.play().catch(function(){});
+        if (icon) icon.style.opacity = '0';
+      } else {
+        video.pause();
+        video.currentTime = 0;
+      }
+    }
+  });
+}, { threshold: 0.6 });
+
+document.querySelectorAll('.flick-slide').forEach(function(slide) {
+  observer.observe(slide);
+});
+
+function togglePlay(video) {
+  var icon = video.parentElement.querySelector('[id^="playIcon"]');
+  if (video.paused) {
+    video.play();
+    if (icon) icon.style.opacity = '0';
+  } else {
+    video.pause();
+    if (icon) icon.style.opacity = '1';
+  }
+}
+
+function likeFlick(pk, btn) {
+  if (!isLoggedIn) { window.location.href = '/login/'; return; }
+  fetch(LIKE_URL_BASE + pk + '/like/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    var countEl = document.getElementById('likeCount' + pk);
+    if (countEl) countEl.textContent = data.count;
+    if (data.liked) {
+      btn.classList.add('liked');
+    } else {
+      btn.classList.remove('liked');
+    }
+  });
+}
+</script>
+{% endblock %}

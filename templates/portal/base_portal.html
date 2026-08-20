@@ -134,8 +134,34 @@ select.pform-input{background:#fff}
 .pempty-sub{font-size:12px;margin-top:4px}
 
 /* FOOTER */
-.pfooter{background:#0f172a;color:rgba(255,255,255,.45);text-align:center;padding:16px;font-size:11px;margin-top:40px}
+.pfooter{background:#0f172a;color:rgba(255,255,255,.45);text-align:center;padding:16px;font-size:11px;margin-top:40px;padding-bottom:80px}
 .pfooter a{color:rgba(255,255,255,.55);margin:0 8px}.pfooter a:hover{color:#f97316}
+
+/* BOTTOM NAV */
+.pbot-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:#fff;border-top:1px solid #e5e7eb;
+  padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+@media(max-width:900px){.pbot-nav{display:flex}}
+.pbot-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  text-decoration:none;color:#64748b;font-size:9px;font-weight:700;
+  padding:4px 2px;cursor:pointer;border:none;background:none;font-family:inherit;
+  transition:.15s;
+}
+.pbot-nav-item.active,.pbot-nav-item:hover{color:#4f46e5}
+.pbot-icon{
+  width:32px;height:32px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:.15s;
+}
+.pbot-nav-item.active .pbot-icon{background:#ede9fe}
+.pbot-create .pbot-icon{background:#4f46e5;font-size:20px}
+.pbot-create{color:#4f46e5}
+/* push content up on mobile */
+@media(max-width:900px){.pcontent{padding-bottom:80px}.pfooter{padding-bottom:80px}}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
@@ -336,6 +362,28 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
   uShareOpen();
 });
 </script>
+
+{% block bottom_nav %}
+<!-- Default bottom nav -->
+<nav class="pbot-nav">
+  <a href="/portal/" class="pbot-nav-item {% if request.path == '/portal/' %}active{% endif %}">
+    <div class="pbot-icon">🏠</div>
+    <span>Home</span>
+  </a>
+  <a href="/portal/flicks/" class="pbot-nav-item {% if '/flicks' in request.path %}active{% endif %}">
+    <div class="pbot-icon">🏘️</div>
+    <span>Community</span>
+  </a>
+  <a href="/portal/communities/" class="pbot-nav-item {% if request.path == '/portal/communities/' %}active{% endif %}">
+    <div class="pbot-icon">🔍</div>
+    <span>Explore</span>
+  </a>
+  <a href="/portal/create/" class="pbot-nav-item pbot-create">
+    <div class="pbot-icon">➕</div>
+    <span>Create</span>
+  </a>
+</nav>
+{% endblock %}
 
 <div class="pfooter">
   <p>

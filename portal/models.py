@@ -396,6 +396,36 @@ class ShortVideo(models.Model):
         return self.title
 
 
+class Flick(models.Model):
+    MEDIA_TYPES = [('video', 'Video'), ('image', 'Image')]
+
+    community  = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='flicks')
+    posted_by  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='portal_flicks')
+    caption    = models.CharField(max_length=300, blank=True)
+    media      = models.FileField(upload_to='portal/flicks/')
+    media_type = models.CharField(max_length=5, choices=MEDIA_TYPES, default='video')
+    is_active  = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def like_count(self):
+        return self.flick_likes.count()
+
+    def __str__(self):
+        return f'{self.posted_by.get_full_name()} — {self.community.name}'
+
+
+class FlickLike(models.Model):
+    flick      = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='flick_likes')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('flick', 'user')
+
+
 class PortalNotification(models.Model):
     NOTIF_TYPES = [
         ('join_request','Join Request'),('join_approved','Membership Approved'),

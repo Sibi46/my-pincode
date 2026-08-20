@@ -15,6 +15,7 @@ from .models import (
     EventComment, EventAnnouncement, EventPhoto, EventRating,
     VolunteerRequest, Activity, ActivityPhoto,
     Post, PostLike, PostComment, ShortVideo, PortalNotification,
+    Flick, FlickLike,
 )
 
 
@@ -1395,6 +1396,110 @@ def portal_notifications(request):
 
 def _require_staff(request):
     return request.user.is_authenticated and request.user.is_staff
+
+
+# ──────────────────────────────────────────────
+# COMMUNITY EDIT
+# ──────────────────────────────────────────────
+
+@login_required
+def edit_community(request, page_id):
+    community = get_object_or_404(Community, page_id=page_id, is_active=True)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Only community admins can edit.')
+        return redirect('portal_community', page_id=page_id)
+
+    if request.method == 'POST':
+        p = request.POST
+        community.name        = p.get('name', '').strip() or community.name
+        community.purpose     = p.get('purpose', '').strip()
+        community.description = p.get('description', '').strip()
+        community.location    = p.get('location', '').strip()
+        community.pincode     = p.get('pincode', '').strip()
+        community.email       = p.get('comm_email', '').strip()
+        community.phone       = p.get('comm_phone', '').strip()
+        community.join_mode   = p.get('join_mode', community.join_mode)
+        cat_id = p.get('category')
+        community.category_id = cat_id if cat_id else None
+        if 'logo' in request.FILES:
+            community.logo = request.FILES['logo']
+        if 'cover' in request.FILES:
+            community.cover = request.FILES['cover']
+        community.save()
+        messages.success(request, 'Community updated successfully!')
+        return redirect('portal_community', page_id=community.page_id)
+
+    return render(request, 'portal/community_edit.html', {
+        'community': community,
+        'categories': Category.objects.all(),
+    })
+
+
+# ──────────────────────────────────────────────
+# FLICK
+# ──────────────────────────────────────────────
+
+def flick_feed(request):
+    flicks = Flick.objects.filter(is_active=True).select_related('community', 'posted_by').order_by('-created_at')
+    community_filter = request.GET.get('community', '')
+    if community_filter:
+        flicks = flicks.filter(community__page_id=community_filter)
+    liked_ids = set()
+    if request.user.is_authenticated:
+        liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+    return render(request, 'portal/flick_feed.html', {
+        'flicks': flicks,
+        'liked_ids': liked_ids,
+        'community_filter': community_filter,
+    })
+
+
+@login_required
+def create_flick(request):
+    user_communities = Community.objects.filter(
+        memberships__user=request.user, memberships__status='approved', is_active=True
+    ).distinct()
+
+    if request.method == 'POST':
+        p = request.POST
+        community_id = p.get('community')
+        community = get_object_or_404(Community, page_id=community_id)
+        if not community.memberships.filter(user=request.user, status='approved').exists():
+            messages.error(request, 'You must be a member of this community to post a Flick.')
+            return redirect('portal_flicks')
+
+        if 'media' not in request.FILES:
+            messages.error(request, 'Please upload a video or image.')
+            return render(request, 'portal/flick_create.html', {'user_communities': user_communities})
+
+        media = request.FILES['media']
+        media_type = 'video' if media.content_type.startswith('video') else 'image'
+
+        flick = Flick.objects.create(
+            community=community,
+            posted_by=request.user,
+            caption=p.get('caption', '').strip()[:300],
+            media=media,
+            media_type=media_type,
+        )
+        messages.success(request, 'Flick posted!')
+        return redirect('portal_flicks')
+
+    preselect = request.GET.get('community', '')
+    return render(request, 'portal/flick_create.html', {
+        'user_communities': user_communities,
+        'preselect': preselect,
+    })
+
+
+@login_required
+def like_flick(request, pk):
+    flick = get_object_or_404(Flick, pk=pk, is_active=True)
+    obj, created = FlickLike.objects.get_or_create(flick=flick, user=request.user)
+    if not created:
+        obj.delete()
+        return JsonResponse({'liked': False, 'count': flick.like_count()})
+    return JsonResponse({'liked': True, 'count': flick.like_count()})
 
 
 @login_required

@@ -1,0 +1,91 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Post a Flick{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:500px">
+  <div class="psec-header">
+    <div class="psec-title">🎬 Post a Flick</div>
+    <a href="/portal/flicks/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="palert palert-{% if msg.tags == 'error' %}error{% else %}success{% endif %}" style="margin-bottom:14px">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if not user_communities %}
+  <div class="pcard">
+    <div class="pcard-body" style="text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:14px">🏘️</div>
+      <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px">Join a Community First</div>
+      <div style="font-size:13px;color:#64748b;margin-bottom:20px">You must be an approved member of a community to post a Flick.</div>
+      <a href="/portal/communities/" class="pbtn pbtn-primary">Browse Communities</a>
+    </div>
+  </div>
+  {% else %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <!-- Media preview -->
+        <div id="mediaPreview" onclick="document.getElementById('mediaInput').click()"
+          style="width:100%;aspect-ratio:9/16;max-height:320px;background:#0f172a;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;margin-bottom:16px;border:2px dashed #334155;position:relative">
+          <div id="previewPlaceholder" style="text-align:center;color:rgba(255,255,255,.5)">
+            <div style="font-size:40px;margin-bottom:8px">🎬</div>
+            <div style="font-size:13px;font-weight:700">Tap to upload video or image</div>
+            <div style="font-size:11px;margin-top:4px">MP4, MOV, JPG, PNG</div>
+          </div>
+          <video id="previewVideo" style="display:none;width:100%;height:100%;object-fit:cover" loop muted></video>
+          <img id="previewImage" style="display:none;width:100%;height:100%;object-fit:cover" alt="">
+        </div>
+        <input type="file" name="media" id="mediaInput" accept="video/*,image/*" required style="display:none" onchange="previewMedia(this)">
+
+        <div class="pform-group">
+          <label class="pform-label">Community *</label>
+          <select name="community" class="pform-input" required>
+            <option value="">Select community…</option>
+            {% for c in user_communities %}
+            <option value="{{ c.page_id }}" {% if preselect == c.page_id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="pform-group" style="margin-bottom:0">
+          <label class="pform-label">Caption <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
+          <textarea name="caption" class="pform-input" rows="3" placeholder="Say something about this flick…" maxlength="300"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:14px">
+      🚀 Post Flick
+    </button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewMedia(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var placeholder = document.getElementById('previewPlaceholder');
+  var video = document.getElementById('previewVideo');
+  var img = document.getElementById('previewImage');
+  placeholder.style.display = 'none';
+  if (file.type.startsWith('video/')) {
+    video.src = URL.createObjectURL(file);
+    video.style.display = 'block';
+    img.style.display = 'none';
+    video.play();
+  } else {
+    img.src = URL.createObjectURL(file);
+    img.style.display = 'block';
+    video.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}
