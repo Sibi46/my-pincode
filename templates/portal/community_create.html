@@ -102,8 +102,11 @@
           <input type="text" name="purpose" class="pform-input" required placeholder="What is this community for? (1 line)">
         </div>
         <div class="pform-group">
-          <label class="pform-label">Description *</label>
-          <textarea name="description" class="pform-input" required placeholder="Describe your community in detail..."></textarea>
+          <label class="pform-label">Description * <span style="font-weight:400;color:#94a3b8">(max 100 words)</span></label>
+          <textarea name="description" id="descInput" class="pform-input" required placeholder="Describe your community in detail..." rows="4" oninput="countWords(this)"></textarea>
+          <div style="display:flex;justify-content:flex-end;margin-top:4px">
+            <span id="wordCount" style="font-size:11px;font-weight:700;color:#94a3b8">0 / 100 words</span>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div class="pform-group">
@@ -190,6 +193,19 @@ function previewCreatorPhoto(input) {
     };
     reader.readAsDataURL(input.files[0]);
   }
+}
+
+function countWords(el) {
+  var words = el.value.trim().split(/\s+/).filter(function(w){ return w.length > 0; });
+  var count = words.length;
+  var counter = document.getElementById('wordCount');
+  if (count > 100) {
+    var trimmed = words.slice(0, 100).join(' ');
+    el.value = trimmed;
+    count = 100;
+  }
+  counter.textContent = count + ' / 100 words';
+  counter.style.color = count >= 100 ? '#ef4444' : count >= 80 ? '#f59e0b' : '#94a3b8';
 }
 
 var _pincodeTimer = null;
