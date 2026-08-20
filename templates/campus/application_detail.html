@@ -1,9 +1,9 @@
-{% extends 'campus/base_campus.html' %}
+﻿{% extends 'campus/base_campus.html' %}
 {% block title %}Application – Campus{% endblock %}
 {% block content %}
 <div class="cp-topbar">
   <a href="javascript:history.back()" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
 </div>
 <div class="cp-body">
 
@@ -72,6 +72,45 @@
       </div>
       {% endfor %}
     </div>
+  </div>
+  {% endif %}
+
+  <!-- Offer Letter (for student) -->
+  {% if application.offer_letter %}
+  <div class="cp-card" style="margin-bottom:14px;border:2px solid #A7F3D0">
+    <div style="padding:18px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:2rem">📜</span>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:#065F46">Offer Letter Received!</div>
+          <div style="font-size:12px;color:#064E3B">Issued on {{ application.offer_letter.issued_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+      <a href="/campus/application/{{ application.pk }}/offer-letter/view/" class="cp-btn" style="background:#10B981;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-weight:700;text-decoration:none;display:inline-block">View Offer Letter</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Submitted documents -->
+  {% if application.documents.exists %}
+  <div class="cp-sec">Documents Submitted</div>
+  <div class="cp-card" style="padding:16px;display:flex;flex-wrap:wrap;gap:8px">
+    {% for doc in application.documents.all %}
+    <a href="{{ doc.file.url }}" target="_blank" style="font-size:12px;color:#4F46E5;background:#EEF2FF;padding:6px 12px;border-radius:8px;text-decoration:none">📎 {{ doc.document_name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Answers -->
+  {% if application.answers.exists %}
+  <div class="cp-sec">Your Answers</div>
+  <div class="cp-card" style="padding:16px">
+    {% for ans in application.answers.all %}
+    <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #F1F5F9;last-child:border-none">
+      <div style="font-size:12px;font-weight:700;color:#64748B">{{ ans.question.question }}</div>
+      <div style="font-size:14px;color:#0F172A;margin-top:3px;font-weight:600">{{ ans.answer }}</div>
+    </div>
+    {% endfor %}
   </div>
   {% endif %}
 

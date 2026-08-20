@@ -1,0 +1,318 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}{{ community.name }}{% endblock %}
+{% block content %}
+<div class="pcontent">
+
+  <!-- COVER + HEADER -->
+  <div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;overflow:hidden;margin-bottom:16px">
+    <div style="height:160px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative">
+      {% if community.cover %}<img src="{{ community.cover.url }}" alt="" style="width:100%;height:100%;object-fit:cover">{% endif %}
+      <div style="position:absolute;top:12px;left:14px">
+        <span class="pbadge pbadge-blue" style="font-family:monospace;font-size:11px">{{ community.page_id }}</span>
+        {% if community.is_verified %}<span class="pbadge pbadge-green" style="margin-left:6px">✓ Verified</span>{% endif %}
+        {% if not community.is_verified %}<span class="pbadge" style="background:rgba(0,0,0,.4);color:#fff;margin-left:6px">Pending Verification</span>{% endif %}
+      </div>
+    </div>
+    <div style="padding:12px 18px 18px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+      <div style="margin-top:-32px;flex-shrink:0">
+        {% if community.logo %}
+        <img src="{{ community.logo.url }}" alt="{{ community.name }}" style="width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);object-fit:cover">
+        {% else %}
+        <div style="width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1d4ed8">{{ community.name|first }}</div>
+        {% endif %}
+      </div>
+      <div style="flex:1;min-width:200px">
+        <h1 style="font-size:20px;font-weight:900;color:#0f172a;margin-bottom:2px">{{ community.name }}</h1>
+        <p style="font-size:13px;color:#64748b;margin-bottom:8px">{{ community.purpose }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:#94a3b8">
+          <span><i class="fas fa-map-marker-alt" style="color:#f97316"></i> {{ community.location }} — {{ community.pincode }}</span>
+          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ community.member_count }} members</span>
+          {% if community.category %}<span><i class="fas fa-tag" style="color:#7c3aed"></i> {{ community.category.name }}</span>{% endif %}
+          <span><i class="fas fa-calendar" style="color:#059669"></i> Since {{ community.created_at|date:"M Y" }}</span>
+        </div>
+      </div>
+      <!-- ACTION BUTTONS -->
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        {% if not user.is_authenticated %}
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <a href="/login/?next=/portal/c/{{ community.page_id }}/join/" class="pbtn pbtn-primary" style="width:100%;text-align:center">JOIN COMMUNITY</a>
+            {% if community.join_mode == 'open' %}
+              <span style="font-size:11px;color:#059669;font-weight:700;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:3px 12px">✅ Open — Join Immediately</span>
+            {% else %}
+              <span style="font-size:11px;color:#ea580c;font-weight:700;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:3px 12px">🔒 Admin Approval Required</span>
+            {% endif %}
+          </div>
+          <a href="/portal/c/{{ community.page_id }}/volunteer/" class="pbtn pbtn-green">VOLUNTEER</a>
+        {% elif is_admin %}
+          <a href="/portal/c/{{ community.page_id }}/dashboard/" class="pbtn pbtn-primary"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          <a href="/portal/c/{{ community.page_id }}/volunteer/" class="pbtn pbtn-outline pbtn-sm">Volunteer Requests</a>
+        {% elif membership %}
+          {% if membership.status == 'approved' %}
+            <span class="pbadge pbadge-green" style="font-size:12px;padding:6px 14px">✓ You're a Member</span>
+            <a href="/portal/c/{{ community.page_id }}/volunteer/" class="pbtn pbtn-green pbtn-sm">VOLUNTEER</a>
+          {% elif membership.status == 'pending' %}
+            <span class="pbadge pbadge-orange" style="font-size:12px;padding:6px 14px">⏳ Request Pending</span>
+          {% else %}
+            <span class="pbadge pbadge-red" style="font-size:12px;padding:6px 14px">✗ {{ membership.get_status_display }}</span>
+          {% endif %}
+        {% else %}
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <a href="/portal/c/{{ community.page_id }}/join/" class="pbtn pbtn-primary" style="width:100%;text-align:center">JOIN COMMUNITY</a>
+            {% if community.join_mode == 'open' %}
+              <span style="font-size:11px;color:#059669;font-weight:700;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:20px;padding:3px 12px">✅ Open — Join Immediately</span>
+            {% else %}
+              <span style="font-size:11px;color:#ea580c;font-weight:700;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:3px 12px">🔒 Admin Approval Required</span>
+            {% endif %}
+          </div>
+          <a href="/portal/c/{{ community.page_id }}/volunteer/" class="pbtn pbtn-green">VOLUNTEER</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="pgrid">
+    <!-- MAIN COLUMN -->
+    <div>
+
+      <!-- DESCRIPTION -->
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head"><div class="pcard-title">About</div></div>
+        <div class="pcard-body">
+          <p style="font-size:13px;color:#374151;line-height:1.7">{{ community.description }}</p>
+          {% if community.email or community.phone %}
+          <div style="display:flex;gap:16px;margin-top:12px;font-size:12px;color:#64748b">
+            {% if community.email %}<span><i class="fas fa-envelope"></i> {{ community.email }}</span>{% endif %}
+            {% if community.phone %}<span><i class="fas fa-phone"></i> {{ community.phone }}</span>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- UPCOMING EVENTS -->
+      {% if events %}
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">📅 Upcoming Events</div>
+          <a href="/portal/events/create/?community={{ community.page_id }}" class="pbtn pbtn-primary pbtn-sm">+ Add</a>
+        </div>
+        <div class="pcard-body">
+          {% for event in events %}
+          <a href="/portal/event/{{ event.pk }}/" style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;text-decoration:none">
+            <div style="background:#eff6ff;border-radius:8px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:46px">
+              <div style="font-size:16px;font-weight:900;color:#1d4ed8">{{ event.date|date:"d" }}</div>
+              <div style="font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase">{{ event.date|date:"M" }}</div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#0f172a">{{ event.name }}</div>
+              <div style="font-size:11px;color:#64748b">{{ event.time|time:"g:i A" }} · {{ event.location }}</div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:2px">{{ event.participant_count }} registered</div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- CAUSES -->
+      {% if causes %}
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">❤️ Causes</div>
+          {% if is_admin %}<a href="/portal/c/{{ community.page_id }}/causes/create/" class="pbtn pbtn-primary pbtn-sm">+ Add</a>{% endif %}
+        </div>
+        <div class="pcard-body">
+          {% for cause in causes %}
+          <a href="/portal/cause/{{ cause.pk }}/" style="display:block;padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <div style="font-size:13px;font-weight:800;color:#0f172a">{{ cause.name }}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px">{{ cause.description|truncatechars:80 }}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px">{{ cause.support_count }} supporters{% if cause.target_goal %} · Goal: {{ cause.target_goal }}{% endif %}</div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- RECENT ACTIVITIES -->
+      {% if activities %}
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">🏃 Activities</div>
+          {% if is_admin %}<a href="/portal/c/{{ community.page_id }}/activities/create/" class="pbtn pbtn-primary pbtn-sm">+ Log</a>{% endif %}
+        </div>
+        <div class="pcard-body">
+          {% for act in activities %}
+          <a href="/portal/activity/{{ act.pk }}/" style="display:block;padding:10px 0;border-bottom:1px solid #f1f5f9">
+            <div style="font-size:13px;font-weight:800;color:#0f172a">{{ act.name }}</div>
+            <div style="font-size:11px;color:#64748b">{{ act.date|date:"d M Y" }}{% if act.location %} · {{ act.location }}{% endif %}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">{{ act.participant_count }} participants · {{ act.volunteer_count }} volunteers</div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- COMMUNITY FEED -->
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">📢 Community Feed</div>
+        </div>
+        {% if is_member or is_admin %}
+        <div class="pcard-body" style="border-bottom:1px solid #f1f5f9">
+          <form method="post" action="/portal/c/{{ community.page_id }}/post/" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <select name="post_type" class="pform-input" style="flex:0;width:130px;height:38px;padding:6px 10px">
+                <option value="update">Update</option>
+                <option value="announcement">Announcement</option>
+                <option value="achievement">Achievement</option>
+                <option value="event">Event</option>
+                <option value="cause">Cause</option>
+                <option value="activity">Activity</option>
+              </select>
+              <textarea name="content" class="pform-input" style="flex:1;min-width:200px;height:38px;resize:none;padding:8px 12px" placeholder="Share an update with your community..."></textarea>
+              <input type="file" name="image" accept="image/*" style="display:none" id="post-img-input">
+              <label for="post-img-input" class="pbtn pbtn-outline pbtn-sm" style="height:38px;cursor:pointer;display:flex;align-items:center"><i class="fas fa-image"></i></label>
+              <button type="submit" class="pbtn pbtn-primary" style="height:38px">Post</button>
+            </div>
+          </form>
+        </div>
+        {% endif %}
+        <div class="pcard-body" style="padding:0">
+          {% for post in posts %}
+          <div style="padding:14px 16px;border-bottom:1px solid #f1f5f9">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <div style="width:32px;height:32px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#1d4ed8">{{ post.author.get_full_name|first }}</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#0f172a">{{ post.author.get_full_name }}</div>
+                <div style="font-size:10px;color:#94a3b8">{{ post.created_at|timesince }} ago</div>
+              </div>
+              <span class="pbadge pbadge-blue" style="margin-left:auto">{{ post.get_post_type_display }}</span>
+            </div>
+            {% if post.image %}<img src="{{ post.image.url }}" alt="" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:240px;object-fit:cover">{% endif %}
+            <p style="font-size:13px;color:#374151;line-height:1.6">{{ post.content }}</p>
+            <div style="display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid #f8fafc">
+              <button onclick="likePost({{ post.pk }}, this)" data-liked="{{ post.likes.filter }} " style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;display:flex;align-items:center;gap:4px">
+                <i class="fas fa-heart"></i> <span class="lc">{{ post.like_count }}</span>
+              </button>
+              <span style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:4px">
+                <i class="fas fa-comment"></i> {{ post.comments.count }}
+              </span>
+            </div>
+            {% for comment in post.comments.all|slice:":3" %}
+            <div style="background:#f8fafc;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:12px">
+              <span style="font-weight:700;color:#374151">{{ comment.user.get_full_name }}: </span>
+              <span style="color:#64748b">{{ comment.content }}</span>
+            </div>
+            {% endfor %}
+            {% if user.is_authenticated %}
+            <form method="post" action="/portal/post/{{ post.pk }}/comment/" style="display:flex;gap:6px;margin-top:8px">
+              {% csrf_token %}
+              <input type="text" name="content" placeholder="Add a comment..." class="pform-input" style="flex:1;height:32px;padding:4px 10px;font-size:12px">
+              <button type="submit" class="pbtn pbtn-primary pbtn-sm" style="height:32px;font-size:11px">Send</button>
+            </form>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="pempty"><div class="pempty-text">No posts yet</div></div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+
+      <!-- LEADERSHIP -->
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">👥 Leadership</div>
+          {% if is_admin %}<a href="/portal/c/{{ community.page_id }}/leaders/add/" class="pbtn pbtn-primary pbtn-sm">+ Add</a>{% endif %}
+        </div>
+        <div class="pcard-body">
+          {% for leader in leaders %}
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9">
+            <div style="width:36px;height:36px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#1d4ed8;flex-shrink:0">{{ leader.user.get_full_name|first }}</div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#0f172a">{{ leader.user.get_full_name }}</div>
+              <div style="font-size:11px;color:#1d4ed8;font-weight:600">{{ leader.get_role_label }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <p style="font-size:12px;color:#94a3b8">Leadership roles pending acceptance.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- MEMBERS PREVIEW -->
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">Members ({{ community.member_count }})</div>
+          {% if is_admin %}
+            <a href="/portal/c/{{ community.page_id }}/members/" class="pbtn pbtn-outline pbtn-sm">Manage</a>
+          {% else %}
+            <a href="/portal/c/{{ community.page_id }}/members/" class="pbtn pbtn-outline pbtn-sm">View All</a>
+          {% endif %}
+        </div>
+        <div class="pcard-body">
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            {% for m in members %}
+            <a href="/portal/c/{{ community.page_id }}/members/" title="{{ m.user.get_full_name }}" style="width:36px;height:36px;border-radius:50%;background:#eff6ff;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#1d4ed8;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;flex-shrink:0;text-decoration:none">
+              {% with p=m.user.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}{{ m.user.get_full_name|default:m.user.username|first|upper }}{% endif %}{% endwith %}
+            </a>
+            {% endfor %}
+          </div>
+          {% if community.member_count > 12 %}
+          <p style="font-size:11px;color:#94a3b8;margin-top:8px">+{{ community.member_count|add:"-12" }} more members</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- VIDEOS -->
+      {% if videos %}
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-head">
+          <div class="pcard-title">🎬 Videos</div>
+          {% if is_member or is_admin %}<a href="/portal/c/{{ community.page_id }}/video/upload/" class="pbtn pbtn-primary pbtn-sm">+ Upload</a>{% endif %}
+        </div>
+        <div class="pcard-body">
+          {% for v in videos %}
+          <div style="margin-bottom:10px">
+            {% if v.thumbnail %}
+            <img src="{{ v.thumbnail.url }}" alt="{{ v.title }}" style="width:100%;border-radius:8px;max-height:100px;object-fit:cover">
+            {% else %}
+            <div style="background:#0f172a;border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;font-size:24px">🎬</div>
+            {% endif %}
+            <div style="font-size:12px;font-weight:700;color:#0f172a;margin-top:4px">{{ v.title }}</div>
+            <div style="font-size:10px;color:#94a3b8">{{ v.uploader.get_full_name }} · {{ v.get_category_display }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- JOIN MODES INFO -->
+      <div class="pcard" style="margin-bottom:14px">
+        <div class="pcard-body" style="font-size:12px;color:#64748b">
+          <div style="font-weight:700;color:#374151;margin-bottom:4px">Join Mode</div>
+          {% if community.join_mode == 'open' %}
+          <span class="pbadge pbadge-green">Open — Join Immediately</span>
+          {% else %}
+          <span class="pbadge pbadge-orange">Admin Approval Required</span>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function likePost(pk, btn) {
+  fetch('/portal/post/' + pk + '/like/', {method:'POST', headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/json'}})
+    .then(r => r.json())
+    .then(d => { btn.querySelector('.lc').textContent = d.count; btn.style.color = d.liked ? '#ef4444' : '#64748b'; });
+}
+</script>
+{% endblock %}

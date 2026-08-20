@@ -1,0 +1,78 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Manage Event{% endblock %}
+{% block content %}
+<div class="pcontent">
+  <div class="psec-header">
+    <div>
+      <div class="psec-title">⚙️ Manage Event</div>
+      <div class="psec-sub">{{ event.name }}</div>
+    </div>
+    <a href="/portal/event/{{ event.pk }}/" class="pbtn pbtn-outline pbtn-sm">← Event Page</a>
+  </div>
+
+  {% if event.rsvp_questions %}
+  <div style="background:#f0f4ff;border:1.5px solid #c7d2fe;border-radius:12px;padding:12px 16px;margin-bottom:16px">
+    <div style="font-size:12px;font-weight:800;color:#3730a3;margin-bottom:6px">❓ RSVP Questions</div>
+    {% for q in event.rsvp_questions %}
+    <div style="font-size:12px;color:#4338ca;margin-bottom:2px">Q{{ forloop.counter }}: {{ q }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ROLE COUNTS -->
+  <div class="stat-grid" style="margin-bottom:20px">
+    {% for role, count in counts.items %}
+    <div class="stat-card"><div class="stat-num">{{ count }}</div><div class="stat-label">{{ role|title }}s</div></div>
+    {% endfor %}
+  </div>
+
+  <!-- FILTER -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <a href="?status=pending" class="pbtn {% if status_filter == 'pending' %}pbtn-orange{% else %}pbtn-outline{% endif %} pbtn-sm">Pending</a>
+    <a href="?status=approved" class="pbtn {% if status_filter == 'approved' %}pbtn-green{% else %}pbtn-outline{% endif %} pbtn-sm">Approved</a>
+    <a href="?status=rejected" class="pbtn {% if status_filter == 'rejected' %}pbtn-red{% else %}pbtn-outline{% endif %} pbtn-sm">Rejected</a>
+  </div>
+
+  <div class="pcard">
+    <div style="overflow-x:auto">
+      <table class="ptable">
+        <thead>
+          <tr><th>Name</th><th>Role</th><th>Registered</th><th>Status</th>{% for q in event.rsvp_questions %}<th style="font-size:11px;max-width:120px">Q{{ forloop.counter }}</th>{% endfor %}<th>Attended</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for p in participants %}
+          <tr>
+            <td>
+              <div style="font-size:13px;font-weight:700;color:#0f172a">{{ p.user.get_full_name }}</div>
+              <div style="font-size:11px;color:#64748b">{{ p.user.email }}</div>
+            </td>
+            <td><span class="pbadge pbadge-blue">{{ p.get_role_display }}</span></td>
+            <td style="font-size:12px;color:#64748b">{{ p.registered_at|date:"d M Y" }}</td>
+            <td><span class="pbadge {% if p.status == 'approved' %}pbadge-green{% elif p.status == 'pending' %}pbadge-orange{% else %}pbadge-red{% endif %}">{{ p.get_status_display }}</span></td>
+            {% for ans in p.answers_list %}<td style="font-size:12px;color:#374151;max-width:140px">
+              {% if ans %}{{ ans }}{% else %}<span style="color:#94a3b8">—</span>{% endif %}
+            </td>{% endfor %}
+            <td>{% if p.attended %}<span class="pbadge pbadge-green">✓</span>{% else %}<span style="color:#94a3b8">—</span>{% endif %}</td>
+            <td>
+              <form method="post" style="display:flex;gap:4px;flex-wrap:wrap">
+                {% csrf_token %}
+                <input type="hidden" name="participant_id" value="{{ p.pk }}">
+                {% if p.status == 'pending' %}
+                <button name="action" value="approve" class="pbtn pbtn-green pbtn-sm">Approve</button>
+                <button name="action" value="reject" class="pbtn pbtn-red pbtn-sm">Reject</button>
+                {% endif %}
+                {% if p.status == 'approved' %}
+                <button name="action" value="attend" class="pbtn {% if p.attended %}pbtn-outline{% else %}pbtn-primary{% endif %} pbtn-sm">{% if p.attended %}Undo{% else %}Mark Attended{% endif %}</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:24px">No {{ status_filter }} participants.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

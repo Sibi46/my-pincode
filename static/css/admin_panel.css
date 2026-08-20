@@ -1,5 +1,8 @@
 /* ===== ADMIN PANEL — SHARED STYLES ===== */
 
+/* Sidebar overlay (hidden on desktop) */
+.ap-sidebar-overlay { display: none; }
+
 /* Layout */
 .ap-layout {
   display: flex;
@@ -379,9 +382,44 @@
 
 /* Responsive */
 @media (max-width: 900px) {
-  .ap-layout { flex-direction: column; }
-  .ap-sidebar { width: 100%; height: auto; position: static; }
   .ap-two-col, .ap-three-col { grid-template-columns: 1fr; }
   .ap-form-grid { grid-template-columns: 1fr; }
   .ap-stats { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .ap-sidebar-toggle { display: block !important; }
+
+  .ap-sidebar {
+    position: fixed !important;
+    left: -260px;
+    top: 0;
+    height: 100vh !important;
+    width: 240px !important;
+    z-index: 1200;
+    transition: left .25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.25);
+  }
+  .ap-sidebar.ap-sidebar-open { left: 0; }
+
+  .ap-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 1199;
+  }
+  .ap-sidebar-overlay.ap-overlay-open { display: block; }
+
+  .ap-main { padding: 14px 12px 80px; }
+  .ap-stats { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ap-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ap-quick-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .ap-breadcrumb, .ap-page-title, .ap-page-subtitle { padding-left: 4px; }
+}
+
+@media (max-width: 480px) {
+  .ap-stats { grid-template-columns: 1fr 1fr; }
+  .ap-quick-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .ap-stat h3 { font-size: 20px; }
 }

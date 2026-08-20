@@ -1,9 +1,9 @@
-{% extends 'campus/base_campus.html' %}
+﻿{% extends 'campus/base_campus.html' %}
 {% block title %}My Dashboard – Campus{% endblock %}
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
   <span class="cp-topbar-badge">Student</span>
 </div>
 <div class="cp-body">
@@ -19,14 +19,29 @@
     <div class="cp-stat"><div class="cp-stat-n">{{ stats.selected }}</div><div class="cp-stat-l">Selected</div></div>
   </div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
-    <a href="/campus/student/opportunities/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
-      <div style="font-size:2rem;margin-bottom:6px">💼</div>
-      <div style="font-size:13px;font-weight:700;color:#0F172A">Find Opportunities</div>
+  <!-- Academic highlights -->
+  <div style="background:#EEF2FF;border-radius:14px;padding:14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      {% if student.cgpa %}<div><span style="font-size:10px;color:#64748B;text-transform:uppercase;font-weight:700">CGPA</span><div style="font-size:16px;font-weight:900;color:#4F46E5">{{ student.cgpa }}</div></div>{% endif %}
+      <div><span style="font-size:10px;color:#64748B;text-transform:uppercase;font-weight:700">Arrears</span><div style="font-size:16px;font-weight:900;color:{% if student.active_arrears == 0 %}#10B981{% else %}#EF4444{% endif %}">{{ student.active_arrears }}</div></div>
+      {% if student.tenth_percent %}<div><span style="font-size:10px;color:#64748B;text-transform:uppercase;font-weight:700">10th</span><div style="font-size:16px;font-weight:900;color:#0F172A">{{ student.tenth_percent }}%</div></div>{% endif %}
+      {% if student.twelfth_percent %}<div><span style="font-size:10px;color:#64748B;text-transform:uppercase;font-weight:700">12th</span><div style="font-size:16px;font-weight:900;color:#0F172A">{{ student.twelfth_percent }}%</div></div>{% endif %}
+    </div>
+    <a href="/campus/student/profile/" style="font-size:12px;font-weight:700;color:#4F46E5;text-decoration:none">✏️ Update</a>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0">
+    <a href="/campus/student/opportunities/" class="cp-card" style="padding:14px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:4px">💼</div>
+      <div style="font-size:12px;font-weight:700;color:#0F172A">Find Opportunities</div>
     </a>
-    <a href="/campus/student/applications/" class="cp-card" style="padding:16px;text-decoration:none;display:block;text-align:center">
-      <div style="font-size:2rem;margin-bottom:6px">📋</div>
-      <div style="font-size:13px;font-weight:700;color:#0F172A">My Applications</div>
+    <a href="/campus/student/applications/" class="cp-card" style="padding:14px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:4px">📋</div>
+      <div style="font-size:12px;font-weight:700;color:#0F172A">My Applications</div>
+    </a>
+    <a href="/campus/student/profile/" class="cp-card" style="padding:14px;text-decoration:none;display:block;text-align:center">
+      <div style="font-size:1.8rem;margin-bottom:4px">👤</div>
+      <div style="font-size:12px;font-weight:700;color:#0F172A">My Profile</div>
     </a>
   </div>
 

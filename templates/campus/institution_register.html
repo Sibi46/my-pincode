@@ -1,31 +1,31 @@
-{% extends 'campus/base_campus.html' %}
+﻿{% extends 'campus/base_campus.html' %}
 {% block title %}Register Institution – Campus{% endblock %}
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
 </div>
 <div class="cp-body">
   <div class="cp-sec">Register Your Institution</div>
   {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" id="regForm">
     {% csrf_token %}
     <div class="cp-card">
       <div class="cp-card-head"><div class="cp-card-title">Basic Info</div></div>
       <div style="padding:16px">
         <div class="cp-field"><label class="cp-label">Institution Name *</label><input name="name" class="cp-input" required placeholder="e.g. ABC Engineering College"></div>
-        <div class="cp-field"><label class="cp-label">Type *</label>
-          <select name="institution_type" class="cp-input" required>
-            <option value="">Select type</option>
-            <option value="engineering">Engineering College</option>
-            <option value="arts_science">Arts & Science College</option>
-            <option value="polytechnic">Polytechnic</option>
-            <option value="medical">Medical College</option>
-            <option value="law">Law College</option>
-            <option value="management">Management Institute</option>
-            <option value="vocational">Vocational Institute</option>
-            <option value="other">Other</option>
-          </select></div>
+        <div class="cp-field">
+          <label class="cp-label">College Type * <span style="font-size:10px;color:#94A3B8;font-weight:500;text-transform:none">(select all that apply)</span></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px" id="typeGrid">
+            {% for val, label in type_choices %}
+            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid #E0E7FF;border-radius:12px;cursor:pointer;background:#fff;transition:all .15s" class="type-check-row">
+              <input type="checkbox" name="institution_type" value="{{ val }}" style="width:16px;height:16px;accent-color:#4F46E5;flex-shrink:0" onchange="updateTypeStyle(this)">
+              <span style="font-size:13px;font-weight:600;color:#374151">{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+          <div id="typeError" style="display:none;font-size:11px;color:#EF4444;margin-top:6px">Please select at least one type.</div>
+        </div>
         <div class="cp-field"><label class="cp-label">Affiliation / University</label><input name="affiliation" class="cp-input" placeholder="e.g. Anna University"></div>
         <div class="cp-row">
           <div class="cp-field"><label class="cp-label">Pincode *</label><input name="pincode" class="cp-input" required maxlength="6" placeholder="6-digit pincode"></div>
@@ -42,29 +42,152 @@
     <div class="cp-card">
       <div class="cp-card-head"><div class="cp-card-title">Contact & Logo</div></div>
       <div style="padding:16px">
-        <div class="cp-row">
-          <div class="cp-field"><label class="cp-label">Phone *</label><input name="phone" class="cp-input" required placeholder="Institution phone"></div>
-          <div class="cp-field"><label class="cp-label">Email</label><input name="email" class="cp-input" type="email" placeholder="Email"></div>
+
+        <!-- Institution Phone with OTP -->
+        <div class="cp-field">
+          <label class="cp-label">Institution Phone * <span id="phoneVerifiedBadge" style="display:none;background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px">✓ Verified</span></label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="instPhone" name="phone" class="cp-input" required placeholder="10-digit mobile/phone" maxlength="10" style="flex:1" oninput="resetVerify()">
+            <button type="button" id="sendOtpBtn" onclick="sendOtp()" style="white-space:nowrap;padding:12px 16px;background:#4F46E5;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Send OTP</button>
+          </div>
         </div>
-        <div class="cp-field"><label class="cp-label">Website</label><input name="website" class="cp-input" type="url" placeholder="https://..."></div>
+
+        <!-- OTP Entry (hidden until sent) -->
+        <div id="otpBox" style="display:none;margin-bottom:12px">
+          <div style="font-size:12px;color:#64748B;margin-bottom:8px">Enter the 6-digit OTP sent to <span id="otpPhoneDisplay" style="font-weight:700;color:#4F46E5"></span></div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="otpInput" class="cp-input" maxlength="6" placeholder="Enter OTP" style="flex:1;letter-spacing:6px;font-size:18px;font-weight:800;text-align:center">
+            <button type="button" onclick="verifyOtp()" style="padding:12px 16px;background:#059669;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">Verify</button>
+          </div>
+          <div style="margin-top:6px;font-size:11px;color:#94A3B8">Didn't get it? <a href="#" onclick="sendOtp();return false" style="color:#4F46E5;font-weight:700">Resend OTP</a></div>
+          <div id="otpError" style="display:none;margin-top:6px;font-size:12px;color:#EF4444;font-weight:600"></div>
+        </div>
+
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Email</label><input name="email" class="cp-input" type="email" placeholder="Email"></div>
+          <div class="cp-field"><label class="cp-label">Website</label><input name="website" class="cp-input" type="url" placeholder="https://..."></div>
+        </div>
         <div class="cp-field"><label class="cp-label">Logo (optional)</label><input name="logo" class="cp-input" type="file" accept="image/*"></div>
       </div>
     </div>
 
     <div class="cp-card">
-      <div class="cp-card-head"><div class="cp-card-title">Placement Officer Account</div></div>
+      <div class="cp-card-head"><div class="cp-card-title">Placement Officer Details</div></div>
       <div style="padding:16px">
-        <p style="font-size:12px;color:#64748B;margin-bottom:12px">This will create a login for the Placement Officer. A 6-digit password will be auto-generated and shown after registration.</p>
-        <div class="cp-field"><label class="cp-label">PO Full Name *</label><input name="po_name" class="cp-input" required placeholder="Full name"></div>
-        <div class="cp-row">
-          <div class="cp-field"><label class="cp-label">PO Phone *</label><input name="po_phone" class="cp-input" required placeholder="Mobile number"></div>
-          <div class="cp-field"><label class="cp-label">PO Email</label><input name="po_email" class="cp-input" type="email" placeholder="Email"></div>
-        </div>
+        <p style="font-size:12px;color:#64748B;margin-bottom:12px">Your details as the Placement Officer for this institution.</p>
+        <div class="cp-field"><label class="cp-label">Full Name *</label><input name="po_name" class="cp-input" required placeholder="Full name"></div>
         <div class="cp-field"><label class="cp-label">Designation</label><input name="po_designation" class="cp-input" placeholder="e.g. Placement Officer"></div>
+        <div class="cp-field"><label class="cp-label">Email</label><input name="po_email" class="cp-input" type="email" placeholder="Email"></div>
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em">Mobile Numbers</div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Primary Mobile *</label><input name="po_phone" class="cp-input" required placeholder="10-digit mobile" maxlength="10"></div>
+          <div class="cp-field"><label class="cp-label">Secondary Mobile</label><input name="po_phone2" class="cp-input" placeholder="Alternate number" maxlength="10"></div>
+        </div>
       </div>
     </div>
 
-    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full" style="margin-top:4px">Register Institution &rarr;</button>
+    <button type="submit" id="submitBtn" class="cp-btn cp-btn-primary cp-btn-full" style="margin-top:4px" onclick="return checkVerified()">Register Institution &rarr;</button>
   </form>
 </div>
+
+<script>
+var phoneVerified = false;
+
+function resetVerify(){
+  phoneVerified = false;
+  document.getElementById('phoneVerifiedBadge').style.display = 'none';
+  document.getElementById('otpBox').style.display = 'none';
+  document.getElementById('otpInput').value = '';
+}
+
+function sendOtp(){
+  var phone = document.getElementById('instPhone').value.trim();
+  if(phone.length !== 10 || !/^\d+$/.test(phone)){
+    alert('Enter a valid 10-digit phone number.');
+    return;
+  }
+  var btn = document.getElementById('sendOtpBtn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  fetch('/campus/otp/send/', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({phone: phone})
+  }).then(r=>r.json()).then(function(d){
+    btn.disabled = false;
+    if(d.success){
+      document.getElementById('otpPhoneDisplay').textContent = phone;
+      document.getElementById('otpBox').style.display = 'block';
+      document.getElementById('otpError').style.display = 'none';
+      btn.textContent = 'Resend OTP';
+    } else {
+      btn.textContent = 'Send OTP';
+      alert(d.error || 'Failed to send OTP.');
+    }
+  }).catch(function(){
+    btn.disabled = false;
+    btn.textContent = 'Send OTP';
+    alert('Network error. Try again.');
+  });
+}
+
+function verifyOtp(){
+  var otp = document.getElementById('otpInput').value.trim();
+  if(otp.length !== 6){ alert('Enter 6-digit OTP.'); return; }
+  fetch('/campus/otp/verify/', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify({otp: otp})
+  }).then(r=>r.json()).then(function(d){
+    if(d.success){
+      phoneVerified = true;
+      document.getElementById('otpBox').style.display = 'none';
+      document.getElementById('phoneVerifiedBadge').style.display = 'inline';
+      document.getElementById('instPhone').style.borderColor = '#059669';
+      document.getElementById('sendOtpBtn').textContent = '✓ Verified';
+      document.getElementById('sendOtpBtn').style.background = '#059669';
+      document.getElementById('sendOtpBtn').disabled = true;
+    } else {
+      document.getElementById('otpError').textContent = d.error || 'Wrong OTP.';
+      document.getElementById('otpError').style.display = 'block';
+    }
+  });
+}
+
+function checkVerified(){
+  if(!phoneVerified){
+    alert('Please verify the institution phone number with OTP first.');
+    document.getElementById('instPhone').focus();
+    return false;
+  }
+  return true;
+}
+
+function updateTypeStyle(cb){
+  var row = cb.closest('.type-check-row');
+  if(cb.checked){
+    row.style.borderColor='#4F46E5';
+    row.style.background='#EEF2FF';
+    row.querySelector('span').style.color='#4F46E5';
+  } else {
+    row.style.borderColor='#E0E7FF';
+    row.style.background='#fff';
+    row.querySelector('span').style.color='#374151';
+  }
+}
+var origCheck = checkVerified;
+checkVerified = function(){
+  var checked = document.querySelectorAll('input[name="institution_type"]:checked');
+  if(checked.length === 0){
+    document.getElementById('typeError').style.display='block';
+    return false;
+  }
+  document.getElementById('typeError').style.display='none';
+  return origCheck();
+};
+function getCookie(name){
+  var v = document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
+</script>
 {% endblock %}

@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Count, Q
+from django.http import JsonResponse
 
 from .models import (
     Institution, PlacementOfficer, Department, HOD, Student,
     CampusCompany, Opportunity, OpportunityPincode, OpportunityShare,
-    Application, ApplicationStatusHistory, Interview,
+    OpportunityDocument, OpportunityQuestion,
+    Application, ApplicationStatusHistory, ApplicationDocument, ApplicationAnswer,
+    Interview, OfferLetter,
     CampusNotification, AuditLog,
 )
 
@@ -127,18 +131,74 @@ def opportunity_detail(request, pk):
 # ── INSTITUTION REGISTRATION ─────────────────────────────────────────────────
 
 @login_required
+def campus_send_otp(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json, random, requests as _req
+    try:
+        data = json.loads(request.body)
+        phone = data.get('phone', '').strip()
+    except Exception:
+        phone = request.POST.get('phone', '').strip()
+    if not phone or len(phone) != 10 or not phone.isdigit():
+        return JsonResponse({'success': False, 'error': 'Enter a valid 10-digit number.'})
+    otp = str(random.randint(100000, 999999))
+    from django.conf import settings as _s
+    api_key  = getattr(_s, 'TWO_FACTOR_API_KEY', '')
+    template = getattr(_s, 'TWO_FACTOR_OTP_TEMPLATE', '')
+    if not api_key:
+        print(f'\n[CAMPUS OTP] Phone: {phone}  OTP: {otp}\n', flush=True)
+    else:
+        url = f'https://2factor.in/API/V1/{api_key}/SMS/{phone}/{otp}/{template}'
+        try:
+            resp   = _req.get(url, timeout=10)
+            result = resp.json()
+            if result.get('Status') != 'Success':
+                return JsonResponse({'success': False, 'error': result.get('Details', 'SMS failed.')})
+        except Exception:
+            return JsonResponse({'success': False, 'error': 'SMS service unavailable.'})
+    request.session['campus_otp']          = otp
+    request.session['campus_otp_phone']    = phone
+    request.session['campus_otp_verified'] = False
+    request.session.modified = True
+    return JsonResponse({'success': True})
+
+
+def campus_verify_otp(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data    = json.loads(request.body)
+    entered = data.get('otp', '').strip()
+    stored  = request.session.get('campus_otp', '')
+    if not stored:
+        return JsonResponse({'success': False, 'error': 'OTP expired. Resend.'})
+    if entered == stored:
+        request.session['campus_otp_verified'] = True
+        request.session.pop('campus_otp', None)
+        request.session.modified = True
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Wrong OTP. Try again.'})
+
+
 def institution_register(request):
     if request.method == 'POST':
+        phone = request.POST.get('phone', '').strip()
+        otp_verified = request.session.get('campus_otp_verified') and request.session.get('campus_otp_phone') == phone
+        if not otp_verified:
+            messages.error(request, 'Please verify the institution phone number with OTP before submitting.')
+            return render(request, 'campus/institution_register.html', {'type_choices': Institution.TYPE_CHOICES, 'otp_error': True})
         inst = Institution.objects.create(
             name             = request.POST.get('name', '').strip(),
-            institution_type = request.POST.get('institution_type', 'other'),
+            institution_type = ','.join(request.POST.getlist('institution_type')) or 'other',
             affiliation      = request.POST.get('affiliation', '').strip(),
             address          = request.POST.get('address', '').strip(),
             pincode          = request.POST.get('pincode', '').strip(),
             city             = request.POST.get('city', '').strip(),
             district         = request.POST.get('district', '').strip(),
             state            = request.POST.get('state', '').strip(),
-            phone            = request.POST.get('phone', '').strip(),
+            phone            = phone,
+            phone_verified   = True,
             email            = request.POST.get('email', '').strip(),
             website          = request.POST.get('website', '').strip(),
             status           = 'pending',
@@ -146,14 +206,16 @@ def institution_register(request):
         if 'logo' in request.FILES:
             inst.logo = request.FILES['logo']
             inst.save()
-        # Create PO record
         PlacementOfficer.objects.create(
             user        = request.user,
             institution = inst,
             designation = request.POST.get('po_designation', '').strip(),
             phone       = request.POST.get('po_phone', '').strip(),
+            phone2      = request.POST.get('po_phone2', '').strip(),
             email       = request.POST.get('po_email', '').strip(),
         )
+        request.session.pop('campus_otp_verified', None)
+        request.session.pop('campus_otp_phone', None)
         audit(request.user, 'institution_register', 'Institution', inst.pk, inst.name, request)
         messages.success(request, f'"{inst.name}" registered successfully! Awaiting admin verification.')
         return redirect('campus_po_dashboard')
@@ -458,8 +520,8 @@ def student_register(request):
     error = None
     institutions = Institution.objects.filter(status='verified').order_by('name')
     if request.method == 'POST':
-        inst_id  = request.POST.get('institution_id', '').strip()
-        dept_id  = request.POST.get('department_id', '').strip()
+        inst_id  = (request.POST.get('institution_id') or request.POST.get('institution', '')).strip()
+        dept_id  = (request.POST.get('department_id') or request.POST.get('department', '')).strip()
         roll     = request.POST.get('roll_number', '').strip()
         course   = request.POST.get('course', '').strip()
         year     = request.POST.get('year', '1')
@@ -481,9 +543,13 @@ def student_register(request):
                 st.save()
             messages.success(request, 'Student profile created!')
             return redirect('campus_student_dashboard')
+    preset_inst_id = request.session.get('campus_signup_inst_id', '')
+    from .models import Department as Dept
+    departments = Dept.objects.filter(institution__status='verified', is_active=True).select_related('institution')
     return render(request, 'campus/student_register.html', {
-        'institutions': institutions, 'error': error,
+        'institutions': institutions, 'departments': departments, 'error': error,
         'year_choices': Student.YEAR_CHOICES,
+        'preset_inst_id': preset_inst_id,
     })
 
 
@@ -540,15 +606,33 @@ def student_apply(request, pk):
     if Application.objects.filter(student=student, opportunity=opp).exists():
         messages.info(request, 'You have already applied.')
         return redirect('campus_student_applications')
+
+    eligible, reason = student.is_eligible_for(opp)
+    required_docs = opp.required_documents.all()
+    questions     = opp.questions.all()
+
     if request.method == 'POST':
+        if not eligible:
+            messages.error(request, f'You are not eligible: {reason}')
+            return redirect('campus_student_opportunities')
         app = Application.objects.create(student=student, opportunity=opp, status='applied')
         if 'resume' in request.FILES:
             app.resume = request.FILES['resume']
             app.save()
+        # Save uploaded documents
+        doc_names  = request.POST.getlist('doc_name')
+        doc_files  = request.FILES.getlist('doc_file')
+        for i, f in enumerate(doc_files):
+            name = doc_names[i].strip() if i < len(doc_names) else f.name
+            ApplicationDocument.objects.create(application=app, document_name=name, file=f)
+        # Save question answers
+        for q in questions:
+            ans = request.POST.get(f'question_{q.pk}', '').strip()
+            if ans:
+                ApplicationAnswer.objects.create(application=app, question=q, answer=ans)
         ApplicationStatusHistory.objects.create(
             application=app, status='applied', changed_by=request.user,
         )
-        # notify company
         notify(opp.company.user, 'application',
                f'New application: {student.user.get_full_name()}',
                f'Applied for {opp.title}',
@@ -558,6 +642,8 @@ def student_apply(request, pk):
         return redirect('campus_student_applications')
     return render(request, 'campus/student_apply_confirm.html', {
         'student': student, 'opportunity': opp,
+        'eligible': eligible, 'reason': reason,
+        'required_docs': required_docs, 'questions': questions,
     })
 
 
@@ -652,51 +738,93 @@ def opportunity_post(request):
         messages.error(request, 'Your company is pending verification. You can post opportunities after approval.')
         return redirect('campus_company_dashboard')
     if request.method == 'POST':
+        def _decimal(val):
+            try:
+                v = val.strip()
+                return float(v) if v else None
+            except Exception:
+                return None
+
         opp = Opportunity.objects.create(
-            company          = company,
-            title            = request.POST.get('title', '').strip(),
-            opp_type         = request.POST.get('opp_type', 'internship'),
-            description      = request.POST.get('description', '').strip(),
-            openings         = int(request.POST.get('openings', 1) or 1),
-            dept_eligibility = request.POST.get('dept_eligibility', '').strip(),
-            year_eligibility = request.POST.get('year_eligibility', '').strip(),
-            skills_required  = request.POST.get('skills_required', '').strip(),
-            qualification    = request.POST.get('qualification', '').strip(),
-            experience       = request.POST.get('experience', 'Fresher').strip(),
-            salary           = request.POST.get('salary', '').strip(),
-            location         = request.POST.get('location', '').strip(),
-            work_mode        = request.POST.get('work_mode', 'onsite'),
-            apply_start      = request.POST.get('apply_start') or None,
-            apply_end        = request.POST.get('apply_end') or None,
-            interview_process = request.POST.get('interview_process', '').strip(),
-            contact_person   = request.POST.get('contact_person', '').strip(),
-            status           = request.POST.get('status', 'draft'),
+            company             = company,
+            title               = request.POST.get('title', '').strip(),
+            opp_type            = request.POST.get('opp_type', 'internship'),
+            description         = request.POST.get('description', '').strip(),
+            openings            = int(request.POST.get('openings', 1) or 1),
+            dept_eligibility    = request.POST.get('dept_eligibility', '').strip(),
+            year_eligibility    = request.POST.get('year_eligibility', '').strip(),
+            skills_required     = request.POST.get('skills_required', '').strip(),
+            qualification       = request.POST.get('qualification', '').strip(),
+            experience          = request.POST.get('experience', 'Fresher').strip(),
+            salary              = request.POST.get('salary', '').strip(),
+            location            = request.POST.get('location', '').strip(),
+            work_mode           = request.POST.get('work_mode', 'onsite'),
+            apply_start         = request.POST.get('apply_start') or None,
+            apply_end           = request.POST.get('apply_end') or None,
+            interview_process   = request.POST.get('interview_process', '').strip(),
+            contact_person      = request.POST.get('contact_person', '').strip(),
+            status              = request.POST.get('status', 'draft'),
+            min_cgpa            = _decimal(request.POST.get('min_cgpa', '')),
+            no_arrears_required = request.POST.get('no_arrears_required') == '1',
+            min_tenth_percent   = _decimal(request.POST.get('min_tenth_percent', '')),
+            min_twelfth_percent = _decimal(request.POST.get('min_twelfth_percent', '')),
         )
         if 'attachment' in request.FILES:
             opp.attachment = request.FILES['attachment']
             opp.save()
-        # Save target pincodes
-        pincodes_raw = request.POST.get('target_pincodes', '')
-        for pin in pincodes_raw.replace('\n', ',').split(','):
-            pin = pin.strip()
-            if pin:
-                OpportunityPincode.objects.create(opportunity=opp, pincode=pin)
-        # Notify matching POs if published
+        # Save job location pincode
+        location_pincode = request.POST.get('location_pincode', '').strip()
+        if location_pincode and len(location_pincode) == 6 and location_pincode.isdigit():
+            OpportunityPincode.objects.get_or_create(opportunity=opp, pincode=location_pincode)
+        # Save selected institutions
+        selected_ids = request.POST.getlist('target_institutions')
+        if selected_ids:
+            opp.target_institutions.set(Institution.objects.filter(pk__in=selected_ids, status='verified'))
+        # Save required documents
+        doc_names = request.POST.getlist('doc_name')
+        doc_descs = request.POST.getlist('doc_desc')
+        doc_req   = request.POST.getlist('doc_required')
+        for i, name in enumerate(doc_names):
+            name = name.strip()
+            if name:
+                OpportunityDocument.objects.create(
+                    opportunity=opp,
+                    name=name,
+                    description=doc_descs[i].strip() if i < len(doc_descs) else '',
+                    is_required=str(i) in doc_req,
+                    order=i,
+                )
+        # Save questions
+        q_texts = request.POST.getlist('q_text')
+        q_types = request.POST.getlist('q_type')
+        q_req   = request.POST.getlist('q_required')
+        for i, q in enumerate(q_texts):
+            q = q.strip()
+            if q:
+                OpportunityQuestion.objects.create(
+                    opportunity=opp,
+                    question=q,
+                    question_type=q_types[i] if i < len(q_types) else 'yesno',
+                    is_required=str(i) in q_req,
+                    order=i,
+                )
+        # Notify POs of selected colleges if published
         if opp.status == 'published':
             _notify_matching_pos(opp)
         audit(request.user, 'opportunity_posted', 'Opportunity', opp.pk, opp.title, request)
         messages.success(request, f'Opportunity "{opp.title}" created.')
         return redirect('campus_company_dashboard')
+    institutions = Institution.objects.filter(status='verified').order_by('name')
     return render(request, 'campus/opportunity_post.html', {
         'company': company,
-        'type_choices':     Opportunity.TYPE_CHOICES,
+        'type_choices':      Opportunity.TYPE_CHOICES,
         'work_mode_choices': Opportunity.WORK_MODE_CHOICES,
+        'institutions':      institutions,
     })
 
 
 def _notify_matching_pos(opp):
-    pincodes = opp.target_pincodes.values_list('pincode', flat=True)
-    institutions = Institution.objects.filter(pincode__in=pincodes, status='verified')
+    institutions = opp.target_institutions.filter(status='verified')
     for inst in institutions:
         for po in inst.placement_officers.filter(is_active=True):
             notify(po.user, 'new_opportunity',
@@ -789,6 +917,124 @@ def schedule_interview(request, pk):
                f'/campus/student/application/{app.pk}/')
     messages.success(request, 'Interview scheduled.')
     return redirect('campus_company_applications', pk=app.opportunity.pk)
+
+
+@login_required
+def po_respond_opportunity(request, pk):
+    po = get_po(request.user)
+    if not po or request.method != 'POST':
+        return redirect('campus_po_opportunities')
+    share = get_object_or_404(OpportunityShare, pk=pk, institution=po.institution)
+    action  = request.POST.get('action', '')
+    po_note = request.POST.get('po_note', '').strip()
+    if action in ('accept', 'reject'):
+        share.status      = 'accepted' if action == 'accept' else 'rejected'
+        share.po_note     = po_note
+        share.responded_at = timezone.now()
+        share.save()
+        opp = share.opportunity
+        if action == 'accept':
+            # notify eligible students in this institution
+            dept_filter = Q(institution=po.institution)
+            if share.department:
+                dept_filter &= Q(department=share.department)
+            for st in Student.objects.filter(dept_filter, is_active=True, is_available=True).select_related('user'):
+                eligible, _ = st.is_eligible_for(opp)
+                if eligible:
+                    notify(st.user, 'new_opportunity',
+                           f'New opportunity: {opp.title}',
+                           f'From {opp.company.company_name}. Apply before {opp.apply_end or "deadline"}.',
+                           f'/campus/student/opportunities/{opp.pk}/')
+            notify(opp.company.user, 'general',
+                   f'{po.institution.name} accepted your opportunity',
+                   f'"{opp.title}" was accepted by Placement Officer.',
+                   f'/campus/company/opportunities/{opp.pk}/applications/')
+            messages.success(request, 'Opportunity accepted and students notified.')
+        else:
+            messages.info(request, 'Opportunity rejected.')
+        audit(request.user, f'po_{action}_opportunity', 'OpportunityShare', share.pk, opp.title, request)
+    return redirect('campus_po_opportunities')
+
+
+@login_required
+def student_update_profile(request):
+    student = get_student(request.user)
+    if not student:
+        return redirect('campus_student_register')
+    if request.method == 'POST':
+        def _dec(val, default=None):
+            try:
+                v = val.strip()
+                return float(v) if v else default
+            except Exception:
+                return default
+        def _int(val, default=None):
+            try:
+                v = val.strip()
+                return int(v) if v else default
+            except Exception:
+                return default
+        student.cgpa            = _dec(request.POST.get('cgpa', ''))
+        student.active_arrears  = _int(request.POST.get('active_arrears', ''), 0)
+        student.tenth_percent   = _dec(request.POST.get('tenth_percent', ''))
+        student.twelfth_percent = _dec(request.POST.get('twelfth_percent', ''))
+        student.graduation_year = _int(request.POST.get('graduation_year', ''))
+        student.skills          = request.POST.get('skills', '').strip()
+        student.course          = request.POST.get('course', student.course).strip()
+        student.year            = request.POST.get('year', student.year)
+        if 'resume' in request.FILES:
+            student.resume = request.FILES['resume']
+        student.save()
+        messages.success(request, 'Profile updated.')
+        return redirect('campus_student_dashboard')
+    return render(request, 'campus/student_profile.html', {
+        'student': student, 'year_choices': Student.YEAR_CHOICES,
+    })
+
+
+@login_required
+def generate_offer_letter(request, app_pk):
+    company = get_company(request.user)
+    if not company or request.method != 'POST':
+        return redirect('campus_company_dashboard')
+    app = get_object_or_404(Application, pk=app_pk, opportunity__company=company)
+    if hasattr(app, 'offer_letter'):
+        messages.info(request, 'Offer letter already issued.')
+        return redirect('campus_company_applications', pk=app.opportunity.pk)
+    OfferLetter.objects.create(
+        application    = app,
+        joining_date   = request.POST.get('joining_date') or None,
+        valid_until    = request.POST.get('valid_until') or None,
+        salary_offered = request.POST.get('salary_offered', '').strip(),
+        designation    = request.POST.get('designation', '').strip(),
+        message        = request.POST.get('message', '').strip(),
+        issued_by      = request.user,
+    )
+    set_app_status(app, 'selected', request.user, 'Offer letter issued.')
+    notify(app.student.user, 'offer_letter',
+           f'Offer Letter from {company.company_name}',
+           f'You have been selected for {app.opportunity.title}.',
+           f'/campus/student/application/{app.pk}/')
+    audit(request.user, 'offer_letter_issued', 'OfferLetter', app.pk, app.opportunity.title, request)
+    messages.success(request, 'Offer letter issued and student notified.')
+    return redirect('campus_company_applications', pk=app.opportunity.pk)
+
+
+@login_required
+def view_offer_letter(request, app_pk):
+    app = get_object_or_404(Application, pk=app_pk)
+    student = get_student(request.user)
+    company = get_company(request.user)
+    if student and app.student != student:
+        messages.error(request, 'Access denied.')
+        return redirect('campus_student_applications')
+    if company and app.opportunity.company != company:
+        messages.error(request, 'Access denied.')
+        return redirect('campus_company_dashboard')
+    offer = get_object_or_404(OfferLetter, application=app)
+    return render(request, 'campus/offer_letter.html', {
+        'application': app, 'offer': offer,
+    })
 
 
 # ── ADMIN ─────────────────────────────────────────────────────────────────────
@@ -930,3 +1176,241 @@ def admin_reports(request):
                               ).order_by('-app_count')[:10],
     }
     return render(request, 'campus/admin_reports.html', {'stats': stats})
+
+
+# ── DEDICATED CAMPUS AUTH ─────────────────────────────────────────────────────
+
+def campus_auth_landing(request):
+    if request.user.is_authenticated:
+        if get_po(request.user):
+            return redirect('campus_po_dashboard')
+        if get_student(request.user):
+            return redirect('campus_student_dashboard')
+    return render(request, 'campus/auth_landing.html')
+
+
+def campus_student_signup(request):
+    UserModel = get_user_model()
+    institutions = Institution.objects.filter(status='verified').order_by('name')
+    error = None
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name', '').strip()
+        phone     = request.POST.get('phone', '').strip()
+        email     = request.POST.get('email', '').strip()
+        pincode   = request.POST.get('pincode', '').strip()
+        inst_id   = request.POST.get('institution_id', '').strip()
+        password  = request.POST.get('password', '').strip()
+        password2 = request.POST.get('password2', '').strip()
+
+        if not all([full_name, phone, email, pincode, inst_id, password]):
+            error = 'All fields are required.'
+        elif password != password2:
+            error = 'Passwords do not match.'
+        elif len(password) < 6:
+            error = 'Password must be at least 6 characters.'
+        elif UserModel.objects.filter(phone=phone).exists():
+            error = 'This phone number is already registered.'
+        elif UserModel.objects.filter(email=email).exists():
+            error = 'This email is already registered.'
+        else:
+            inst = get_object_or_404(Institution, pk=inst_id, status='verified')
+            parts = full_name.split(' ', 1)
+            user = UserModel.objects.create_user(
+                username   = phone,
+                password   = password,
+                first_name = parts[0],
+                last_name  = parts[1] if len(parts) > 1 else '',
+                phone      = phone,
+                email      = email,
+            )
+            login(request, user)
+            # store chosen institution in session so student_register can pre-fill it
+            request.session['campus_signup_inst_id'] = inst_id
+            request.session['campus_signup_pincode']  = pincode
+            messages.success(request, f'Welcome {parts[0]}! Complete your student profile below.')
+            return redirect('campus_student_register')
+
+    return render(request, 'campus/student_signup.html', {
+        'institutions': institutions, 'error': error,
+    })
+
+
+def campus_student_login_view(request):
+    error = None
+    if request.method == 'POST':
+        phone    = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=phone, password=password)
+        if user is None:
+            # try email login
+            UserModel = get_user_model()
+            try:
+                u = UserModel.objects.get(email=phone)
+                user = authenticate(request, username=u.username, password=password)
+            except UserModel.DoesNotExist:
+                pass
+        if user:
+            if not get_student(user):
+                error = 'No student profile found for this account.'
+            else:
+                login(request, user)
+                return redirect('campus_student_dashboard')
+        else:
+            error = 'Invalid phone / email or password.'
+
+    return render(request, 'campus/student_login.html', {'error': error})
+
+
+def campus_po_signup(request):
+    UserModel = get_user_model()
+    institutions = Institution.objects.filter(status='verified').order_by('name')
+    error = None
+    if request.method == 'POST':
+        full_name    = request.POST.get('full_name', '').strip()
+        phone        = request.POST.get('phone', '').strip()
+        email        = request.POST.get('email', '').strip()
+        pincode      = request.POST.get('pincode', '').strip()
+        inst_id      = request.POST.get('institution_id', '').strip()
+        designation  = request.POST.get('designation', 'Placement Officer').strip()
+        password     = request.POST.get('password', '').strip()
+        password2    = request.POST.get('password2', '').strip()
+
+        if not all([full_name, phone, email, pincode, inst_id, password]):
+            error = 'All fields are required.'
+        elif password != password2:
+            error = 'Passwords do not match.'
+        elif len(password) < 6:
+            error = 'Password must be at least 6 characters.'
+        elif UserModel.objects.filter(phone=phone).exists():
+            error = 'This phone number is already registered.'
+        elif UserModel.objects.filter(email=email).exists():
+            error = 'This email is already registered.'
+        else:
+            inst = get_object_or_404(Institution, pk=inst_id, status='verified')
+            if PlacementOfficer.objects.filter(institution=inst, is_active=True).exists():
+                error = 'A Placement Officer is already registered for this institution.'
+            else:
+                parts = full_name.split(' ', 1)
+                user = UserModel.objects.create_user(
+                    username   = phone,
+                    password   = password,
+                    first_name = parts[0],
+                    last_name  = parts[1] if len(parts) > 1 else '',
+                    phone      = phone,
+                    email      = email,
+                )
+                PlacementOfficer.objects.create(
+                    user        = user,
+                    institution = inst,
+                    designation = designation,
+                    phone       = phone,
+                    email       = email,
+                )
+                login(request, user)
+                messages.success(request, f'Welcome {parts[0]}! Your Placement Officer account is created.')
+                return redirect('campus_po_dashboard')
+
+    return render(request, 'campus/po_signup.html', {
+        'institutions': institutions, 'error': error,
+    })
+
+
+def campus_hr_signup(request):
+    UserModel = get_user_model()
+    error = None
+    if request.method == 'POST':
+        full_name    = request.POST.get('full_name', '').strip()
+        email        = request.POST.get('email', '').strip()
+        company_name = request.POST.get('company_name', '').strip()
+        phone        = request.POST.get('phone', '').strip()
+        password     = request.POST.get('password', '').strip()
+        password2    = request.POST.get('password2', '').strip()
+
+        if not all([full_name, email, company_name, password]):
+            error = 'All fields are required.'
+        elif password != password2:
+            error = 'Passwords do not match.'
+        elif len(password) < 6:
+            error = 'Password must be at least 6 characters.'
+        elif UserModel.objects.filter(email=email).exists():
+            error = 'This email is already registered.'
+        elif phone and UserModel.objects.filter(phone=phone).exists():
+            error = 'This phone number is already registered.'
+        else:
+            username = email  # use email as username for HR
+            parts = full_name.split(' ', 1)
+            user = UserModel.objects.create_user(
+                username   = username,
+                password   = password,
+                first_name = parts[0],
+                last_name  = parts[1] if len(parts) > 1 else '',
+                email      = email,
+                phone      = phone,
+            )
+            CampusCompany.objects.create(
+                user           = user,
+                company_name   = company_name,
+                contact_person = full_name,
+                designation    = 'HR',
+                email          = email,
+                phone          = phone,
+                status         = 'pending',
+            )
+            login(request, user)
+            messages.success(request, f'Welcome {parts[0]}! Your HR account is created. Awaiting verification.')
+            return redirect('campus_company_dashboard')
+
+    return render(request, 'campus/hr_signup.html', {'error': error})
+
+
+def campus_hr_login_view(request):
+    error = None
+    if request.method == 'POST':
+        email    = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        UserModel = get_user_model()
+        # authenticate by email
+        user = None
+        try:
+            u = UserModel.objects.get(email=email)
+            user = authenticate(request, username=u.username, password=password)
+        except UserModel.DoesNotExist:
+            pass
+        if user is None:
+            # fallback: try username = email directly
+            user = authenticate(request, username=email, password=password)
+        if user:
+            if not get_company(user):
+                error = 'No HR / company profile found for this account.'
+            else:
+                login(request, user)
+                return redirect('campus_company_dashboard')
+        else:
+            error = 'Invalid email or password.'
+
+    return render(request, 'campus/hr_login.html', {'error': error})
+
+
+def campus_po_login_view(request):
+    error = None
+    if request.method == 'POST':
+        phone    = request.POST.get('phone', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=phone, password=password)
+        if user is None:
+            UserModel = get_user_model()
+            try:
+                u = UserModel.objects.get(email=phone)
+                user = authenticate(request, username=u.username, password=password)
+            except UserModel.DoesNotExist:
+                pass
+        if user:
+            if not get_po(user):
+                error = 'No Placement Officer profile found for this account.'
+            else:
+                login(request, user)
+                return redirect('campus_po_dashboard')
+        else:
+            error = 'Invalid phone / email or password.'
+
+    return render(request, 'campus/po_login.html', {'error': error})

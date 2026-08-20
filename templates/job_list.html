@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}Browse Jobs - MY PINCOD{% endblock %}
+{% block title %}Browse Jobs - OUR PINCODE{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/jobs.css' %}">
 <style>
@@ -32,7 +32,7 @@
   <div class="jobs-search-bar">
     <form action="/jobs/" method="get" class="jobs-search-form">
       <input type="text" name="q" value="{{ q }}" placeholder="Job title, skill, keyword...">
-      <input type="text" name="pincode" value="{{ pincode }}" placeholder="MY PINCOD" maxlength="6" style="max-width:130px">
+      <input type="text" name="pincode" value="{{ pincode }}" placeholder="OUR PINCODE" maxlength="6" style="max-width:130px">
       <button type="submit"><i class="fas fa-search"></i> Search</button>
     </form>
   </div>

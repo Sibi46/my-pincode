@@ -97,6 +97,7 @@ urlpatterns = [
 
     # ── SUPER ADMIN ─────────────────────────────────────────
     path('super-admin/users/',                          views.super_admin_users,     name='super_admin_users'),
+    path('super-admin/users/<int:user_id>/delete/',     views.super_admin_delete_user, name='super_admin_delete_user'),
     path('super-admin/',                               views.super_admin_dashboard, name='super_admin_dashboard'),
     path('super-admin/states/',                        views.manage_states,         name='manage_states'),
     path('super-admin/states/<int:pk>/toggle/',        views.toggle_state,          name='toggle_state'),
@@ -153,6 +154,7 @@ urlpatterns = [
     path('referral/',                                  views.referral_dashboard,          name='referral_dashboard'),
     path('api/update-interview-type/',                 views.update_interview_type,        name='update_interview_type'),
     path('api/pincode/<str:pin>/',                     views.api_pincode_lookup,          name='api_pincode_lookup'),
+    path('about/',                                     views.about_page,                   name='about'),
     path('terms/',                                     views.terms,                        name='terms'),
     path('privacy/',                                   views.privacy,                      name='privacy'),
 
@@ -173,4 +175,5 @@ urlpatterns = [
     path('vouchers/',   include('vouchers.urls')),
     path('community/',  include('community.urls')),
     path('campus/',     include('campus.urls')),
+    path('portal/',     include('portal.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

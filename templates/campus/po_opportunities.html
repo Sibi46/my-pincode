@@ -3,44 +3,129 @@
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/po/dashboard/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
   <span class="cp-topbar-badge">PO</span>
 </div>
 <div class="cp-body">
-  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Available Opportunities</div>
-  <p style="font-size:12px;color:#64748B;margin-bottom:16px">Opportunities shared by companies matching your institution's pincode.</p>
 
-  {% if opportunities %}
-  {% for opp in opportunities %}
-  <div class="cp-card" style="margin-bottom:12px">
+  <!-- PENDING SHARES (need Accept/Reject) -->
+  {% if shared_opps %}
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:8px">Shared Opportunities</div>
+  <p style="font-size:12px;color:#64748B;margin-bottom:14px">Opportunities shared by companies — review and accept or reject.</p>
+
+  {% for share in shared_opps %}
+  <div class="cp-card" style="margin-bottom:12px;{% if share.status == 'pending' %}border:2px solid #FCD34D;{% elif share.status == 'accepted' %}border:2px solid #6EE7B7;{% else %}border:2px solid #FCA5A5;{% endif %}">
     <div style="padding:16px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-        <div style="flex:1">
-          <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ opp.get_opp_type_display }}</div>
-          <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opp.title }}</div>
-          <div style="font-size:12px;color:#64748B;margin-bottom:10px">{{ opp.company.company_name }}</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            {% if opp.location %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">📍 {{ opp.location }}</span>{% endif %}
-            {% if opp.salary %}<span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">💰 {{ opp.salary }}</span>{% endif %}
-            <span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">{{ opp.openings }} openings</span>
-            <span style="font-size:10px;font-weight:600;color:#64748B;background:#F1F5F9;padding:3px 8px;border-radius:6px">{{ opp.get_work_mode_display }}</span>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ share.opportunity.get_opp_type_display }}</div>
+          <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ share.opportunity.title }}</div>
+          <div style="font-size:12px;color:#64748B;margin-bottom:6px">{{ share.opportunity.company.company_name }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+            {% if share.opportunity.location %}<span class="cp-badge">📍 {{ share.opportunity.location }}</span>{% endif %}
+            {% if share.opportunity.salary %}<span class="cp-badge">💰 {{ share.opportunity.salary }}</span>{% endif %}
+            <span class="cp-badge">{{ share.opportunity.openings }} openings</span>
+            {% if share.opportunity.min_cgpa %}<span class="cp-badge" style="background:#EFF6FF;color:#1D4ED8">CGPA ≥ {{ share.opportunity.min_cgpa }}</span>{% endif %}
+            {% if share.opportunity.no_arrears_required %}<span class="cp-badge" style="background:#FEF3C7;color:#92400E">No Arrears</span>{% endif %}
+            {% if share.department %}<span class="cp-badge">{{ share.department.name }}</span>{% endif %}
           </div>
+          {% if share.note %}<div style="font-size:12px;color:#64748B;font-style:italic;margin-bottom:8px">"{{ share.note }}"</div>{% endif %}
         </div>
-        <span class="cp-badge {% if opp.status == 'published' %}cp-badge-published{% else %}cp-badge-draft{% endif %}">{{ opp.status }}</span>
+        <div>
+          {% if share.status == 'pending' %}
+          <span style="font-size:11px;font-weight:700;background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:20px">⏳ Pending</span>
+          {% elif share.status == 'accepted' %}
+          <span style="font-size:11px;font-weight:700;background:#D1FAE5;color:#065F46;padding:4px 10px;border-radius:20px">✅ Accepted</span>
+          {% else %}
+          <span style="font-size:11px;font-weight:700;background:#FEE2E2;color:#991B1B;padding:4px 10px;border-radius:20px">❌ Rejected</span>
+          {% endif %}
+        </div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:14px">
-        <a href="/campus/po/share/{{ opp.pk }}/" class="cp-btn cp-btn-primary" style="flex:1;justify-content:center">Share with Students</a>
-        <a href="/campus/student/opportunities/{{ opp.pk }}/" class="cp-btn cp-btn-ghost" style="padding:10px 14px">View</a>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="/campus/student/opportunities/{{ share.opportunity.pk }}/" class="cp-btn cp-btn-ghost" style="font-size:12px;padding:8px 12px">View Details</a>
+        {% if share.status == 'pending' %}
+        <button onclick="openRespond({{ share.pk }},'accept')" class="cp-btn" style="background:#10B981;color:#fff;font-size:12px;padding:8px 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700">✅ Accept</button>
+        <button onclick="openRespond({{ share.pk }},'reject')" class="cp-btn" style="background:#EF4444;color:#fff;font-size:12px;padding:8px 16px;border:none;border-radius:10px;cursor:pointer;font-weight:700">❌ Reject</button>
+        {% elif share.status == 'accepted' %}
+        <a href="/campus/po/opportunities/{{ share.opportunity.pk }}/share/" class="cp-btn cp-btn-primary" style="font-size:12px;padding:8px 14px">Share with Departments</a>
+        {% endif %}
       </div>
     </div>
   </div>
   {% endfor %}
-  {% else %}
+  {% endif %}
+
+  <!-- NEW (not yet shared to this institution) -->
+  {% if new_opps %}
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin:18px 0 8px">New Available Opportunities</div>
+  <p style="font-size:12px;color:#64748B;margin-bottom:14px">Matching your institution's PIN code. Review and accept to notify students.</p>
+
+  {% for opp in new_opps %}
+  <div class="cp-card" style="margin-bottom:12px">
+    <div style="padding:16px">
+      <div style="font-size:10px;font-weight:700;color:#6366F1;text-transform:uppercase;margin-bottom:4px">{{ opp.get_opp_type_display }}</div>
+      <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opp.title }}</div>
+      <div style="font-size:12px;color:#64748B;margin-bottom:8px">{{ opp.company.company_name }}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+        {% if opp.location %}<span class="cp-badge">📍 {{ opp.location }}</span>{% endif %}
+        {% if opp.salary %}<span class="cp-badge">💰 {{ opp.salary }}</span>{% endif %}
+        <span class="cp-badge">{{ opp.openings }} openings</span>
+        {% if opp.min_cgpa %}<span class="cp-badge" style="background:#EFF6FF;color:#1D4ED8">CGPA ≥ {{ opp.min_cgpa }}</span>{% endif %}
+        {% if opp.no_arrears_required %}<span class="cp-badge" style="background:#FEF3C7;color:#92400E">No Arrears</span>{% endif %}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="/campus/student/opportunities/{{ opp.pk }}/" class="cp-btn cp-btn-ghost" style="font-size:12px;padding:8px 12px">View Details</a>
+        <a href="/campus/po/opportunities/{{ opp.pk }}/share/" class="cp-btn cp-btn-primary" style="font-size:12px;padding:8px 14px">Share to Students</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if not shared_opps and not new_opps %}
   <div style="text-align:center;padding:40px 20px;color:#94A3B8">
     <div style="font-size:3rem;margin-bottom:10px">💼</div>
     <div style="font-size:14px;font-weight:600">No opportunities yet</div>
-    <div style="font-size:12px;margin-top:4px">When companies post opportunities matching your pincode, they'll appear here.</div>
+    <div style="font-size:12px;margin-top:4px">When companies post opportunities matching your institution's pincode, they'll appear here.</div>
   </div>
   {% endif %}
 </div>
+
+<!-- Respond modal -->
+<div id="respondModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:24px;max-width:420px;width:90%;margin:auto">
+    <div style="font-size:17px;font-weight:800;color:#0F172A;margin-bottom:6px" id="modalTitle">Respond to Opportunity</div>
+    <div style="font-size:13px;color:#64748B;margin-bottom:16px" id="modalSub"></div>
+    <form method="post" id="respondForm" action="">
+      {% csrf_token %}
+      <input type="hidden" name="action" id="respondAction">
+      <div class="cp-field">
+        <label class="cp-label">Note (optional)</label>
+        <textarea name="po_note" class="cp-input" style="min-height:70px" placeholder="Any message to the company..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button type="button" onclick="closeModal()" class="cp-btn cp-btn-ghost" style="flex:1">Cancel</button>
+        <button type="submit" class="cp-btn cp-btn-primary" id="modalSubmit" style="flex:1">Confirm</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openRespond(shareId, action){
+  document.getElementById('respondForm').action = '/campus/po/shares/' + shareId + '/respond/';
+  document.getElementById('respondAction').value = action;
+  var title = action === 'accept' ? '✅ Accept Opportunity' : '❌ Reject Opportunity';
+  var sub   = action === 'accept' ? 'Students will be notified after acceptance.' : 'This opportunity will be rejected.';
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent   = sub;
+  document.getElementById('modalSubmit').textContent = action === 'accept' ? 'Accept' : 'Reject';
+  document.getElementById('modalSubmit').style.background = action === 'accept' ? '#10B981' : '#EF4444';
+  document.getElementById('respondModal').style.display = 'flex';
+}
+function closeModal(){
+  document.getElementById('respondModal').style.display = 'none';
+}
+</script>
 {% endblock %}

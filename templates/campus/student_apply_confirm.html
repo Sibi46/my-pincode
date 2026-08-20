@@ -1,44 +1,238 @@
 {% extends 'campus/base_campus.html' %}
-{% block title %}Apply – Campus{% endblock %}
+{% block title %}Apply – {{ opportunity.title }}{% endblock %}
 {% block content %}
 <div class="cp-topbar">
-  <a href="/campus/student/opportunities/{{ opportunity.pk }}/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <a href="/campus/student/opportunities/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
+  <span class="cp-topbar-badge">Student</span>
 </div>
 <div class="cp-body">
-  <div class="cp-sec">Confirm Application</div>
+  <div class="cp-sec">Apply for Opportunity</div>
+  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
 
-  <div class="cp-card" style="margin-bottom:16px">
-    <div style="padding:16px">
-      <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ opportunity.title }}</div>
-      <div style="font-size:12px;color:#64748B">{{ opportunity.company.company_name }}</div>
+  <!-- JOB CARD -->
+  <div class="cp-card" style="margin-bottom:14px">
+    <div style="padding:18px">
+      <div style="font-size:18px;font-weight:800;color:#0F172A">{{ opportunity.title }}</div>
+      <div style="font-size:13px;color:#4F46E5;margin:4px 0">{{ opportunity.company.company_name }}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px">
+        <span class="cp-badge">{{ opportunity.get_opp_type_display }}</span>
+        {% if opportunity.location %}<span class="cp-badge">📍 {{ opportunity.location }}</span>{% endif %}
+        {% if opportunity.salary %}<span class="cp-badge">💰 {{ opportunity.salary }}</span>{% endif %}
+        {% if opportunity.apply_end %}<span class="cp-badge" style="background:#FEF3C7;color:#92400E">⏰ Apply by {{ opportunity.apply_end }}</span>{% endif %}
+      </div>
     </div>
   </div>
 
-  {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
+  <!-- ELIGIBILITY CHECK -->
+  <div class="cp-card" style="margin-bottom:14px">
+    <div class="cp-card-head"><div class="cp-card-title">Eligibility Check</div></div>
+    <div style="padding:16px">
+      {% if eligible %}
+      <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px">
+        <span style="font-size:24px">✅</span>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#166534">You are eligible!</div>
+          <div style="font-size:12px;color:#15803D;margin-top:2px">All criteria met. You can apply for this opportunity.</div>
+        </div>
+      </div>
+      {% else %}
+      <div style="display:flex;align-items:center;gap:10px;background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;padding:14px">
+        <span style="font-size:24px">❌</span>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#9F1239">Not Eligible</div>
+          <div style="font-size:13px;color:#BE123C;margin-top:2px">{{ reason }}</div>
+        </div>
+      </div>
+      {% endif %}
 
+      <!-- Criteria detail -->
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        {% if opportunity.min_cgpa %}
+        <div class="elig-row {% if student.cgpa and student.cgpa >= opportunity.min_cgpa %}elig-pass{% else %}elig-fail{% endif %}">
+          <span class="elig-icon">{% if student.cgpa and student.cgpa >= opportunity.min_cgpa %}✓{% else %}✗{% endif %}</span>
+          <span>CGPA ≥ {{ opportunity.min_cgpa }} — yours: {{ student.cgpa|default:"not set" }}</span>
+        </div>
+        {% endif %}
+        {% if opportunity.no_arrears_required %}
+        <div class="elig-row {% if student.active_arrears == 0 %}elig-pass{% else %}elig-fail{% endif %}">
+          <span class="elig-icon">{% if student.active_arrears == 0 %}✓{% else %}✗{% endif %}</span>
+          <span>No active arrears — yours: {{ student.active_arrears }}</span>
+        </div>
+        {% endif %}
+        {% if opportunity.min_tenth_percent %}
+        <div class="elig-row {% if student.tenth_percent and student.tenth_percent >= opportunity.min_tenth_percent %}elig-pass{% else %}elig-fail{% endif %}">
+          <span class="elig-icon">{% if student.tenth_percent and student.tenth_percent >= opportunity.min_tenth_percent %}✓{% else %}✗{% endif %}</span>
+          <span>10th % ≥ {{ opportunity.min_tenth_percent }} — yours: {{ student.tenth_percent|default:"not set" }}</span>
+        </div>
+        {% endif %}
+        {% if opportunity.min_twelfth_percent %}
+        <div class="elig-row {% if student.twelfth_percent and student.twelfth_percent >= opportunity.min_twelfth_percent %}elig-pass{% else %}elig-fail{% endif %}">
+          <span class="elig-icon">{% if student.twelfth_percent and student.twelfth_percent >= opportunity.min_twelfth_percent %}✓{% else %}✗{% endif %}</span>
+          <span>12th % ≥ {{ opportunity.min_twelfth_percent }} — yours: {{ student.twelfth_percent|default:"not set" }}</span>
+        </div>
+        {% endif %}
+        {% if opportunity.dept_eligibility %}
+        <div class="elig-row elig-info">
+          <span class="elig-icon">ℹ</span>
+          <span>Department: {{ opportunity.dept_eligibility }} — yours: {{ student.department.name }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if not eligible %}
+      <div style="margin-top:16px">
+        <a href="/campus/student/profile/" class="cp-btn cp-btn-primary" style="display:inline-block">Update Academic Profile</a>
+        <div style="font-size:11px;color:#94A3B8;margin-top:6px">Update your CGPA, arrears and percentage to check eligibility again.</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if eligible %}
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="cp-card">
+
+    <!-- RESUME -->
+    <div class="cp-card" style="margin-bottom:14px">
+      <div class="cp-card-head"><div class="cp-card-title">Resume</div></div>
       <div style="padding:16px">
+        {% if student.resume %}
+        <div style="font-size:13px;color:#64748B;margin-bottom:8px">Current resume: <a href="{{ student.resume.url }}" target="_blank" style="color:#4F46E5">View</a></div>
+        {% endif %}
         <div class="cp-field">
-          <label class="cp-label">Resume</label>
-          {% if student.resume %}
-          <div style="background:#F8FAFF;border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:12px;color:#4F46E5;font-weight:600">
-            📄 Current resume on file
-          </div>
-          <div style="font-size:11px;color:#94A3B8;margin-bottom:8px">Upload a new resume or leave blank to use existing.</div>
-          {% endif %}
-          <input name="resume" class="cp-input" type="file" accept=".pdf,.doc,.docx">
+          <label class="cp-label">Upload / Replace Resume (PDF)</label>
+          <input type="file" name="resume" class="cp-input" accept=".pdf,.doc,.docx">
         </div>
+      </div>
+    </div>
+
+    <!-- REQUIRED DOCUMENTS — Google-Form style -->
+    {% if required_docs %}
+    <div class="cp-card" style="margin-bottom:14px">
+      <div style="background:linear-gradient(90deg,#4F46E5,#7C3AED);border-radius:14px 14px 0 0;padding:14px 18px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.3rem">📄</span>
+        <div>
+          <div style="font-size:15px;font-weight:800;color:#fff">Required Documents</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:1px">Upload all documents listed below to complete your application</div>
+        </div>
+        <span style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">{{ required_docs|length }} document{{ required_docs|length|pluralize }}</span>
+      </div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+        {% for doc in required_docs %}
+        <div class="gf-apply-card {% if doc.is_required %}gf-apply-required{% endif %}" id="doccard-{{ forloop.counter }}">
+          <!-- Card top: number + title + badge -->
+          <div class="gf-apply-head">
+            <span class="gf-apply-num">{{ forloop.counter }}</span>
+            <div class="gf-apply-title-wrap">
+              <span class="gf-apply-title">{{ doc.name }}</span>
+              {% if doc.is_required %}
+              <span class="gf-apply-badge gf-badge-req">Required</span>
+              {% else %}
+              <span class="gf-apply-badge gf-badge-opt">Optional</span>
+              {% endif %}
+            </div>
+          </div>
+          <!-- Helper text -->
+          {% if doc.description %}
+          <div class="gf-apply-hint">{{ doc.description }}</div>
+          {% endif %}
+          <!-- File upload zone -->
+          <input type="hidden" name="doc_name" value="{{ doc.name }}">
+          <label class="gf-upload-zone" for="docfile-{{ forloop.counter }}">
+            <input type="file" id="docfile-{{ forloop.counter }}" name="doc_file"
+              {% if doc.is_required %}required{% endif %}
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+              onchange="showFileName(this, 'fname-{{ forloop.counter }}')">
+            <span class="gf-upload-icon">☁</span>
+            <span class="gf-upload-label">Click to upload or drag file here</span>
+            <span class="gf-upload-types">PDF, JPG, PNG, DOC — max 10 MB</span>
+            <span class="gf-upload-fname" id="fname-{{ forloop.counter }}"></span>
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- QUESTIONS -->
+    {% if questions %}
+    <div class="cp-card" style="margin-bottom:14px">
+      <div class="cp-card-head"><div class="cp-card-title">❓ Application Questions</div></div>
+      <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+        {% for q in questions %}
         <div class="cp-field">
-          <label class="cp-label">Cover Note (optional)</label>
-          <textarea name="student_note" class="cp-input" placeholder="A brief note to the company..."></textarea>
+          <label class="cp-label">{{ q.question }}{% if q.is_required %} *{% endif %}</label>
+          {% if q.question_type == 'yesno' %}
+          <select name="question_{{ q.pk }}" class="cp-input" {% if q.is_required %}required{% endif %}>
+            <option value="">— Select —</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+          {% elif q.question_type == 'textarea' %}
+          <textarea name="question_{{ q.pk }}" class="cp-input" style="min-height:80px" {% if q.is_required %}required{% endif %} placeholder="Your answer..."></textarea>
+          {% else %}
+          <input type="text" name="question_{{ q.pk }}" class="cp-input" {% if q.is_required %}required{% endif %} placeholder="Your answer...">
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- SUBMIT -->
+    <div class="cp-card" style="margin-bottom:14px">
+      <div style="padding:16px">
+        <div class="cp-field"><label class="cp-label">Cover Note (optional)</label>
+          <textarea name="student_note" class="cp-input" style="min-height:80px" placeholder="Any additional note for the company..."></textarea>
         </div>
       </div>
     </div>
     <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Submit Application</button>
-    <a href="/campus/student/opportunities/{{ opportunity.pk }}/" class="cp-btn cp-btn-ghost cp-btn-full" style="margin-top:8px">Cancel</a>
   </form>
+  {% endif %}
 </div>
+
+<style>
+.elig-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:500}
+.elig-pass{background:#F0FDF4;color:#166534}
+.elig-fail{background:#FFF1F2;color:#9F1239}
+.elig-info{background:#EFF6FF;color:#1D4ED8}
+.elig-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:rgba(0,0,0,.08)}
+
+/* Google-Form style document cards */
+.gf-apply-card{background:#fff;border:1.5px solid #E0E7FF;border-radius:14px;padding:16px;transition:border-color .2s,box-shadow .2s}
+.gf-apply-card:hover,.gf-apply-card:focus-within{border-color:#818CF8;box-shadow:0 2px 12px rgba(79,70,229,.1)}
+.gf-apply-required{border-left:4px solid #4F46E5}
+.gf-apply-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.gf-apply-num{width:26px;height:26px;border-radius:50%;background:#4F46E5;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gf-apply-title-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1}
+.gf-apply-title{font-size:15px;font-weight:700;color:#0F172A}
+.gf-apply-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.03em}
+.gf-badge-req{background:#EDE9FE;color:#5B21B6}
+.gf-badge-opt{background:#F1F5F9;color:#64748B}
+.gf-apply-hint{font-size:12px;color:#64748B;margin-bottom:10px;padding-left:36px}
+.gf-upload-zone{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed #CBD5E1;border-radius:12px;padding:18px 12px;cursor:pointer;background:#FAFBFF;transition:border-color .2s,background .2s;text-align:center;margin-top:4px}
+.gf-upload-zone:hover{border-color:#6366F1;background:#F5F3FF}
+.gf-upload-zone input[type=file]{display:none}
+.gf-upload-icon{font-size:1.8rem;line-height:1;color:#94A3B8}
+.gf-upload-label{font-size:13px;font-weight:600;color:#4F46E5}
+.gf-upload-types{font-size:11px;color:#94A3B8}
+.gf-upload-fname{font-size:12px;font-weight:700;color:#059669;margin-top:4px;min-height:16px}
+</style>
+<script>
+function showFileName(input, targetId) {
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  if (input.files && input.files[0]) {
+    var name = input.files[0].name;
+    var size = (input.files[0].size / 1024).toFixed(0);
+    el.textContent = '✅ ' + name + ' (' + size + ' KB)';
+    input.closest('.gf-upload-zone').style.borderColor = '#059669';
+    input.closest('.gf-upload-zone').style.background = '#F0FDF4';
+  } else {
+    el.textContent = '';
+  }
+}
+</script>
 {% endblock %}

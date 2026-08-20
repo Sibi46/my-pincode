@@ -126,9 +126,10 @@ class SchoolFollow(models.Model):
 
 class SchoolPost(models.Model):
     POST_TYPE_CHOICES = [
+        ('daily',        '📌 Daily'),
         ('annual_day',   '🎭 Annual Day'),
         ('sports_day',   '⚽ Sports Day'),
-        ('science_fair', '🔬 Science Fair'),
+        ('science_fair', '🔬 Fair'),
         ('achievement',  '🏆 Achievement'),
         ('event',        '📅 Event'),
         ('announcement', '📢 Announcement'),
@@ -823,7 +824,7 @@ class FamilySetup(models.Model):
     village          = models.CharField(max_length=150, blank=True)
     age              = models.PositiveSmallIntegerField(null=True, blank=True)
     setup_done       = models.BooleanField(default=False)
-    # counts
+    # counts — husband's side
     grandfather_count = models.PositiveSmallIntegerField(default=0)
     grandmother_count = models.PositiveSmallIntegerField(default=0)
     father_count      = models.PositiveSmallIntegerField(default=0)
@@ -836,6 +837,16 @@ class FamilySetup(models.Model):
     brother_count     = models.PositiveSmallIntegerField(default=0)
     sister_count      = models.PositiveSmallIntegerField(default=0)
     pet_count         = models.PositiveSmallIntegerField(default=0)
+    # counts — wife's side (only relevant when married)
+    w_grandfather_count = models.PositiveSmallIntegerField(default=0)
+    w_grandmother_count = models.PositiveSmallIntegerField(default=0)
+    w_father_count      = models.PositiveSmallIntegerField(default=0)
+    w_mother_count      = models.PositiveSmallIntegerField(default=0)
+    w_uncle_count       = models.PositiveSmallIntegerField(default=0)
+    w_aunt_count        = models.PositiveSmallIntegerField(default=0)
+    w_cousin_count      = models.PositiveSmallIntegerField(default=0)
+    w_brother_count     = models.PositiveSmallIntegerField(default=0)
+    w_sister_count      = models.PositiveSmallIntegerField(default=0)
     updated_at        = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -859,6 +870,10 @@ class FamilySetup(models.Model):
 
 
 class FamilyMember(models.Model):
+    SIDE_CHOICES = [
+        ('husband', 'Husband Side'),
+        ('wife',    'Wife Side'),
+    ]
     TYPE_CHOICES = [
         ('grandfather', 'Grandfather'),
         ('grandmother', 'Grandmother'),
@@ -881,6 +896,7 @@ class FamilyMember(models.Model):
 
     creator     = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_members')
     member_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    side        = models.CharField(max_length=10, choices=SIDE_CHOICES, default='husband', blank=True)
     name        = models.CharField(max_length=150)
     why         = models.CharField(max_length=300, blank=True)
     photo       = models.ImageField(upload_to='family_members/', blank=True, null=True)

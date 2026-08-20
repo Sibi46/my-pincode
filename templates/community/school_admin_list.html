@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Schools — Super Admin{% endblock %}
+{% block content %}
+<style>
+  nav.navbar{display:none!important}
+  body{background:#f4f6f9}
+  .sa-topbar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #e5e7eb;padding:14px 20px;display:flex;align-items:center;gap:12px}
+  .sa-topbar a{color:#374151;text-decoration:none;font-size:20px}
+  .sa-topbar h2{font-size:16px;font-weight:900;color:#111;margin:0;flex:1}
+  .sa-topbar .badge{background:#e0e7ff;color:#4338ca;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+  .sa-body{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+  .school-card{background:#fff;border-radius:14px;border:1.5px solid #e5e7eb;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+  .school-logo{width:52px;height:52px;border-radius:10px;object-fit:cover;background:#e0e7ff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .school-info{flex:1;min-width:0}
+  .school-name{font-size:15px;font-weight:800;color:#111;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .school-meta{font-size:12px;color:#6b7280;display:flex;gap:10px;flex-wrap:wrap}
+  .school-meta span{display:flex;align-items:center;gap:4px}
+  .del-btn{background:#fee2e2;color:#dc2626;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.2s}
+  .del-btn:hover{background:#dc2626;color:#fff}
+  .empty{text-align:center;padding:60px 20px;color:#9ca3af}
+  .empty i{font-size:40px;display:block;margin-bottom:12px}
+  {% if messages %}
+  .msg{background:#d1fae5;color:#065f46;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:16px}
+  {% endif %}
+</style>
+
+<div class="sa-topbar">
+  <a href="/super-admin/">&#8592;</a>
+  <h2>Registered Schools</h2>
+  <span class="badge">{{ schools|length }} schools</span>
+</div>
+
+<div class="sa-body">
+  {% if messages %}
+    {% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}
+  {% endif %}
+
+  {% if schools %}
+    {% for school in schools %}
+    <div class="school-card">
+      {% if school.logo %}
+        <img src="{{ school.logo.url }}" class="school-logo" alt="">
+      {% else %}
+        <div class="school-logo">🏫</div>
+      {% endif %}
+      <div class="school-info">
+        <div class="school-name">{{ school.name }}</div>
+        <div class="school-meta">
+          <span><i class="fas fa-map-marker-alt"></i> {{ school.city|default:school.pincode }}</span>
+          <span><i class="fas fa-graduation-cap"></i> {{ school.get_school_type_display }}</span>
+          <span><i class="fas fa-calendar-alt"></i> {{ school.created_at|date:"d M Y" }}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <a href="/community/school-corner/{{ school.pk }}/" style="background:#e0e7ff;color:#4338ca;border:none;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none">View</a>
+        <form method="post" action="/community/school-corner/{{ school.pk }}/delete/" onsubmit="return confirm('Delete {{ school.name }}? This cannot be undone.')">
+          {% csrf_token %}
+          <button type="submit" class="del-btn"><i class="fas fa-trash"></i> Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">
+      <i class="fas fa-school"></i>
+      No schools registered yet.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

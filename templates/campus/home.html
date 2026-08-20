@@ -1,5 +1,5 @@
-{% extends 'campus/base_campus.html' %}
-{% block title %}Campus Career Program – MY PINCOD{% endblock %}
+﻿{% extends 'campus/base_campus.html' %}
+{% block title %}Campus Career Program – OUR PINCODE{% endblock %}
 {% block content %}
 <style>
 .cp-hero{background:linear-gradient(145deg,#3730A3 0%,#4F46E5 50%,#7C3AED 100%);padding:36px 20px 56px;position:relative;overflow:hidden}
@@ -20,7 +20,7 @@
 .cp-floatstat-n{font-size:22px;font-weight:800;color:#4F46E5;line-height:1}
 .cp-floatstat-l{font-size:9px;font-weight:600;color:#94A3B8;margin-top:4px;text-transform:uppercase}
 
-.cp-role-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.cp-role-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
 .cp-role-card{background:#fff;border-radius:20px;border:1px solid #E0E7FF;padding:20px;text-decoration:none;transition:all .2s;display:block}
 .cp-role-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(79,70,229,.12);border-color:#A5B4FC}
 .cp-role-icon{font-size:2rem;display:block;margin-bottom:10px}
@@ -39,7 +39,7 @@
 <!-- TOP BAR -->
 <div class="cp-topbar">
   <a href="/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
   {% if request.user.is_authenticated %}
     {% if role == 'po' %}<a href="/campus/po/dashboard/" class="cp-topbar-badge">PO Dashboard</a>
     {% elif role == 'hod' %}<a href="/campus/hod/dashboard/" class="cp-topbar-badge">HOD Dashboard</a>
@@ -58,8 +58,8 @@
     <div class="cp-hero-h">Local Opportunity.<br>College. Student. Career.</div>
     <div class="cp-hero-sub">Connecting companies with nearby colleges for jobs, internships and practical learning — powered by pincode.</div>
     <div class="cp-hero-btns">
-      <a href="/campus/company/register/" class="cp-hero-btn cp-hero-btn-white">Post Opportunities</a>
-      <a href="/campus/institution/register/" class="cp-hero-btn cp-hero-btn-outline">Register College</a>
+      <a href="/campus/auth/" class="cp-hero-btn cp-hero-btn-white">Student / PO Login</a>
+      <a href="/campus/company/register/" class="cp-hero-btn cp-hero-btn-outline">For Companies</a>
     </div>
   </div>
 </div>
@@ -78,15 +78,25 @@
 <!-- ROLE CARDS -->
 <div class="cp-sec">Get Started</div>
 <div class="cp-role-cards">
+  <a href="/campus/student/signup/" class="cp-role-card">
+    <span class="cp-role-icon">👨‍🎓</span>
+    <div class="cp-role-title">I'm a Student</div>
+    <div class="cp-role-desc">Sign up to access placement drives &amp; job opportunities.</div>
+  </a>
+  <a href="/campus/po/signup/" class="cp-role-card">
+    <span class="cp-role-icon">🏫</span>
+    <div class="cp-role-title">Placement Officer</div>
+    <div class="cp-role-desc">Manage your college's placements, HODs &amp; students.</div>
+  </a>
   <a href="/campus/company/register/" class="cp-role-card">
     <span class="cp-role-icon">🏢</span>
     <div class="cp-role-title">I'm a Company</div>
     <div class="cp-role-desc">Post jobs & internships. Connect with nearby colleges.</div>
   </a>
   <a href="/campus/institution/register/" class="cp-role-card">
-    <span class="cp-role-icon">🏫</span>
-    <div class="cp-role-title">I'm a College</div>
-    <div class="cp-role-desc">Register institution. Manage departments & students.</div>
+    <span class="cp-role-icon">🏛️</span>
+    <div class="cp-role-title">Register Institution</div>
+    <div class="cp-role-desc">Register a new institution for the campus network.</div>
   </a>
   <a href="/campus/student/register/" class="cp-role-card">
     <span class="cp-role-icon">👨‍🎓</span>

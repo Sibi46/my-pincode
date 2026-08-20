@@ -1,0 +1,260 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<style>
+.ec-wrap{max-width:680px;margin:0 auto;padding-bottom:60px}
+.ec-hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:20px;padding:24px 20px 20px;margin-bottom:20px;color:#fff}
+.ec-hero-title{font-size:22px;font-weight:900;letter-spacing:-.02em}
+.ec-hero-sub{font-size:13px;opacity:.8;margin-top:4px}
+
+.ec-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:14px}
+.ec-card-head{padding:14px 18px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:800;color:#0f172a}
+.ec-card-body{padding:18px}
+
+.ec-group-select{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:8px}
+.ec-group-opt{border:2px solid #e2e8f0;border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all .18s;position:relative}
+.ec-group-opt:hover{border-color:#a5b4fc;background:#f5f3ff}
+.ec-group-opt.selected{border-color:#4f46e5;background:#ede9fe}
+.ec-group-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.ec-group-icon{font-size:22px;margin-bottom:6px}
+.ec-group-name{font-size:12px;font-weight:700;color:#0f172a;line-height:1.2}
+.ec-group-check{display:none;position:absolute;top:8px;right:8px;width:18px;height:18px;background:#4f46e5;border-radius:50%;color:#fff;font-size:10px;align-items:center;justify-content:center}
+.ec-group-opt.selected .ec-group-check{display:flex}
+
+.pform-grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.pform-grid2{grid-template-columns:1fr}}
+
+.ec-toggle-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ec-toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.ec-toggle input{opacity:0;width:0;height:0}
+.ec-toggle-slider{position:absolute;inset:0;background:#d1d5db;border-radius:12px;cursor:pointer;transition:.2s}
+.ec-toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.ec-toggle input:checked+.ec-toggle-slider{background:#4f46e5}
+.ec-toggle input:checked+.ec-toggle-slider:before{transform:translateX(18px)}
+.ec-toggle-lbl{font-size:13px;font-weight:700;color:#374151}
+
+.ec-submit{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:16px;padding:16px;font-size:15px;font-weight:800;width:100%;cursor:pointer;letter-spacing:-.01em;transition:opacity .18s}
+.ec-submit:hover{opacity:.9}
+</style>
+
+<div class="ec-wrap">
+  <div class="ec-hero">
+    <div class="ec-hero-title">📅 Create an Event</div>
+    <div class="ec-hero-sub">Share something amazing with your community</div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" id="mainForm">
+    {% csrf_token %}
+
+    <!-- Step 1: Pick community (optional) -->
+    <div class="ec-card">
+      <div class="ec-card-head">1. Link to a Community <span style="font-weight:400;color:#94a3b8;font-size:11px">optional</span></div>
+      <div class="ec-card-body">
+        {% if user_communities %}
+        <div class="ec-group-select" id="groupSelect">
+          <label class="ec-group-opt {% if not selected_community %}selected{% endif %}" onclick="selectGroup('', this)">
+            <input type="radio" name="community_page_id" value="" {% if not selected_community %}checked{% endif %}>
+            <div class="ec-group-check">✓</div>
+            <div class="ec-group-icon">🙋</div>
+            <div class="ec-group-name">No community (Personal)</div>
+          </label>
+          {% for c in user_communities %}
+          <label class="ec-group-opt {% if selected_community.pk == c.pk %}selected{% endif %}" onclick="selectGroup('{{ c.page_id }}', this)">
+            <input type="radio" name="community_page_id" value="{{ c.page_id }}" {% if selected_community.pk == c.pk %}checked{% endif %}>
+            <div class="ec-group-check">✓</div>
+            <div class="ec-group-icon">🏘️</div>
+            <div class="ec-group-name">{{ c.name }}</div>
+          </label>
+          {% endfor %}
+        </div>
+        {% else %}
+        <input type="hidden" name="community_page_id" value="">
+        <div style="font-size:13px;color:#64748b;background:#f8fafc;border-radius:12px;padding:12px;text-align:center">
+          🙋 Creating as individual — <a href="/portal/create/" style="color:#4f46e5;font-weight:700">join a community</a> to link your event
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Step 2: Event details -->
+    <div class="ec-card" id="detailsCard">
+      <div class="ec-card-head">2. Event Details</div>
+      <div class="ec-card-body">
+        <div class="pform-group">
+          <label class="pform-label">Event Name *</label>
+          <input type="text" name="name" class="pform-input" required placeholder="e.g. Photography Walk – Coimbatore">
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Description *</label>
+          <textarea name="description" class="pform-input" rows="4" required placeholder="What's happening? Who should come? What to bring?"></textarea>
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">space-separated</span></label>
+          <input type="text" name="tags" class="pform-input" placeholder="photography walk nature weekend">
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Date & Time -->
+    <div class="ec-card" id="dateCard" style="">
+      <div class="ec-card-head">3. Date &amp; Time</div>
+      <div class="ec-card-body">
+        <div class="pform-grid2">
+          <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" class="pform-input"></div>
+          <div class="pform-group"><label class="pform-label">End Time</label><input type="time" name="end_time" class="pform-input"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Location -->
+    <div class="ec-card" id="locCard" style="">
+      <div class="ec-card-head">4. Location</div>
+      <div class="ec-card-body">
+        <div class="ec-toggle-row">
+          <label class="ec-toggle">
+            <input type="checkbox" name="is_online" id="isOnline" onchange="toggleOnline(this)">
+            <span class="ec-toggle-slider"></span>
+          </label>
+          <span class="ec-toggle-lbl">📹 Online Event (Zoom / Google Meet)</span>
+        </div>
+        <div id="offlineFields">
+          <div class="pform-grid2">
+            <div class="pform-group"><label class="pform-label">Venue / Address *</label><input type="text" name="location" id="locationInput" class="pform-input" placeholder="Hall name, street, area"></div>
+            <div class="pform-group"><label class="pform-label">Pincode</label><input type="text" name="pincode" class="pform-input" placeholder="641001" maxlength="10"></div>
+          </div>
+          <div class="pform-group"><label class="pform-label">Google Maps Link</label><input type="url" name="map_link" class="pform-input" placeholder="https://maps.google.com/..."></div>
+        </div>
+        <div id="onlineFields" style="display:none">
+          <div class="pform-group">
+            <label class="pform-label">Meeting Link <span style="font-weight:400;color:#94a3b8">shared only with registered attendees</span></label>
+            <input type="url" name="online_link" class="pform-input" placeholder="https://meet.google.com/...">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Capacity & Tickets -->
+    <div class="ec-card" id="ticketCard" style="">
+      <div class="ec-card-head">5. Capacity &amp; Tickets</div>
+      <div class="ec-card-body">
+        <div class="pform-grid2">
+          <div class="pform-group">
+            <label class="pform-label">Max Attendees</label>
+            <input type="number" name="max_participants" class="pform-input" placeholder="Unlimited" min="1">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Ticket Price (₹)</label>
+            <div class="ec-toggle-row" style="margin-bottom:8px">
+              <label class="ec-toggle">
+                <input type="checkbox" name="is_paid" id="isPaid" onchange="togglePaid(this)">
+                <span class="ec-toggle-slider"></span>
+              </label>
+              <span class="ec-toggle-lbl" style="font-size:12px">Paid Event</span>
+            </div>
+            <input type="number" name="ticket_price" id="priceInput" class="pform-input" placeholder="0.00" min="0" step="0.01" style="display:none">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Contact & Media -->
+    <div class="ec-card" id="mediaCard" style="">
+      <div class="ec-card-head">6. Contact &amp; Banner</div>
+      <div class="ec-card-body">
+        <div class="pform-grid2">
+          <div class="pform-group"><label class="pform-label">Contact Person</label><input type="text" name="contact_person" class="pform-input" placeholder="Your name"></div>
+          <div class="pform-group"><label class="pform-label">Phone</label><input type="text" name="contact_phone" class="pform-input" placeholder="+91 98765 43210"></div>
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Event Banner / Poster</label>
+          <input type="file" name="image" accept="image/*" class="pform-input" style="padding:8px" onchange="previewBanner(this)">
+          <img id="bannerPreview" src="" alt="" style="display:none;width:100%;border-radius:12px;margin-top:10px;max-height:200px;object-fit:cover">
+        </div>
+        {% if selected_community %}
+        <div class="pform-group">
+          <label class="pform-label">Related Cause</label>
+          <select name="cause" class="pform-input">
+            <option value="">-- None --</option>
+            {% for cause in causes %}<option value="{{ cause.pk }}">{{ cause.name }}</option>{% endfor %}
+          </select>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- RSVP Questions Builder -->
+    <div class="ec-card" style="margin-bottom:14px">
+      <div class="ec-card-head" style="display:flex;align-items:center;justify-content:space-between">
+        <span>7. RSVP Questions</span>
+        <button type="button" onclick="addQuestion2()" class="pbtn pbtn-outline pbtn-sm" style="font-size:11px;white-space:nowrap">+ Add Question</button>
+      </div>
+      <div class="ec-card-body">
+        <div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Ask attendees yes / no questions when they RSVP. Optional.</div>
+        <div id="qList2" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="ec-submit" id="submitBtn">
+      🚀 Create Event
+    </button>
+  </form>
+</div>
+
+<script>
+function selectGroup(pageId, el) {
+  document.querySelectorAll('.ec-group-opt').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+function toggleOnline(cb) {
+  var off = document.getElementById('offlineFields');
+  var on  = document.getElementById('onlineFields');
+  if (cb.checked) {
+    off.style.display = 'none';
+    on.style.display  = 'block';
+  } else {
+    off.style.display = 'block';
+    on.style.display  = 'none';
+  }
+}
+
+function togglePaid(cb) {
+  document.getElementById('priceInput').style.display = cb.checked ? 'block' : 'none';
+}
+
+function previewBanner(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.getElementById('bannerPreview');
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+var qCount2=0, qTotal2=0;
+function addQuestion2(){
+  if(qTotal2>=5){alert('Maximum 5 questions allowed.');return;}
+  qTotal2++;
+  var idx=qCount2++;
+  var div=document.createElement('div');
+  div.id='qItem2_'+idx;
+  div.style.cssText='background:#f8faff;border:1.5px solid #c7d2fe;border-radius:14px;padding:14px';
+  div.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800;color:#4f46e5;background:#ede9fe;border-radius:20px;padding:2px 10px">Q${idx+1}</span>
+      <button type="button" onclick="removeQuestion2(${idx})" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">✕ Remove</button>
+    </div>
+    <input type="text" name="rsvp_questions[]" class="pform-input" placeholder="Type your question…">`;
+  document.getElementById('qList2').appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeQuestion2(idx){
+  var el=document.getElementById('qItem2_'+idx);
+  if(el){el.remove();qTotal2--;}
+}
+</script>
+{% endblock %}

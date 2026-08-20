@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Family Setup – MY PINCOD{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Family Setup – OUR PINCODE{% endblock %}
 {% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -206,11 +206,22 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
 <!-- ── STEP 4: Family Member Counts ── -->
 {% elif step == '4' %}
 <div class="wz-q">How big is your family?</div>
-<div class="wz-sub">Set the count for each type. Use + / − to adjust.</div>
+<div class="wz-sub">Set counts for each side using + / −</div>
 
 <form method="post" action="/community/family/setup/">
   {% csrf_token %}
   <input type="hidden" name="step" value="4">
+
+  {% if setup.marital_status == 'married' %}
+
+  <!-- Husband's side section -->
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 14px">
+    <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#3B82F6,#6366F1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">👨</div>
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#0F172A">{{ setup.display_name|default:"Your" }} Side</div>
+      <div style="font-size:11px;color:#64748B">Husband's family</div>
+    </div>
+  </div>
 
   <div class="wz-stepper-list">
     {% for icon, label, field, current in rows %}
@@ -225,6 +236,125 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
     </div>
     {% endfor %}
   </div>
+
+  <!-- Divider -->
+  <div style="display:flex;align-items:center;gap:10px;margin:24px 0 14px">
+    <div style="flex:1;height:1.5px;background:linear-gradient(90deg,transparent,#E0E7FF)"></div>
+    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:1.2rem">💍</div>
+    <div style="flex:1;height:1.5px;background:linear-gradient(90deg,#E0E7FF,transparent)"></div>
+  </div>
+
+  <!-- Wife's side section -->
+  <div style="display:flex;align-items:center;gap:10px;margin:0 0 14px">
+    <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#EC4899,#F472B6);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">👩</div>
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#0F172A">{{ setup.spouse_name|default:"Wife" }}'s Side</div>
+      <div style="font-size:11px;color:#64748B">Wife's family</div>
+    </div>
+  </div>
+
+  <div class="wz-stepper-list">
+    {% with wife_rows=setup.w_grandfather_count|add:0 %}
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👴</span>
+      <span class="wz-stepper-label">Grandfather</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_grandfather_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_grandfather_count" name="w_grandfather_count" type="number" value="{{ setup.w_grandfather_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_grandfather_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👵</span>
+      <span class="wz-stepper-label">Grandmother</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_grandmother_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_grandmother_count" name="w_grandmother_count" type="number" value="{{ setup.w_grandmother_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_grandmother_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👨</span>
+      <span class="wz-stepper-label">Father</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_father_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_father_count" name="w_father_count" type="number" value="{{ setup.w_father_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_father_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👩</span>
+      <span class="wz-stepper-label">Mother</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_mother_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_mother_count" name="w_mother_count" type="number" value="{{ setup.w_mother_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_mother_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👱</span>
+      <span class="wz-stepper-label">Brother</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_brother_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_brother_count" name="w_brother_count" type="number" value="{{ setup.w_brother_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_brother_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👱‍♀️</span>
+      <span class="wz-stepper-label">Sister</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_sister_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_sister_count" name="w_sister_count" type="number" value="{{ setup.w_sister_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_sister_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">🧔</span>
+      <span class="wz-stepper-label">Uncle</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_uncle_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_uncle_count" name="w_uncle_count" type="number" value="{{ setup.w_uncle_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_uncle_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">👩‍🦳</span>
+      <span class="wz-stepper-label">Aunt</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_aunt_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_aunt_count" name="w_aunt_count" type="number" value="{{ setup.w_aunt_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_aunt_count',1)">+</button>
+      </div>
+    </div>
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">🧑</span>
+      <span class="wz-stepper-label">Cousin</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_cousin_count',-1)">−</button>
+        <input class="wz-stepper-val" id="w_cousin_count" name="w_cousin_count" type="number" value="{{ setup.w_cousin_count }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('w_cousin_count',1)">+</button>
+      </div>
+    </div>
+    {% endwith %}
+  </div>
+
+  {% else %}
+  <!-- Unmarried — single list -->
+  <div class="wz-stepper-list">
+    {% for icon, label, field, current in rows %}
+    <div class="wz-stepper-row">
+      <span class="wz-stepper-icon">{{ icon }}</span>
+      <span class="wz-stepper-label">{{ label }}</span>
+      <div class="wz-stepper-ctrl">
+        <button type="button" class="wz-stepper-btn" onclick="adj('{{ field }}',-1)">−</button>
+        <input class="wz-stepper-val" id="{{ field }}" name="{{ field }}" type="number" value="{{ current }}" min="0" max="20" readonly>
+        <button type="button" class="wz-stepper-btn" onclick="adj('{{ field }}',1)">+</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <button type="submit" class="wz-next">✨ Save My Family</button>
 </form>

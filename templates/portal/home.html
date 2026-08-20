@@ -1,0 +1,112 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Communities Portal{% endblock %}
+{% block content %}
+<div class="pcontent">
+
+  <!-- HERO -->
+  <div class="phero">
+    <h1>Don't just post. <span>Participate.</span></h1>
+    <p>Join communities around your Pincode. Support causes. Attend events. Volunteer. Create real-world impact together.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a href="/portal/create/" class="pbtn pbtn-orange"><i class="fas fa-plus"></i> Create Community</a>
+      <a href="/portal/communities/" class="pbtn pbtn-outline" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff">Browse Communities</a>
+    </div>
+  </div>
+
+  <!-- SEARCH BAR -->
+  <form method="get" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
+    <div style="flex:2;min-width:200px">
+      <label class="pform-label">Search Communities</label>
+      <input type="text" name="q" value="{{ q }}" placeholder="Community name or Page ID..." class="pform-input">
+    </div>
+    <div style="flex:1;min-width:120px">
+      <label class="pform-label">Pincode</label>
+      <input type="text" name="pincode" value="{{ pincode }}" placeholder="e.g. 641001" class="pform-input">
+    </div>
+    <div style="flex:1;min-width:140px">
+      <label class="pform-label">Category</label>
+      <select name="category" class="pform-input">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat.slug }}" {% if category == cat.slug %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="pbtn pbtn-primary" style="height:38px">Search</button>
+  </form>
+
+  <!-- STATS BAR -->
+  <div class="stat-grid" style="margin-bottom:24px">
+    <div class="stat-card">
+      <div class="stat-num">{{ communities.count }}</div>
+      <div class="stat-label">Communities</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ upcoming_events.count }}</div>
+      <div class="stat-label">Upcoming Events</div>
+    </div>
+  </div>
+
+  <!-- COMMUNITIES GRID -->
+  <div class="psec-header">
+    <div class="psec-title">Communities Near You</div>
+    <a href="/portal/communities/" style="font-size:12px;color:#1d4ed8;font-weight:700">View all →</a>
+  </div>
+
+  {% if communities %}
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:32px">
+    {% for c in communities|slice:":12" %}
+    <a href="/portal/c/{{ c.page_id }}/" class="comm-card" style="display:flex;flex-direction:column">
+      <div class="comm-card-cover">
+        {% if c.cover %}<img src="{{ c.cover.url }}" alt="">{% endif %}
+        {% if c.logo %}<img src="{{ c.logo.url }}" alt="{{ c.name }}" class="comm-card-logo">
+        {% else %}<div class="comm-card-logo-wrap">{{ c.name|first|upper }}</div>{% endif %}
+        {% if c.category %}<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">{{ c.category.icon }} {{ c.category.name }}</span>{% endif %}
+      </div>
+      <div class="comm-card-body" style="flex:1">
+        <div class="comm-card-id">{{ c.page_id }}</div>
+        <div class="comm-card-name">{{ c.name }}</div>
+        <div class="comm-card-purpose">{{ c.purpose }}</div>
+        <div class="comm-card-meta">
+          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ c.member_count }} members</span>
+          <span><i class="fas fa-map-marker-alt" style="color:#f97316"></i> {{ c.pincode }}</span>
+          {% if c.is_verified %}<span class="pbadge pbadge-green">✓ Verified</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="pempty">
+    <div class="pempty-icon">🏘️</div>
+    <div class="pempty-text">No communities found</div>
+    <div class="pempty-sub">Be the first to create one!</div>
+    <a href="/portal/create/" class="pbtn pbtn-primary" style="margin-top:14px">Create Community</a>
+  </div>
+  {% endif %}
+
+  <!-- UPCOMING EVENTS -->
+  <div style="margin-top:8px">
+    <div class="psec-header"><div class="psec-title">📅 Upcoming Events</div><a href="/portal/events/" style="font-size:12px;color:#1d4ed8;font-weight:700">All events →</a></div>
+    {% for event in upcoming_events %}
+    <a href="/portal/event/{{ event.pk }}/" class="pcard" style="display:block;margin-bottom:10px">
+      <div class="pcard-body" style="padding:12px 14px">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:2px">{{ event.name }}</div>
+        <div style="font-size:11px;color:#64748b">{{ event.community.name }} · {{ event.date|date:"d M Y" }} {{ event.time|time:"g:i A" }}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:2px"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</div>
+      </div>
+    </a>
+    {% empty %}
+    <p style="font-size:13px;color:#94a3b8;padding:16px">No upcoming events.</p>
+    {% endfor %}
+  </div>
+
+  <!-- CTA -->
+  <div style="background:linear-gradient(135deg,#eff6ff,#f3e8ff);border-radius:16px;padding:32px;text-align:center;margin-top:32px">
+    <h3 style="font-size:20px;font-weight:900;color:#0f172a;margin-bottom:8px">Ready to make a difference?</h3>
+    <p style="font-size:13px;color:#64748b;margin-bottom:18px">Create a community, rally your pincode, and lead real change.</p>
+    <a href="/portal/create/" class="pbtn pbtn-primary"><i class="fas fa-plus"></i> Create Your Community</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,180 +1,225 @@
-﻿{% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MY PINCOD — Business, Opportunity, Job at Near You</title>
+  <title>OUR PINCODE — World's First Human Media</title>
   <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="/static/fonts/poppins/poppins.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;color:#111;background:#fff;-webkit-font-smoothing:antialiased}
+html{overflow-x:hidden}
+body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;color:#111;background:#f4f6f9;-webkit-font-smoothing:antialiased;padding-bottom:62px;overflow-x:hidden;max-width:100vw}
 a{text-decoration:none;color:inherit}
-.nav,.hero,.qa-card,.job-card,.step,.footer{border-radius:0}
-.qa-card,.job-card{border-radius:16px}
 
-/* NAV */
-.nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 20px;position:sticky;top:0;z-index:100}
-.nav-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px;height:64px}
-.nav-logo{display:flex;align-items:center}
-.nav-logo img{height:54px;width:auto;max-width:180px;object-fit:contain;display:block}
-.nav-logo i{font-size:18px}
-@media(max-width:700px){
-  .nav-in{height:58px}
-  .nav-logo img{height:50px;max-width:160px}
-}
-.nav-search{flex:1;max-width:380px}
-.nav-search form{display:flex;border:1.5px solid #dde1ea;border-radius:8px;overflow:hidden}
-.nav-search input{flex:1;border:none;padding:8px 12px;font-size:14px;outline:none}
-.nav-search button{background:#0a66c2;color:#fff;border:none;padding:0 14px;cursor:pointer;font-size:14px}
-.nav-links{display:flex;align-items:center;gap:6px;margin-left:auto}
-.nav-links a{font-size:14px;color:#444;padding:6px 10px;border-radius:7px;transition:.2s}
-.nav-links a:hover{background:#f0f4ff;color:#0a66c2}
-.btn-signin{border:1.5px solid #0a66c2!important;color:#0a66c2!important;font-weight:600}
-.btn-join{background:#0a66c2!important;color:#fff!important;font-weight:600}
-.hamburger{display:none;font-size:20px;cursor:pointer;color:#444;margin-left:auto}
+/* ── TOP BAR ── */
+.topbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200}
+.tb-logo{display:flex;align-items:center;gap:10px;margin-right:auto}
+.tb-logo img{height:42px;width:auto;object-fit:contain}
+.tb-logo-text{font-size:22px;font-weight:900;letter-spacing:-.3px;line-height:1}
+.tb-logo-text .ou{color:#1d4ed8}
+.tb-logo-text .pc{color:#f97316}
+.tb-logo-com{color:#6b7280;font-size:12px;font-weight:600}
+.tb-download{display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;font-weight:600;white-space:nowrap}
+.tb-download a{color:#374151;font-size:20px;transition:.2s}
+.tb-download a:hover{color:#1d4ed8}
+.tb-sep{width:1px;height:22px;background:#e5e7eb;flex-shrink:0}
+.tb-lang{display:flex;align-items:center;gap:5px;font-size:13px;color:#374151;font-weight:600;cursor:pointer;padding:5px 10px;border-radius:7px;border:1.5px solid #e5e7eb;white-space:nowrap;transition:.2s}
+.tb-lang:hover{border-color:#1d4ed8;color:#1d4ed8}
+.tb-btn{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;white-space:nowrap}
+.tb-login{border:1.5px solid #1d4ed8;color:#1d4ed8;background:#fff}
+.tb-login:hover{background:#eff6ff}
+.tb-register{background:#1d4ed8;color:#fff;border:1.5px solid #1d4ed8}
+.tb-register:hover{background:#1e40af}
+.hamburger{display:none;font-size:22px;cursor:pointer;color:#444;padding:6px;margin-left:4px}
+@media(max-width:900px){.tb-download,.tb-sep,.tb-lang,.tb-sep2,.tb-smartmkt{display:none!important}.hamburger{display:block}}
+@media(max-width:500px){.tb-btn{padding:6px 12px;font-size:12px}.tb-logo-text{font-size:16px}.tb-logo img{height:32px}}
+@media(max-width:500px){.tb-logo-text{font-size:18px}.tb-logo img{height:34px}}
+
+/* ── MAIN NAV ── */
+.mainnav{background:#fff;border-bottom:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center}
+.mainnav a{font-size:13px;font-weight:600;color:#374151;padding:14px 22px;display:flex;align-items:center;gap:7px;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap}
+.mainnav a i{font-size:12px}
+.mainnav a.active,.mainnav a:hover{color:#1d4ed8;border-bottom-color:#1d4ed8}
+@media(max-width:900px){.mainnav{display:none}}
+
+/* ── MOB MENU ── */
 .mob-menu{display:none;background:#fff;border-bottom:1px solid #eee;padding:12px 20px}
 .mob-menu a{display:block;padding:10px 0;font-size:14px;color:#444;border-bottom:1px solid #f3f4f6}
 .mob-menu a:last-child{border:none}
 .mob-menu.open{display:block}
-@media(max-width:700px){.nav-search,.nav-links{display:none}.hamburger{display:block}}
 
-/* HERO */
-.hero{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:56px 20px;text-align:center}
-.hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;margin-bottom:10px}
-.hero p{font-size:15px;opacity:.85;margin-bottom:28px}
-.hero-search{display:flex;max-width:600px;margin:0 auto 20px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2)}
-.hero-search input{flex:1;border:none;padding:14px 16px;font-size:15px;outline:none;color:#111}
-.hero-search button{background:#f3a000;color:#fff;border:none;padding:0 24px;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
-.hero-links{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.hero-links a{background:rgba(255,255,255,.15);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;transition:.2s}
-.hero-links a:hover{background:rgba(255,255,255,.28)}
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 55%,#2563eb 100%);padding:48px 24px 52px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(99,102,241,.25) 0%,transparent 65%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 480px;gap:48px;align-items:center;position:relative}
 
-/* STATS */
-.stats{display:flex;justify-content:center;gap:0;background:#fff;border-bottom:1px solid #e5e7eb}
-.stat{flex:1;max-width:200px;text-align:center;padding:20px 10px;border-right:1px solid #e5e7eb}
-.stat:last-child{border:none}
-.stat strong{display:block;font-size:24px;font-weight:900;color:#0a66c2}
-.stat span{font-size:12px;color:#888}
-@media(max-width:500px){.stat strong{font-size:18px}}
+.hero-logo-row{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.hero-logo-img{width:60px;height:60px;border-radius:14px;object-fit:contain;background:#fff;padding:6px;flex-shrink:0}
+.hero-logo-name{font-size:20px;font-weight:900;color:#fff;line-height:1.1}
+.hero-logo-com{font-size:12px;color:rgba(255,255,255,.65);font-weight:600}
 
-/* SPONSORED / ADS */
-.ad-banners{display:flex;flex-direction:column;gap:12px;max-width:1100px;margin:24px auto 0;padding:0 20px}
-.ad-banner{display:block;border-radius:12px;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.08)}
-.ad-banner img{width:100%;display:block;max-height:180px;object-fit:cover}
-.ad-banner-text{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:20px;text-align:center}
-.ad-banner-text h4{font-size:16px;font-weight:700;margin-bottom:4px}
-.ad-banner-text p{font-size:13px;opacity:.85}
-.ad-tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:.4px}
-.ad-employers{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 8px}
-.ad-employer-card{flex:0 0 auto;width:160px;background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:14px;text-align:center;transition:.2s;position:relative}
-.ad-employer-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1)}
-.ad-employer-card img{width:44px;height:44px;border-radius:10px;object-fit:cover;margin-bottom:8px}
-.ad-employer-card h5{font-size:13px;font-weight:700;color:#111;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ad-employer-card p{font-size:11px;color:#888}
+.hero-h1{font-size:54px;font-weight:900;line-height:1.05;color:#fff;margin-bottom:6px}
+.hero-h1-orange{color:#f97316;position:relative;display:inline-block}
+.hero-stars{font-size:12px;vertical-align:super;color:#fbbf24;letter-spacing:-2px}
 
-/* QUICK ACTIONS */
-.section{padding:48px 20px}
-.section-alt{background:#f7f8fa}
-.wrap{max-width:1100px;margin:0 auto}
-.sec-title{text-align:center;margin-bottom:32px}
-.sec-title h2{font-size:22px;font-weight:800;color:#111;margin-bottom:6px}
-.sec-title p{font-size:14px;color:#666}
+.hero-tagband{display:inline-flex;align-items:center;background:#1e293b;color:#fff;font-size:13px;font-weight:800;padding:9px 22px;border-radius:5px;letter-spacing:.18em;margin:18px 0 22px;text-transform:uppercase}
 
-.qa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
-.qa-card{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:18px;transition:.2s;cursor:pointer}
-.qa-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1);transform:translateY(-1px)}
-.qa-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.qa-icon.blue{background:#e3f2fd;color:#0277bd}
-.qa-icon.green{background:#e8f5e9;color:#2e7d32}
-.qa-icon.orange{background:#fff3e0;color:#e65100}
-.qa-icon.gray{background:#f3f4f6;color:#374151}
-.qa-text h4{font-size:14px;font-weight:700;color:#111;margin-bottom:3px}
-.qa-text p{font-size:12px;color:#666}
-.qa-arrow{margin-left:auto;color:#bbb;font-size:14px}
+.hero-pillars{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-bottom:20px}
+.hero-pill{display:flex;align-items:center;gap:9px;color:#fff;font-size:13px;font-weight:600}
+.pill-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.pi-blue{background:rgba(59,130,246,.4)}
+.pi-green{background:rgba(16,185,129,.4)}
+.pi-orange{background:rgba(249,115,22,.4)}
+.pi-red{background:rgba(239,68,68,.4)}
 
-/* JOBS */
-.jobs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.job-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:18px;transition:.2s}
-.job-card:hover{border-color:#0a66c2;box-shadow:0 4px 16px rgba(10,102,194,.1)}
-.job-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
-.badge-white{background:#e3f2fd;color:#0277bd}
-.badge-blue{background:#fff3e0;color:#e65100}
-.job-card h3{font-size:15px;font-weight:700;color:#111;margin-bottom:6px}
-.job-card h3 a:hover{color:#0a66c2}
-.job-meta{font-size:12px;color:#666;margin-bottom:4px;display:flex;align-items:center;gap:5px}
-.job-tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
-.job-tags span{background:#f3f4f6;color:#444;padding:3px 9px;border-radius:20px;font-size:11px}
-.apply-btn{display:inline-block;background:#0a66c2;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;margin-top:8px;transition:.2s}
-.apply-btn:hover{background:#004182}
-.empty-state{grid-column:1/-1;text-align:center;padding:48px 20px;color:#aaa}
-.empty-state i{font-size:36px;color:#ddd;display:block;margin-bottom:12px}
-.empty-state a{color:#0a66c2}
+.hero-desc{font-size:14px;color:rgba(255,255,255,.85);line-height:1.7;margin-bottom:26px}
 
-/* HOW IT WORKS */
-.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px}
-.step{text-align:center}
-.step-num{width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
-.step h4{font-size:14px;font-weight:700;color:#111;margin-bottom:6px}
-.step p{font-size:13px;color:#666;line-height:1.6}
 
-/* ADVERTISER SLIDER */
-.adv-slider-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
-.adv-slider-box{position:relative;border-radius:16px;overflow:hidden;box-shadow:0 6px 32px rgba(0,0,0,.15);background:#111}
-.adv-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
-.adv-slide{flex:0 0 100%;position:relative;height:360px}
-.adv-slide img{width:100%;height:100%;object-fit:cover;display:block}
-.adv-slide-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.55) 55%,transparent 100%);padding:28px 28px 20px;color:#fff}
-.adv-slide-tag{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
-.adv-slide-name{font-size:21px;font-weight:800;margin:0 0 10px;line-height:1.25;text-shadow:0 2px 6px rgba(0,0,0,.5)}
-.adv-slide-details{display:flex;flex-wrap:wrap;gap:10px 20px;font-size:13px;color:rgba(255,255,255,.92)}
-.adv-slide-details span{display:flex;align-items:center;gap:7px}
-.adv-slide-details i{font-size:12px;opacity:.75;flex-shrink:0}
-.adv-slide-details a{color:#fff;font-weight:600;text-decoration:none}
-.adv-slide-details a:hover{text-decoration:underline}
-.adv-slide-actions{display:flex;gap:9px;margin-top:13px;flex-wrap:wrap}
-.adv-sld-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:.2s}
-.adv-sld-btn-blue{background:#0a66c2;color:#fff}.adv-sld-btn-blue:hover{background:#004182;color:#fff}
-.adv-sld-btn-wa{background:#25d366;color:#fff}.adv-sld-btn-wa:hover{background:#1da850;color:#fff}
-.adv-arrow{position:absolute;top:42%;transform:translateY(-50%);background:rgba(0,0,0,.38);border:1.5px solid rgba(255,255,255,.25);color:#fff;width:42px;height:42px;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:4}
-.adv-arrow:hover{background:#0a66c2;border-color:#0a66c2}
-.adv-prev{left:12px}.adv-next{right:12px}
-.adv-counter{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;z-index:4;letter-spacing:.3px}
-.adv-dots{display:flex;justify-content:center;gap:7px;margin-top:12px}
-.adv-dot{width:8px;height:8px;border-radius:50%;background:#c8d8f0;cursor:pointer;transition:.35s}
-.adv-dot.active{background:#0a66c2;width:26px;border-radius:4px}
-.adv-progress{position:absolute;bottom:0;left:0;height:3px;background:#0a66c2;z-index:5;transition:width 0s linear}
-@media(max-width:600px){
-  .adv-slide{height:260px}
-  .adv-slide-name{font-size:15px}
-  .adv-slide-overlay{padding:16px 14px 14px}
-  .adv-slide-details{gap:7px 12px;font-size:12px}
+/* Right side */
+.hero-right{position:relative}
+.hero-card{background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.2);border-radius:20px;min-height:380px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-bg-circles{position:absolute;inset:0;pointer-events:none}
+.hero-bg-circles div{position:absolute;border-radius:50%;background:rgba(255,255,255,.06)}
+.hbc1{width:260px;height:260px;top:-60px;right:-60px}
+.hbc2{width:150px;height:150px;bottom:30px;left:20px}
+.hbc3{width:80px;height:80px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.hero-center-icon{font-size:90px;position:relative;z-index:1}
+
+.ftag{position:absolute;background:#fff;border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.22);z-index:5;white-space:nowrap}
+.ftag-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.ftag span{font-size:12px;font-weight:800}
+.ft1{top:22px;right:18px}.ft1 span{color:#7c3aed}.ft1 .ftag-icon{background:#f3e8ff}
+.ft2{top:82px;right:-10px}.ft2 span{color:#0891b2}.ft2 .ftag-icon{background:#e0f2fe}
+.ft3{top:158px;left:-10px}.ft3 span{color:#db2777}.ft3 .ftag-icon{background:#fce7f3}
+.ft4{bottom:118px;right:14px}.ft4 span{color:#0a66c2}.ft4 .ftag-icon{background:#dbeafe}
+.ft5{bottom:56px;left:-6px}.ft5 span{color:#059669}.ft5 .ftag-icon{background:#d1fae5}
+
+.hero-india{position:absolute;bottom:18px;right:18px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:10px 14px;text-align:right;z-index:5}
+.hi-title{color:#fff;font-size:15px;font-weight:900;margin-bottom:3px}
+.hi-sub{color:rgba(255,255,255,.75);font-size:9px;font-weight:700;letter-spacing:.08em;line-height:1.7;text-transform:uppercase}
+
+.hero-safe{position:absolute;bottom:18px;left:18px;background:rgba(5,150,105,.85);border-radius:8px;padding:8px 12px;color:#fff;font-size:11px;font-weight:700;line-height:1.5;z-index:5}
+
+@media(max-width:1000px){
+  .hero-inner{grid-template-columns:1fr;gap:32px}
+  .hero-right{display:none}
+  .hero-h1{font-size:38px}
+}
+@media(max-width:640px){
+  .hero{padding:28px 16px 36px}
+  .hero-h1{font-size:30px}
+  .hero-tagband{font-size:11px;padding:7px 14px;letter-spacing:.1em}
+  .hero-pillars{grid-template-columns:1fr 1fr;gap:8px}
 }
 
-/* FOOTER */
-.footer{background:#1a1a2e;color:#aaa;padding:40px 20px 0}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:32px;max-width:1100px;margin:0 auto;padding-bottom:32px}
+/* ── CATEGORY SECTION ── */
+.cat-section{background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.cat-inner{max-width:1200px;margin:0 auto;padding:0 8px;display:flex;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.cat-inner::-webkit-scrollbar{display:none}
+.cat-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 14px 14px;min-width:105px;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;text-decoration:none;color:#111}
+.cat-item:hover{border-bottom-color:#1d4ed8}
+.cat-icon{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:2px;transition:.2s}
+.cat-item:hover .cat-icon{transform:scale(1.1)}
+.cat-label{font-size:11px;font-weight:800;color:#111;text-align:center;line-height:1.3}
+.cat-sub{font-size:10px;color:#6b7280;text-align:center;line-height:1.4;max-width:88px}
+.ci-pur{background:#f3e8ff;color:#7c3aed}
+.ci-yel{background:#fef9c3;color:#b45309}
+.ci-ind{background:#e0e7ff;color:#4338ca}
+.ci-blu{background:#dbeafe;color:#1d4ed8}
+.ci-pnk{background:#fce7f3;color:#db2777}
+.ci-red{background:#fee2e2;color:#dc2626}
+.ci-tel{background:#ccfbf1;color:#0d9488}
+.ci-grn{background:#dcfce7;color:#16a34a}
+.ci-org{background:#ffedd5;color:#ea580c}
+
+/* ── PROMO BANNERS ── */
+.banners-wrap{max-width:1200px;margin:24px auto 0;padding:0 24px}
+.banners-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.promo-card{border-radius:16px;padding:28px 24px;position:relative;overflow:hidden;min-height:170px;display:flex;flex-direction:column;justify-content:space-between;transition:.2s}
+.promo-card:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.pc-jobs{background:linear-gradient(135deg,#1e3a8a,#1d4ed8)}
+.pc-biz{background:linear-gradient(135deg,#064e3b,#059669)}
+.pc-offers{background:linear-gradient(135deg,#78350f,#d97706)}
+.promo-tag{font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px}
+.promo-h{font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:4px}
+.promo-p{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:14px;line-height:1.5}
+.promo-btn{display:inline-block;background:#fff;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;transition:.2s}
+.promo-btn:hover{transform:scale(1.04)}
+.pc-jobs .promo-btn{color:#1d4ed8}
+.pc-biz .promo-btn{color:#059669}
+.pc-offers .promo-btn{color:#d97706}
+.pc-deco{position:absolute;right:-10px;bottom:-10px;font-size:90px;opacity:.12;line-height:1}
+@media(max-width:768px){.banners-grid{grid-template-columns:1fr}.banners-wrap{padding:0 16px}}
+
+/* ── STATS ── */
+.stats-wrap{background:#fff;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;margin-top:24px}
+.stats-inner{max-width:1200px;margin:0 auto;padding:0 16px;display:flex;overflow-x:auto;scrollbar-width:none}
+.stats-inner::-webkit-scrollbar{display:none}
+.stat-item{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:20px 28px;border-right:1px solid #e5e7eb;white-space:nowrap;min-width:0}
+.stat-item:last-child{border-right:none}
+.stat-ico{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.si-b{background:#dbeafe;color:#1d4ed8}
+.si-g{background:#dcfce7;color:#16a34a}
+.si-p{background:#f3e8ff;color:#7c3aed}
+.si-o{background:#ffedd5;color:#ea580c}
+.si-t{background:#ccfbf1;color:#0d9488}
+.si-y{background:#fef9c3;color:#b45309}
+.stat-num{font-size:20px;font-weight:900;color:#111;line-height:1}
+.stat-lbl{font-size:11px;color:#6b7280;margin-top:2px}
+
+/* ── ADS SLIDER ── */
+.olx-ad-wrap{background:#000;position:relative;overflow:hidden;margin-top:24px}
+.olx-ad-label{position:absolute;top:10px;left:14px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
+.olx-ad-track{position:relative;width:100%;height:300px}
+.olx-ad-slide{display:none;width:100%;height:300px;position:relative;text-decoration:none}
+.olx-ad-slide.active{display:block}
+.olx-ad-slide img{width:100%;height:300px;object-fit:cover;display:block;opacity:.93}
+.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);padding:28px 60px 20px 20px;color:#fff;display:flex;flex-direction:column;gap:3px}
+.olx-ad-name{font-size:18px;font-weight:900;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.olx-ad-addr{font-size:13px;opacity:.88}
+.olx-ad-dots{position:absolute;bottom:10px;right:16px;display:flex;gap:6px;z-index:3}
+.olx-ad-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.3s}
+.olx-ad-dot.active{background:#fff;width:24px;border-radius:4px}
+.olx-ad-prev,.olx-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
+.olx-ad-prev{left:12px}.olx-ad-next{right:12px}
+.olx-ad-prev:hover,.olx-ad-next:hover{background:rgba(0,0,0,.7)}
+@media(max-width:768px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:200px}.olx-ad-name{font-size:15px}.olx-ad-info{padding:20px 16px 14px}}
+
+/* site-ad-bar */
+.site-ad-bar{background:#000;position:relative;overflow:hidden}
+.site-ad-inner{position:relative;max-width:1200px;margin:0 auto;overflow:hidden}
+.site-ad-slide{display:none;width:100%;position:relative;text-decoration:none;color:#fff}
+.site-ad-slide.active{display:block}
+.site-ad-slide img{width:100%;height:300px;object-fit:cover;display:block;opacity:.92}
+.site-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);padding:24px 56px 20px 20px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.site-ad-label{background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px;align-self:center}
+.site-ad-title{font-size:18px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.site-ad-biz{font-size:13px;color:rgba(255,255,255,.8);align-self:center}
+.site-ad-close{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.45);border:none;color:#fff;font-size:15px;cursor:pointer;padding:6px 10px;border-radius:50%;line-height:1;z-index:2}
+.site-ad-prev,.site-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:36px;height:36px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.site-ad-prev{left:10px}.site-ad-next{right:10px}
+.site-ad-prev:hover,.site-ad-next:hover{background:rgba(0,0,0,.7)}
+@media(max-width:768px){.site-ad-slide img{height:200px}.site-ad-title{font-size:15px}}
+
+/* ── FOOTER ── */
+.footer{background:#1a1a2e;color:#aaa;padding:40px 24px 0}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;padding-bottom:32px}
 .footer-brand h3{color:#fff;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .footer-brand p{font-size:13px;line-height:1.7}
 .footer-links h4{color:#fff;font-size:13px;font-weight:700;margin-bottom:12px}
 .footer-links a{display:block;font-size:13px;color:#aaa;margin-bottom:8px;transition:.2s}
 .footer-links a:hover{color:#fff}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding:16px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .footer-bottom p{font-size:12px}
-.admin-footer-btn{background:none;color:rgba(255,255,255,.25);border:none;padding:4px 6px;border-radius:6px;font-size:13px;cursor:pointer;transition:.2s;line-height:1}
+.admin-footer-btn{background:none;color:rgba(255,255,255,.25);border:none;padding:4px 6px;border-radius:6px;font-size:13px;cursor:pointer;transition:.2s;line-height:1;display:inline-flex;align-items:center;text-decoration:none}
 .admin-footer-btn:hover{color:rgba(255,255,255,.6)}
-@media(max-width:768px){
-  .footer-grid{grid-template-columns:1fr 1fr}
-  .stats{flex-wrap:wrap}
-}
-@media(max-width:480px){
-  .footer-grid{grid-template-columns:1fr}
-  .hero-search{flex-direction:column;border-radius:10px}
-  .hero-search button{padding:12px;border-radius:0 0 10px 10px}
-}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
 
-/* ADMIN MODAL */
+/* ── ADMIN MODAL ── */
 .admin-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px}
 .admin-modal-overlay.open{display:flex}
 .admin-modal-box{background:#fff;border-radius:16px;width:100%;max-width:860px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.3)}
@@ -197,266 +242,297 @@ a{text-decoration:none;color:inherit}
 .admin-login-prompt{padding:48px 24px;text-align:center}
 .admin-login-prompt h3{font-size:20px;color:#111;margin-bottom:8px}
 .admin-login-prompt p{color:#555;font-size:14px}
-.admin-go-btn{display:inline-block;background:#0a66c2;color:#fff;padding:11px 26px;border-radius:8px;font-weight:600;font-size:14px;margin-top:16px}
-.admin-go-btn:hover{background:#004182}
 @media(max-width:600px){.admin-features-grid{grid-template-columns:1fr 1fr;padding:12px}}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.bn-item i{font-size:19px}
+.bn-item.active{color:#1d4ed8}
+.bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#1d4ed8;border-radius:0 0 3px 3px}
+.bn-fab{margin-top:-22px}
+.bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(29,78,216,.4);margin-bottom:3px}
+.bn-fab-flick{background:linear-gradient(135deg,#7c3aed,#1d4ed8);box-shadow:0 4px 14px rgba(124,58,237,.4)}
+
+/* ── SPIN BOX ── */
+.spin-box.revealed{background:rgba(255,255,255,.2)!important;border-color:rgba(255,255,255,.6)!important;transform:scale(1.08)}
+.spin-box.locked{cursor:not-allowed!important;opacity:.5}
+
+/* ── REG POPUP ── */
+#regPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center;padding:16px}
+#regPop.show{display:flex}
+.rp-box{background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:rpIn .22s ease}
+@keyframes rpIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.rp-head{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);padding:22px 20px 18px;text-align:center;color:#fff}
+.rp-head img{height:34px;object-fit:contain;margin-bottom:8px}
+.rp-head p{font-size:12px;opacity:.85;margin:0}
+.rp-body{padding:18px 20px 20px}
+.rp-field{margin-bottom:13px}
+.rp-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+.rp-input{width:100%;padding:11px 13px;border:1.5px solid #dbeafe;border-radius:11px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#111}
+.rp-input:focus{border-color:#1d4ed8;background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.08)}
+.rp-otp-row{display:flex;gap:8px}
+.rp-otp-row .rp-input{flex:1}
+.rp-otp-btn{padding:11px 14px;background:#1d4ed8;color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.rp-otp-btn:disabled{background:#93c5fd;cursor:default}
+.rp-submit{width:100%;padding:13px;background:#1d4ed8;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px}
+.rp-err{background:#fee2e2;color:#991b1b;font-size:12px;font-weight:700;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
+.rp-footer{text-align:center;margin-top:14px;font-size:13px;color:#6b7280}
+.rp-footer a{color:#1d4ed8;font-weight:700;text-decoration:none}
+.rp-timer{font-size:11px;color:#9ca3af;margin-top:4px;min-height:14px}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-in">
-    <a href="/" class="nav-logo"><img src="/static/images/logo.png" alt="MY PINCOD"></a>
-    <div class="nav-search">
-      <form action="/jobs/" method="get">
-        <input type="text" name="q" placeholder="Search jobs, skills…">
-        <button type="submit"><i class="fas fa-search"></i></button>
-      </form>
-    </div>
-    <div class="nav-links">
-      <a href="/health/" style="color:#16a34a;font-weight:700;border:1.5px solid #16a34a;padding:6px 12px;border-radius:8px;font-size:13px;display:none"><i class="fas fa-leaf"></i> Health</a>
-      <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;border:1.5px solid #7c3aed;padding:6px 12px;border-radius:8px;font-size:13px;display:none"><i class="fas fa-gift"></i> Gift Vouchers</a>
-      {% if not request.user.is_authenticated or request.user.is_employer %}
-      <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}" class="btn-join" style="background:#0a66c2"><i class="fas fa-briefcase"></i> Post a Job</a>
-      {% endif %}
-      {% if not request.user.is_authenticated or not request.user.is_employer %}
-      <a href="/jobs/" class="btn-signin"><i class="fas fa-search"></i> Find a Job</a>
-      {% endif %}
-      {% if request.user.is_authenticated %}
-        {% if request.user.is_employer %}
-        <a href="/advertise/" style="color:#f3a000;font-weight:600"><i class="fas fa-bullhorn"></i> Advertise</a>
-        {% endif %}
-        <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" style="color:#444;font-size:13px"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="/logout/" style="color:#888;font-size:13px">Logout</a>
-      {% else %}
-        <a href="/login/?next=/advertise/" style="color:#f3a000;font-weight:600"><i class="fas fa-bullhorn"></i> Advertise</a>
-      {% endif %}
-    </div>
-    <div class="hamburger" onclick="document.getElementById('mobMenu').classList.toggle('open')">
-      <i class="fas fa-bars"></i>
-    </div>
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+      <img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE">
+      <div>
+        <div class="tb-logo-text"><span class="ou">OUR</span><span class="pc">PINCODE</span><span class="tb-logo-com">.com</span></div>
+        <div style="font-size:10px;color:#6b7280;font-weight:500;margin-top:-1px">World's first human media</div>
+      </div>
+    </a>
   </div>
-  <div class="mob-menu" id="mobMenu">
-    <a href="/health/" style="color:#16a34a;font-weight:700;display:none"><i class="fas fa-leaf"></i> Healthy Food Guide</a>
-    <a href="/vouchers/marketplace/" style="color:#7c3aed;font-weight:700;display:none"><i class="fas fa-gift"></i> Gift Vouchers</a>
-    {% if not request.user.is_authenticated or request.user.is_employer %}
-    <a href="{% if request.user.is_authenticated %}/post-job/{% else %}/register/?type=company{% endif %}"><i class="fas fa-briefcase"></i> Post a Job</a>
-    {% endif %}
-    {% if not request.user.is_authenticated or not request.user.is_employer %}
-    <a href="/jobs/"><i class="fas fa-search"></i> Find a Job</a>
-    {% endif %}
-    {% if request.user.is_authenticated %}
-      {% if request.user.is_employer %}
-      <a href="/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
-      {% endif %}
-      <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/">Dashboard</a>
-      <a href="/logout/">Logout</a>
-    {% else %}
-      <a href="/login/?next=/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
-      <a href="/login/">Sign In</a>
-      <a href="/register/">Join Free</a>
-    {% endif %}
+
+  <a href="/about/" style="font-size:13px;font-weight:600;color:#374151;text-decoration:none;white-space:nowrap;padding:4px 2px;border-bottom:2px solid transparent;transition:.2s" onmouseover="this.style.color='#1d4ed8';this.style.borderBottomColor='#1d4ed8'" onmouseout="this.style.color='#374151';this.style.borderBottomColor='transparent'">EVOXU</a>
+  <a href="#smart-marketing" class="tb-smartmkt" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:700;white-space:nowrap;transition:.2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">📣 Smart Marketing</a>
+  <div class="tb-sep"></div>
+  {% if request.user.is_authenticated %}
+    <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:20px;padding:5px 13px 5px 8px;font-size:13px;font-weight:700;color:#1e293b;white-space:nowrap;transition:.2s" onmouseover="this.style.borderColor='#1d4ed8';this.style.color='#1d4ed8'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#1e293b'">
+      <span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#059669);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff">{{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}</span>
+      {{ request.user.get_full_name|default:request.user.username }}
+    </a>
+    <a href="/logout/" class="tb-btn tb-register">Logout</a>
+  {% else %}
+    <a href="/login/" class="tb-btn tb-login">Login</a>
+    <a href="#" class="tb-btn tb-register" onclick="document.getElementById('regPop').classList.add('show');return false;">Register</a>
+  {% endif %}
+  <div class="hamburger" onclick="document.getElementById('mobMenu').classList.toggle('open')">
+    <i class="fas fa-bars"></i>
   </div>
-</nav>
+</div>
+
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu">
+  <a href="/"><i class="fas fa-home"></i> Home</a>
+  <a href="/portal/"><i class="fas fa-users"></i> Community</a>
+  <a href="/campus/"><i class="fas fa-graduation-cap"></i> Campus</a>
+  <a href="/jobs/"><i class="fas fa-briefcase"></i> Jobs</a>
+  <a href="/vouchers/marketplace/"><i class="fas fa-gift"></i> Gift Vouchers</a>
+  <a href="/advertise/register/"><i class="fas fa-bullhorn"></i> Promote Business</a>
+  <a href="/portal/" style="background:linear-gradient(135deg,#eff6ff,#f0fdf4)"><i class="fas fa-users" style="color:#059669"></i> Communities (New)</a>
+  <a href="/about/"><i class="fas fa-info-circle"></i> EVOXU</a>
+  {% if request.user.is_authenticated %}
+    <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  {% else %}
+    <a href="/login/"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+    <a href="#" onclick="document.getElementById('mobMenu').classList.remove('open');document.getElementById('regPop').classList.add('show');return false;"><i class="fas fa-user-plus"></i> Join Free</a>
+  {% endif %}
+</div>
 
 <!-- HERO -->
-<section class="mp-landing">
-  <div class="mp-landing-inner">
-    <div class="mp-logo-wrap">
-      <img src="/static/images/logo.png" alt="MY PINCOD" class="mp-logo">
-    </div>
-    <h1 class="mp-title">MY PINCOD</h1>
-    <p class="mp-sub">India's first local community portal</p>
+<section class="hero">
+  <div class="hero-inner">
+    <!-- LEFT -->
+    <div class="hero-left">
+      <h1 class="hero-h1">
+        Worlds First<br>
+        <span class="hero-h1-orange">Human Media</span>
+      </h1>
 
-    {% if spin_gift %}
-    <div id="spinSection" style="background:linear-gradient(135deg,#1a0533,#3b1a78);border-radius:20px;padding:18px 16px 20px;margin:0 0 20px;text-align:center;position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;opacity:.06;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%) 0 0/16px 16px;pointer-events:none"></div>
+      <div class="hero-tagband">PEOPLE. PURPOSE. POSSIBILITIES.</div>
 
-      <!-- Gift code at top (shown after spin) -->
-      <div id="spinCodeTop" style="display:none;background:rgba(0,0,0,.35);border-radius:12px;padding:10px 14px;margin-bottom:12px">
-        <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Your Code</div>
-        <div id="spinCodeVal" style="font-size:32px;font-weight:900;color:#fff;letter-spacing:.3em"></div>
+      <div class="hero-pillars">
+        <div class="hero-pill"><div class="pill-icon pi-blue"><i class="fas fa-user"></i></div> Real People</div>
+        <div class="hero-pill"><div class="pill-icon pi-green"><i class="fas fa-users"></i></div> Real Connections</div>
+        <div class="hero-pill"><div class="pill-icon pi-orange"><i class="fas fa-crosshairs"></i></div> Real Opportunities</div>
+        <div class="hero-pill"><div class="pill-icon pi-red"><i class="fas fa-heart"></i></div> Real Impact</div>
       </div>
 
-      <!-- Gift strip -->
-      <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;margin-bottom:14px">
-        {% if spin_gift.image %}
-        <img src="{{ spin_gift.image.url }}" alt="{{ spin_gift.name }}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.25)">
-        {% endif %}
-        <div style="text-align:left;flex:1;min-width:0">
-          <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">&#127873; Lucky Prize</div>
-          <div style="color:#fff;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.name }}</div>
-          {% if spin_gift.address %}<div style="color:rgba(255,255,255,.55);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.address }}</div>{% endif %}
+      <p class="hero-desc">A trusted SPACE that connects Families, Schools, Businesses, Communities and Opportunities around your PIN Code.</p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="hero-right">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+
+        <!-- Logo centred, large -->
+        <img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE"
+             style="width:260px;height:260px;object-fit:contain;border-radius:32px;
+                    box-shadow:0 20px 60px rgba(0,0,0,.35);border:4px solid rgba(255,255,255,.25)">
+
+        <!-- Category pill row 1 -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">👨‍👩‍👧‍👦</span><span style="font-size:13px;font-weight:800;color:#db2777">FAMILY</span>
+          </div>
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">🏫</span><span style="font-size:13px;font-weight:800;color:#7c3aed">SCHOOL</span>
+          </div>
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">🎓</span><span style="font-size:13px;font-weight:800;color:#4338ca">CAMPUS</span>
+          </div>
         </div>
-        <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;padding:5px 9px;font-size:10px;font-weight:900;color:#fff;white-space:nowrap;flex-shrink:0">WIN IT</div>
+
+        <!-- Category pill row 2 -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">💼</span><span style="font-size:13px;font-weight:800;color:#0a66c2">JOBS</span>
+          </div>
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">🏢</span><span style="font-size:13px;font-weight:800;color:#0891b2">BUSINESS</span>
+          </div>
+          <div style="background:#fff;border-radius:30px;padding:8px 18px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+            <span style="font-size:18px">🌐</span><span style="font-size:13px;font-weight:800;color:#059669">COMMUNITY</span>
+          </div>
+        </div>
+
+        <!-- India + Safe badges -->
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:10px 18px;text-align:center">
+            <div style="color:#fff;font-size:16px;font-weight:900">🇮🇳 INDIA</div>
+            <div style="color:rgba(255,255,255,.75);font-size:9px;font-weight:700;letter-spacing:.08em;line-height:1.7;text-transform:uppercase;margin-top:2px">ONE NATION · ONE NETWORK<br>MILLIONS OF OPPORTUNITIES</div>
+          </div>
+          <div style="background:rgba(5,150,105,.85);border-radius:10px;padding:10px 14px;text-align:center">
+            <div style="color:#fff;font-size:13px;font-weight:800"><i class="fas fa-shield-alt"></i> Safe. Secure. Trusted.</div>
+            <div style="color:rgba(255,255,255,.8);font-size:10px;margin-top:2px">Your Data. Our Priority.</div>
+          </div>
+        </div>
+
       </div>
-
-      <!-- 6 digit boxes -->
-      <div style="color:#fff;font-size:13px;font-weight:800;margin-bottom:10px">&#127920; Spin &amp; Win — One tap reveals all!</div>
-      <div id="spinBoxes" style="display:flex;gap:6px;justify-content:center;margin-bottom:12px">
-        {% for i in "123456" %}
-        <div class="spin-box" data-idx="{{ forloop.counter0 }}" style="width:42px;height:54px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.22);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent">?</div>
-        {% endfor %}
-      </div>
-
-      <div id="spinResult" style="display:none;margin-top:6px"></div>
-
-      {% if already_spun %}
-      <div style="color:rgba(255,255,255,.65);font-size:12px">You've spun today &#127749; Come back tomorrow!</div>
-      {% elif not request.user.is_authenticated %}
-      <a href="/login/?next=/" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:13px;font-weight:800;padding:10px 24px;border-radius:24px;text-decoration:none">Login to Play</a>
-      {% else %}
-      <div id="spinHint" style="color:rgba(255,255,255,.5);font-size:11px">Tap anywhere on the boxes to spin</div>
-      {% endif %}
     </div>
-    {% endif %}
-
-    <!-- Community Hub Button -->
-    <a href="/community/" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0a66c2,#7c3aed);border-radius:14px;padding:14px 18px;margin-bottom:16px;text-decoration:none;color:#fff">
-      <span style="font-size:28px">&#127968;</span>
-      <div style="text-align:left">
-        <div style="font-size:15px;font-weight:900">Community</div>
-        <div style="font-size:11px;opacity:.8">Family Stories · Schools · Events · Heroes & more</div>
-      </div>
-      <span style="margin-left:auto;font-size:18px;opacity:.7">&#8250;</span>
-    </a>
-
-    <div class="mp-split-card">
-
-      <!-- Left: Looking for -->
-      <div class="mp-split-col">
-        <p class="mp-split-label"><i class="fas fa-search" style="color:#0a66c2"></i> I'm looking for</p>
-        <a class="mp-opt find" href="/jobs/" style="text-decoration:none">
-          <i class="fas fa-search"></i><span>Find a Job</span>
-        </a>
-        <a class="mp-opt health" href="/health/guide/" style="text-decoration:none">
-          <i class="fas fa-heartbeat"></i><span>Health Guide</span>
-        </a>
-        <a class="mp-opt voucher" href="/vouchers/marketplace/" style="text-decoration:none">
-          <i class="fas fa-gift"></i><span>Get Vouchers</span>
-        </a>
-      </div>
-
-      <!-- Divider -->
-      <div class="mp-split-div"></div>
-
-      <!-- Right: Offering -->
-      <div class="mp-split-col">
-        <p class="mp-split-label"><i class="fas fa-bullhorn" style="color:#f3a000"></i> I want to offer</p>
-        <a class="mp-opt post" href="/post-job/" style="text-decoration:none">
-          <i class="fas fa-briefcase"></i><span>Post a Job</span>
-        </a>
-        <a class="mp-opt biz" href="/advertise/register/" style="text-decoration:none">
-          <i class="fas fa-bullhorn"></i><span>Promote Business</span>
-        </a>
-        <a class="mp-opt voucher-post" href="/vouchers/marketplace/" style="text-decoration:none">
-          <i class="fas fa-tag"></i><span>Post a Voucher</span>
-        </a>
-      </div>
-
-    </div>
-    {% if not request.user.is_authenticated %}
-    <div class="mp-or"><span>or</span></div>
-    <a href="/login/" class="mp-signin">Already have an account? <strong>Sign In</strong></a>
-    {% endif %}
-
-    <!-- Campus Banner -->
-    <a href="/campus/" class="mp-campus-banner">
-      <div class="mp-campus-left">
-        <div class="mp-campus-badge">🎓 New</div>
-        <div class="mp-campus-title">Campus Career Program</div>
-        <div class="mp-campus-sub">Colleges · Students · Companies</div>
-      </div>
-      <div class="mp-campus-arrow">›</div>
-    </a>
   </div>
 </section>
 
-<style>
-.mp-campus-banner{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:14px;padding:14px 16px;margin-top:12px;text-decoration:none;transition:.2s}
-.mp-campus-banner:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.3)}
-.mp-campus-badge{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;margin-bottom:4px}
-.mp-campus-title{font-size:15px;font-weight:800;color:#fff}
-.mp-campus-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:2px}
-.mp-campus-arrow{font-size:24px;color:rgba(255,255,255,.6);font-weight:300}
-.mp-landing{background:transparent;padding:20px 16px}
-.mp-landing-inner{text-align:center;max-width:480px;width:100%;margin:0 auto}
-.mp-logo-wrap{margin-bottom:12px}
-.mp-logo{height:64px;width:auto;object-fit:contain}
-.mp-title{font-size:28px;font-weight:900;color:#111;margin:0 0 4px}
-.mp-sub{font-size:14px;color:#6b7280;margin:0 0 28px}
-/* Split layout */
-.mp-split-card{display:flex;gap:12px;margin-bottom:16px;text-align:left}
-.mp-split-col{flex:1;display:flex;flex-direction:column;gap:8px}
-.mp-split-div{width:1px;background:#d1d5db;flex-shrink:0;margin:8px 0}
-.mp-split-label{font-size:11px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin:0 0 4px;display:flex;align-items:center;gap:5px}
-/* Option buttons */
-.mp-opt{display:flex;align-items:center;gap:10px;border:1.5px solid #e5e7eb;border-radius:12px;background:#fafafa;padding:11px 13px;cursor:pointer;text-decoration:none;width:100%;transition:.16s;box-shadow:0 1px 3px rgba(0,0,0,.04);font-family:inherit}
-.mp-opt i{font-size:18px;flex-shrink:0;width:22px;text-align:center}
-.mp-opt span{font-size:13px;font-weight:700;color:#111}
-.mp-opt.find i{color:#0a66c2}.mp-opt.find:hover{border-color:#0a66c2;background:#f0f7ff}
-.mp-opt.post i{color:#f3a000}.mp-opt.post:hover{border-color:#f3a000;background:#fffbeb}
-.mp-opt.biz i{color:#059669}.mp-opt.biz:hover{border-color:#059669;background:#f0fdf4}
-.mp-opt.health i{color:#dc2626}.mp-opt.health:hover{border-color:#dc2626;background:#fff5f5}
-.mp-opt.voucher i,.mp-opt.voucher-post i{color:#7c3aed}
-.mp-opt.voucher:hover,.mp-opt.voucher-post:hover{border-color:#7c3aed;background:#faf5ff}
-.mp-or{display:flex;align-items:center;gap:10px;margin:4px 0 10px;color:#d1d5db;font-size:13px}
-.mp-or::before,.mp-or::after{content:'';flex:1;height:1px;background:#e5e7eb}
-.mp-signin{font-size:13px;color:#6b7280;display:block}
-.mp-signin strong{color:#0a66c2}
-.mp-signin:hover strong{text-decoration:underline}
-@media(max-width:420px){.mp-split-card{flex-direction:column}.mp-split-div{width:auto;height:1px}}
-</style>
+<!-- CATEGORY GRID -->
+<div class="cat-section">
+  <div class="cat-inner">
+    <a href="/portal/" class="cat-item">
+      <div class="cat-icon ci-tel">🌐</div>
+      <div class="cat-label">COMMUNITY</div>
+      <div class="cat-sub">Connect, share &amp; grow with your community</div>
+    </a>
+    <a href="/community/school-corner/register/" class="cat-item">
+      <div class="cat-icon ci-yel">🏫</div>
+      <div class="cat-label">MY SCHOOL</div>
+      <div class="cat-sub">School search, reviews, admissions &amp; more</div>
+    </a>
+    <a href="/advertise/register/" class="cat-item">
+      <div class="cat-icon ci-blu">📣</div>
+      <div class="cat-label">BUSINESS PROMOTION</div>
+      <div class="cat-sub">Promote your business to local customers</div>
+    </a>
+    <a href="/campus/" class="cat-item">
+      <div class="cat-icon ci-ind">🎓</div>
+      <div class="cat-label">CAMPUS OPPORTUNITY</div>
+      <div class="cat-sub">Colleges, courses, scholarships &amp; careers</div>
+    </a>
+    <a href="/vouchers/marketplace/" class="cat-item">
+      <div class="cat-icon ci-pnk">🎁</div>
+      <div class="cat-label">GIFT VOUCHERS</div>
+      <div class="cat-sub">Buy gift vouchers for your loved ones</div>
+    </a>
+    <a href="/jobs/" class="cat-item">
+      <div class="cat-icon ci-grn">💼</div>
+      <div class="cat-label">JOBS</div>
+      <div class="cat-sub">Find jobs near you. Build your future</div>
+    </a>
+    <a href="/advertise/" class="cat-item">
+      <div class="cat-icon ci-org">🏷️</div>
+      <div class="cat-label">OFFERS</div>
+      <div class="cat-sub">Exclusive local offers &amp; discounts</div>
+    </a>
+    <a href="/portal/events/" class="cat-item">
+      <div class="cat-icon ci-red">📅</div>
+      <div class="cat-label">EVENTS</div>
+      <div class="cat-sub">Local events, workshops, celebrations &amp; more</div>
+    </a>
+    <a href="/community/family/" class="cat-item">
+      <div class="cat-icon ci-pur">👨‍👩‍👧‍👦</div>
+      <div class="cat-label">FAMILY CORNER</div>
+      <div class="cat-sub">Everything for your family's needs and happiness</div>
+    </a>
+  </div>
+</div>
 
-<style>
-.hero{background:linear-gradient(135deg,#0d47a1 0%,#0a66c2 60%,#1976d2 100%);padding:52px 20px 0;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.hero-inner{max-width:760px;margin:0 auto;padding-bottom:40px;position:relative}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:30px;margin-bottom:20px;letter-spacing:.3px}
-.hero h1{font-size:clamp(26px,4.5vw,44px);font-weight:900;color:#fff;line-height:1.2;margin-bottom:12px;letter-spacing:-.5px}
-.hero-highlight{color:#ffd54f;display:inline-block}
-.hero-sub{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:28px;line-height:1.6}
+<!-- SPIN TO WIN (if active) -->
+{% if spin_gift %}
+<div style="max-width:640px;margin:24px auto 0;padding:0 16px">
+<div style="background:linear-gradient(135deg,#1a0533,#3b1a78);border-radius:20px;padding:18px 16px 20px;text-align:center;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;opacity:.06;background:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%) 0 0/16px 16px;pointer-events:none"></div>
+  <div id="spinCodeTop" style="display:none;background:rgba(0,0,0,.35);border-radius:12px;padding:10px 14px;margin-bottom:12px">
+    <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Your Code</div>
+    <div id="spinCodeVal" style="font-size:32px;font-weight:900;color:#fff;letter-spacing:.3em"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+    {% if spin_gift.image %}<img src="{{ spin_gift.image.url }}" alt="{{ spin_gift.name }}" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.25)">{% endif %}
+    <div style="text-align:left;flex:1;min-width:0">
+      <div style="color:rgba(255,255,255,.65);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">&#127873; Lucky Prize</div>
+      <div style="color:#fff;font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.name }}</div>
+      {% if spin_gift.address %}<div style="color:rgba(255,255,255,.55);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ spin_gift.address }}</div>{% endif %}
+    </div>
+    <div style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;padding:5px 9px;font-size:10px;font-weight:900;color:#fff;white-space:nowrap;flex-shrink:0">WIN IT</div>
+  </div>
+  <div style="color:#fff;font-size:13px;font-weight:800;margin-bottom:10px">&#127920; Spin &amp; Win — One tap reveals all!</div>
+  <div id="spinBoxes" style="display:flex;gap:6px;justify-content:center;margin-bottom:12px">
+    {% for i in "123456" %}
+    <div class="spin-box" data-idx="{{ forloop.counter0 }}" style="width:42px;height:54px;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.22);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent">?</div>
+    {% endfor %}
+  </div>
+  <div id="spinResult" style="display:none;margin-top:6px"></div>
+  {% if already_spun %}
+  <div style="color:rgba(255,255,255,.65);font-size:12px">You've spun today &#127749; Come back tomorrow!</div>
+  {% elif not request.user.is_authenticated %}
+  <a href="/login/?next=/" style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:13px;font-weight:800;padding:10px 24px;border-radius:24px;text-decoration:none">Login to Play</a>
+  {% else %}
+  <div id="spinHint" style="color:rgba(255,255,255,.5);font-size:11px">Tap anywhere on the boxes to spin</div>
+  {% endif %}
+</div>
+</div>
+{% endif %}
 
-/* Search Box */
-.hero-form{margin-bottom:16px}
-.hf-box{display:flex;align-items:center;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.28);padding:6px 6px 6px 0}
-.hf-field{display:flex;align-items:center;flex:1;padding:4px 4px 4px 16px;gap:10px}
-.hf-icon{width:36px;height:36px;border-radius:10px;background:#eff6ff;color:#0a66c2;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.hf-field input{width:100%;border:none;outline:none;font-size:15px;color:#111;background:transparent;font-family:inherit}
-.hf-field input::placeholder{color:#aab}
-.hf-divider{width:1px;height:40px;background:#e5e7eb;flex-shrink:0;margin:0 4px}
-.hf-pin{flex:0 0 170px}
-.hf-btn{background:linear-gradient(135deg,#f3a000,#e08800);color:#fff;border:none;padding:12px 22px;font-size:15px;font-weight:800;cursor:pointer;border-radius:10px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:8px;transition:.2s;margin:2px}
-.hf-btn:hover{background:linear-gradient(135deg,#e09000,#c97a00);transform:translateY(-1px)}
+<!-- PROMO BANNERS -->
+<div class="banners-wrap">
+  <div class="banners-grid">
+    <a href="/jobs/" class="promo-card pc-jobs" style="text-decoration:none">
+      <div>
+        <div class="promo-tag">Opportunities</div>
+        <div class="promo-h">FIND THE BEST<br>JOBS NEAR YOU</div>
+        <div class="promo-p">Thousands of opportunities waiting for you!</div>
+      </div>
+      <div><span class="promo-btn">EXPLORE JOBS</span></div>
+      <div class="pc-deco">💼</div>
+    </a>
+    <a href="/advertise/register/" class="promo-card pc-biz" style="text-decoration:none">
+      <div>
+        <div class="promo-tag">For Businesses</div>
+        <div class="promo-h">PROMOTE YOUR<br>BUSINESS</div>
+        <div class="promo-p">Reach more local customers and grow your business</div>
+      </div>
+      <div><span class="promo-btn">PROMOTE NOW</span></div>
+      <div class="pc-deco">🏪</div>
+    </a>
+    <a href="/advertise/" class="promo-card pc-offers" style="text-decoration:none">
+      <div>
+        <div class="promo-tag">Exclusive</div>
+        <div class="promo-h">EXCLUSIVE<br>OFFERS</div>
+        <div class="promo-p">Save more with exciting local deals</div>
+      </div>
+      <div><span class="promo-btn">VIEW OFFERS</span></div>
+      <div class="pc-deco">%</div>
+    </a>
+  </div>
+</div>
 
-/* Quick tags */
-.hero-quick{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-.hq-label{font-size:12px;color:rgba(255,255,255,.6);font-weight:600}
-.hq-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;transition:.2s}
-.hq-tag:hover{background:rgba(255,255,255,.25);color:#fff}
-
-
-@media(max-width:640px){
-  .hero{padding:32px 14px 0}
-  .hero h1{font-size:22px}
-  .hero-sub{font-size:13px}
-  .hf-box{flex-direction:column;border-radius:12px;padding:8px;gap:4px;align-items:stretch}
-  .hf-field{padding:8px 12px}
-  .hf-divider{display:none}
-  .hf-pin{flex:1}
-  .hf-btn{border-radius:8px;justify-content:center;padding:13px}
-  .hero-quick{gap:6px}
-  .hero-badge{font-size:11px;padding:5px 12px}
-}
-@media(max-width:380px){
-  .hq-tag:nth-child(n+5){display:none}
-}
-</style>
 
 <!-- PAID HOMEPAGE BANNER ADS -->
 {% if ads_by_type.homepage_banner %}
-<div class="site-ad-bar" id="siteAdBar">
+<div class="site-ad-bar" id="siteAdBar" style="margin-top:24px">
   <div class="site-ad-inner">
     {% for ad in ads_by_type.homepage_banner %}
     <a class="site-ad-slide {% if forloop.first %}active{% endif %}"
@@ -478,23 +554,6 @@ a{text-decoration:none;color:inherit}
   </div>
   <button class="site-ad-close" onclick="document.getElementById('siteAdBar').style.display='none'"><i class="fas fa-times"></i></button>
 </div>
-<style>
-.site-ad-bar{background:#000;position:relative;overflow:hidden}
-.site-ad-inner{position:relative;max-width:1200px;margin:0 auto;overflow:hidden}
-.site-ad-slide{display:none;width:100%;position:relative;text-decoration:none;color:#fff}
-.site-ad-slide.active{display:block}
-.site-ad-slide img{width:100%;height:320px;object-fit:cover;display:block;opacity:.92}
-.site-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);padding:24px 56px 20px 20px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
-.site-ad-label{background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px;align-self:center}
-.site-ad-title{font-size:18px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.5)}
-.site-ad-biz{font-size:13px;color:rgba(255,255,255,.8);align-self:center}
-.site-ad-close{position:absolute;right:12px;top:12px;background:rgba(0,0,0,.45);border:none;color:#fff;font-size:15px;cursor:pointer;padding:6px 10px;border-radius:50%;line-height:1;z-index:2}
-.site-ad-prev,.site-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:36px;height:36px;border-radius:50%;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
-.site-ad-prev{left:10px}.site-ad-next{right:10px}
-.site-ad-prev:hover,.site-ad-next:hover{background:rgba(0,0,0,.7)}
-@media(max-width:768px){.site-ad-slide img{height:200px}.site-ad-title{font-size:15px}.site-ad-info{padding:16px 16px 14px}}
-@media(max-width:480px){.site-ad-slide img{height:160px}.site-ad-title{font-size:13px}}
-</style>
 <script>
 (function(){
   var slides = document.querySelectorAll('.site-ad-slide');
@@ -506,9 +565,9 @@ a{text-decoration:none;color:inherit}
 </script>
 {% endif %}
 
-<!-- UNIFIED ADS SLIDER: SPONSORED BANNERS + LOCAL ADS -->
+<!-- UNIFIED ADS SLIDER -->
 {% if advertiser_banners or live_ads %}
-<div class="olx-ad-wrap">
+<div class="olx-ad-wrap" style="margin-top:24px">
   <div class="olx-ad-label">Sponsored</div>
   <div class="olx-ad-track" id="olxAdTrack">
     {% for adv in advertiser_banners %}
@@ -547,25 +606,6 @@ a{text-decoration:none;color:inherit}
     {% endwith %}
   </div>
 </div>
-<style>
-.olx-ad-wrap{background:#000;position:relative;overflow:hidden}
-.olx-ad-label{position:absolute;top:10px;left:14px;z-index:3;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;letter-spacing:.5px;text-transform:uppercase}
-.olx-ad-track{position:relative;width:100%;height:340px}
-.olx-ad-slide{display:none;width:100%;height:340px;position:relative;text-decoration:none}
-.olx-ad-slide.active{display:block}
-.olx-ad-slide img{width:100%;height:340px;object-fit:cover;display:block;opacity:.93}
-.olx-ad-info{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);padding:28px 60px 20px 20px;color:#fff;display:flex;flex-direction:column;gap:3px}
-.olx-ad-name{font-size:18px;font-weight:900;text-shadow:0 1px 4px rgba(0,0,0,.5)}
-.olx-ad-addr{font-size:13px;opacity:.88}
-.olx-ad-dots{position:absolute;bottom:10px;right:16px;display:flex;gap:6px;z-index:3}
-.olx-ad-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);cursor:pointer;transition:.3s}
-.olx-ad-dot.active{background:#fff;width:24px;border-radius:4px}
-.olx-ad-prev,.olx-ad-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.3);color:#fff;width:38px;height:38px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:.2s}
-.olx-ad-prev{left:12px}.olx-ad-next{right:12px}
-.olx-ad-prev:hover,.olx-ad-next:hover{background:rgba(0,0,0,.7)}
-@media(max-width:768px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:220px}.olx-ad-name{font-size:15px}.olx-ad-info{padding:20px 16px 14px}}
-@media(max-width:480px){.olx-ad-track,.olx-ad-slide,.olx-ad-slide img{height:180px}.olx-ad-name{font-size:14px}}
-</style>
 <script>
 var olxAdCur = 0;
 (function(){
@@ -583,272 +623,235 @@ var olxAdCur = 0;
 </script>
 {% endif %}
 
-<!-- SMART MARKETING SECTION -->
-<section class="sm-wrap">
+<!-- SMART MARKETING -->
+<section id="smart-marketing" style="background:#f8faff;border-top:1px solid #e5e7eb;padding:0 0 48px">
 
-  <div class="sm-hero">
-    <div class="sm-hero-inner">
-      <div class="sm-badge">Powered by MYPINCOD.COM</div>
-      <h2 class="sm-main-title">SMART MARKETING</h2>
-      <p class="sm-tagline">Helping Local Businesses Grow</p>
-      <p class="sm-desc"><strong>SMART MARKETING</strong> introduces <strong>MYPINCOD.COM</strong>—a unique platform that combines <strong>marketing, local promotion, and business resources</strong> to help your business attract more customers and grow faster.</p>
+  <div style="background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:40px 20px;text-align:center">
+    <div style="max-width:700px;margin:0 auto">
+      <span style="display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Powered by OURPINCODE.COM</span>
+      <h2 style="font-size:clamp(26px,5vw,42px);font-weight:900;letter-spacing:-.5px;margin:0 0 6px">SMART MARKETING</h2>
+      <p style="font-size:16px;font-weight:700;opacity:.9;margin:0 0 12px">Helping Local Businesses Grow</p>
+      <p style="font-size:14px;opacity:.82;line-height:1.6;margin:0"><strong>SMART MARKETING</strong> introduces <strong>OURPINCODE.COM</strong> — a unique platform that combines <strong>marketing, local promotion, and business resources</strong> to help your business attract more customers and grow faster.</p>
     </div>
   </div>
 
-  <div class="sm-body">
+  <div style="max-width:860px;margin:0 auto;padding:32px 16px 0">
 
-    <div class="sm-stat-card">
-      <div class="sm-stat-icon">📍</div>
+    <div style="background:#fff;border-radius:16px;border:1.5px solid #dbeafe;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;box-shadow:0 2px 10px rgba(10,102,194,.07)">
+      <span style="font-size:28px;flex-shrink:0;margin-top:2px">📍</span>
       <div>
-        <div class="sm-stat-headline">Your Next Customer is Already Nearby!</div>
-        <div class="sm-stat-text">Over <strong>80% of your customers</strong> live or work within a <strong>3 km radius</strong> of your business. Reach them consistently for <strong>less than ₹3 per person per month</strong> through smart, targeted promotions.</div>
+        <div style="font-size:16px;font-weight:800;color:#111;margin-bottom:6px">Your Next Customer is Already Nearby!</div>
+        <div style="font-size:13px;color:#555;line-height:1.6">Over <strong>80% of your customers</strong> live or work within a <strong>3 km radius</strong> of your business. Reach them consistently for <strong>less than ₹3 per person per month</strong> through smart, targeted promotions.</div>
       </div>
     </div>
 
-    <div class="sm-formula">
-      <div class="sm-formula-title">Our Growth Formula</div>
-      <div class="sm-formula-items">
-        <div class="sm-fi"><span class="sm-fi-icon">📢</span><span>Powerful Messaging</span></div>
-        <div class="sm-fi"><span class="sm-fi-icon">🎯</span><span>Targeted Local Reach</span></div>
-        <div class="sm-fi"><span class="sm-fi-icon">🔄</span><span>Consistent Promotion</span></div>
+    <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:16px;padding:22px 24px;text-align:center;margin-bottom:28px;border:1.5px solid #e0f2fe">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0a66c2;margin-bottom:14px">Our Growth Formula</div>
+      <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;color:#111;box-shadow:0 1px 6px rgba(0,0,0,.07)"><span style="font-size:18px">📢</span> Powerful Messaging</div>
+        <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;color:#111;box-shadow:0 1px 6px rgba(0,0,0,.07)"><span style="font-size:18px">🎯</span> Targeted Local Reach</div>
+        <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;color:#111;box-shadow:0 1px 6px rgba(0,0,0,.07)"><span style="font-size:18px">🔄</span> Consistent Promotion</div>
       </div>
-      <div class="sm-formula-cta">You run your business. <strong>We bring you customers.</strong></div>
+      <div style="font-size:14px;color:#374151">You run your business. <strong>We bring you customers.</strong></div>
     </div>
 
-    <div class="sm-pkg-title">SMART MARKETING PACKAGES</div>
-    <div class="sm-packages">
+    <div style="text-align:center;font-size:20px;font-weight:900;color:#111;margin-bottom:18px">SMART MARKETING PACKAGES</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px">
 
-      <div class="sm-pkg sm-pkg-red">
-        <div class="sm-pkg-name">PROMO</div>
-        <div class="sm-pkg-price">₹3,999<span>/month</span></div>
-        <div class="sm-pkg-plan">3-Month Plan</div>
-        <ul class="sm-pkg-list">
-          <li>5,000 Coupon Distribution</li>
-          <li>1 Month Advertisement on MYPINCOD.COM</li>
+      <div style="background:#fff;border-radius:16px;padding:22px 20px;box-shadow:0 2px 14px rgba(0,0,0,.08);border-top:4px solid #dc2626">
+        <div style="font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">PROMO</div>
+        <div style="font-size:28px;font-weight:900;color:#111;line-height:1">₹3,999<span style="font-size:13px;font-weight:600;color:#6b7280">/month</span></div>
+        <div style="font-size:11px;color:#9ca3af;margin:4px 0 14px;font-weight:600">3-Month Plan</div>
+        <ul style="list-style:none;padding:0;margin:0">
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> 5,000 Coupon Distribution</li>
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> 1 Month Advertisement on OURPINCODE.COM</li>
         </ul>
       </div>
 
-      <div class="sm-pkg sm-pkg-green">
-        <div class="sm-pkg-badge">Popular</div>
-        <div class="sm-pkg-name">PROMO DIGITAL</div>
-        <div class="sm-pkg-price">₹9,999<span>/month</span></div>
-        <div class="sm-pkg-plan">3-Month Plan</div>
-        <ul class="sm-pkg-list">
-          <li>Everything in Promo</li>
-          <li>Instagram Business Setup</li>
-          <li>15 AI Social Media Posts/Month</li>
+      <div style="background:#fff;border-radius:16px;padding:22px 20px;box-shadow:0 2px 14px rgba(0,0,0,.08);border-top:4px solid #059669;position:relative">
+        <div style="position:absolute;top:-10px;right:16px;background:#059669;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em">Popular</div>
+        <div style="font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">PROMO DIGITAL</div>
+        <div style="font-size:28px;font-weight:900;color:#111;line-height:1">₹9,999<span style="font-size:13px;font-weight:600;color:#6b7280">/month</span></div>
+        <div style="font-size:11px;color:#9ca3af;margin:4px 0 14px;font-weight:600">3-Month Plan</div>
+        <ul style="list-style:none;padding:0;margin:0">
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> Everything in Promo</li>
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> Instagram Business Setup</li>
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> 15 AI Social Media Posts/Month</li>
         </ul>
       </div>
 
-      <div class="sm-pkg sm-pkg-blue">
-        <div class="sm-pkg-name">PROMO DIGITAL PLUS</div>
-        <div class="sm-pkg-price">₹14,999<span>/month</span></div>
-        <div class="sm-pkg-plan">3-Month Plan</div>
-        <ul class="sm-pkg-list">
-          <li>Everything in Promo Digital</li>
-          <li>2 AI Promotional Reels (30 sec each)/Month</li>
+      <div style="background:#fff;border-radius:16px;padding:22px 20px;box-shadow:0 2px 14px rgba(0,0,0,.08);border-top:4px solid #0a66c2">
+        <div style="font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">PROMO DIGITAL PLUS</div>
+        <div style="font-size:28px;font-weight:900;color:#111;line-height:1">₹14,999<span style="font-size:13px;font-weight:600;color:#6b7280">/month</span></div>
+        <div style="font-size:11px;color:#9ca3af;margin:4px 0 14px;font-weight:600">3-Month Plan</div>
+        <ul style="list-style:none;padding:0;margin:0">
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> Everything in Promo Digital</li>
+          <li style="font-size:12.5px;color:#374151;padding:5px 0;display:flex;gap:6px"><span style="color:#059669;font-weight:800">✓</span> 2 AI Promotional Reels (30 sec each)/Month</li>
         </ul>
       </div>
 
     </div>
 
-    <div class="sm-why">
-      <div class="sm-why-title">Why SMART MARKETING?</div>
-      <div class="sm-why-grid">
-        <div class="sm-why-item">✅ Affordable Local Marketing</div>
-        <div class="sm-why-item">✅ AI-Powered Content</div>
-        <div class="sm-why-item">✅ Consistent Brand Promotion</div>
-        <div class="sm-why-item">✅ Measurable Local Reach</div>
-        <div class="sm-why-item">✅ Dedicated Marketing Partner</div>
+    <div style="background:#fff;border-radius:16px;padding:22px 24px;margin-bottom:28px;border:1.5px solid #e5e7eb">
+      <div style="font-size:16px;font-weight:800;color:#111;margin-bottom:14px;text-align:center">Why SMART MARKETING?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="font-size:13px;color:#374151;font-weight:600;padding:6px 4px">✅ Affordable Local Marketing</div>
+        <div style="font-size:13px;color:#374151;font-weight:600;padding:6px 4px">✅ AI-Powered Content</div>
+        <div style="font-size:13px;color:#374151;font-weight:600;padding:6px 4px">✅ Consistent Brand Promotion</div>
+        <div style="font-size:13px;color:#374151;font-weight:600;padding:6px 4px">✅ Measurable Local Reach</div>
+        <div style="font-size:13px;color:#374151;font-weight:600;padding:6px 4px">✅ Dedicated Marketing Partner</div>
       </div>
     </div>
 
-    <div class="sm-footer-cta">
-      <div class="sm-footer-heading">Grow Your Visibility. Grow Your Customers. Grow Your Business.</div>
-      <div class="sm-footer-sub">SMART MARKETING &nbsp;·&nbsp; Affordable • Local • Smart • Effective</div>
-      <div class="sm-footer-contact">
-        <a href="tel:9632410050" class="sm-contact-btn"><i class="fas fa-phone"></i> 9632410050</a>
-        <a href="https://www.mypincod.com" class="sm-contact-btn sm-contact-web"><i class="fas fa-globe"></i> www.MYPINCOD.com</a>
+    <div style="background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border-radius:16px;padding:28px 24px;text-align:center">
+      <div style="font-size:17px;font-weight:800;margin-bottom:8px;line-height:1.4">Grow Your Visibility. Grow Your Customers. Grow Your Business.</div>
+      <div style="font-size:12px;opacity:.8;margin-bottom:18px;font-weight:600;letter-spacing:.03em">SMART MARKETING &nbsp;·&nbsp; Affordable • Local • Smart • Effective</div>
+      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap">
+        <a href="tel:9632410050" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:700;text-decoration:none"><i class="fas fa-phone"></i> 9632410050</a>
+        <a href="https://www.ourpincode.com" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:700;text-decoration:none"><i class="fas fa-globe"></i> www.OURPINCODE.com</a>
       </div>
     </div>
 
   </div>
 </section>
 
-<style>
-.sm-wrap{background:#f8faff;border-top:1px solid #e5e7eb}
-.sm-hero{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;padding:40px 20px;text-align:center}
-.sm-hero-inner{max-width:700px;margin:0 auto}
-.sm-badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
-.sm-main-title{font-size:clamp(26px,5vw,42px);font-weight:900;letter-spacing:-.5px;margin:0 0 6px}
-.sm-tagline{font-size:16px;font-weight:700;opacity:.9;margin:0 0 12px}
-.sm-desc{font-size:14px;opacity:.82;line-height:1.6;margin:0}
-.sm-body{max-width:860px;margin:0 auto;padding:32px 16px 48px}
-.sm-stat-card{background:#fff;border-radius:16px;border:1.5px solid #dbeafe;padding:20px 24px;display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;box-shadow:0 2px 10px rgba(10,102,194,.07)}
-.sm-stat-icon{font-size:28px;flex-shrink:0;margin-top:2px}
-.sm-stat-headline{font-size:16px;font-weight:800;color:#111;margin-bottom:6px}
-.sm-stat-text{font-size:13px;color:#555;line-height:1.6}
-.sm-formula{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border-radius:16px;padding:22px 24px;text-align:center;margin-bottom:28px;border:1.5px solid #e0f2fe}
-.sm-formula-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#0a66c2;margin-bottom:14px}
-.sm-formula-items{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.sm-fi{display:flex;align-items:center;gap:8px;background:#fff;border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;color:#111;box-shadow:0 1px 6px rgba(0,0,0,.07)}
-.sm-fi-icon{font-size:18px}
-.sm-formula-cta{font-size:14px;color:#374151}
-.sm-pkg-title{text-align:center;font-size:20px;font-weight:900;color:#111;margin-bottom:18px;letter-spacing:-.2px}
-.sm-packages{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
-@media(max-width:640px){.sm-packages{grid-template-columns:1fr}}
-.sm-pkg{background:#fff;border-radius:16px;padding:22px 20px;position:relative;box-shadow:0 2px 14px rgba(0,0,0,.08);border-top:4px solid transparent}
-.sm-pkg-red{border-top-color:#dc2626}
-.sm-pkg-green{border-top-color:#059669}
-.sm-pkg-blue{border-top-color:#0a66c2}
-.sm-pkg-badge{position:absolute;top:-10px;right:16px;background:#059669;color:#fff;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
-.sm-pkg-name{font-size:13px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.sm-pkg-price{font-size:28px;font-weight:900;color:#111;line-height:1}
-.sm-pkg-price span{font-size:13px;font-weight:600;color:#6b7280}
-.sm-pkg-plan{font-size:11px;color:#9ca3af;margin:4px 0 14px;font-weight:600}
-.sm-pkg-list{list-style:none;padding:0;margin:0}
-.sm-pkg-list li{font-size:12.5px;color:#374151;padding:5px 0;border-bottom:1px solid #f3f4f6;display:flex;align-items:flex-start;gap:6px}
-.sm-pkg-list li::before{content:'✓';color:#059669;font-weight:800;flex-shrink:0}
-.sm-pkg-list li:last-child{border:none}
-.sm-why{background:#fff;border-radius:16px;padding:22px 24px;margin-bottom:28px;border:1.5px solid #e5e7eb}
-.sm-why-title{font-size:16px;font-weight:800;color:#111;margin-bottom:14px;text-align:center}
-.sm-why-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-@media(max-width:400px){.sm-why-grid{grid-template-columns:1fr}}
-.sm-why-item{font-size:13px;color:#374151;font-weight:600;padding:6px 4px}
-.sm-footer-cta{background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border-radius:16px;padding:28px 24px;text-align:center}
-.sm-footer-heading{font-size:17px;font-weight:800;margin-bottom:8px;line-height:1.4}
-.sm-footer-sub{font-size:12px;opacity:.8;margin-bottom:18px;font-weight:600;letter-spacing:.03em}
-.sm-footer-contact{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-.sm-contact-btn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;font-weight:700;text-decoration:none;transition:.2s}
-.sm-contact-btn:hover{background:rgba(255,255,255,.25)}
-.sm-contact-web{background:rgba(255,255,255,.25)}
-</style>
+<!-- ABOUT SECTION -->
+<section id="about-section" style="background:#fff;border-top:2px solid #e5e7eb;padding:56px 24px 64px">
+  <div style="max-width:1100px;margin:0 auto">
 
-<!-- HOW ADVERTISING WORKS -->
-<section style="background:#fff;padding:56px 20px 60px;border-top:1px solid #eaecf2">
-  <div style="max-width:1080px;margin:0 auto">
-
-    <!-- Heading -->
-    <div style="text-align:center;margin-bottom:42px">
-      <span style="display:inline-flex;align-items:center;gap:7px;background:#e8f0fe;color:#0a66c2;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px"><i class="fas fa-bullhorn"></i> Advertise With Us</span>
-      <h2 style="font-size:clamp(22px,3.5vw,32px);font-weight:900;color:#111;margin-bottom:10px">How Advertising on MY PINCOD Works</h2>
-      <p style="font-size:15px;color:#666;max-width:560px;margin:0 auto">Reach thousands of local job seekers and businesses in your PIN code area — simple, fast, and affordable.</p>
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:44px">
+      <h2 style="font-size:clamp(32px,6vw,56px);font-weight:900;color:#0f172a;line-height:1.1;margin-bottom:10px;letter-spacing:-.02em">EVOXU Pvt Ltd</h2>
+      <p style="font-size:clamp(15px,2.5vw,20px);font-weight:700;color:#1d4ed8;margin-bottom:12px;letter-spacing:.01em">Bengaluru, Karnataka, India</p>
+      <p style="font-size:15px;color:#64748b;max-width:580px;margin:0 auto;line-height:1.7">A Bengaluru-based marketing and venture-building company creating innovative digital platforms around communities, markets and opportunities.</p>
     </div>
 
-    <!-- Steps -->
-    <div id="adv-steps-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:48px;max-width:780px;margin-left:auto;margin-right:auto">
-
-      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
-        <div style="width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">1</div>
-        <div style="width:60px;height:60px;border-radius:14px;background:#e8f0fe;color:#0a66c2;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-store"></i></div>
-        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Register Company or Shop</h4>
-        <p style="font-size:13px;color:#666;line-height:1.6">Enter your business name, contact details, address, description and upload your banner image.</p>
+    <!-- Platform Cards: OUR PINCODE + 111111 + AGROZS -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:44px">
+      <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:18px;padding:24px;border:1.5px solid #bfdbfe">
+        <div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Platform 01</div>
+        <div style="font-size:20px;font-weight:900;color:#1e3a8a;margin-bottom:4px">OUR PINCODE</div>
+        <div style="font-size:12px;color:#1d4ed8;font-weight:600;margin-bottom:10px">www.ourpincode.com</div>
+        <p style="font-size:13px;color:#374151;line-height:1.65">A hyperlocal community and business platform built around the PINCODE — connecting families, businesses, schools, professionals and opportunities in your area.</p>
+        <div style="margin-top:14px;font-size:12px;font-weight:700;color:#1d4ed8;font-style:italic">Your Pincode. Your Community. Your Opportunities.</div>
       </div>
-
-      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
-        <div style="width:44px;height:44px;border-radius:50%;background:#0a66c2;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">2</div>
-        <div style="width:60px;height:60px;border-radius:14px;background:#e8f0fe;color:#0a66c2;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-shield-alt"></i></div>
-        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Admin Approval</h4>
-        <p style="font-size:13px;color:#666;line-height:1.6">Our team reviews your registration and approves your business account before it goes live.</p>
+      <div style="background:linear-gradient(135deg,#fdf4ff,#f3e8ff);border-radius:18px;padding:24px;border:1.5px solid #e9d5ff">
+        <div style="font-size:11px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Platform 02</div>
+        <div style="font-size:20px;font-weight:900;color:#4c1d95;margin-bottom:4px">111111 PERFUMES</div>
+        <div style="font-size:12px;color:#7c3aed;font-weight:600;margin-bottom:10px">www.111111perfumes.com</div>
+        <p style="font-size:13px;color:#374151;line-height:1.65">An innovative fragrance concept built around manifestation, personal rituals and symbolic numbers — combining fragrance, identity, community and digital commerce.</p>
+        <div style="margin-top:14px;font-size:12px;font-weight:700;color:#7c3aed;font-style:italic">A Fragrance. A Ritual. A Belief.</div>
       </div>
-
-      <div style="text-align:center;padding:32px 20px;border-radius:16px;background:#f7f9ff;border:1.5px solid #e0e8ff;position:relative">
-        <div style="width:44px;height:44px;border-radius:50%;background:#2e7d32;color:#fff;font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">3</div>
-        <div style="width:60px;height:60px;border-radius:14px;background:#e8f5e9;color:#2e7d32;font-size:26px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px"><i class="fas fa-bullhorn"></i></div>
-        <h4 style="font-size:15px;font-weight:800;color:#111;margin-bottom:7px">Your Ad Goes Live!</h4>
-        <p style="font-size:13px;color:#666;line-height:1.6">Your banner is shown to thousands of local job seekers and businesses across MY PINCOD.</p>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:18px;padding:24px;border:1.5px solid #bbf7d0">
+        <div style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Platform 03</div>
+        <div style="font-size:20px;font-weight:900;color:#064e3b;margin-bottom:4px">AGROZS</div>
+        <div style="font-size:12px;color:#059669;font-weight:600;margin-bottom:10px">www.agrozs.com</div>
+        <p style="font-size:13px;color:#374151;line-height:1.65">An agriculture-focused ecosystem connecting farmers, agripreneurs, buyers, resources and markets — making agriculture more connected, entrepreneurial and market-driven.</p>
+        <div style="margin-top:14px;font-size:12px;font-weight:700;color:#059669;font-style:italic">From Farm to Market. From Farmer to Entrepreneur.</div>
       </div>
-
     </div>
 
-    <!-- Connector arrows (desktop only) -->
-    <style>
-    @media(max-width:600px){
-      #adv-steps-grid{grid-template-columns:1fr !important;gap:14px !important}
-      #adv-steps-grid > div{padding:20px 16px !important}
-    }
-    </style>
-
-    <!-- Ad formats -->
-    <div style="background:linear-gradient(135deg,#f0f6ff,#e8f0fe);border-radius:18px;padding:32px;margin-bottom:40px">
-      <h3 style="font-size:18px;font-weight:800;color:#111;margin-bottom:20px;text-align:center"><i class="fas fa-layer-group" style="color:#0a66c2"></i> Ad Placement Options</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
-        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
-          <i class="fas fa-home" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
-          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Homepage Banner</div>
-          <div style="font-size:11px;color:#888">Full-width slider at top of home page — maximum visibility</div>
+    <!-- Philosophy strip -->
+    <div style="background:#0f172a;border-radius:18px;padding:32px 32px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin-bottom:44px">
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#f97316;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px">Our Philosophy</div>
+        <h3 style="font-size:22px;font-weight:900;color:#fff;line-height:1.25;margin-bottom:12px">Community is the market.<br>The Pincode is the connection.</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.7">We believe the future of marketing is not simply about advertising — it is about creating communities, connecting people and building markets around innovative ideas.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 14px">
+          <span style="font-size:18px">🏘️</span>
+          <span style="font-size:13px;font-weight:700;color:#fff">Community Building</span>
         </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
-          <i class="fas fa-tachometer-alt" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
-          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Employer Dashboard</div>
-          <div style="font-size:11px;color:#888">Shown inside employer dashboards — targeted to hirers</div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 14px">
+          <span style="font-size:18px">💻</span>
+          <span style="font-size:13px;font-weight:700;color:#fff">Digital Platform Development</span>
         </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
-          <i class="fas fa-bullseye" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
-          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Pop-up Ad</div>
-          <div style="font-size:11px;color:#888">Eye-catching popup shown to visitors on page load</div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 14px">
+          <span style="font-size:18px">🎯</span>
+          <span style="font-size:13px;font-weight:700;color:#fff">Market Activation</span>
         </div>
-        <div style="background:#fff;border-radius:12px;padding:16px;border:1.5px solid #c8ddf8;text-align:center">
-          <i class="fas fa-images" style="font-size:22px;color:#0a66c2;display:block;margin-bottom:8px"></i>
-          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Ads Gallery</div>
-          <div style="font-size:11px;color:#888">Listed on the dedicated Advertise page browsed by all users</div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 14px">
+          <span style="font-size:18px">🤝</span>
+          <span style="font-size:13px;font-weight:700;color:#fff">Partnerships &amp; Ecosystem</span>
         </div>
       </div>
     </div>
 
     <!-- CTA -->
     <div style="text-align:center">
-      <p style="font-size:14px;color:#666;margin-bottom:18px">Ready to put your business in front of local job seekers?</p>
-      <a href="/advertise/register/" style="display:inline-flex;align-items:center;gap:9px;background:#0a66c2;color:#fff;padding:14px 32px;border-radius:10px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 4px 16px rgba(10,102,194,.25)">
-        <i class="fas fa-bullhorn"></i> Start Advertising Now
-      </a>
-      <a href="/advertise/" style="display:inline-flex;align-items:center;gap:7px;margin-left:14px;color:#0a66c2;font-size:14px;font-weight:700;text-decoration:none">
-        <i class="fas fa-eye"></i> View Current Ads
-      </a>
+      <p style="font-size:14px;color:#64748b;margin-bottom:18px">Bengaluru, Karnataka, India &nbsp;·&nbsp; EVOXU Pvt Ltd</p>
+      <a href="/about/" style="display:inline-block;background:#1d4ed8;color:#fff;font-size:14px;font-weight:700;padding:13px 32px;border-radius:10px;transition:.2s" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#1d4ed8'">Read Our Full Story →</a>
     </div>
 
+  </div>
+</section>
+<style>
+@media(max-width:700px){
+  #about-section [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+}
+</style>
+
+<!-- COMMUNITIES PORTAL SECTION -->
+<section style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 60%,#059669 100%);padding:56px 24px;text-align:center">
+  <div style="max-width:680px;margin:0 auto">
+    <div style="display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:16px">New Feature</div>
+    <h2 style="font-size:clamp(24px,5vw,40px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:12px">Don't just post.<br><span style="color:#34d399">Participate.</span></h2>
+    <p style="font-size:15px;color:rgba(255,255,255,.75);margin-bottom:28px;line-height:1.7">Create communities around your Pincode. Support causes. Attend events. Volunteer. Create real-world impact together.</p>
+    <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:32px">
+      <a href="/portal/create/" style="background:#f97316;color:#fff;font-size:14px;font-weight:800;padding:13px 28px;border-radius:10px;text-decoration:none;transition:.2s">+ Create Community</a>
+      <a href="/portal/" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;text-decoration:none;transition:.2s">Browse Communities →</a>
+    </div>
+    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.6)">
+      <span>🏘️ Communities</span>
+      <span>❤️ Causes</span>
+      <span>📅 Events</span>
+      <span>🙋 Volunteer</span>
+      <span>🏃 Activities</span>
+      <span>🎬 Videos</span>
+    </div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer class="footer">
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <h3><i class="fas fa-map-pin"></i> MY PINCOD</h3>
-      <p>Business, Opportunity, Job at Near You.<br>Find Jobs Near You. Hire People Near You.<br>India's PIN-code based hyperlocal job portal.</p>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3><i class="fas fa-map-pin" style="color:#f97316"></i> OUR PINCODE</h3>
+        <p>World's first human media. A trusted SPACE that connects Families, Schools, Businesses, Communities and Opportunities around your PIN Code.</p>
+      </div>
+      <div class="footer-links">
+        <h4>For Job Seekers</h4>
+        <a href="/jobs/">Browse Jobs</a>
+        <a href="/register/?type=employee">Create Profile</a>
+        <a href="/jobs/?urgent=1">Urgent Jobs</a>
+      </div>
+      <div class="footer-links">
+        <h4>For Businesses</h4>
+        <a href="/register/?type=company">Post a Job</a>
+        <a href="/advertise/register/">Advertise With Us</a>
+        <a href="/campus/">Campus Hiring</a>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="/complaint/submit/">Submit Complaint</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
     </div>
-    <div class="footer-links">
-      <h4>For Job Seekers</h4>
-      <a href="/jobs/">Browse Jobs</a>
-      <a href="/register/?type=employee">Create Profile</a>
-      <a href="/jobs/?urgent=1">Urgent Jobs</a>
-    </div>
-    <div class="footer-links">
-      <h4>For Employers</h4>
-      <a href="/register/?type=company">Post a Job</a>
-      <a href="/candidates/">Search Candidates</a>
-      <a href="/advertise/register/">Advertise With Us</a>
-    </div>
-    <div class="footer-links">
-      <h4>Company</h4>
-      <a href="#">About Us</a>
-      <a href="/complaint/submit/">Submit Complaint</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
-    <div style="display:flex;align-items:center;gap:4px">
-      <a href="/health/" class="admin-footer-btn" title="Health Guide" style="display:inline-flex;align-items:center;color:rgba(255,255,255,.25);text-decoration:none">
-        <i class="fas fa-heartbeat"></i>
-      </a>
-      <a href="/vouchers/marketplace/" class="admin-footer-btn" title="Gift Vouchers" style="display:inline-flex;align-items:center;color:rgba(255,255,255,.25);text-decoration:none">
-        <i class="fas fa-gift"></i>
-      </a>
-      <button class="admin-footer-btn" onclick="openAdminPanel()" title="Admin Panel">
-        <i class="fas fa-shield-alt"></i>
-      </button>
+    <div class="footer-bottom">
+      <p>&copy; 2026 OUR PINCODE. All rights reserved. &nbsp;|&nbsp; <i class="fas fa-map-marker-alt" style="color:#f97316"></i> India's Local Discovery &amp; Opportunity Platform</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        <a href="https://facebook.com" target="_blank" style="color:rgba(255,255,255,.5);font-size:18px"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://instagram.com" target="_blank" style="color:rgba(255,255,255,.5);font-size:18px"><i class="fab fa-instagram"></i></a>
+        <a href="https://youtube.com" target="_blank" style="color:rgba(255,255,255,.5);font-size:18px"><i class="fab fa-youtube"></i></a>
+        <a href="https://linkedin.com" target="_blank" style="color:rgba(255,255,255,.5);font-size:18px"><i class="fab fa-linkedin-in"></i></a>
+        <a href="/health/" class="admin-footer-btn" title="Health"><i class="fas fa-heartbeat"></i></a>
+        <a href="/vouchers/marketplace/" class="admin-footer-btn" title="Vouchers"><i class="fas fa-gift"></i></a>
+        <button class="admin-footer-btn" onclick="openAdminPanel()" title="Admin"><i class="fas fa-shield-alt"></i></button>
+      </div>
     </div>
   </div>
 </footer>
@@ -857,15 +860,14 @@ var olxAdCur = 0;
 <div class="admin-modal-overlay" id="adminModal" onclick="if(event.target===this)closeAdminPanel()">
   <div class="admin-modal-box">
     <div class="admin-modal-header">
-      <div><h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2><p>MY PINCOD — Platform Management</p></div>
+      <div><h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2><p>OUR PINCODE — Platform Management</p></div>
       <button class="admin-modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
     </div>
 
     {% if request.user.is_authenticated and request.user.admin_role %}
       <div class="admin-role-info">
         {% if request.user.admin_role == 'super_admin' %}
-          <span class="admin-role-badge super"><i class="fas fa-crown"></i> Super Admin</span>
-          <span>National Level</span>
+          <span class="admin-role-badge super"><i class="fas fa-crown"></i> Super Admin</span><span>National Level</span>
         {% elif request.user.admin_role == 'state_admin' %}
           <span class="admin-role-badge state"><i class="fas fa-map"></i> State Admin</span>
         {% else %}
@@ -906,7 +908,6 @@ var olxAdCur = 0;
           <div class="afg-title"><i class="fas fa-gift"></i> Gift Vouchers</div>
           <a href="/vouchers/admin-panel/" class="afc"><i class="fas fa-tachometer-alt"></i><span>Voucher Dashboard</span></a>
           <a href="/vouchers/marketplace/" class="afc"><i class="fas fa-store"></i><span>Marketplace</span></a>
-          <a href="/admin/vouchers/" class="afc"><i class="fas fa-cog"></i><span>Voucher Admin</span></a>
         </div>
         <div class="admin-feature-group">
           <div class="afg-title"><i class="fas fa-bullhorn"></i> Ads</div>
@@ -923,8 +924,12 @@ var olxAdCur = 0;
           <a href="/state-admin/employers/" class="afc"><i class="fas fa-check-circle"></i><span>Verify</span></a>
           <a href="/district-admin/employers/" class="afc"><i class="fas fa-clipboard-check"></i><span>Approve</span></a>
         </div>
+        <div class="admin-feature-group">
+          <div class="afg-title"><i class="fas fa-graduation-cap"></i> Campus</div>
+          <a href="/campus/admin/dashboard/" class="afc"><i class="fas fa-graduation-cap"></i><span>Campus Admin</span></a>
+          <a href="/campus/admin/companies/" class="afc"><i class="fas fa-building"></i><span>Companies</span></a>
+        </div>
       </div>
-
       {% elif request.user.admin_role == 'state_admin' %}
       <div class="admin-features-grid">
         <div class="admin-feature-group">
@@ -942,7 +947,6 @@ var olxAdCur = 0;
           <a href="/district-admin/complaints/" class="afc"><i class="fas fa-exclamation-triangle"></i><span>Complaints</span></a>
         </div>
       </div>
-
       {% else %}
       <div class="admin-features-grid">
         <div class="admin-feature-group">
@@ -960,22 +964,20 @@ var olxAdCur = 0;
 
     {% elif request.user.is_authenticated %}
       <div class="admin-login-prompt">
-        <i class="fas fa-shield-alt" style="font-size:44px;color:#0a66c2;margin-bottom:12px;display:block"></i>
+        <i class="fas fa-shield-alt" style="font-size:44px;color:#1d4ed8;margin-bottom:12px;display:block"></i>
         <h3>Admin Login</h3>
         <p style="margin-bottom:20px">Enter your admin phone number and password</p>
         <form method="POST" action="/admin-panel/login/" style="text-align:left">
           {% csrf_token %}
           <div style="margin-bottom:12px">
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-phone"></i> Phone Number</label>
-            <input type="tel" name="phone" placeholder="Admin 10-digit mobile number" maxlength="10"
-              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+            <input type="tel" name="phone" placeholder="Admin 10-digit mobile number" maxlength="10" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
           </div>
           <div style="margin-bottom:16px">
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-lock"></i> Password</label>
-            <input type="password" name="password" placeholder="Enter admin password"
-              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+            <input type="password" name="password" placeholder="Enter admin password" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
           </div>
-          <button type="submit" style="width:100%;padding:12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+          <button type="submit" style="width:100%;padding:12px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
             <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
           </button>
         </form>
@@ -983,22 +985,20 @@ var olxAdCur = 0;
       </div>
     {% else %}
       <div class="admin-login-prompt">
-        <i class="fas fa-shield-alt" style="font-size:44px;color:#0a66c2;margin-bottom:12px;display:block"></i>
+        <i class="fas fa-shield-alt" style="font-size:44px;color:#1d4ed8;margin-bottom:12px;display:block"></i>
         <h3>Admin Login</h3>
         <p style="margin-bottom:20px">Enter your phone number and password</p>
         <form method="POST" action="/admin-panel/login/" style="text-align:left">
           {% csrf_token %}
           <div style="margin-bottom:12px">
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-phone"></i> Phone Number</label>
-            <input type="tel" name="phone" placeholder="10-digit mobile number" maxlength="10"
-              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+            <input type="tel" name="phone" placeholder="10-digit mobile number" maxlength="10" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
           </div>
           <div style="margin-bottom:16px">
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:5px"><i class="fas fa-lock"></i> Password</label>
-            <input type="password" name="password" placeholder="Enter your password"
-              style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
+            <input type="password" name="password" placeholder="Enter your password" style="width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;outline:none" required>
           </div>
-          <button type="submit" style="width:100%;padding:12px;background:#0a66c2;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
+          <button type="submit" style="width:100%;padding:12px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer">
             <i class="fas fa-sign-in-alt"></i> Login to Admin Panel
           </button>
         </form>
@@ -1008,101 +1008,44 @@ var olxAdCur = 0;
   </div>
 </div>
 
-<style>
-.spin-box.revealed{background:rgba(255,255,255,.2)!important;border-color:rgba(255,255,255,.6)!important;transform:scale(1.08)}
-.spin-box.locked{cursor:not-allowed!important;opacity:.5}
-</style>
+<!-- SPIN JS -->
 <script>
 (function(){
   var boxes = document.querySelectorAll('.spin-box');
   if(!boxes.length) return;
-
   {% if not request.user.is_authenticated or already_spun %}
   boxes.forEach(function(b){ b.classList.add('locked'); });
   return;
   {% endif %}
-
-  var done = false;
-  var spinning = false;
-
-  function getCookie(name){
-    var v = document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)');
-    return v ? v[2] : null;
-  }
-
+  var done = false, spinning = false;
+  function getCookie(name){ var v = document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)'); return v ? v[2] : null; }
   function revealAll(digits, won, giftName, giftImg, addr){
     var hint = document.getElementById('spinHint');
     if(hint) hint.style.display = 'none';
-
-    digits.forEach(function(d, i){
-      setTimeout(function(){
-        boxes[i].textContent = d;
-        boxes[i].classList.add('revealed');
-      }, i * 80);
-    });
-
+    digits.forEach(function(d,i){ setTimeout(function(){ boxes[i].textContent=d; boxes[i].classList.add('revealed'); }, i*80); });
     setTimeout(function(){
-      /* code at top */
-      var codeTop = document.getElementById('spinCodeTop');
-      var codeVal = document.getElementById('spinCodeVal');
-      if(codeTop && codeVal){
-        codeVal.textContent = digits.join('');
-        codeTop.style.display = 'block';
-      }
-
-      var el = document.getElementById('spinResult');
-      if(won){
-        el.innerHTML = '<div style="background:linear-gradient(135deg,#065f46,#16a34a);border-radius:14px;padding:16px;color:#fff">'
-          +'<div style="font-size:22px;margin-bottom:10px">&#127881; You Won!</div>'
-          +(giftImg ? '<img src="'+giftImg+'" style="width:80px;height:80px;border-radius:12px;object-fit:cover;border:3px solid rgba(255,255,255,.4);margin-bottom:8px">' : '')
-          +(giftName ? '<div style="font-size:16px;font-weight:900;margin-bottom:6px">'+giftName+'</div>' : '')
-          +'<div style="background:rgba(0,0,0,.3);border-radius:10px;padding:10px;font-size:28px;font-weight:900;letter-spacing:.25em;margin-bottom:8px">'+digits.join('')+'</div>'
-          +'<div style="font-size:11px;opacity:.8;">Show this code to claim your gift</div>'
-          +(addr ? '<div style="margin-top:6px;font-size:11px;opacity:.7">&#128205; '+addr+'</div>' : '')
-          +'</div>';
-      } else {
-        el.innerHTML = '<div style="color:rgba(255,255,255,.7);font-size:13px">'
-          +'<div style="font-size:22px;margin-bottom:4px">&#128532;</div>'
-          +'Not a winner today — come back tomorrow!'
-          +'</div>';
-      }
-      el.style.display = 'block';
-      done = true;
-      boxes.forEach(function(b){ b.classList.add('locked'); });
-    }, digits.length * 80 + 200);
+      var codeTop=document.getElementById('spinCodeTop'); var codeVal=document.getElementById('spinCodeVal');
+      if(codeTop&&codeVal){ codeVal.textContent=digits.join(''); codeTop.style.display='block'; }
+      var el=document.getElementById('spinResult');
+      if(won){ el.innerHTML='<div style="background:linear-gradient(135deg,#065f46,#16a34a);border-radius:14px;padding:16px;color:#fff"><div style="font-size:22px;margin-bottom:10px">&#127881; You Won!</div>'+(giftImg?'<img src="'+giftImg+'" style="width:80px;height:80px;border-radius:12px;object-fit:cover;border:3px solid rgba(255,255,255,.4);margin-bottom:8px">':'')+(giftName?'<div style="font-size:16px;font-weight:900;margin-bottom:6px">'+giftName+'</div>':'')+'<div style="background:rgba(0,0,0,.3);border-radius:10px;padding:10px;font-size:28px;font-weight:900;letter-spacing:.25em;margin-bottom:8px">'+digits.join('')+'</div><div style="font-size:11px;opacity:.8;">Show this code to claim your gift</div>'+(addr?'<div style="margin-top:6px;font-size:11px;opacity:.7">&#128205; '+addr+'</div>':'')+'</div>'; }
+      else { el.innerHTML='<div style="color:rgba(255,255,255,.7);font-size:13px"><div style="font-size:22px;margin-bottom:4px">&#128532;</div>Not a winner today — come back tomorrow!</div>'; }
+      el.style.display='block'; done=true; boxes.forEach(function(b){ b.classList.add('locked'); });
+    }, digits.length*80+200);
   }
-
-  /* single tap on ANY box triggers the spin */
   document.getElementById('spinBoxes').onclick = function(){
-    if(done || spinning) return;
-    spinning = true;
-    /* rolling animation while waiting */
-    var tick = 0;
-    var roll = setInterval(function(){
-      boxes.forEach(function(b){
-        if(!b.classList.contains('revealed'))
-          b.textContent = Math.floor(Math.random()*10);
-      });
-      tick++;
-    }, 80);
-
-    fetch('/api/spin/', {method:'POST', headers:{'X-CSRFToken': getCookie('csrftoken')}})
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        clearInterval(roll);
-        spinning = false;
-        if(data.already_spun){
-          boxes.forEach(function(b){ b.classList.add('locked'); b.textContent='?'; });
-          return;
-        }
-        revealAll(data.code.split(''), data.won, data.gift_name || '', data.gift_image || '', data.gift_address || '');
-      })
-      .catch(function(){ clearInterval(roll); spinning = false; });
+    if(done||spinning) return; spinning=true;
+    var tick=0; var roll=setInterval(function(){ boxes.forEach(function(b){ if(!b.classList.contains('revealed')) b.textContent=Math.floor(Math.random()*10); }); tick++; }, 80);
+    fetch('/api/spin/',{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+      .then(function(r){return r.json();}).then(function(data){
+        clearInterval(roll); spinning=false;
+        if(data.already_spun){ boxes.forEach(function(b){ b.classList.add('locked'); b.textContent='?'; }); return; }
+        revealAll(data.code.split(''),data.won,data.gift_name||'',data.gift_image||'',data.gift_address||'');
+      }).catch(function(){ clearInterval(roll); spinning=false; });
   };
 })();
 </script>
 
-<!-- APP-STYLE BOTTOM NAV (mobile) -->
+<!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
     {% if request.user.is_authenticated %}
@@ -1121,110 +1064,41 @@ var olxAdCur = 0;
   </div>
 </nav>
 
-<style>
-.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
-.bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
-.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
-.bn-item i{font-size:19px}
-.bn-item.active{color:#0a66c2}
-.bn-item.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
-.bn-fab{margin-top:-22px}
-.bn-fab-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 14px rgba(10,102,194,.4);margin-bottom:3px}
-.bn-fab-flick{background:linear-gradient(135deg,#7c3aed,#0a66c2);box-shadow:0 4px 14px rgba(124,58,237,.4)}
-.bn-fab span{color:#0a66c2;font-weight:700}
-body{padding-bottom:62px}
-</style>
-
 <script src="{% static 'js/main.js' %}?v=2"></script>
 <script>
 function openAdminPanel(){document.getElementById('adminModal').classList.add('open')}
 function closeAdminPanel(){document.getElementById('adminModal').classList.remove('open')}
-if(document.addEventListener)document.addEventListener('keydown',function(e){if(e.key==='Escape'&&typeof closeAdminPanel==='function')closeAdminPanel()});
-else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e||window.event).key==='Escape'&&typeof closeAdminPanel==='function')closeAdminPanel()})
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdminPanel()});
 
-// Advertiser banner slider
-(function(){
-  var track   = document.getElementById('advTrack');
-  var dots    = document.querySelectorAll('.adv-dot');
-  var counter = document.getElementById('advCounter');
-  var progress= document.getElementById('advProgress');
-  if(!track) return;
-  var slides = track.querySelectorAll('.adv-slide');
-  var total  = slides.length;
-  if(total < 2) return;
-  var cur = 0, timer, DELAY = 4000;
-
-  function goTo(n){
-    cur = (n + total) % total;
-    track.style.transform = 'translateX(-' + (cur * 100) + '%)';
-    dots.forEach(function(d,i){ d.classList.toggle('active', i===cur); });
-    if(counter) counter.textContent = (cur+1) + ' / ' + total;
-    startProgress();
-  }
-
-  function startProgress(){
-    if(!progress) return;
-    progress.style.transition = 'none';
-    progress.style.width = '0%';
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        progress.style.transition = 'width ' + DELAY + 'ms linear';
-        progress.style.width = '100%';
-      });
+var olxAdCur = window.olxAdCur || 0;
+window.addEventListener('pageshow', function(e){
+  if(e.persisted){ var ov=document.getElementById('obOverlay'); if(ov)ov.classList.remove('show'); }
+});
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('input[type="tel"]').forEach(function(inp){
+    inp.setAttribute('inputmode','numeric');
+    if(!inp.getAttribute('maxlength')) inp.setAttribute('maxlength','10');
+    inp.addEventListener('keypress',function(e){ if(!/[0-9]/.test(e.key)) e.preventDefault(); });
+    inp.addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); });
+    inp.addEventListener('blur',function(){
+      if(this.value&&this.value.length!==10){this.setCustomValidity('Enter a valid 10-digit mobile number');this.reportValidity();}
+      else{this.setCustomValidity('');}
     });
-  }
-
-  function startAuto(){ timer = setInterval(function(){ goTo(cur+1); }, DELAY); }
-  function stopAuto(){ clearInterval(timer); if(progress){ progress.style.transition='none'; progress.style.width='0%'; } }
-
-  window.advMove = function(d){ stopAuto(); goTo(cur+d); startAuto(); };
-  window.advGo   = function(n){ stopAuto(); goTo(n);     startAuto(); };
-
-  var wrap = document.querySelector('.adv-slider-wrap');
-  if(wrap){
-    wrap.addEventListener('mouseenter', stopAuto);
-    wrap.addEventListener('mouseleave', function(){ startAuto(); startProgress(); });
-  }
-  startProgress();
-  startAuto();
-})();
+  });
+});
 </script>
 
+<!-- REGISTRATION POPUP -->
 {% if not request.user.is_authenticated %}
-<style>
-#regPop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center;padding:16px}
-#regPop.show{display:flex}
-.rp-box{background:#fff;border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:rpIn .22s ease}
-@keyframes rpIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-.rp-head{background:linear-gradient(135deg,#0a66c2,#004182);padding:22px 20px 18px;text-align:center;color:#fff}
-.rp-head img{height:34px;object-fit:contain;margin-bottom:8px}
-.rp-head p{font-size:12px;opacity:.85;margin:0}
-.rp-body{padding:18px 20px 20px}
-.rp-field{margin-bottom:13px}
-.rp-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
-.rp-input{width:100%;padding:11px 13px;border:1.5px solid #dbeafe;border-radius:11px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;background:#f8faff;color:#111}
-.rp-input:focus{border-color:#0a66c2;background:#fff;box-shadow:0 0 0 3px rgba(10,102,194,.08)}
-.rp-otp-row{display:flex;gap:8px}
-.rp-otp-row .rp-input{flex:1}
-.rp-otp-btn{padding:11px 14px;background:#0a66c2;color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
-.rp-otp-btn:disabled{background:#93c5fd;cursor:default}
-.rp-submit{width:100%;padding:13px;background:#0a66c2;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px}
-.rp-submit:active{background:#1d4ed8}
-.rp-err{background:#fee2e2;color:#991b1b;font-size:12px;font-weight:700;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
-.rp-footer{text-align:center;margin-top:14px;font-size:13px;color:#6b7280}
-.rp-footer a{color:#0a66c2;font-weight:700;text-decoration:none}
-.rp-timer{font-size:11px;color:#9ca3af;margin-top:4px;min-height:14px}
-</style>
-
 <div id="regPop">
   <div class="rp-box">
-    <div class="rp-head">
-      <img src="/static/images/logo.png" alt="MY PINCOD">
-      <p>India's first local community portal</p>
+    <div class="rp-head" style="position:relative">
+      <button onclick="document.getElementById('regPop').classList.remove('show')" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,.2);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&#x2715;</button>
+      <img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE">
+      <p>World's first human media</p>
     </div>
     <div class="rp-body">
       <div class="rp-err" id="rpErr"></div>
-
       <div class="rp-field">
         <label class="rp-label">Full Name *</label>
         <input class="rp-input" type="text" id="rpName" placeholder="Enter your name" autocomplete="name">
@@ -1249,158 +1123,76 @@ else if(document.attachEvent)document.attachEvent('onkeydown',function(e){if((e|
         <label class="rp-label">Set Password * <span style="font-weight:400;color:#9ca3af">(min 6 characters)</span></label>
         <input class="rp-input" type="password" id="rpPwd" placeholder="Create a password">
       </div>
-
       <button class="rp-submit" onclick="rpSubmit()">Create Account →</button>
-
-      <div class="rp-footer">
-        Already have an account? <a href="/login/">Sign In</a>
-      </div>
+      <div class="rp-footer">Already have an account? <a href="/login/">Sign In</a></div>
     </div>
   </div>
 </div>
-
 <script>
 (function(){
-  var timerInt = null;
-
-  function getCsrf(){
-    var c = document.cookie.match(/csrftoken=([^;]+)/);
-    return c ? c[1] : '';
-  }
-  function showErr(msg){
-    var el = document.getElementById('rpErr');
-    el.textContent = msg; el.style.display = msg ? 'block' : 'none';
-  }
+  var timerInt=null;
+  function getCsrf(){var c=document.cookie.match(/csrftoken=([^;]+)/);return c?c[1]:'';}
+  function showErr(msg){var el=document.getElementById('rpErr');el.textContent=msg;el.style.display=msg?'block':'none';}
   function startTimer(secs){
-    clearInterval(timerInt);
-    var el = document.getElementById('rpTimer');
-    var btn = document.getElementById('rpSendBtn');
-    btn.disabled = true;
-    timerInt = setInterval(function(){
-      el.textContent = 'Resend in ' + secs + 's';
-      secs--;
-      if(secs < 0){
-        clearInterval(timerInt);
-        el.textContent = '';
-        btn.disabled = false;
-        btn.textContent = 'Resend OTP';
-      }
-    }, 1000);
+    clearInterval(timerInt);var el=document.getElementById('rpTimer');var btn=document.getElementById('rpSendBtn');btn.disabled=true;
+    timerInt=setInterval(function(){el.textContent='Resend in '+secs+'s';secs--;if(secs<0){clearInterval(timerInt);el.textContent='';btn.disabled=false;btn.textContent='Resend OTP';}},1000);
   }
-
-  window.rpSendOTP = function(){
-    showErr('');
-    var phone = document.getElementById('rpPhone').value.trim();
-    if(phone.length !== 10){ showErr('Enter a valid 10-digit mobile number.'); return; }
-    var btn = document.getElementById('rpSendBtn');
-    btn.disabled = true; btn.textContent = 'Sending…';
-    fetch('/api/send-otp/', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
-      body: JSON.stringify({phone: phone})
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if(d.success){
-        document.getElementById('rpOtpField').style.display = 'block';
-        document.getElementById('rpPwdField').style.display = 'block';
-        document.getElementById('rpOtp').focus();
-        startTimer(60);
-      } else if(d.already_registered){
-        showErr('');
-        document.getElementById('regPop').classList.remove('show');
-        window.location.href = '/login/';
-      } else {
-        showErr(d.error || 'Failed to send OTP. Try again.');
-        btn.disabled = false; btn.textContent = 'Send OTP';
-      }
-    }).catch(function(){ showErr('Network error. Try again.'); btn.disabled = false; btn.textContent = 'Send OTP'; });
+  window.rpSendOTP=function(){
+    showErr('');var phone=document.getElementById('rpPhone').value.trim();
+    if(phone.length!==10){showErr('Enter a valid 10-digit mobile number.');return;}
+    var btn=document.getElementById('rpSendBtn');btn.disabled=true;btn.textContent='Sending…';
+    fetch('/api/send-otp/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({phone:phone})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d.success){document.getElementById('rpOtpField').style.display='block';document.getElementById('rpPwdField').style.display='block';document.getElementById('rpOtp').focus();startTimer(60);}
+        else if(d.already_registered){showErr('');document.getElementById('regPop').classList.remove('show');window.location.href='/login/';}
+        else{showErr(d.error||'Failed to send OTP.');btn.disabled=false;btn.textContent='Send OTP';}
+      }).catch(function(){showErr('Network error.');btn.disabled=false;btn.textContent='Send OTP';});
   };
-
-  window.rpSubmit = function(){
+  window.rpSubmit=function(){
     showErr('');
-    var name  = document.getElementById('rpName').value.trim();
-    var pin   = document.getElementById('rpPin').value.trim();
-    var phone = document.getElementById('rpPhone').value.trim();
-    var otp   = document.getElementById('rpOtp').value.trim();
-    var pwd   = document.getElementById('rpPwd').value.trim();
-    if(!name){ showErr('Please enter your name.'); return; }
-    if(pin.length !== 6){ showErr('Enter a valid 6-digit pincode.'); return; }
-    if(phone.length !== 10){ showErr('Enter a valid 10-digit mobile number.'); return; }
-    if(!otp){ showErr('Please enter the OTP sent to your mobile.'); return; }
-    if(pwd.length < 6){ showErr('Password must be at least 6 characters.'); return; }
-    // Step 1: verify OTP
-    fetch('/api/verify-otp/', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
-      body: JSON.stringify({otp: otp})
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if(!d.success){ showErr(d.error || 'Wrong OTP. Please try again.'); return; }
-      // Step 2: register
-      fetch('/api/quick-register/', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json','X-CSRFToken': getCsrf()},
-        body: JSON.stringify({name: name, phone: phone, pincode: pin, password: pwd})
-      }).then(function(r){ return r.json(); }).then(function(d){
-        if(d.success){
-          document.getElementById('regPop').classList.remove('show');
-          window.location.href = d.redirect || '/dashboard/';
-        } else {
-          showErr(d.error || 'Registration failed. Try again.');
-        }
-      }).catch(function(){ showErr('Network error. Try again.'); });
-    }).catch(function(){ showErr('Network error. Try again.'); });
+    var name=document.getElementById('rpName').value.trim();var pin=document.getElementById('rpPin').value.trim();
+    var phone=document.getElementById('rpPhone').value.trim();var otp=document.getElementById('rpOtp').value.trim();var pwd=document.getElementById('rpPwd').value.trim();
+    if(!name){showErr('Please enter your name.');return;}
+    if(pin.length!==6){showErr('Enter a valid 6-digit pincode.');return;}
+    if(phone.length!==10){showErr('Enter a valid 10-digit mobile number.');return;}
+    if(!otp){showErr('Please enter the OTP.');return;}
+    if(pwd.length<6){showErr('Password must be at least 6 characters.');return;}
+    fetch('/api/verify-otp/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({otp:otp})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d.success){showErr(d.error||'Wrong OTP.');return;}
+        fetch('/api/quick-register/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({name:name,phone:phone,pincode:pin,password:pwd})})
+          .then(function(r){return r.json();}).then(function(d){
+            if(d.success){document.getElementById('regPop').classList.remove('show');window.location.href=d.redirect||'/dashboard/';}
+            else{showErr(d.error||'Registration failed.');}
+          }).catch(function(){showErr('Network error.');});
+      }).catch(function(){showErr('Network error.');});
   };
-
-  document.getElementById('rpPhone').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,10); });
-  document.getElementById('rpPin').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,6); });
-  document.getElementById('rpOtp').addEventListener('input', function(){ this.value = this.value.replace(/\D/g,'').slice(0,6); });
-  document.getElementById('rpOtp').addEventListener('keydown', function(e){ if(e.key==='Enter') rpSubmit(); });
-
-  // Show popup on page load (immediately if ?signup=1)
-  var delay = window.location.search.indexOf('signup=1') !== -1 ? 0 : 800;
-  setTimeout(function(){
+  document.getElementById('rpPhone').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,10);});
+  document.getElementById('rpPin').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,6);});
+  document.getElementById('rpOtp').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,6);});
+  document.getElementById('rpOtp').addEventListener('keydown',function(e){if(e.key==='Enter')rpSubmit();});
+  if(window.location.search.indexOf('signup=1')!==-1){
     document.getElementById('regPop').classList.add('show');
-  }, delay);
+  }
 })();
 </script>
 {% endif %}
 
-<script>
-window.addEventListener('pageshow', function(e){
-  if(e.persisted){
-    var ov = document.getElementById('obOverlay');
-    if(ov) ov.classList.remove('show');
-  }
-});
-document.addEventListener('DOMContentLoaded',function(){
-  document.querySelectorAll('input[type="tel"]').forEach(function(inp){
-    inp.setAttribute('inputmode','numeric');
-    if(!inp.getAttribute('maxlength')) inp.setAttribute('maxlength','10');
-    inp.addEventListener('keypress',function(e){ if(!/[0-9]/.test(e.key)) e.preventDefault(); });
-    inp.addEventListener('input',function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); });
-    inp.addEventListener('blur',function(){
-      if(this.value && this.value.length!==10){ this.setCustomValidity('Enter a valid 10-digit mobile number'); this.reportValidity(); }
-      else { this.setCustomValidity(''); }
-    });
-  });
-});
-</script>
-{% if ads_by_type.popup %}
-{% with ad=ads_by_type.popup|first %}
+<!-- POPUP AD -->
+{% if popup_ad %}
 <div id="adPopupOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:8000;align-items:center;justify-content:center;padding:20px">
   <div style="background:#fff;border-radius:18px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <div style="position:relative">
-      <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="width:100%;max-height:220px;object-fit:cover;display:block">
+      <img src="{{ popup_ad.image.url }}" alt="{{ popup_ad.title }}" style="width:100%;max-height:220px;object-fit:cover;display:block">
       <button onclick="closeAdPopup()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.5);color:#fff;border:none;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">&#x2715;</button>
-      <span style="position:absolute;top:10px;left:10px;background:#0a66c2;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px">Sponsored</span>
+      <span style="position:absolute;top:10px;left:10px;background:#1d4ed8;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px">Sponsored</span>
     </div>
     <div style="padding:18px 20px 20px">
-      <h3 style="font-size:16px;font-weight:800;color:#111;margin-bottom:5px">{{ ad.title }}</h3>
-      <p style="font-size:13px;color:#666;margin-bottom:14px">{{ ad.advertiser.business_name }}</p>
-      {% if ad.content %}<p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6">{{ ad.content }}</p>{% endif %}
+      <h3 style="font-size:16px;font-weight:800;color:#111;margin-bottom:5px">{{ popup_ad.title }}</h3>
+      <p style="font-size:13px;color:#666;margin-bottom:14px">{{ popup_ad.advertiser.business_name }}</p>
+      {% if popup_ad.content %}<p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6">{{ popup_ad.content }}</p>{% endif %}
       <div style="display:flex;gap:10px">
-        {% if ad.link_url %}
-        <a href="{{ ad.link_url }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')" style="flex:1;text-align:center;padding:10px;background:#0a66c2;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">Visit Now</a>
-        {% endif %}
+        {% if popup_ad.link_url %}<a href="{{ popup_ad.link_url }}" target="_blank" onclick="fetch('/ads/click/{{ popup_ad.pk }}/')" style="flex:1;text-align:center;padding:10px;background:#1d4ed8;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none">Visit Now</a>{% endif %}
         <button onclick="closeAdPopup()" style="padding:10px 18px;background:#f3f4f6;color:#444;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Close</button>
       </div>
     </div>
@@ -1408,24 +1200,41 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 <script>
 (function(){
-  var key = 'adpop_{{ ad.pk }}';
-  if(!sessionStorage.getItem(key)){
-    setTimeout(function(){
-      var el=document.getElementById('adPopupOverlay');
-      if(el){el.style.display='flex';fetch('/ads/click/{{ ad.pk }}/');}
-    }, 4000);
-  }
-  window.closeAdPopup=function(){
-    var el=document.getElementById('adPopupOverlay');
-    if(el)el.style.display='none';
-    sessionStorage.setItem(key,'1');
-  };
+  var key='adpop_{{ popup_ad.pk }}';
+  if(!sessionStorage.getItem(key)){ setTimeout(function(){ var el=document.getElementById('adPopupOverlay'); if(el){el.style.display='flex';fetch('/ads/click/{{ popup_ad.pk }}/');} },4000); }
+  window.closeAdPopup=function(){ var el=document.getElementById('adPopupOverlay'); if(el)el.style.display='none'; sessionStorage.setItem(key,'1'); };
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAdPopup();});
 })();
 </script>
-{% endwith %}
 {% endif %}
+
 <script src="/static/js/ac_roles.js?v=1"></script>
+
+<!-- Google Translate -->
+<script>
+function googleTranslateElementInit(){
+  new google.translate.TranslateElement({
+    pageLanguage:'en',
+    layout:google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay:false
+  },'google_translate_element');
+}
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<style>
+/* Style the Google Translate widget to match the topbar */
+#google_translate_element .goog-te-gadget-simple{
+  border:1.5px solid #e5e7eb!important;border-radius:7px!important;
+  padding:5px 10px!important;font-size:13px!important;font-weight:600!important;
+  color:#374151!important;background:#fff!important;display:flex!important;
+  align-items:center!important;gap:5px!important;cursor:pointer!important;
+  white-space:nowrap!important;transition:.2s!important;
+}
+#google_translate_element .goog-te-gadget-simple:hover{border-color:#1d4ed8!important;color:#1d4ed8!important}
+#google_translate_element .goog-te-gadget-simple span{color:#374151!important;font-size:13px!important}
+#google_translate_element .goog-te-gadget-simple .goog-te-menu-value span:last-child{display:none}
+.goog-te-banner-frame{display:none!important}
+body{top:0!important}
+</style>
 </body>
 </html>
-

@@ -5,7 +5,7 @@
 
 <div class="ap-breadcrumb"><i class="fas fa-home"></i> Super Admin Dashboard</div>
 <div class="ap-page-title"><i class="fas fa-crown" style="color:#ffd700"></i> National Dashboard</div>
-<div class="ap-page-subtitle">Complete control over the entire MY PINCOD platform</div>
+<div class="ap-page-subtitle">Complete control over the entire OUR PINCODE platform</div>
 
 <!-- Stats -->
 <div class="ap-stats">
@@ -63,6 +63,15 @@
     <div class="ap-stat-icon"><i class="fas fa-search" style="color:#15803d"></i></div>
     <h3 style="color:#15803d">{{ jobseeker_count }}</h3>
     <p style="color:#15803d">Find a Job Users</p>
+  </a>
+</div>
+
+<!-- Community Pending Stat -->
+<div class="ap-stats" style="margin-top:12px">
+  <a href="/portal/admin/communities/?status=pending" class="ap-stat" style="background:linear-gradient(135deg,{% if community_pending_count %}#fef3c7,#fffbeb{% else %}#f9fafb,#f3f4f6{% endif %});text-decoration:none;border:1.5px solid {% if community_pending_count %}#fbbf24{% else %}#e5e7eb{% endif %}">
+    <div class="ap-stat-icon"><i class="fas fa-people-roof" style="color:{% if community_pending_count %}#d97706{% else %}#aaa{% endif %}"></i></div>
+    <h3 style="color:{% if community_pending_count %}#d97706{% else %}#aaa{% endif %}">{{ community_pending_count }}</h3>
+    <p style="color:{% if community_pending_count %}#92400e{% else %}#aaa{% endif %}">Communities Pending</p>
   </a>
 </div>
 
@@ -153,6 +162,10 @@
       <i class="fas fa-bolt" style="color:#7c3aed"></i>
       <span>Flick Management</span>
     </a>
+    <a href="/community/school-corner/admin/list/" class="ap-quick-card" style="border:2px solid #059669;background:#f0fdf4">
+      <i class="fas fa-school" style="color:#059669"></i>
+      <span style="color:#059669;font-weight:800">Schools</span>
+    </a>
     <a href="/super-admin/spin-gifts/" class="ap-quick-card">
       <i class="fas fa-gift" style="color:#ef4444"></i>
       <span>Spin Gifts</span>
@@ -182,6 +195,16 @@
       <i class="fas fa-store" style="color:#7c3aed"></i>
       <span>Voucher Marketplace</span>
     </a>
+    <a href="/campus/admin/dashboard/" class="ap-quick-card" style="border:2px solid #4F46E5;background:#EEF2FF">
+      <i class="fas fa-graduation-cap" style="color:#4F46E5"></i>
+      <span style="color:#4F46E5;font-weight:800">Campus Admin</span>
+    </a>
+    <a href="/portal/admin/communities/" class="ap-quick-card" style="{% if community_pending_count %}border:2px solid #f59e0b;background:#fffbeb{% else %}border:2px solid #6366F1;background:#EEF2FF{% endif %}">
+      <i class="fas fa-people-roof" style="color:{% if community_pending_count %}#d97706{% else %}#6366F1{% endif %}"></i>
+      <span style="color:{% if community_pending_count %}#92400e{% else %}#4338CA{% endif %};font-weight:800">Communities
+        {% if community_pending_count %}<br><small style="color:#d97706;font-weight:900">{{ community_pending_count }} pending</small>{% endif %}
+      </span>
+    </a>
   </div>
 </div>
 
@@ -204,7 +227,7 @@
         {% for biz in pending_voucher_businesses %}
         <tr>
           <td><strong>{{ biz.business_name }}</strong></td>
-          <td>{{ biz.owner.get_full_name|default:biz.owner.username }}</td>
+          <td>{% if biz.owner %}{{ biz.owner.get_full_name|default:biz.owner.username }}{% else %}—{% endif %}</td>
           <td>{{ biz.category.name }}</td>
           <td>{{ biz.city }}</td>
           <td>
@@ -246,6 +269,44 @@
     </table>
   </div>
   {% endif %}
+</div>
+{% endif %}
+
+<!-- Community Pending Approvals -->
+{% if community_pending %}
+<div class="ap-card" style="margin-bottom:24px;border:1.5px solid #fbbf24">
+  <div class="ap-card-header">
+    <h3><i class="fas fa-people-roof" style="color:#d97706"></i> Communities Pending Approval <span style="background:#fef3c7;color:#92400e;font-size:12px;font-weight:800;padding:2px 10px;border-radius:20px;margin-left:6px">{{ community_pending_count }}</span></h3>
+    <a href="/portal/admin/communities/" class="ap-btn ap-btn-primary">Full Panel</a>
+  </div>
+  <div class="ap-table-wrap">
+    <table class="ap-table">
+      <thead>
+        <tr><th>Community</th><th>Page ID</th><th>Created By</th><th>Category</th><th>Location</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for c in community_pending %}
+        <tr>
+          <td>
+            <div style="font-weight:800;color:#0f172a;font-size:13px">{{ c.name }}</div>
+            <div style="font-size:11px;color:#64748b">{{ c.purpose|truncatechars:50 }}</div>
+          </td>
+          <td><span style="font-family:monospace;font-size:12px;font-weight:700;color:#1d4ed8">{{ c.page_id }}</span></td>
+          <td style="font-size:12px">{% if c.created_by %}{{ c.created_by.get_full_name|default:c.created_by.username }}{% else %}—{% endif %}</td>
+          <td style="font-size:12px;color:#64748b">{{ c.category.name|default:"—" }}</td>
+          <td style="font-size:12px;color:#64748b">{{ c.location }}, {{ c.pincode }}</td>
+          <td>
+            <div style="display:flex;gap:6px;align-items:center">
+              <a href="/portal/c/{{ c.page_id }}/" target="_blank" style="font-size:11px;color:#4f46e5;font-weight:700;text-decoration:none;padding:3px 8px;border:1px solid #c7d2fe;border-radius:6px">View</a>
+              <a href="/portal/admin/communities/{{ c.pk }}/verify/" onclick="return confirm('Approve {{ c.name }}?')" style="background:#059669;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">✓ Approve</a>
+              <a href="/portal/admin/communities/{{ c.pk }}/reject/" onclick="return confirm('Reject {{ c.name }}?')" style="background:#dc2626;color:#fff;border:none;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">✗ Reject</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endif %}
 
@@ -332,7 +393,7 @@
             {{ job.get_collar_type_display }}
           </span></td>
           <td>{{ job.location }} {{ job.pincode }}</td>
-          <td>{{ job.posted_by.get_full_name|default:job.posted_by.username }}</td>
+          <td>{% if job.posted_by %}{{ job.posted_by.get_full_name|default:job.posted_by.username }}{% else %}—{% endif %}</td>
           <td><span class="status-pill pill-{% if job.status == 'active' %}active{% else %}inactive{% endif %}">{{ job.get_status_display }}</span></td>
           <td style="color:#888;font-size:12px">{{ job.created_at|date:"d M Y" }}</td>
         </tr>

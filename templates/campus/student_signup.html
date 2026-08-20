@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Sign Up — Campus Portal</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; min-height: 100vh;
+         background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+         display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .box { background: #fff; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 460px;
+         box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .top { text-align: center; margin-bottom: 28px; }
+  .top .icon { font-size: 2.4rem; }
+  .top h2 { font-size: 1.45rem; font-weight: 800; color: #0f172a; margin-top: 8px; }
+  .top p { color: #64748b; font-size: 0.88rem; margin-top: 4px; }
+  .error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px;
+               color: #b91c1c; padding: 10px 14px; font-size: 0.88rem; margin-bottom: 18px; }
+  label { display: block; font-size: 0.82rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input, select { width: 100%; padding: 11px 13px; border: 1.5px solid #d1d5db; border-radius: 9px;
+                  font-size: 0.93rem; color: #111; outline: none; margin-bottom: 16px; }
+  input:focus, select:focus { border-color: #2563eb; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn { width: 100%; padding: 13px; background: #2563eb; color: #fff; border: none;
+         border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
+         margin-top: 6px; transition: background .2s; }
+  .btn:hover { background: #1d4ed8; }
+  .foot { text-align: center; margin-top: 18px; font-size: 0.88rem; color: #64748b; }
+  .foot a { color: #2563eb; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="top">
+    <div class="icon">👨‍🎓</div>
+    <h2>Student Sign Up</h2>
+    <p>Create your campus account to find opportunities</p>
+  </div>
+
+  {% if error %}
+  <div class="error-box">{{ error }}</div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <label>Full Name *</label>
+    <input type="text" name="full_name" placeholder="Your full name" required>
+
+    <div class="row">
+      <div>
+        <label>Phone Number *</label>
+        <input type="tel" name="phone" placeholder="10-digit mobile" maxlength="10" required>
+      </div>
+      <div>
+        <label>Pincode *</label>
+        <input type="text" name="pincode" placeholder="6-digit pincode" maxlength="6" required>
+      </div>
+    </div>
+
+    <label>Email Address *</label>
+    <input type="email" name="email" placeholder="you@email.com" required>
+
+    <label>College / Institution *</label>
+    <select name="institution_id" required>
+      <option value="">— Select your institution —</option>
+      {% for inst in institutions %}
+      <option value="{{ inst.pk }}">{{ inst.name }} {% if inst.city %}({{ inst.city }}){% endif %}</option>
+      {% endfor %}
+    </select>
+
+    <div class="row">
+      <div>
+        <label>Password *</label>
+        <input type="password" name="password" placeholder="Min 6 characters" required>
+      </div>
+      <div>
+        <label>Confirm Password *</label>
+        <input type="password" name="password2" placeholder="Repeat password" required>
+      </div>
+    </div>
+
+    <button type="submit" class="btn">Create Student Account</button>
+  </form>
+
+  <div class="foot">
+    Already have an account? <a href="/campus/student/login/">Sign In</a><br>
+    <a href="/campus/auth/" style="color:#64748b;">← Back</a>
+  </div>
+</div>
+</body>
+</html>

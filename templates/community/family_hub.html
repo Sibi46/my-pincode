@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Family Hub – MY PINCOD{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Family Hub – OUR PINCODE{% endblock %}
 {% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -24,7 +24,7 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
 .fh-hero-sub{font-size:14px;color:rgba(255,255,255,.7);line-height:1.6;max-width:320px}
 
 /* ── STATS FLOAT ── */
-.fh-stats-float{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:600px;margin:-36px auto 0;padding:0 16px;position:relative;z-index:10}
+.fh-stats-float{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:960px;margin:-36px auto 0;padding:0 16px;position:relative;z-index:10}
 .fh-stat-card{background:#fff;border-radius:18px;padding:14px 10px;text-align:center;box-shadow:0 4px 20px rgba(79,70,229,.12);border:1px solid rgba(79,70,229,.06)}
 .fh-stat-n{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
 .fh-stat-n.total{color:#4F46E5}
@@ -33,7 +33,54 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
 .fh-stat-l{font-size:10px;font-weight:600;color:#94A3B8;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
 
 /* ── BODY PADDING ── */
-.fh-body{padding:20px 16px 100px;max-width:600px;margin:0 auto}
+.fh-body{padding:20px 16px 100px;max-width:960px;margin:0 auto}
+
+/* ── SPLIT LAYOUT ── */
+.fh-tree{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 2px 16px rgba(79,70,229,.07);border:1px solid rgba(79,70,229,.08)}
+
+/* Column headers */
+.fh-col-heads{display:grid;grid-template-columns:1fr 1px 1fr}
+.fh-col-head{display:flex;align-items:center;gap:10px;padding:14px 16px}
+.fh-col-head.husband{background:#EFF6FF;border-bottom:2px solid #3B82F6}
+.fh-col-head.wife{background:#FDF2F8;border-bottom:2px solid #EC4899}
+.fh-col-avatar{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.fh-col-avatar.husband{background:linear-gradient(135deg,#3B82F6,#6366F1)}
+.fh-col-avatar.wife{background:linear-gradient(135deg,#EC4899,#7C3AED)}
+.fh-col-name{font-size:14px;font-weight:800;color:#0F172A}
+.fh-col-lbl{font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:1px}
+.fh-col-lbl.husband{color:#3B82F6}
+.fh-col-lbl.wife{color:#EC4899}
+.fh-col-divider-head{background:#E2E8F0}
+
+/* Shared type row */
+.fh-type-row{display:grid;grid-template-columns:1fr 1px 1fr;border-top:1px solid #F1F5F9}
+.fh-type-cell{padding:12px 14px}
+.fh-type-cell.husband{border-right:none}
+.fh-type-cell-divider{background:#F1F5F9}
+.fh-type-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fh-type-hdr-name{font-size:12px;font-weight:800;color:#1E293B;display:flex;align-items:center;gap:5px}
+.fh-type-add{font-size:10px;font-weight:700;color:#fff;padding:3px 9px;border-radius:20px;text-decoration:none;white-space:nowrap}
+.fh-type-add.husband{background:#3B82F6}
+.fh-type-add.wife{background:#EC4899}
+
+/* Member cards */
+.fh-mini-list{display:flex;flex-direction:column;gap:6px}
+.fh-mini-card{background:#F8FAFF;border-radius:10px;display:flex;align-items:center;gap:8px;padding:7px 9px;text-decoration:none;border:1px solid #E8EAFF;transition:background .15s}
+.fh-mini-card:hover{background:#EEF2FF}
+.fh-mini-thumb{width:32px;height:32px;border-radius:9px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden;position:relative}
+.fh-mini-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fh-mini-info{flex:1;min-width:0}
+.fh-mini-name{font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-mini-sub{font-size:10px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fh-mini-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.fh-mini-dot.living{background:#22C55E}
+.fh-mini-dot.passed{background:#EF4444}
+.fh-mini-empty{border:1.5px dashed #CBD5E1;border-radius:10px;padding:7px 9px;display:flex;align-items:center;gap:8px;text-decoration:none;transition:border-color .15s}
+.fh-mini-empty:hover{border-color:#93C5FD}
+.fh-mini-plus{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.fh-mini-plus.husband{background:#DBEAFE;color:#3B82F6}
+.fh-mini-plus.wife{background:#FCE7F3;color:#EC4899}
+.fh-mini-plus-lbl{font-size:10px;font-weight:600;color:#94A3B8}
 
 /* ── SECTION LABEL ── */
 .fh-sec-label{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 10px;display:flex;align-items:center;gap:8px}
@@ -124,6 +171,9 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
 <div class="fh-topbar">
   <a href="/community/" class="fh-back">&#8592;</a>
   <div class="fh-topbar-title">Family <span>Hub</span></div>
+  {% if request.user.is_authenticated and setup.setup_done %}
+  <a href="/community/family/setup/?step=1" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#EEF2FF;color:#4F46E5;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid #C7D2FE;flex-shrink:0">✏️ Edit Setup</a>
+  {% endif %}
 </div>
 
 <!-- HERO -->
@@ -161,7 +211,51 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
 
 {% if request.user.is_authenticated %}
 
-<!-- SETUP SECTION -->
+<!-- MY PROFILE CARD -->
+{% if setup.setup_done %}
+<div class="fh-sec-label">My Profile</div>
+<div class="fh-setup-card" style="margin-bottom:20px">
+  <div style="padding:20px 18px;display:flex;align-items:center;gap:16px">
+    <div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0">
+      {% if setup.gender == 'male' %}👨{% elif setup.gender == 'female' %}👩{% else %}👤{% endif %}
+    </div>
+    <div style="flex:1">
+      <div style="font-size:18px;font-weight:800;color:#0F172A;letter-spacing:-.02em">{{ setup.display_name|default:request.user.get_full_name|default:"My Family" }}</div>
+      <div style="font-size:12px;color:#64748B;margin-top:3px;display:flex;flex-wrap:wrap;gap:8px">
+        {% if setup.age %}<span>🎂 Age {{ setup.age }}</span>{% endif %}
+        {% if setup.village %}<span>📍 {{ setup.village }}</span>{% endif %}
+        {% if setup.gender %}<span>{% if setup.gender == 'male' %}♂️ Male{% else %}♀️ Female{% endif %}</span>{% endif %}
+        {% if setup.marital_status %}<span>{% if setup.marital_status == 'married' %}💍 Married{% else %}🙂 Unmarried{% endif %}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  {% if setup.marital_status == 'married' and setup.spouse_name %}
+  <div style="margin:0 18px 16px;background:#FDF4FF;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+    <span style="font-size:1.4rem">{% if setup.gender == 'male' %}👩{% else %}👨{% endif %}</span>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#7C3AED;text-transform:uppercase;letter-spacing:.04em">{% if setup.gender == 'male' %}Wife{% else %}Husband{% endif %}</div>
+      <div style="font-size:14px;font-weight:700;color:#0F172A">{{ setup.spouse_name }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Family count summary -->
+  {% if active_tabs %}
+  <div style="padding:0 18px 16px">
+    <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Family Members</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      {% for val,label,icon,cnt in active_tabs %}
+      <span style="display:inline-flex;align-items:center;gap:5px;background:#F0F2FF;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#4F46E5;border:1px solid #E0E7FF">
+        {{ icon }} {{ label }} <span style="background:#4F46E5;color:#fff;border-radius:10px;padding:0 6px;font-size:10px">{{ cnt }}</span>
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% else %}
+<!-- SETUP SECTION (not done yet) -->
 <div class="fh-sec-label">Family Setup</div>
 <form method="post" action="/community/family/">
 {% csrf_token %}
@@ -192,71 +286,108 @@ body{background:#F0F2FF;font-family:'Inter',sans-serif;color:#0F172A;min-height:
   </div>
 </div>
 </form>
-
-<!-- MEMBER TABS + GRID -->
-{% if active_tabs %}
-<div class="fh-sec-label">Members</div>
-<div class="fh-tabs-wrap">
-  {% for val,label,icon,cnt in active_tabs %}
-  <a href="/community/family/?tab={{ val }}" class="fh-tab {% if active_type == val %}active{% endif %}">
-    <span class="fh-tab-icon">{{ icon }}</span>
-    <span class="fh-tab-label">{{ label }}</span>
-    <span class="fh-tab-count">{{ cnt }} slot{{ cnt|pluralize }}</span>
-  </a>
-  {% endfor %}
-</div>
-
-{% if active_type %}
-<div class="fh-grid-head">
-  <span class="fh-grid-title">
-    {% for val,label,icon,cnt in active_tabs %}{% if val == active_type %}{{ icon }} {{ label }}s{% endif %}{% endfor %}
-  </span>
-  <a href="/community/family/create/?type={{ active_type }}" class="fh-grid-add-btn">+ Add</a>
-</div>
-<div class="fh-grid">
-  {% for m in members %}
-  <a href="/community/family/member/{{ m.pk }}/" class="fh-mcard">
-    <div class="fh-mcard-thumb">
-      {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% endif %}
-      <span class="mc-emoji">
-        {% if active_type == 'grandfather' %}👴{% elif active_type == 'grandmother' %}👵
-        {% elif active_type == 'father' %}👨{% elif active_type == 'mother' %}👩
-        {% elif active_type == 'son' %}👦{% elif active_type == 'daughter' %}👧
-        {% elif active_type == 'uncle' %}🧔{% elif active_type == 'aunt' %}👩‍🦳
-        {% elif active_type == 'cousin' %}🧑{% elif active_type == 'pet' %}🐾{% else %}👤{% endif %}
-      </span>
-      <span class="fh-mbadge {% if m.status == 'living' %}living{% else %}passed{% endif %}">
-        {% if m.status == 'living' %}❤️{% else %}🕊️{% endif %}
-        {% if m.status == 'living' %}Living{% else %}Gone{% endif %}
-      </span>
-    </div>
-    <div class="fh-mcard-info">
-      <div class="fh-mcard-name">{{ m.name }}</div>
-      <div class="fh-mcard-sub">{% if m.description %}{{ m.description }}{% elif m.village %}📍 {{ m.village }}{% elif m.age %}Age {{ m.age }}{% elif m.occupation %}{{ m.occupation }}{% else %}Family Member{% endif %}</div>
-    </div>
-  </a>
-  {% endfor %}
-
-  {% for val,label,icon,cnt in active_tabs %}{% if val == active_type %}
-    {% with filled=members|length %}
-      {% for i in "xxxxxxxxxxxxxxxxxxxx"|make_list %}
-        {% if forloop.counter > filled and forloop.counter <= cnt %}
-        <a href="/community/family/create/?type={{ active_type }}" class="fh-add-slot">
-          <div class="fh-add-plus">+</div>
-          <span class="fh-add-lbl">Add {{ label }}</span>
-        </a>
-        {% endif %}
-      {% endfor %}
-    {% endwith %}
-  {% endif %}{% endfor %}
-</div>
 {% endif %}
 
-{% else %}
+<!-- FAMILY SPLIT VIEW -->
+{% if combined_rows %}
+<div class="fh-sec-label" style="margin-top:24px">Family Tree</div>
+<div class="fh-tree">
+
+  <!-- Column headers — always aligned -->
+  <div class="fh-col-heads">
+    <div class="fh-col-head husband">
+      <div class="fh-col-avatar husband">👨</div>
+      <div>
+        <div class="fh-col-name">{{ setup.display_name|default:"Husband" }}</div>
+        <div class="fh-col-lbl husband">HUSBAND'S FAMILY</div>
+      </div>
+    </div>
+    <div class="fh-col-divider-head"></div>
+    {% if is_married %}
+    <div class="fh-col-head wife">
+      <div class="fh-col-avatar wife">👩</div>
+      <div>
+        <div class="fh-col-name">{{ setup.spouse_name|default:"Wife" }}</div>
+        <div class="fh-col-lbl wife">WIFE'S FAMILY</div>
+      </div>
+    </div>
+    {% else %}
+    <div></div>
+    {% endif %}
+  </div>
+
+  <!-- One row per member type — both sides always at same height -->
+  {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
+  <div class="fh-type-row">
+
+    <!-- Husband cell -->
+    <div class="fh-type-cell husband">
+      {% if h_cnt > 0 %}
+      <div class="fh-type-hdr">
+        <span class="fh-type-hdr-name">{{ icon }} {{ label }}</span>
+        <a href="/community/family/create/?type={{ mtype }}&side=husband" class="fh-type-add husband">+ Add</a>
+      </div>
+      <div class="fh-mini-list">
+        {% for m in h_members %}
+        <a href="/community/family/member/{{ m.pk }}/" class="fh-mini-card">
+          <div class="fh-mini-thumb">{% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% endif %}{{ icon }}</div>
+          <div class="fh-mini-info">
+            <div class="fh-mini-name">{{ m.name }}</div>
+            <div class="fh-mini-sub">{% if m.village %}{{ m.village }}{% elif m.age %}Age {{ m.age }}{% elif m.occupation %}{{ m.occupation }}{% else %}{{ label }}{% endif %}</div>
+          </div>
+          <div class="fh-mini-dot {% if m.status == 'living' %}living{% else %}passed{% endif %}"></div>
+        </a>
+        {% endfor %}
+        {% with filled=h_members|length %}{% for i in "xxxxxxxxxxxxxxxxxxxx"|make_list %}{% if forloop.counter > filled and forloop.counter <= h_cnt %}
+        <a href="/community/family/create/?type={{ mtype }}&side=husband" class="fh-mini-empty">
+          <div class="fh-mini-plus husband">+</div>
+          <span class="fh-mini-plus-lbl">Add {{ label }}</span>
+        </a>
+        {% endif %}{% endfor %}{% endwith %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="fh-type-cell-divider"></div>
+
+    <!-- Wife cell -->
+    <div class="fh-type-cell wife">
+      {% if w_cnt > 0 %}
+      <div class="fh-type-hdr">
+        <span class="fh-type-hdr-name">{{ icon }} {{ label }}</span>
+        <a href="/community/family/create/?type={{ mtype }}&side=wife" class="fh-type-add wife">+ Add</a>
+      </div>
+      <div class="fh-mini-list">
+        {% for m in w_members %}
+        <a href="/community/family/member/{{ m.pk }}/" class="fh-mini-card">
+          <div class="fh-mini-thumb">{% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% endif %}{{ icon }}</div>
+          <div class="fh-mini-info">
+            <div class="fh-mini-name">{{ m.name }}</div>
+            <div class="fh-mini-sub">{% if m.village %}{{ m.village }}{% elif m.age %}Age {{ m.age }}{% elif m.occupation %}{{ m.occupation }}{% else %}{{ label }}{% endif %}</div>
+          </div>
+          <div class="fh-mini-dot {% if m.status == 'living' %}living{% else %}passed{% endif %}"></div>
+        </a>
+        {% endfor %}
+        {% with filled=w_members|length %}{% for i in "xxxxxxxxxxxxxxxxxxxx"|make_list %}{% if forloop.counter > filled and forloop.counter <= w_cnt %}
+        <a href="/community/family/create/?type={{ mtype }}&side=wife" class="fh-mini-empty">
+          <div class="fh-mini-plus wife">+</div>
+          <span class="fh-mini-plus-lbl">Add {{ label }}</span>
+        </a>
+        {% endif %}{% endfor %}{% endwith %}
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+</div>
+
+{% elif setup.setup_done %}
 <div class="fh-empty">
   <span class="fh-empty-icon">👨‍👩‍👧</span>
-  <div class="fh-empty-t">Set up your family first</div>
-  <div class="fh-empty-s">Use the form above to tell us how many members are in your family.</div>
+  <div class="fh-empty-t">No family members set up yet</div>
+  <div class="fh-empty-s">Go to Edit Setup to add member counts.</div>
 </div>
 {% endif %}
 

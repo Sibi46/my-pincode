@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
@@ -134,7 +135,18 @@ def family_setup_wizard(request):
             setup.brother_count     = int(request.POST.get('brother_count', 0) or 0)
             setup.sister_count      = int(request.POST.get('sister_count', 0) or 0)
             setup.pet_count         = int(request.POST.get('pet_count', 0) or 0)
-            setup.setup_done        = True
+            # Wife's side (only when married)
+            if setup.marital_status == 'married':
+                setup.w_grandfather_count = int(request.POST.get('w_grandfather_count', 0) or 0)
+                setup.w_grandmother_count = int(request.POST.get('w_grandmother_count', 0) or 0)
+                setup.w_father_count      = int(request.POST.get('w_father_count', 0) or 0)
+                setup.w_mother_count      = int(request.POST.get('w_mother_count', 0) or 0)
+                setup.w_uncle_count       = int(request.POST.get('w_uncle_count', 0) or 0)
+                setup.w_aunt_count        = int(request.POST.get('w_aunt_count', 0) or 0)
+                setup.w_cousin_count      = int(request.POST.get('w_cousin_count', 0) or 0)
+                setup.w_brother_count     = int(request.POST.get('w_brother_count', 0) or 0)
+                setup.w_sister_count      = int(request.POST.get('w_sister_count', 0) or 0)
+            setup.setup_done = True
             setup.save()
             return redirect('/community/family/')
 
@@ -201,15 +213,70 @@ def family_hub(request):
                 mtype = FIELD_TO_TYPE[field]
                 active_tabs.append((mtype, label, icon, cnt))
 
-    active_type = request.GET.get('tab', active_tabs[0][0] if active_tabs else '')
-    members = FamilyMember.objects.filter(member_type=active_type).select_related('creator') if active_type else []
+    # Build husband sections (with actual members)
+    HUSBAND_TYPES = [
+        ('grandfather','Grandfather','👴','grandfather_count'),
+        ('grandmother','Grandmother','👵','grandmother_count'),
+        ('father',     'Father',     '👨','father_count'),
+        ('mother',     'Mother',     '👩','mother_count'),
+        ('brother',    'Brother',    '👱','brother_count'),
+        ('sister',     'Sister',     '👱‍♀️','sister_count'),
+        ('uncle',      'Uncle',      '🧔','uncle_count'),
+        ('aunt',       'Aunt',       '👩‍🦳','aunt_count'),
+        ('cousin',     'Cousin',     '🧑','cousin_count'),
+        ('son',        'Son',        '👦','son_count'),
+        ('daughter',   'Daughter',   '👧','daughter_count'),
+        ('pet',        'Pet',        '🐾','pet_count'),
+    ]
+    WIFE_TYPES = [
+        ('grandfather','Grandfather','👴','w_grandfather_count'),
+        ('grandmother','Grandmother','👵','w_grandmother_count'),
+        ('father',     'Father',     '👨','w_father_count'),
+        ('mother',     'Mother',     '👩','w_mother_count'),
+        ('brother',    'Brother',    '👱','w_brother_count'),
+        ('sister',     'Sister',     '👱‍♀️','w_sister_count'),
+        ('uncle',      'Uncle',      '🧔','w_uncle_count'),
+        ('aunt',       'Aunt',       '👩‍🦳','w_aunt_count'),
+        ('cousin',     'Cousin',     '🧑','w_cousin_count'),
+    ]
+
+    # Build combined row-aligned sections for split view
+    is_married = setup and setup.marital_status == 'married'
+    combined_rows = []
+    if setup and request.user.is_authenticated:
+        all_members = list(FamilyMember.objects.filter(creator=request.user))
+        h_map = {}
+        w_map = {}
+        for m in all_members:
+            if m.side == 'wife':
+                w_map.setdefault(m.member_type, []).append(m)
+            else:
+                h_map.setdefault(m.member_type, []).append(m)
+        # Build one row per type that exists on either side
+        seen = []
+        type_meta = {t: (l, i) for t, l, i, _ in HUSBAND_TYPES}
+        type_meta.update({t: (l, i) for t, l, i, _ in WIFE_TYPES})
+        for mtype, label, icon, field in HUSBAND_TYPES:
+            h_cnt = getattr(setup, field, 0)
+            w_field = 'w_' + field
+            w_cnt = getattr(setup, w_field, 0) if is_married else 0
+            if h_cnt > 0 or w_cnt > 0:
+                combined_rows.append((mtype, label, icon, h_cnt, h_map.get(mtype, []), w_cnt, w_map.get(mtype, [])))
+                seen.append(mtype)
+        # Wife-only types (no husband equivalent, e.g. if types differ)
+        if is_married:
+            for mtype, label, icon, field in WIFE_TYPES:
+                if mtype not in seen:
+                    w_cnt = getattr(setup, field, 0)
+                    if w_cnt > 0:
+                        combined_rows.append((mtype, label, icon, 0, [], w_cnt, w_map.get(mtype, [])))
 
     return render(request, 'community/family_hub.html', {
-        'setup':       setup,
-        'setup_rows':  setup_rows,
-        'active_tabs': active_tabs,
-        'active_type': active_type,
-        'members':     members,
+        'setup':         setup,
+        'setup_rows':    setup_rows,
+        'active_tabs':   active_tabs,
+        'combined_rows': combined_rows,
+        'is_married':    is_married,
     })
 
 
@@ -219,6 +286,7 @@ def family_member_create(request):
         m = FamilyMember(
             creator     = request.user,
             member_type = request.POST.get('member_type', 'other'),
+            side        = request.POST.get('side', 'husband'),
             name        = request.POST.get('name', '').strip(),
             why         = request.POST.get('why', '').strip(),
             description = request.POST.get('description', '').strip(),
@@ -576,10 +644,49 @@ def school_dashboard(request, pk):
     if request.method == 'POST':
         action = request.POST.get('action')
 
-        if action in ('add_admin', 'add_teacher') and admin_rec.role in ('owner', 'admin'):
+        if action == 'add_teacher' and admin_rec.role in ('owner', 'admin'):
+            import random, string as _str
+            from django.contrib.auth import get_user_model
+            User2 = get_user_model()
+            full_name = request.POST.get('full_name', '').strip()
+            phone     = request.POST.get('phone', '').strip()
+            if not full_name or not phone:
+                error = 'Name and phone are required.'
+            elif User2.objects.filter(username=phone).exists():
+                # phone already registered — just link existing user
+                try:
+                    new_user = User2.objects.get(username=phone)
+                    obj, created = SchoolAdmin.objects.get_or_create(
+                        school=school, user=new_user,
+                        defaults={'role': 'teacher', 'added_by': request.user, 'phone': phone}
+                    )
+                    if not created:
+                        error = f'This phone is already linked to this school.'
+                    else:
+                        messages.success(request, f'{full_name} added as teacher (existing account).')
+                except Exception as e:
+                    error = str(e)
+            else:
+                try:
+                    password = ''.join(random.choices(_str.digits, k=6))
+                    parts    = full_name.split(' ', 1)
+                    new_user = User2.objects.create_user(
+                        username=phone, password=password,
+                        first_name=parts[0],
+                        last_name=parts[1] if len(parts) > 1 else '',
+                        phone=phone,
+                    )
+                    SchoolAdmin.objects.create(
+                        school=school, user=new_user,
+                        role='teacher', added_by=request.user, phone=phone,
+                    )
+                    messages.success(request, f'TEACHER_ADDED:{full_name}:{phone}:{password}')
+                except Exception as e:
+                    error = f'Failed: {e}'
+
+        elif action == 'add_admin' and admin_rec.role in ('owner', 'admin'):
             username = request.POST.get('username', '').strip()
-            new_role = 'teacher' if action == 'add_teacher' else 'admin'
-            if new_role == 'admin' and admin_rec.role != 'owner':
+            if admin_rec.role != 'owner':
                 error = 'Only owners can add admins.'
             else:
                 try:
@@ -588,12 +695,12 @@ def school_dashboard(request, pk):
                     new_user = User2.objects.get(username=username)
                     obj, created = SchoolAdmin.objects.get_or_create(
                         school=school, user=new_user,
-                        defaults={'role': new_role, 'added_by': request.user}
+                        defaults={'role': 'admin', 'added_by': request.user}
                     )
                     if not created:
                         error = f'"{username}" already has a role in this school.'
                     else:
-                        messages.success(request, f'{username} added as {new_role}.')
+                        messages.success(request, f'{username} added as admin.')
                 except Exception:
                     error = f'User "{username}" not found.'
 
@@ -608,16 +715,25 @@ def school_dashboard(request, pk):
             post_id = request.POST.get('post_id')
             SchoolPost.objects.filter(pk=post_id, school=school).update(is_active=False)
 
+        # pass teacher credentials via session instead of redirect loss
+        from django.contrib.messages import get_messages
+        for m in get_messages(request):
+            if str(m).startswith('TEACHER_ADDED:'):
+                parts = str(m).split(':')
+                request.session['teacher_added'] = {'name': parts[1], 'phone': parts[2], 'password': parts[3]}
+                break
         return redirect(f'/community/school-corner/{pk}/dashboard/')
 
+    teacher_added = request.session.pop('teacher_added', None)
     return render(request, 'community/school_dashboard.html', {
-        'school':     school,
-        'admin_rec':  admin_rec,
-        'admins':     admins,
-        'teachers':   teachers,
-        'posts':      posts,
-        'error':      error,
-        'post_types': SchoolPost.POST_TYPE_CHOICES,
+        'school':        school,
+        'admin_rec':     admin_rec,
+        'admins':        admins,
+        'teachers':      teachers,
+        'posts':         posts,
+        'error':         error,
+        'post_types':    SchoolPost.POST_TYPE_CHOICES,
+        'teacher_added': teacher_added,
     })
 
 
@@ -631,6 +747,32 @@ def school_follow(request, pk):
     else:
         following = True
     return JsonResponse({'following': following, 'count': school.follower_count()})
+
+
+def _require_super_admin(request):
+    from django.http import HttpResponseForbidden
+    if not request.user.is_authenticated or getattr(request.user, 'admin_role', None) != 'super_admin':
+        return HttpResponseForbidden('Super admin only.')
+    return None
+
+
+def school_admin_list(request):
+    deny = _require_super_admin(request)
+    if deny:
+        return deny
+    schools = School.objects.all().order_by('-created_at')
+    return render(request, 'community/school_admin_list.html', {'schools': schools})
+
+
+@require_POST
+def school_delete(request, pk):
+    deny = _require_super_admin(request)
+    if deny:
+        return deny
+    school = get_object_or_404(School, pk=pk)
+    school.delete()
+    messages.success(request, f'School "{school.name}" deleted.')
+    return redirect('school_admin_list')
 
 
 @login_required

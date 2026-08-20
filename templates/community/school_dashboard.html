@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}{{ school.name }} – Admin Dashboard{% endblock %}
 {% block content %}
 <style>
@@ -97,6 +97,19 @@
     </div>
   </div>
 
+  {% if teacher_added %}
+  <div style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:16px;padding:16px;margin-bottom:14px;border:1.5px solid #6ee7b7">
+    <div style="font-size:14px;font-weight:900;color:#065f46;margin-bottom:10px">✅ Teacher Added Successfully!</div>
+    <div style="font-size:13px;color:#047857;margin-bottom:6px">Share these login details with the teacher:</div>
+    <div style="background:#fff;border-radius:10px;padding:12px;font-size:13px;display:flex;flex-direction:column;gap:6px">
+      <div>👤 <strong>Name:</strong> {{ teacher_added.name }}</div>
+      <div>📱 <strong>Login Phone:</strong> {{ teacher_added.phone }}</div>
+      <div>🔑 <strong>Password:</strong> <span style="font-size:18px;font-weight:900;letter-spacing:4px;color:#0a66c2">{{ teacher_added.password }}</span></div>
+    </div>
+    <div style="font-size:11px;color:#065f46;margin-top:8px">⚠️ Save this password now — it won't be shown again.</div>
+  </div>
+  {% endif %}
+
   <!-- New post button -->
   <a href="/community/school-corner/{{ school.pk }}/post/" class="sd-new-post-btn">✏️ Create New Post</a>
 
@@ -108,16 +121,16 @@
       <button class="sd-section-action" onclick="toggleForm('addTeacherForm')">+ Add Teacher</button>
       {% endif %}
     </div>
-    <div style="padding:8px 16px;font-size:11px;color:#6b7280;background:#f0fdf4;border-bottom:1px solid #dcfce7">
-      💡 Teachers login with their normal mypincod.com account to post school updates.
-    </div>
     {% if admin_rec.role == 'owner' or admin_rec.role == 'admin' %}
     <div class="sd-add-form" id="addTeacherForm">
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="add_teacher">
+        <div class="sd-add-row" style="margin-bottom:8px">
+          <input class="sd-add-input" type="text" name="full_name" placeholder="Teacher's full name" required>
+        </div>
         <div class="sd-add-row">
-          <input class="sd-add-input" type="text" name="username" placeholder="Enter teacher's mypincod username" required>
+          <input class="sd-add-input" type="tel" name="phone" placeholder="Mobile number (10 digits)" maxlength="10" required>
           <button type="submit" class="sd-add-btn">Add</button>
         </div>
         {% if error %}<div class="sd-error">{{ error }}</div>{% endif %}

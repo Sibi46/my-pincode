@@ -1,0 +1,116 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Offer Letter – {{ application.opportunity.title }}{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="javascript:history.back()" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
+  <span class="cp-topbar-badge">Offer Letter</span>
+</div>
+<div class="cp-body">
+  <div style="max-width:680px;margin:0 auto">
+
+    <!-- Letter -->
+    <div id="offerDoc" style="background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(79,70,229,.12);padding:36px 32px;position:relative;overflow:hidden">
+
+      <!-- Header stripe -->
+      <div style="position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#4F46E5,#7C3AED)"></div>
+
+      <!-- Company + Logo area -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;margin-top:8px;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:22px;font-weight:900;color:#4F46E5;letter-spacing:-0.5px">{{ application.opportunity.company.company_name }}</div>
+          <div style="font-size:12px;color:#64748B;margin-top:2px">{{ application.opportunity.company.address }}</div>
+          <div style="font-size:12px;color:#64748B">{{ application.opportunity.company.email }}{% if application.opportunity.company.phone %} · {{ application.opportunity.company.phone }}{% endif %}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#94A3B8;text-transform:uppercase;font-weight:700">Date Issued</div>
+          <div style="font-size:13px;font-weight:700;color:#0F172A">{{ offer.issued_at|date:"d F Y" }}</div>
+        </div>
+      </div>
+
+      <div style="border-top:2px solid #E0E7FF;margin-bottom:24px"></div>
+
+      <div style="font-size:20px;font-weight:900;color:#0F172A;text-align:center;margin-bottom:6px;letter-spacing:-0.3px">OFFER LETTER</div>
+      <div style="font-size:12px;color:#94A3B8;text-align:center;margin-bottom:28px;font-weight:600">Campus Placement Programme</div>
+
+      <p style="font-size:14px;color:#334155;line-height:1.7;margin-bottom:16px">Dear <strong>{{ application.student.user.get_full_name }}</strong>,</p>
+
+      <p style="font-size:14px;color:#334155;line-height:1.7;margin-bottom:16px">
+        We are pleased to offer you the position of <strong>{{ offer.designation }}</strong> at <strong>{{ application.opportunity.company.company_name }}</strong>.
+        {% if offer.salary_offered %}The compensation for this role is <strong>{{ offer.salary_offered }}</strong>.{% endif %}
+      </p>
+
+      {% if offer.message %}
+      <p style="font-size:14px;color:#334155;line-height:1.7;margin-bottom:16px">{{ offer.message }}</p>
+      {% endif %}
+
+      <!-- Details grid -->
+      <div style="background:#F8FAFC;border-radius:14px;padding:20px;margin:20px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Position</div>
+          <div style="font-size:14px;font-weight:700;color:#0F172A">{{ offer.designation }}</div>
+        </div>
+        {% if offer.salary_offered %}
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Compensation</div>
+          <div style="font-size:14px;font-weight:700;color:#0F172A">{{ offer.salary_offered }}</div>
+        </div>
+        {% endif %}
+        {% if offer.joining_date %}
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Joining Date</div>
+          <div style="font-size:14px;font-weight:700;color:#0F172A">{{ offer.joining_date|date:"d M Y" }}</div>
+        </div>
+        {% endif %}
+        {% if offer.valid_until %}
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Offer Valid Until</div>
+          <div style="font-size:14px;font-weight:700;color:#EF4444">{{ offer.valid_until|date:"d M Y" }}</div>
+        </div>
+        {% endif %}
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Opportunity</div>
+          <div style="font-size:14px;font-weight:700;color:#0F172A">{{ application.opportunity.title }}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:4px">Institution</div>
+          <div style="font-size:14px;font-weight:700;color:#0F172A">{{ application.student.institution.name }}</div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:#64748B;line-height:1.7;margin-bottom:20px">
+        Please confirm your acceptance of this offer by reporting on or before the joining date. We look forward to welcoming you to our team.
+      </p>
+
+      <!-- Signature -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:32px;flex-wrap:wrap;gap:20px">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0F172A">{{ application.opportunity.company.company_name }}</div>
+          {% if offer.issued_by %}<div style="font-size:12px;color:#64748B">{{ offer.issued_by.get_full_name }}</div>{% endif %}
+          <div style="font-size:11px;color:#94A3B8;margin-top:2px">Authorised Signatory</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:#4F46E5;font-weight:700">Powered by OUR PINCODE Campus</div>
+          <div style="font-size:10px;color:#94A3B8">ourpincode.in</div>
+        </div>
+      </div>
+
+      <!-- Bottom stripe -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#7C3AED,#4F46E5)"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;flex-wrap:wrap">
+      <button onclick="window.print()" class="cp-btn cp-btn-primary">🖨️ Print / Save as PDF</button>
+      <a href="javascript:history.back()" class="cp-btn cp-btn-ghost">← Back</a>
+    </div>
+  </div>
+</div>
+
+<style>
+@media print {
+  .cp-topbar, button, a.cp-btn { display: none !important; }
+  .cp-body { padding: 0 !important; }
+  #offerDoc { box-shadow: none !important; border-radius: 0 !important; }
+}
+</style>
+{% endblock %}

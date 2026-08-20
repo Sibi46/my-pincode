@@ -1,0 +1,191 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Create Community{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:700px">
+  <div class="psec-header">
+    <div class="psec-title">🏘️ Create a Community</div>
+    <a href="/portal/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+  </div>
+
+  {% if messages %}
+    {% for msg in messages %}
+    <div class="palert palert-{% if msg.tags == 'error' %}red{% else %}green{% endif %}" style="margin-bottom:14px">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- ── Community Identity ── -->
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Community Identity</div></div>
+      <div class="pcard-body">
+
+        <div style="background:#f5f3ff;border-radius:12px;padding:14px 16px;margin-bottom:18px;border:1px solid #ddd6fe">
+          <div style="font-size:12px;font-weight:800;color:#4f46e5;margin-bottom:10px">👤 Community Creator</div>
+          {% if request.user.is_authenticated %}
+          <!-- Photo picker for logged-in users -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div id="photoPreview" onclick="document.getElementById('creatorPhoto').click()"
+              style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;cursor:pointer;border:3px solid #e0e7ff;overflow:hidden;flex-shrink:0">
+              {% if request.user.seeker.photo %}
+                <img src="{{ request.user.seeker.photo.url }}" style="width:100%;height:100%;object-fit:cover">
+              {% else %}
+                {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+              {% endif %}
+            </div>
+            <div>
+              <label class="pform-label" style="margin-bottom:4px">Profile Photo</label>
+              <input type="file" name="creator_photo" id="creatorPhoto" accept="image/*" style="display:none" onchange="previewCreatorPhoto(this)">
+              <label for="creatorPhoto" style="display:inline-block;background:#ede9fe;color:#4f46e5;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer">Change Photo</label>
+            </div>
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Full Name</label>
+            <input type="text" name="full_name" class="pform-input" value="{{ request.user.get_full_name|default:request.user.username }}" placeholder="Your full name">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="pform-group" style="margin-bottom:0">
+              <label class="pform-label">Email ID <span style="font-size:10px;color:#7c3aed">(login email)</span></label>
+              <input type="email" name="creator_email" class="pform-input" value="{{ request.user.email }}" placeholder="you@email.com">
+            </div>
+            <div class="pform-group" style="margin-bottom:0">
+              <label class="pform-label">Password</label>
+              <input type="password" name="creator_password" class="pform-input" placeholder="Leave blank to keep current">
+            </div>
+          </div>
+          {% else %}
+          <!-- Photo picker -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+            <div id="photoPreview" onclick="document.getElementById('creatorPhoto').click()"
+              style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;font-weight:900;cursor:pointer;border:3px solid #e0e7ff;overflow:hidden;flex-shrink:0">
+              📷
+            </div>
+            <div>
+              <label class="pform-label" style="margin-bottom:4px">Profile Photo</label>
+              <input type="file" name="creator_photo" id="creatorPhoto" accept="image/*" style="display:none" onchange="previewCreatorPhoto(this)">
+              <label for="creatorPhoto" style="display:inline-block;background:#ede9fe;color:#4f46e5;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer">Choose Photo</label>
+              <div style="font-size:10px;color:#94a3b8;margin-top:3px">Tap circle to upload</div>
+            </div>
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Full Name *</label>
+            <input type="text" name="full_name" class="pform-input" required placeholder="e.g. Kumar Raj">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="pform-group" style="margin-bottom:0">
+              <label class="pform-label">Email ID * <span style="font-size:10px;color:#7c3aed">(login email)</span></label>
+              <input type="email" name="creator_email" class="pform-input" required placeholder="you@email.com">
+            </div>
+            <div class="pform-group" style="margin-bottom:0">
+              <label class="pform-label">Password *</label>
+              <input type="password" name="creator_password" class="pform-input" required placeholder="Create a password" minlength="6">
+            </div>
+          </div>
+          <div class="pform-group" style="margin-top:12px;margin-bottom:0">
+            <label class="pform-label">Phone Number</label>
+            <input type="text" name="creator_phone" class="pform-input" placeholder="+91 99999 99999">
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:#7c3aed;font-weight:600">
+            💡 Use this email &amp; password to login and manage your community.
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="pform-group">
+          <label class="pform-label">Community Name *</label>
+          <input type="text" name="name" class="pform-input" required placeholder="e.g. Kattur Green Community">
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px">A unique Page ID will be auto-generated (e.g. OPC-KGC-001)</div>
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Purpose / Cause *</label>
+          <input type="text" name="purpose" class="pform-input" required placeholder="What is this community for? (1 line)">
+        </div>
+        <div class="pform-group">
+          <label class="pform-label">Description *</label>
+          <textarea name="description" class="pform-input" required placeholder="Describe your community in detail..."></textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Category</label>
+            <select name="category" class="pform-input">
+              <option value="">Select category...</option>
+              {% for cat in categories %}<option value="{{ cat.pk }}">{{ cat.icon }} {{ cat.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Join Mode *</label>
+            <select name="join_mode" class="pform-input">
+              <option value="open">Open — Anyone can join</option>
+              <option value="approval">Admin Approval Required</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Location & Contact ── -->
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Location & Contact</div></div>
+      <div class="pcard-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Location *</label>
+            <input type="text" name="location" class="pform-input" required placeholder="City / Area">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Pincode *</label>
+            <input type="text" name="pincode" class="pform-input" required placeholder="6-digit pincode" maxlength="10">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Community Email</label>
+            <input type="email" name="comm_email" class="pform-input" placeholder="community@email.com">
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Community Phone</label>
+            <input type="text" name="comm_phone" class="pform-input" placeholder="+91 99999 99999">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Logo & Cover ── -->
+    <div class="pcard" style="margin-bottom:16px">
+      <div class="pcard-head"><div class="pcard-title">Logo & Cover</div></div>
+      <div class="pcard-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group">
+            <label class="pform-label">Community Logo</label>
+            <input type="file" name="logo" accept="image/*" class="pform-input" style="padding:6px">
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Square image recommended (min 200×200)</div>
+          </div>
+          <div class="pform-group">
+            <label class="pform-label">Cover Image</label>
+            <input type="file" name="cover" accept="image/*" class="pform-input" style="padding:6px">
+            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Wide banner image (1200×400 recommended)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px">
+      {% if request.user.is_authenticated %}Create Community →{% else %}Create Account & Community →{% endif %}
+    </button>
+    <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">
+      Already have an account? <a href="/login/" style="color:#4f46e5;font-weight:700">Log in first</a>
+    </p>
+  </form>
+</div>
+<script>
+function previewCreatorPhoto(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var preview = document.getElementById('photoPreview');
+      preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

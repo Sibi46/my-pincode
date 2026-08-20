@@ -27,6 +27,8 @@ urlpatterns = [
     path('school-corner/<int:pk>/post/',            views.school_post_create,   name='school_post_create'),
     path('school-corner/<int:pk>/dashboard/',       views.school_dashboard,     name='school_dashboard'),
     path('school-corner/<int:pk>/follow/',          views.school_follow,        name='school_follow'),
+    path('school-corner/<int:pk>/delete/',          views.school_delete,        name='school_delete'),
+    path('school-corner/admin/list/',               views.school_admin_list,    name='school_admin_list'),
     path('school-corner/post/<int:pk>/like/',       views.school_post_like,     name='school_post_like'),
 
     # Student Success

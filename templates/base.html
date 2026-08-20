@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MY PINCOD — Business, Opportunity, Job at Near You. Find Jobs Near You. Hire People Near You. India's PIN-code based hyperlocal job portal.">
-    <title>{% block title %}MY PINCOD{% endblock %}</title>
+    <meta name="description" content="OUR PINCODE — Business, Opportunity, Job at Near You. Find Jobs Near You. Hire People Near You. India's PIN-code based hyperlocal job portal.">
+    <title>{% block title %}OUR PINCODE{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
     {% block extra_css %}{% endblock %}
@@ -24,13 +24,7 @@
 
 <nav class="navbar"{% if '/health/guide' in request.path %} style="display:none"{% endif %}>
     <div class="nav-container">
-        <a href="/" class="nav-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:40px;width:auto;max-width:140px;object-fit:contain;display:block;"></a>
-        <div class="nav-search">
-            <form action="/jobs/" method="get" style="display:flex;width:100%">
-                <input type="text" name="q" placeholder="Search jobs, skills..." value="{{ request.GET.q }}">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
+        <a href="/" class="nav-logo"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:40px;width:auto;max-width:140px;object-fit:contain;display:block;"></a>
         <div class="nav-links">
             {% if '/vouchers' in request.path %}
             {# ── VOUCHER SECTION NAV ── #}
@@ -338,7 +332,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
 <footer class="footer">
     <div class="footer-grid">
         <div class="footer-brand">
-            <h3><i class="fas fa-map-pin"></i> MY PINCOD</h3>
+            <h3><i class="fas fa-map-pin"></i> OUR PINCODE</h3>
             <p>Business, Opportunity, Job at Near You.<br>Find Jobs Near You. Hire People Near You.</p>
             <div class="social-links">
                 <a href="#"><i class="fab fa-facebook"></i></a>
@@ -366,7 +360,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
         </div>
     </div>
     <div class="footer-bottom">
-        <p>&copy; 2026 MY PINCOD. All rights reserved.</p>
+        <p>&copy; 2026 OUR PINCODE. All rights reserved.</p>
         <div style="display:flex;align-items:center;gap:6px">
           <a href="/health/" class="admin-footer-btn" title="Health Guide" style="text-decoration:none">
             <i class="fas fa-heartbeat"></i>
@@ -387,7 +381,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
     <div class="admin-modal-header">
       <div>
         <h2><i class="fas fa-shield-alt"></i> Admin Control Panel</h2>
-        <p>MY PINCOD — Platform Management</p>
+        <p>OUR PINCODE — Platform Management</p>
       </div>
       <button class="admin-modal-close" onclick="closeAdminPanel()"><i class="fas fa-times"></i></button>
     </div>
@@ -758,6 +752,118 @@ document.addEventListener('DOMContentLoaded',function(){
     });
   });
 });
+</script>
+
+<!-- Global Pincode Auto-populate -->
+<script>
+(function(){
+  var cache = {};
+
+  function lookupPin(pin, callback){
+    if(cache[pin]){ callback(cache[pin]); return; }
+    fetch('https://api.postalpincode.in/pincode/' + pin)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d && d[0] && d[0].Status === 'Success' && d[0].PostOffice && d[0].PostOffice.length){
+          var po = d[0].PostOffice[0];
+          var result = {
+            area:     po.Name,
+            district: po.District,
+            state:    po.State,
+            taluk:    po.Taluk || po.Block || '',
+            label:    '📍 ' + po.Name + ', ' + po.District + ', ' + po.State
+          };
+          cache[pin] = result;
+          callback(result);
+        } else {
+          callback(null);
+        }
+      }).catch(function(){ callback(null); });
+  }
+
+  function getOrCreateHint(input){
+    var hint = input.parentNode.querySelector('.pin-hint');
+    if(!hint){
+      hint = document.createElement('div');
+      hint.className = 'pin-hint';
+      hint.style.cssText = 'font-size:12px;color:#4f46e5;font-weight:600;margin-top:4px;min-height:16px;transition:opacity .2s';
+      input.parentNode.appendChild(hint);
+    }
+    return hint;
+  }
+
+  function fillNearbyFields(input, result){
+    if(!result) return;
+    var form = input.closest('form') || document.body;
+    var fieldMap = {
+      area:     ['area','locality','village','place','town'],
+      district: ['district','dist'],
+      state:    ['state'],
+      taluk:    ['taluk','block','mandal']
+    };
+    for(var key in fieldMap){
+      fieldMap[key].forEach(function(n){
+        var el = form.querySelector('[name="'+n+'"]') ||
+                 form.querySelector('[id="'+n+'"]') ||
+                 form.querySelector('[placeholder*="'+n+'"]');
+        if(el && !el.value && result[key]){
+          el.value = result[key];
+          el.style.background = '#f0fdf4';
+          setTimeout(function(e){ e.style.background=''; }(el), 1500);
+        }
+      });
+    }
+  }
+
+  function attachToInput(input){
+    if(input.dataset.pinAttached) return;
+    input.dataset.pinAttached = '1';
+
+    input.addEventListener('input', function(){
+      var val = this.value.replace(/\D/g,'').slice(0,6);
+      this.value = val;
+      var hint = getOrCreateHint(this);
+      if(val.length === 6){
+        hint.textContent = 'Looking up…';
+        hint.style.color = '#94a3b8';
+        var inp = this;
+        lookupPin(val, function(result){
+          if(result){
+            hint.textContent = result.label;
+            hint.style.color = '#4f46e5';
+            fillNearbyFields(inp, result);
+          } else {
+            hint.textContent = '⚠ Pincode not found';
+            hint.style.color = '#ef4444';
+          }
+        });
+      } else {
+        hint.textContent = '';
+      }
+    });
+  }
+
+  function isPincodeInput(el){
+    if(el.tagName !== 'INPUT') return false;
+    if(el.type === 'hidden' || el.type === 'file') return false;
+    var n = (el.name||'').toLowerCase();
+    var p = (el.placeholder||'').toLowerCase();
+    var id = (el.id||'').toLowerCase();
+    return n==='pincode' || id.includes('pincode') || p.includes('pincode') ||
+           p.includes('pin code') || n==='pin' || id==='pin';
+  }
+
+  function attachAll(){
+    document.querySelectorAll('input').forEach(function(el){
+      if(isPincodeInput(el)) attachToInput(el);
+    });
+  }
+
+  // Run on load and watch for dynamic additions
+  document.addEventListener('DOMContentLoaded', attachAll);
+  var obs = new MutationObserver(function(){ attachAll(); });
+  obs.observe(document.body, { childList: true, subtree: true });
+})();
 </script>
 </body>
 </html>

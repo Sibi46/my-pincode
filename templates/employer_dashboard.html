@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employer Dashboard — MY PINCOD</title>
+  <title>Employer Dashboard — OUR PINCODE</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
   <link rel="stylesheet" href="{% static 'css/employer_dashboard.css' %}?v=4">
   <link rel="stylesheet" href="{% static 'css/bottom_nav.css' %}?v=3">
@@ -62,7 +62,7 @@
 <!-- ══ TOPBAR ══════════════════════════════════════════════════════ -->
 <header class="dash-topbar">
   <button class="dash-hamburger" onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:6px;color:#0a66c2;font-size:22px;flex-shrink:0"><i class="fas fa-bars"></i></button>
-  <a href="/" class="dash-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:38px;width:auto;max-width:130px;object-fit:contain;display:block"></a>
+  <a href="/" class="dash-logo"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:38px;width:auto;max-width:130px;object-fit:contain;display:block"></a>
   <div class="dash-topbar-right">
     {% if profile_incomplete %}
     <button onclick="showSection('my-profile',null)" class="dash-post-btn" style="background:#e65100;border:none;cursor:pointer" title="Complete profile to post a job"><i class="fas fa-lock"></i> Post Job</button>
@@ -1020,7 +1020,7 @@
       }
       function efsShare() {
         const f=_eflicks[_efsi]; const url=window.location.origin+'/flicks/#fk-'+f.pk;
-        if(navigator.share){navigator.share({title:f.name+' on MY PINCOD',url}).catch(()=>{});}
+        if(navigator.share){navigator.share({title:f.name+' on OUR PINCODE',url}).catch(()=>{});}
         else{navigator.clipboard.writeText(url).then(()=>{const t=document.getElementById('efs-toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000);});}
       }
       let _etsX=0;
@@ -1079,7 +1079,7 @@
         <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:32px;text-align:center">
           <div style="font-size:48px;margin-bottom:12px">💬</div>
           <h3 style="font-size:18px;font-weight:800;color:#111;margin:0 0 8px">Share Your Feedback</h3>
-          <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 24px">Help us improve MY PINCOD — report a bug, suggest a feature, or share your experience.</p>
+          <p style="font-size:14px;color:#666;line-height:1.6;margin:0 0 24px">Help us improve OUR PINCODE — report a bug, suggest a feature, or share your experience.</p>
           <a href="/complaint/submit/" style="display:inline-flex;align-items:center;gap:8px;background:#0a66c2;color:#fff;padding:13px 32px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">
             <i class="fas fa-paper-plane"></i> Write Feedback
           </a>

@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Create Family Page – MY PINCOD{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Create Family Page – OUR PINCODE{% endblock %}
 {% block content %}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -73,6 +73,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
 <div class="fm-wrap">
 <form method="post" enctype="multipart/form-data" id="fmForm">
 {% csrf_token %}
+<input type="hidden" name="side" value="{{ request.GET.side|default:'husband' }}">
 
 <!-- Type Selector -->
 <div class="fm-card">

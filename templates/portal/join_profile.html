@@ -1,0 +1,147 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Complete Profile to Join{% endblock %}
+{% block content %}
+<style>
+.jp-wrap{max-width:440px;margin:0 auto;padding-bottom:40px}
+.jp-hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:20px;padding:24px 20px;margin-bottom:20px;text-align:center;color:#fff}
+.jp-hero-title{font-size:18px;font-weight:900;margin-bottom:4px}
+.jp-hero-sub{font-size:12px;opacity:.8}
+.jp-comm-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;margin-bottom:14px}
+
+.jp-card{background:#fff;border-radius:20px;border:1px solid #e2e8f0;padding:24px;margin-bottom:14px}
+.jp-card-title{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+
+/* Photo picker */
+.jp-photo-picker{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:6px}
+.jp-photo-preview{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;color:#fff;overflow:hidden;position:relative;cursor:pointer;border:3px solid #e0e7ff}
+.jp-photo-preview img{width:100%;height:100%;object-fit:cover}
+.jp-photo-preview:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:24px;border-radius:19px}
+.jp-photo-input{display:none}
+.jp-photo-hint{font-size:11px;color:#94a3b8;text-align:center}
+.jp-photo-label{background:#ede9fe;color:#4f46e5;border:none;border-radius:20px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer}
+</style>
+
+<div class="jp-wrap">
+  <div class="jp-hero">
+    <div class="jp-comm-badge">🏘️ {{ community.name }}</div>
+    <div class="jp-hero-title">One quick step before joining!</div>
+    <div class="jp-hero-sub">Complete your profile so other members can recognise you</div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Photo -->
+    <div class="jp-card">
+      <div class="jp-card-title">📸 Your Profile Photo</div>
+      <div class="jp-photo-picker">
+        <div class="jp-photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
+          {% if user.seeker.photo %}
+            <img src="{{ user.seeker.photo.url }}" id="previewImg">
+          {% else %}
+            <span id="previewInitial">{{ user.first_name|default:user.username|slice:":1"|upper }}</span>
+          {% endif %}
+        </div>
+        <label class="jp-photo-label" for="photoInput">Choose Photo</label>
+        <input type="file" name="photo" id="photoInput" class="jp-photo-input" accept="image/*" onchange="previewPhoto(this)">
+        <div class="jp-photo-hint">Tap your photo to change</div>
+      </div>
+    </div>
+
+    <!-- Name -->
+    <div class="jp-card">
+      <div class="jp-card-title">👤 Your Name</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="pform-group" style="margin-bottom:0">
+          <label class="pform-label">First Name *</label>
+          <input type="text" name="first_name" class="pform-input" value="{{ user.first_name }}" required placeholder="e.g. Kumar">
+        </div>
+        <div class="pform-group" style="margin-bottom:0">
+          <label class="pform-label">Last Name</label>
+          <input type="text" name="last_name" class="pform-input" value="{{ user.last_name }}" placeholder="e.g. Raj">
+        </div>
+      </div>
+    </div>
+
+    <!-- Email -->
+    {% if not user.email %}
+    <div class="jp-card">
+      <div class="jp-card-title">✉️ Your Email ID</div>
+      <div class="pform-group" style="margin-bottom:0">
+        <input type="email" name="email" class="pform-input" placeholder="you@email.com" required>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px">Used for community updates and notifications</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Pincode -->
+    <div class="jp-card">
+      <div class="jp-card-title">📍 Your Pincode</div>
+      <div class="pform-group" style="margin-bottom:0">
+        <input type="text" name="pincode" class="pform-input" value="{{ user.pincode }}"
+               placeholder="Enter your 6-digit pincode" maxlength="6" required
+               style="font-size:18px;font-weight:700;letter-spacing:4px;text-align:center">
+        <div id="pincodeHint" style="font-size:12px;color:#4f46e5;font-weight:600;margin-top:6px;text-align:center;min-height:18px"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="padding:14px;font-size:15px;font-weight:800;border-radius:16px">
+      ✅ Save & Join {{ community.name }}
+    </button>
+
+    <a href="/portal/c/{{ community.page_id }}/" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#94a3b8">
+      Skip for now and browse
+    </a>
+  </form>
+</div>
+
+<script>
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var preview = document.getElementById('photoPreview');
+      var init = document.getElementById('previewInitial');
+      var img  = document.getElementById('previewImg');
+      if (!img) {
+        img = document.createElement('img');
+        img.id = 'previewImg';
+        if (init) init.style.display = 'none';
+        preview.appendChild(img);
+      }
+      img.src = e.target.result;
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// Pincode lookup
+var pincodeInput = document.querySelector('[name="pincode"]');
+if (pincodeInput) {
+  pincodeInput.addEventListener('input', function() {
+    var val = this.value.replace(/\D/g,'');
+    this.value = val;
+    var hint = document.getElementById('pincodeHint');
+    if (val.length === 6) {
+      hint.textContent = 'Looking up…';
+      hint.style.color = '#94a3b8';
+      fetch('https://api.postalpincode.in/pincode/' + val)
+        .then(function(r){ return r.json(); })
+        .then(function(d) {
+          if (d && d[0] && d[0].Status === 'Success' && d[0].PostOffice) {
+            var po = d[0].PostOffice[0];
+            hint.textContent = '📍 ' + po.Name + ', ' + po.District + ', ' + po.State;
+            hint.style.color = '#4f46e5';
+          } else {
+            hint.textContent = '⚠ Pincode not found';
+            hint.style.color = '#ef4444';
+          }
+        }).catch(function(){ hint.textContent = ''; });
+    } else {
+      hint.textContent = '';
+    }
+  });
+}
+</script>
+{% endblock %}

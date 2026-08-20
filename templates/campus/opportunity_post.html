@@ -3,15 +3,16 @@
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/company/dashboard/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
   <span class="cp-topbar-badge">Company</span>
 </div>
 <div class="cp-body">
   <div class="cp-sec">{% if opp %}Edit{% else %}Post{% endif %} Opportunity</div>
   {% if messages %}{% for m in messages %}<div class="cp-error">{{ m }}</div>{% endfor %}{% endif %}
-  <form method="post" enctype="multipart/form-data">
+  <form method="post" enctype="multipart/form-data" id="oppForm">
     {% csrf_token %}
 
+    <!-- BASIC DETAILS -->
     <div class="cp-card">
       <div class="cp-card-head"><div class="cp-card-title">Basic Details</div></div>
       <div style="padding:16px">
@@ -21,7 +22,7 @@
             <select name="opp_type" class="cp-input" required>
               <option value="fulltime" {% if opp.opp_type == 'fulltime' %}selected{% endif %}>Full-time Job</option>
               <option value="parttime" {% if opp.opp_type == 'parttime' %}selected{% endif %}>Part-time</option>
-              <option value="internship" {% if opp.opp_type == 'internship' %}selected{% endif %}>Internship</option>
+              <option value="internship" {% if not opp or opp.opp_type == 'internship' %}selected{% endif %}>Internship</option>
               <option value="apprentice" {% if opp.opp_type == 'apprentice' %}selected{% endif %}>Apprenticeship</option>
               <option value="project" {% if opp.opp_type == 'project' %}selected{% endif %}>Project</option>
               <option value="volunteer" {% if opp.opp_type == 'volunteer' %}selected{% endif %}>Volunteer</option>
@@ -33,6 +34,7 @@
       </div>
     </div>
 
+    <!-- ELIGIBILITY -->
     <div class="cp-card">
       <div class="cp-card-head"><div class="cp-card-title">Eligibility</div></div>
       <div style="padding:16px">
@@ -42,37 +44,208 @@
           <div class="cp-field"><label class="cp-label">Department Eligibility</label><input name="dept_eligibility" class="cp-input" value="{{ opp.dept_eligibility|default:'' }}" placeholder="e.g. CSE, ECE, All"></div>
           <div class="cp-field"><label class="cp-label">Year Eligibility</label><input name="year_eligibility" class="cp-input" value="{{ opp.year_eligibility|default:'' }}" placeholder="e.g. 3rd & 4th year"></div>
         </div>
+        <!-- Academic criteria -->
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Minimum CGPA</label><input name="min_cgpa" class="cp-input" type="number" step="0.01" min="0" max="10" value="{{ opp.min_cgpa|default:'' }}" placeholder="e.g. 7.00 (leave blank = no minimum)"></div>
+          <div class="cp-field" style="display:flex;align-items:center;gap:10px;padding-top:24px">
+            <input type="hidden" name="no_arrears_required" value="0">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:600;color:#0F172A">
+              <input type="checkbox" name="no_arrears_required" value="1" {% if opp.no_arrears_required %}checked{% endif %} style="width:18px;height:18px;accent-color:#4F46E5">
+              No Active Arrears Required
+            </label>
+          </div>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field"><label class="cp-label">Minimum 10th %</label><input name="min_tenth_percent" class="cp-input" type="number" step="0.01" min="0" max="100" value="{{ opp.min_tenth_percent|default:'' }}" placeholder="e.g. 60 (leave blank = no minimum)"></div>
+          <div class="cp-field"><label class="cp-label">Minimum 12th %</label><input name="min_twelfth_percent" class="cp-input" type="number" step="0.01" min="0" max="100" value="{{ opp.min_twelfth_percent|default:'' }}" placeholder="e.g. 60 (leave blank = no minimum)"></div>
+        </div>
       </div>
     </div>
 
+    <!-- LOCATION & SALARY -->
     <div class="cp-card">
-      <div class="cp-card-head"><div class="cp-card-title">Location & Salary</div></div>
+      <div class="cp-card-head"><div class="cp-card-title">Location &amp; Salary</div></div>
       <div style="padding:16px">
         <div class="cp-row">
-          <div class="cp-field"><label class="cp-label">Location</label><input name="location" class="cp-input" value="{{ opp.location|default:'' }}" placeholder="City or Remote"></div>
-          <div class="cp-field"><label class="cp-label">Work Mode</label>
-            <select name="work_mode" class="cp-input">
-              <option value="onsite" {% if opp.work_mode == 'onsite' %}selected{% endif %}>On-site</option>
-              <option value="remote" {% if opp.work_mode == 'remote' %}selected{% endif %}>Remote</option>
-              <option value="hybrid" {% if opp.work_mode == 'hybrid' %}selected{% endif %}>Hybrid</option>
-            </select>
+          <div class="cp-field"><label class="cp-label">Location / City</label><input name="location" class="cp-input" value="{{ opp.location|default:'' }}" placeholder="e.g. Vandavasi, Chennai"></div>
+          <div class="cp-field"><label class="cp-label">Job Location PIN Code</label>
+            <input name="location_pincode" class="cp-input" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{6}"
+              value="{{ opp.target_pincodes.first.pincode|default:'' }}"
+              placeholder="e.g. 604408" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6);fetchPincodeLocation(this.value)">
+            <div id="pincode-loc-info" style="font-size:11px;color:#4F46E5;margin-top:4px;min-height:14px"></div>
           </div>
+        </div>
+        <div class="cp-field"><label class="cp-label">Work Mode</label>
+          <select name="work_mode" class="cp-input">
+            <option value="onsite" {% if not opp or opp.work_mode == 'onsite' %}selected{% endif %}>On-site</option>
+            <option value="remote" {% if opp.work_mode == 'remote' %}selected{% endif %}>Remote</option>
+            <option value="hybrid" {% if opp.work_mode == 'hybrid' %}selected{% endif %}>Hybrid</option>
+          </select>
         </div>
         <div class="cp-field"><label class="cp-label">Salary / Stipend</label><input name="salary" class="cp-input" value="{{ opp.salary|default:'' }}" placeholder="e.g. ₹15,000/month or Negotiable"></div>
       </div>
     </div>
 
+    <!-- SELECT COLLEGES -->
     <div class="cp-card">
-      <div class="cp-card-head"><div class="cp-card-title">Target Pincodes</div></div>
+      <div class="cp-card-head"><div class="cp-card-title">🏫 Select Colleges</div></div>
       <div style="padding:16px">
-        <div class="cp-field">
-          <label class="cp-label">Pincodes (comma-separated)</label>
-          <input name="pincodes" class="cp-input" value="{{ pincodes_str|default:'' }}" placeholder="e.g. 600001, 600002, 600003">
-          <div style="font-size:11px;color:#94A3B8;margin-top:4px">Colleges in these pincodes will be notified automatically.</div>
+        <div style="font-size:12px;color:#64748B;margin-bottom:12px">Placement Officers of selected colleges will be notified when you publish.</div>
+        {% if institutions %}
+        <input id="collegeSearch" type="text" class="cp-input" placeholder="🔍 Search college name..." style="margin-bottom:12px" oninput="filterColleges(this.value)">
+        <div id="collegeList" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto">
+          {% for inst in institutions %}
+          <label class="col-check-row" id="col-{{ inst.pk }}">
+            <input type="checkbox" name="target_institutions" value="{{ inst.pk }}"
+              {% if opp and inst in opp.target_institutions.all %}checked{% endif %}>
+            <div class="col-check-info">
+              <div class="col-check-name">{{ inst.name }}</div>
+              <div class="col-check-meta">{{ inst.get_institution_type_display }} · {{ inst.city }}{% if inst.district %}, {{ inst.district }}{% endif %}</div>
+            </div>
+            <span class="col-check-tick">✓</span>
+          </label>
+          {% endfor %}
+        </div>
+        <div style="font-size:11px;color:#94A3B8;margin-top:10px" id="selectedCount">0 colleges selected</div>
+        {% else %}
+        <div style="text-align:center;padding:24px;color:#94A3B8;font-size:13px">No verified colleges registered yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- REQUIRED DOCUMENTS (Google-Form style) -->
+    <div class="cp-card" id="docSection">
+      <div class="cp-card-head">
+        <div class="cp-card-title">📄 Required Documents</div>
+      </div>
+      <div style="padding:12px 16px 4px">
+        <div style="font-size:12px;color:#64748B;margin-bottom:14px">List the documents students must upload when applying.</div>
+        <div id="docList" style="display:flex;flex-direction:column;gap:10px">
+          {% if opp %}{% for d in opp.required_documents.all %}
+          <div class="gf-doc-card">
+            <div class="gf-doc-left">
+              <div class="gf-doc-icon">📎</div>
+              <div class="gf-doc-fields">
+                <input type="text" name="doc_name" class="gf-doc-title" value="{{ d.name }}" placeholder="Document name *" required>
+                <input type="text" name="doc_desc" class="gf-doc-hint" value="{{ d.description }}" placeholder="Helper text (optional)">
+              </div>
+            </div>
+            <div class="gf-doc-right">
+              <label class="gf-toggle-wrap">
+                <input type="hidden" name="doc_required_hidden" value="0">
+                <input type="checkbox" name="doc_required" value="{{ forloop.counter0 }}" {% if d.is_required %}checked{% endif %} class="gf-toggle-input">
+                <span class="gf-toggle"></span>
+                <span class="gf-toggle-label">Required</span>
+              </label>
+              <button type="button" class="gf-del-btn" onclick="this.closest('.gf-doc-card').remove()" title="Remove">🗑</button>
+            </div>
+          </div>
+          {% endfor %}{% else %}
+          <div class="gf-doc-card">
+            <div class="gf-doc-left">
+              <div class="gf-doc-icon">📎</div>
+              <div class="gf-doc-fields">
+                <input type="text" name="doc_name" class="gf-doc-title" value="Resume" placeholder="Document name *" required>
+                <input type="text" name="doc_desc" class="gf-doc-hint" value="" placeholder="Helper text (optional)">
+              </div>
+            </div>
+            <div class="gf-doc-right">
+              <label class="gf-toggle-wrap">
+                <input type="checkbox" name="doc_required" value="0" checked class="gf-toggle-input">
+                <span class="gf-toggle"></span>
+                <span class="gf-toggle-label">Required</span>
+              </label>
+              <button type="button" class="gf-del-btn" onclick="this.closest('.gf-doc-card').remove()" title="Remove">🗑</button>
+            </div>
+          </div>
+          <div class="gf-doc-card">
+            <div class="gf-doc-left">
+              <div class="gf-doc-icon">📎</div>
+              <div class="gf-doc-fields">
+                <input type="text" name="doc_name" class="gf-doc-title" value="10th Marksheet" placeholder="Document name *" required>
+                <input type="text" name="doc_desc" class="gf-doc-hint" value="" placeholder="Helper text (optional)">
+              </div>
+            </div>
+            <div class="gf-doc-right">
+              <label class="gf-toggle-wrap">
+                <input type="checkbox" name="doc_required" value="1" checked class="gf-toggle-input">
+                <span class="gf-toggle"></span>
+                <span class="gf-toggle-label">Required</span>
+              </label>
+              <button type="button" class="gf-del-btn" onclick="this.closest('.gf-doc-card').remove()" title="Remove">🗑</button>
+            </div>
+          </div>
+          <div class="gf-doc-card">
+            <div class="gf-doc-left">
+              <div class="gf-doc-icon">📎</div>
+              <div class="gf-doc-fields">
+                <input type="text" name="doc_name" class="gf-doc-title" value="12th Marksheet" placeholder="Document name *" required>
+                <input type="text" name="doc_desc" class="gf-doc-hint" value="" placeholder="Helper text (optional)">
+              </div>
+            </div>
+            <div class="gf-doc-right">
+              <label class="gf-toggle-wrap">
+                <input type="checkbox" name="doc_required" value="2" checked class="gf-toggle-input">
+                <span class="gf-toggle"></span>
+                <span class="gf-toggle-label">Required</span>
+              </label>
+              <button type="button" class="gf-del-btn" onclick="this.closest('.gf-doc-card').remove()" title="Remove">🗑</button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+        <!-- Add Document button — Google-Form style, bottom of card -->
+        <div style="border-top:1px solid #E0E7FF;margin-top:14px;padding-top:12px;padding-bottom:6px">
+          <button type="button" onclick="addDocRow()" class="gf-add-btn">
+            <span class="gf-add-icon">+</span> Add Document
+          </button>
         </div>
       </div>
     </div>
 
+    <!-- QUESTIONS -->
+    <div class="cp-card">
+      <div class="cp-card-head">
+        <div class="cp-card-title">❓ Application Questions</div>
+        <button type="button" class="cp-btn" onclick="addQuestionRow()" style="font-size:12px;padding:6px 14px">+ Add Question</button>
+      </div>
+      <div style="padding:16px">
+        <div style="font-size:12px;color:#64748B;margin-bottom:12px">Questions students must answer when applying.</div>
+        <div id="questionList" style="display:flex;flex-direction:column;gap:12px">
+          {% if opp %}{% for q in opp.questions.all %}
+          <div class="q-row" style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px">
+            <input type="text" name="q_text" class="cp-input" value="{{ q.question }}" placeholder="Question text" required>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select name="q_type" class="cp-input" style="max-width:160px">
+                <option value="yesno" {% if q.question_type == 'yesno' %}selected{% endif %}>Yes / No</option>
+                <option value="text" {% if q.question_type == 'text' %}selected{% endif %}>Short Text</option>
+                <option value="textarea" {% if q.question_type == 'textarea' %}selected{% endif %}>Long Text</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px">
+                <input type="checkbox" name="q_required" value="{{ forloop.counter0 }}" {% if q.is_required %}checked{% endif %} style="accent-color:#4F46E5"> Required
+              </label>
+              <button type="button" onclick="this.closest('.q-row').remove()" style="background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;margin-left:auto">&times;</button>
+            </div>
+          </div>
+          {% endfor %}{% else %}
+          <div class="q-row" style="border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px">
+            <input type="text" name="q_text" class="cp-input" value="Are you willing to relocate?" placeholder="Question text">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select name="q_type" class="cp-input" style="max-width:160px">
+                <option value="yesno" selected>Yes / No</option>
+                <option value="text">Short Text</option>
+                <option value="textarea">Long Text</option>
+              </select>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" name="q_required" value="0" checked style="accent-color:#4F46E5"> Required</label>
+              <button type="button" onclick="this.closest('.q-row').remove()" style="background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;margin-left:auto">&times;</button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- DATES -->
     <div class="cp-card">
       <div class="cp-card-head"><div class="cp-card-title">Dates</div></div>
       <div style="padding:16px">
@@ -97,4 +270,124 @@
     <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">{% if opp %}Save Changes{% else %}Post Opportunity{% endif %}</button>
   </form>
 </div>
+
+<style>
+.col-check-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #E0E7FF;border-radius:14px;cursor:pointer;background:#fff;transition:all .15s;position:relative}
+.col-check-row input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+.col-check-row:hover{border-color:#6366F1;background:#F5F3FF}
+.col-check-row:has(input:checked){border-color:#4F46E5;background:#EEF2FF}
+.col-check-info{flex:1}
+.col-check-name{font-size:14px;font-weight:700;color:#0F172A}
+.col-check-row:has(input:checked) .col-check-name{color:#4F46E5}
+.col-check-meta{font-size:11px;color:#64748B;margin-top:2px}
+.col-check-tick{width:24px;height:24px;border-radius:50%;border:2px solid #CBD5E1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:transparent;flex-shrink:0;transition:all .15s}
+.col-check-row:has(input:checked) .col-check-tick{background:#4F46E5;border-color:#4F46E5;color:#fff}
+/* Google-Form doc cards */
+.gf-doc-card{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1.5px solid #E0E7FF;border-radius:14px;padding:14px 14px;transition:border-color .15s,box-shadow .15s}
+.gf-doc-card:hover{border-color:#818CF8;box-shadow:0 2px 10px rgba(79,70,229,.08)}
+.gf-doc-icon{font-size:1.3rem;margin-top:2px;flex-shrink:0}
+.gf-doc-left{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0}
+.gf-doc-fields{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.gf-doc-title{border:none;border-bottom:1.5px solid #CBD5E1;border-radius:0;background:transparent;font-size:14px;font-weight:600;color:#0F172A;padding:4px 0;outline:none;width:100%}
+.gf-doc-title:focus{border-bottom-color:#4F46E5}
+.gf-doc-hint{border:none;border-bottom:1px dashed #CBD5E1;background:transparent;font-size:12px;color:#64748B;padding:3px 0;outline:none;width:100%}
+.gf-doc-hint:focus{border-bottom-color:#4F46E5}
+.gf-doc-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.gf-toggle-wrap{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.gf-toggle-input{position:absolute;opacity:0;width:0;height:0}
+.gf-toggle{width:36px;height:20px;background:#CBD5E1;border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.gf-toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.gf-toggle-input:checked + .gf-toggle{background:#4F46E5}
+.gf-toggle-input:checked + .gf-toggle::after{transform:translateX(16px)}
+.gf-toggle-label{font-size:12px;font-weight:600;color:#64748B;white-space:nowrap}
+.gf-toggle-input:checked ~ .gf-toggle-label{color:#4F46E5}
+.gf-del-btn{background:none;border:none;font-size:1rem;cursor:pointer;opacity:.5;padding:4px;border-radius:6px;transition:opacity .15s,background .15s}
+.gf-del-btn:hover{opacity:1;background:#FEF2F2}
+.gf-add-btn{display:inline-flex;align-items:center;gap:8px;background:#F5F3FF;color:#4F46E5;border:1.5px dashed #A5B4FC;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;width:100%;justify-content:center}
+.gf-add-btn:hover{background:#EEF2FF;border-color:#6366F1}
+.gf-add-icon{font-size:1.1rem;font-weight:800;line-height:1}
+</style>
+<script>
+var docCount = document.querySelectorAll('#docList .doc-row').length;
+var qCount   = document.querySelectorAll('#questionList .q-row').length;
+
+function addDocRow(){
+  var idx = docCount++;
+  var d = document.createElement('div');
+  d.className = 'gf-doc-card';
+  d.innerHTML =
+    '<div class="gf-doc-left">'
+    +'<div class="gf-doc-icon">📎</div>'
+    +'<div class="gf-doc-fields">'
+    +'<input type="text" name="doc_name" class="gf-doc-title" placeholder="Document name *" required>'
+    +'<input type="text" name="doc_desc" class="gf-doc-hint" placeholder="Helper text (optional)">'
+    +'</div></div>'
+    +'<div class="gf-doc-right">'
+    +'<label class="gf-toggle-wrap">'
+    +'<input type="checkbox" name="doc_required" value="'+idx+'" checked class="gf-toggle-input">'
+    +'<span class="gf-toggle"></span>'
+    +'<span class="gf-toggle-label">Required</span>'
+    +'</label>'
+    +'<button type="button" class="gf-del-btn" onclick="this.closest(\'.gf-doc-card\').remove()" title="Remove">🗑</button>'
+    +'</div>';
+  document.getElementById('docList').appendChild(d);
+  d.querySelector('.gf-doc-title').focus();
+}
+function addQuestionRow(){
+  var idx = qCount++;
+  var d = document.createElement('div');
+  d.className = 'q-row';
+  d.style = 'border:1px solid #E2E8F0;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px';
+  d.innerHTML = '<input type="text" name="q_text" class="cp-input" placeholder="Question text">'
+    +'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+    +'<select name="q_type" class="cp-input" style="max-width:160px"><option value="yesno">Yes / No</option><option value="text">Short Text</option><option value="textarea">Long Text</option></select>'
+    +'<label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" name="q_required" value="'+idx+'" checked style="accent-color:#4F46E5"> Required</label>'
+    +'<button type="button" onclick="this.closest(\'.q-row\').remove()" style="background:none;border:none;color:#EF4444;font-size:18px;cursor:pointer;margin-left:auto">&times;</button>'
+    +'</div>';
+  document.getElementById('questionList').appendChild(d);
+}
+function filterColleges(q){
+  q=q.toLowerCase();
+  document.querySelectorAll('#collegeList .col-check-row').forEach(function(row){
+    row.style.display=row.querySelector('.col-check-name').textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+function updateCount(){
+  var n=document.querySelectorAll('#collegeList input[type=checkbox]:checked').length;
+  var el=document.getElementById('selectedCount');
+  if(el) el.textContent=n+' college'+(n===1?'':'s')+' selected';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  updateCount();
+  document.querySelectorAll('#collegeList input[type=checkbox]').forEach(function(cb){
+    cb.addEventListener('change',updateCount);
+  });
+  // Fix doc_required checkbox values before submit
+  document.getElementById('oppForm').addEventListener('submit', function(){
+    document.querySelectorAll('#docList .doc-row').forEach(function(row, i){
+      var cb = row.querySelector('input[name=doc_required]');
+      if(cb) cb.value = String(i);
+    });
+    document.querySelectorAll('#questionList .q-row').forEach(function(row, i){
+      var cb = row.querySelector('input[name=q_required]');
+      if(cb) cb.value = String(i);
+    });
+  });
+});
+function fetchPincodeLocation(pin){
+  var info = document.getElementById('pincode-loc-info');
+  if(pin.length !== 6){ info.textContent=''; return; }
+  info.textContent = 'Looking up…';
+  fetch('https://api.postalpincode.in/pincode/' + pin)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if(d[0] && d[0].Status === 'Success' && d[0].PostOffice && d[0].PostOffice.length){
+        var p = d[0].PostOffice[0];
+        info.textContent = '📍 ' + p.Name + ', ' + p.District + ', ' + p.State;
+      } else {
+        info.textContent = 'PIN code not found';
+      }
+    }).catch(function(){ info.textContent = ''; });
+}
+</script>
 {% endblock %}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Portal — OUR PINCODE</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;background:#f0f4ff;display:flex;flex-direction:column}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#fff;border-bottom:1px solid #e8eaf6}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-icon{width:38px;height:38px;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.topbar-name{font-size:1rem;font-weight:800;color:#0f172a;letter-spacing:-.01em}
+.topbar-name span{color:#4f46e5}
+.topbar-back{font-size:0.82rem;color:#64748b;text-decoration:none;display:flex;align-items:center;gap:4px}
+.topbar-back:hover{color:#4f46e5}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:52px 24px 36px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:#ede9fe;color:#5b21b6;font-size:0.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:18px}
+.hero h1{font-size:2rem;font-weight:900;color:#0f172a;line-height:1.1;letter-spacing:-.03em;margin-bottom:10px}
+.hero h1 span{color:#4f46e5}
+.hero p{font-size:0.95rem;color:#64748b;max-width:420px;margin:0 auto;line-height:1.65}
+
+/* ── CARDS WRAPPER ── */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1060px;width:100%;margin:0 auto;padding:0 20px 48px}
+
+/* ── ROLE CARD ── */
+.role-card{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 2px 12px rgba(79,70,229,.07);border:1.5px solid #e0e7ff;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.role-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(79,70,229,.14)}
+
+.role-card-top{padding:30px 28px 24px;flex:1}
+.role-avatar{width:60px;height:60px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:18px}
+.av-blue{background:linear-gradient(135deg,#dbeafe,#ede9fe)}
+.av-green{background:linear-gradient(135deg,#dcfce7,#d1fae5)}
+
+.role-title{font-size:1.2rem;font-weight:800;color:#0f172a;margin-bottom:6px}
+.role-desc{font-size:0.85rem;color:#64748b;line-height:1.6}
+
+.role-features{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:7px}
+.role-features li{display:flex;align-items:center;gap:8px;font-size:0.8rem;color:#475569}
+.role-features li::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.feat-blue li::before{background:#4f46e5}
+.feat-green li::before{background:#059669}
+
+.role-card-btns{padding:18px 28px;border-top:1px solid #f1f5f9;display:flex;flex-direction:column;gap:10px;background:#fafbff}
+.btn-main{display:block;text-align:center;padding:12px 0;border-radius:12px;font-size:0.9rem;font-weight:700;text-decoration:none;transition:all .18s;letter-spacing:.01em}
+.btn-blue{background:#4f46e5;color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3)}
+.btn-blue:hover{background:#4338ca}
+.btn-blue-o{border:1.5px solid #c7d2fe;color:#4f46e5;background:transparent}
+.btn-blue-o:hover{background:#ede9fe;border-color:#a5b4fc}
+.btn-green{background:#059669;color:#fff;box-shadow:0 4px 14px rgba(5,150,105,.25)}
+.btn-green:hover{background:#047857}
+.btn-green-o{border:1.5px solid #a7f3d0;color:#059669;background:transparent}
+.btn-green-o:hover{background:#ecfdf5;border-color:#6ee7b7}
+
+/* ── DIVIDER BADGE ── */
+.or-strip{display:flex;align-items:center;gap:10px;padding:0 28px;margin-bottom:2px}
+.or-strip::before,.or-strip::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.or-strip span{font-size:0.75rem;color:#94a3b8;font-weight:600;white-space:nowrap}
+
+/* ── FOOTER NOTE ── */
+.footnote{text-align:center;padding:0 20px 32px;font-size:0.8rem;color:#94a3b8}
+.footnote a{color:#4f46e5;text-decoration:none;font-weight:600}
+
+.av-purple{background:linear-gradient(135deg,#ede9fe,#ddd6fe)}
+.feat-purple li::before{background:#7c3aed}
+.btn-purple{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3)}
+.btn-purple:hover{opacity:.9}
+.btn-purple-o{border:1.5px solid #c4b5fd;color:#6d28d9;background:transparent}
+.btn-purple-o:hover{background:#f5f3ff;border-color:#a78bfa}
+@media(max-width:760px){
+  .cards{grid-template-columns:1fr}
+  .hero h1{font-size:1.5rem}
+  .role-card-top{padding:24px 22px 18px}
+  .role-card-btns{padding:14px 22px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-icon">🎓</div>
+    <div class="topbar-name">OUR PINCODE <span>Campus</span></div>
+  </div>
+  <a href="/campus/" class="topbar-back">← Campus Home</a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">🏫 Campus Career Portal</div>
+  <h1>Who are <span>you?</span></h1>
+  <p>Choose your role to sign in or create your campus account.</p>
+</div>
+
+<!-- CARDS -->
+<div class="cards">
+
+  <!-- STUDENT -->
+  <div class="role-card">
+    <div class="role-card-top feat-blue">
+      <div class="role-avatar av-blue">👨‍🎓</div>
+      <div class="role-title">Student</div>
+      <div class="role-desc">Access placement drives, internships and job opportunities shared by your college.</div>
+      <ul class="role-features">
+        <li>Browse shared opportunities</li>
+        <li>Track application status</li>
+        <li>View interview schedules</li>
+        <li>Download offer letters</li>
+      </ul>
+    </div>
+    <div class="role-card-btns">
+      <a href="/campus/student/login/" class="btn-main btn-blue">Sign In</a>
+      <div class="or-strip"><span>or</span></div>
+      <a href="/campus/student/signup/" class="btn-main btn-blue-o">Create Account</a>
+    </div>
+  </div>
+
+  <!-- PLACEMENT OFFICER -->
+  <div class="role-card">
+    <div class="role-card-top feat-green">
+      <div class="role-avatar av-green">🏫</div>
+      <div class="role-title">Placement Officer</div>
+      <div class="role-desc">Manage your institution's placements, departments, HODs and students end-to-end.</div>
+      <ul class="role-features">
+        <li>Share opportunities with depts</li>
+        <li>Manage HODs &amp; students</li>
+        <li>Track applications &amp; offers</li>
+        <li>Generate placement reports</li>
+      </ul>
+    </div>
+    <div class="role-card-btns">
+      <a href="/campus/po/login/" class="btn-main btn-green">Sign In</a>
+      <div class="or-strip"><span>or</span></div>
+      <a href="/campus/po/signup/" class="btn-main btn-green-o">Create Account</a>
+    </div>
+  </div>
+
+  <!-- HR -->
+  <div class="role-card">
+    <div class="role-card-top feat-purple">
+      <div class="role-avatar av-purple">👔</div>
+      <div class="role-title">HR / Company</div>
+      <div class="role-desc">Post job &amp; internship opportunities to colleges near your company pincode.</div>
+      <ul class="role-features">
+        <li>Post jobs &amp; internships</li>
+        <li>Select target colleges</li>
+        <li>Review applications</li>
+        <li>Schedule interviews &amp; issue offers</li>
+      </ul>
+    </div>
+    <div class="role-card-btns">
+      <a href="/campus/hr/login/" class="btn-main btn-purple">Sign In</a>
+      <div class="or-strip"><span>or</span></div>
+      <a href="/campus/hr/signup/" class="btn-main btn-purple-o">Create Account</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footnote">
+  Need to register a new institution? <a href="/campus/institution/register/">Register your college →</a>
+</div>
+
+</body>
+</html>

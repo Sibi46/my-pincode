@@ -2,8 +2,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # ── OTP ──────────────────────────────────────────────────
+    path('otp/send/',                     views.campus_send_otp,          name='campus_send_otp'),
+    path('otp/verify/',                   views.campus_verify_otp,        name='campus_verify_otp'),
+
     # ── PUBLIC / LANDING ─────────────────────────────────────
     path('',                              views.campus_home,              name='campus_home'),
+    path('auth/',                         views.campus_auth_landing,      name='campus_auth_landing'),
+    path('student/signup/',               views.campus_student_signup,    name='campus_student_signup'),
+    path('student/login/',                views.campus_student_login_view, name='campus_student_login'),
+    path('po/signup/',                    views.campus_po_signup,         name='campus_po_signup'),
+    path('po/login/',                     views.campus_po_login_view,     name='campus_po_login'),
+    path('hr/signup/',                    views.campus_hr_signup,         name='campus_hr_signup'),
+    path('hr/login/',                     views.campus_hr_login_view,     name='campus_hr_login'),
 
     # ── INSTITUTION REGISTRATION ─────────────────────────────
     path('institution/register/',         views.institution_register,     name='campus_institution_register'),
@@ -18,6 +29,7 @@ urlpatterns = [
     path('po/students/add/',              views.po_student_add,           name='campus_po_student_add'),
     path('po/opportunities/',             views.po_opportunities,         name='campus_po_opportunities'),
     path('po/opportunities/<int:pk>/share/', views.po_share_opportunity,  name='campus_po_share'),
+    path('po/shares/<int:pk>/respond/',  views.po_respond_opportunity,   name='campus_po_respond'),
     path('po/applications/',              views.po_applications,          name='campus_po_applications'),
 
     # ── HOD DASHBOARD ────────────────────────────────────────
@@ -26,6 +38,7 @@ urlpatterns = [
 
     # ── STUDENT DASHBOARD ────────────────────────────────────
     path('student/register/',             views.student_register,         name='campus_student_register'),
+    path('student/profile/',              views.student_update_profile,   name='campus_student_profile'),
     path('student/dashboard/',            views.student_dashboard,        name='campus_student_dashboard'),
     path('student/opportunities/',        views.student_opportunities,    name='campus_student_opportunities'),
     path('student/opportunities/<int:pk>/', views.opportunity_detail,     name='campus_opportunity_detail'),
@@ -43,6 +56,8 @@ urlpatterns = [
     path('company/opportunities/<int:pk>/applications/', views.company_applications, name='campus_company_applications'),
     path('company/applications/<int:pk>/status/', views.update_app_status, name='campus_update_app_status'),
     path('company/applications/<int:pk>/interview/', views.schedule_interview, name='campus_schedule_interview'),
+    path('company/applications/<int:app_pk>/offer-letter/', views.generate_offer_letter, name='campus_offer_letter'),
+    path('application/<int:app_pk>/offer-letter/view/', views.view_offer_letter, name='campus_view_offer_letter'),
 
     # ── ADMIN ─────────────────────────────────────────────────
     path('admin/dashboard/',              views.campus_admin_dashboard,   name='campus_admin_dashboard'),

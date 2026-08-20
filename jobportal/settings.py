@@ -34,6 +34,7 @@ TWO_FACTOR_OTP_TEMPLATE = 'OTP1'
 DEBUG = False
 
 ALLOWED_HOSTS = ['mypincod.com', 'www.mypincod.com']
+CSRF_TRUSTED_ORIGINS = ['https://mypincod.com', 'https://www.mypincod.com']
 
 # ── Security headers ─────────────────────────────────────────────────────────
 SECURE_SSL_REDIRECT          = True
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'vouchers',
     'community',
     'campus',
+    'portal',
 ]
 
 AUTH_USER_MODEL = 'jobs.User'

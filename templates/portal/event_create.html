@@ -1,0 +1,147 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:700px">
+  <div class="psec-header">
+    <div class="psec-title">📅 Create Event</div>
+    <a href="/portal/c/{{ community.page_id }}/dashboard/" class="pbtn pbtn-outline pbtn-sm">← Dashboard</a>
+  </div>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div class="pform-group"><label class="pform-label">Event Name *</label><input type="text" name="name" class="pform-input" required placeholder="e.g. Community Clean-up Drive"></div>
+        <div class="pform-group"><label class="pform-label">Description *</label><textarea name="description" class="pform-input" rows="4" required placeholder="What's this event about?"></textarea></div>
+        <div class="pform-group"><label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">(space-separated)</span></label>
+          <input type="text" name="tags" class="pform-input" placeholder="environment cleanup nature volunteers"></div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📅 Date &amp; Time</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" class="pform-input"></div>
+          <div class="pform-group"><label class="pform-label">End Time</label><input type="time" name="end_time" class="pform-input"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📍 Location</div>
+        <div class="pform-group" style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <input type="checkbox" name="is_online" id="is_online" style="width:16px;height:16px" onchange="toggleOnline(this)">
+          <label for="is_online" class="pform-label" style="margin:0">📹 This is an online event</label>
+        </div>
+        <div id="offline-fields">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="pform-group"><label class="pform-label">Venue / Address *</label><input type="text" name="location" class="pform-input" id="location-input" placeholder="Hall name, street, area"></div>
+            <div class="pform-group"><label class="pform-label">Pincode</label><input type="text" name="pincode" class="pform-input" placeholder="641001"></div>
+            <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Google Maps Link</label><input type="url" name="map_link" class="pform-input" placeholder="https://maps.google.com/..."></div>
+          </div>
+        </div>
+        <div id="online-fields" style="display:none">
+          <div class="pform-group"><label class="pform-label">Meeting Link <span style="font-weight:400;color:#94a3b8">(shared only with registered attendees)</span></label>
+            <input type="url" name="online_link" class="pform-input" placeholder="https://meet.google.com/...">
+          </div>
+          <input type="hidden" name="location" id="online-location-hidden" value="Online">
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">🎟 Capacity &amp; Tickets</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Max Participants</label><input type="number" name="max_participants" class="pform-input" placeholder="Leave blank for unlimited" min="1"></div>
+          <div class="pform-group">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <input type="checkbox" name="is_paid" id="is_paid" style="width:16px;height:16px" onchange="togglePaid(this)">
+              <label for="is_paid" class="pform-label" style="margin:0">💰 Paid Event</label>
+            </div>
+            <div id="price-field" style="display:none">
+              <input type="number" name="ticket_price" class="pform-input" placeholder="Ticket price (₹)" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📞 Contact &amp; Media</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="pform-group"><label class="pform-label">Contact Person</label><input type="text" name="contact_person" class="pform-input" placeholder="Name"></div>
+          <div class="pform-group"><label class="pform-label">Contact Phone</label><input type="text" name="contact_phone" class="pform-input" placeholder="+91 98765 43210"></div>
+          <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Event Poster</label><input type="file" name="image" accept="image/*" class="pform-input" style="padding:6px"></div>
+        </div>
+        <div class="pform-group"><label class="pform-label">Related Cause</label>
+          <select name="cause" class="pform-input">
+            <option value="">-- No cause --</option>
+            {% for cause in causes %}<option value="{{ cause.pk }}">{{ cause.name }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- RSVP Questions Builder -->
+    <div class="pcard" style="margin-bottom:14px">
+      <div class="pcard-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#0f172a">❓ RSVP Questions</div>
+            <div style="font-size:12px;color:#94a3b8;margin-top:2px">Ask attendees yes / no questions when they RSVP. Optional.</div>
+          </div>
+          <button type="button" onclick="addQuestion()" class="pbtn pbtn-outline pbtn-sm" style="font-size:11px;white-space:nowrap">+ Add Question</button>
+        </div>
+        <div id="qList" style="display:flex;flex-direction:column;gap:10px;margin-top:8px"></div>
+      </div>
+    </div>
+
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="margin-bottom:40px">Create Event</button>
+  </form>
+</div>
+<script>
+function toggleOnline(cb){
+  var off = document.getElementById('offline-fields');
+  var on = document.getElementById('online-fields');
+  var locInput = document.getElementById('location-input');
+  if(cb.checked){
+    off.style.display='none';
+    on.style.display='block';
+    locInput.removeAttribute('required');
+  } else {
+    off.style.display='block';
+    on.style.display='none';
+    locInput.setAttribute('required','');
+  }
+}
+function togglePaid(cb){
+  document.getElementById('price-field').style.display = cb.checked ? 'block' : 'none';
+}
+var qCount=0, qTotal=0;
+function addQuestion(){
+  if(qTotal>=5){alert('Maximum 5 questions allowed.');return;}
+  qTotal++;
+  var idx=qCount++;
+  var div=document.createElement('div');
+  div.id='qItem'+idx;
+  div.style.cssText='background:#f8faff;border:1.5px solid #c7d2fe;border-radius:14px;padding:14px';
+  div.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:12px;font-weight:800;color:#4f46e5;background:#ede9fe;border-radius:20px;padding:2px 10px">Q${idx+1}</span>
+      <button type="button" onclick="removeQuestion(${idx})" style="margin-left:auto;background:none;border:none;color:#ef4444;font-size:12px;font-weight:700;cursor:pointer">✕ Remove</button>
+    </div>
+    <input type="text" name="rsvp_questions[]" class="pform-input" placeholder="Type your question… e.g. What is your T-shirt size?">`;
+  document.getElementById('qList').appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeQuestion(idx){
+  var el=document.getElementById('qItem'+idx);
+  if(el){el.remove();qTotal--;}
+}
+</script>
+{% endblock %}

@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}Advertise With Us — MY PINCOD{% endblock %}
+{% block title %}Advertise With Us — OUR PINCODE{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -199,7 +199,7 @@ function advLike(){
 }
 function advShare(){
   const f=_advFlicks[_advIdx];const url=window.location.origin+'/flicks/#fk-'+f.pk;
-  if(navigator.share){navigator.share({title:f.name+' on MY PINCOD',url}).catch(()=>{});}
+  if(navigator.share){navigator.share({title:f.name+' on OUR PINCODE',url}).catch(()=>{});}
   else{navigator.clipboard.writeText(url).then(()=>{const t=document.getElementById('adv-toast');t.style.opacity='1';setTimeout(()=>t.style.opacity='0',2000);});}
 }
 let _advTsX=0;

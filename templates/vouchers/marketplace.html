@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}Gift Vouchers – MYPINCOD{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}Gift Vouchers – OURPINCODE{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -58,7 +58,7 @@
 <div style="background:#faf5ff;border-bottom:1px solid #ede9fe;padding:.75rem 1rem">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap">
     <div style="font-size:.85rem;color:#5b21b6;font-weight:600">
-      <i class="fas fa-store"></i> Are you a business owner? Sell gift vouchers on MYPINCOD.
+      <i class="fas fa-store"></i> Are you a business owner? Sell gift vouchers on OURPINCODE.
     </div>
     {% if request.user.is_authenticated %}
       <a href="{% url 'vouchers:business_register' %}" style="background:#7c3aed;color:#fff;padding:.4rem 1.1rem;border-radius:20px;font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap">

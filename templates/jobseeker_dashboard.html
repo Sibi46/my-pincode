@@ -1,6 +1,6 @@
 ﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}My Dashboard - MY PINCOD{% endblock %}
+{% block title %}My Dashboard - OUR PINCODE{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <style>
@@ -414,7 +414,7 @@ function fsLike() {
 function fsShare() {
   const f = _flicks[_fsi];
   const url = window.location.origin + '/flicks/#fk-' + f.pk;
-  if (navigator.share) { navigator.share({title: f.name + ' on MY PINCOD', url}).catch(()=>{}); }
+  if (navigator.share) { navigator.share({title: f.name + ' on OUR PINCODE', url}).catch(()=>{}); }
   else {
     navigator.clipboard.writeText(url).then(() => {
       const t = document.getElementById('fs-toast');
@@ -444,7 +444,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fsClose(); i
     </div>
     <div style="flex:1">
       <div style="font-weight:800;font-size:15px;color:#111">Share Your Feedback</div>
-      <div style="font-size:13px;color:#888;margin-top:3px">Report a bug, suggest a feature, or share your experience with MY PINCOD</div>
+      <div style="font-size:13px;color:#888;margin-top:3px">Report a bug, suggest a feature, or share your experience with OUR PINCODE</div>
     </div>
     <div style="color:#0a66c2;font-size:18px;flex-shrink:0"><i class="fas fa-chevron-right"></i></div>
   </a>

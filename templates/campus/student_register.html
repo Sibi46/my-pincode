@@ -1,9 +1,9 @@
-{% extends 'campus/base_campus.html' %}
+﻿{% extends 'campus/base_campus.html' %}
 {% block title %}Student Registration – Campus{% endblock %}
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
 </div>
 <div class="cp-body">
   <div class="cp-sec">Student Registration</div>
@@ -21,7 +21,7 @@
         <div class="cp-field"><label class="cp-label">Institution *</label>
           <select name="institution" class="cp-input" required id="inst-sel">
             <option value="">Select institution</option>
-            {% for inst in institutions %}<option value="{{ inst.pk }}">{{ inst.name }} – {{ inst.city }}</option>{% endfor %}
+            {% for inst in institutions %}<option value="{{ inst.pk }}" {% if inst.pk|stringformat:"s" == preset_inst_id %}selected{% endif %}>{{ inst.name }} – {{ inst.city }}</option>{% endfor %}
           </select>
         </div>
         <div class="cp-field"><label class="cp-label">Department *</label>
@@ -45,7 +45,7 @@
       </div>
     </div>
     <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Register as Student</button>
-    <div style="text-align:center;margin-top:12px;font-size:12px;color:#94A3B8">Already registered? <a href="/login/" style="color:#4F46E5;font-weight:600">Login</a></div>
+    <div style="text-align:center;margin-top:12px;font-size:12px;color:#94A3B8">Already registered? <a href="/campus/student/login/" style="color:#4F46E5;font-weight:600">Student Login</a></div>
   </form>
 </div>
 <script>

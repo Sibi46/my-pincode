@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Admin Panel{% endblock %} — MY PINCOD</title>
+  <title>{% block title %}Admin Panel{% endblock %} — OUR PINCODE</title>
   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
   <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
   <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
@@ -15,7 +15,8 @@
 <!-- Top Navbar -->
 <nav class="navbar" style="position:sticky;top:0;z-index:999">
   <div class="nav-container">
-    <a href="/" class="nav-logo"><img src="/static/images/logo.png" alt="MY PINCOD" style="height:48px;width:auto;max-width:160px;object-fit:contain;display:block"></a>
+    <button class="hamburger ap-sidebar-toggle" onclick="toggleAdminSidebar()" style="display:none"><i class="fas fa-bars"></i></button>
+    <a href="/" class="nav-logo"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:40px;width:auto;max-width:130px;object-fit:contain;display:block"></a>
     <div style="flex:1"></div>
     <div class="nav-links">
       <a href="/" style="font-size:13px;color:#888"><i class="fas fa-home"></i> Homepage</a>
@@ -30,6 +31,7 @@
     </div>
   </div>
 </nav>
+<div class="ap-sidebar-overlay" id="apSidebarOverlay" onclick="toggleAdminSidebar()"></div>
 
 {% if messages %}
 <div class="messages-bar">
@@ -42,7 +44,7 @@
 <div class="ap-layout">
 
   <!-- Sidebar -->
-  <aside class="ap-sidebar">
+  <aside class="ap-sidebar" id="apSidebar">
     <div class="ap-sidebar-header">
       {% if request.user.admin_role == 'super_admin' %}
         <div class="ap-role-badge badge-super"><i class="fas fa-crown"></i> Super Admin</div>
@@ -199,6 +201,15 @@
 </div>
 <script src="{% static 'js/main.js' %}"></script>
 {% block extra_js %}{% endblock %}
+<script>
+function toggleAdminSidebar(){
+  var s=document.getElementById('apSidebar');
+  var o=document.getElementById('apSidebarOverlay');
+  var open=s.classList.toggle('ap-sidebar-open');
+  o.classList.toggle('ap-overlay-open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+</script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   document.querySelectorAll('input[type="tel"]').forEach(function(inp){

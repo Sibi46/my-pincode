@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block title %}My Ads — MY PINCOD{% endblock %}
+﻿{% extends 'base.html' %}
+{% block title %}My Ads — OUR PINCODE{% endblock %}
 {% block content %}
 <div style="max-width:700px;margin:32px auto;padding:0 16px 60px">
 
@@ -102,7 +102,7 @@
       <div style="padding:12px 18px;border-top:1px solid #bbf7d0;background:#f0fdf4;display:flex;align-items:center;flex-wrap:wrap;gap:12px;justify-content:space-between">
         <div style="font-size:12px;color:#166534">
           <i class="fas fa-circle" style="font-size:8px;color:#22c55e"></i>
-          <strong>Live</strong> — Your ad is visible to all MY PINCOD users
+          <strong>Live</strong> — Your ad is visible to all OUR PINCODE users
           {% if ad.approved_at %}&nbsp;· Approved {{ ad.approved_at|date:"d M Y" }}{% endif %}
         </div>
         {% if ad.expires_at %}

@@ -1,40 +1,175 @@
 {% extends 'campus/base_campus.html' %}
-{% block title %}Applications – Company{% endblock %}
+{% block title %}Applications – {{ opportunity.title }}{% endblock %}
 {% block content %}
 <div class="cp-topbar">
   <a href="/campus/company/dashboard/" class="cp-back">&#8592;</a>
-  <div class="cp-topbar-title">MY PINCOD <span>Campus</span></div>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
   <span class="cp-topbar-badge">Company</span>
 </div>
 <div class="cp-body">
-  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:16px">Applications Received</div>
+  <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ opportunity.title }}</div>
+  <div style="font-size:13px;color:#64748B;margin-bottom:16px">{{ applications|length }} application(s)</div>
+
+  <!-- Status filter -->
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+    <a href="?status=" class="cp-btn {% if not status_filter %}cp-btn-primary{% else %}cp-btn-ghost{% endif %}" style="font-size:12px;padding:6px 14px">All</a>
+    {% for val, label in status_choices %}
+    <a href="?status={{ val }}" class="cp-btn {% if status_filter == val %}cp-btn-primary{% else %}cp-btn-ghost{% endif %}" style="font-size:12px;padding:6px 14px">{{ label }}</a>
+    {% endfor %}
+  </div>
 
   {% if applications %}
-  {% regroup applications by opportunity as by_opp %}
-  {% for opp_group in by_opp %}
-  <div class="cp-sec">{{ opp_group.grouper.title }} <span style="font-size:10px;font-weight:600;color:#94A3B8">({{ opp_group.list|length }})</span></div>
-  <div class="cp-card" style="margin-bottom:16px">
-    {% for app in opp_group.list %}
-    <a href="/campus/application/{{ app.pk }}/" style="text-decoration:none">
-      <div class="cp-list-row">
-        <div class="cp-list-icon">👨‍🎓</div>
-        <div class="cp-list-info">
-          <div class="cp-list-title">{{ app.student.user.get_full_name }}</div>
-          <div class="cp-list-sub">{{ app.student.department.name }} · {{ app.student.institution.name }}</div>
-          <div class="cp-list-sub">{{ app.applied_at|date:"d M Y" }}</div>
+  {% for app in applications %}
+  <div class="cp-card" style="margin-bottom:12px">
+    <div style="padding:16px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+          <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:2px">{{ app.student.user.get_full_name }}</div>
+          <div style="font-size:12px;color:#64748B">{{ app.student.department.name }} · {{ app.student.institution.name }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+            {% if app.student.cgpa %}<span class="cp-badge" style="background:#EFF6FF;color:#1D4ED8">CGPA {{ app.student.cgpa }}</span>{% endif %}
+            {% if app.student.active_arrears is not None %}<span class="cp-badge" style="{% if app.student.active_arrears == 0 %}background:#D1FAE5;color:#065F46{% else %}background:#FEE2E2;color:#991B1B{% endif %}">Arrears: {{ app.student.active_arrears }}</span>{% endif %}
+            {% if app.student.tenth_percent %}<span class="cp-badge">10th: {{ app.student.tenth_percent }}%</span>{% endif %}
+            {% if app.student.twelfth_percent %}<span class="cp-badge">12th: {{ app.student.twelfth_percent }}%</span>{% endif %}
+          </div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:6px">Applied: {{ app.applied_at|date:"d M Y" }}</div>
+          {% if app.company_note %}<div style="font-size:12px;color:#475569;margin-top:4px;font-style:italic">Note: {{ app.company_note }}</div>{% endif %}
         </div>
         <span class="cp-badge {% if app.status == 'selected' %}cp-badge-selected{% elif app.status == 'rejected' %}cp-badge-rejected{% elif app.status == 'shortlisted' %}cp-badge-shortlisted{% elif app.status == 'interview' %}cp-badge-interview{% else %}cp-badge-applied{% endif %}">{{ app.get_status_display }}</span>
       </div>
-    </a>
-    {% endfor %}
+
+      <!-- Documents uploaded by student -->
+      {% if app.documents.exists %}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid #F1F5F9">
+        <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Documents Submitted</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          {% for doc in app.documents.all %}
+          <a href="{{ doc.file.url }}" target="_blank" style="font-size:12px;color:#4F46E5;background:#EEF2FF;padding:4px 10px;border-radius:8px;text-decoration:none">📎 {{ doc.document_name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Answers submitted by student -->
+      {% if app.answers.exists %}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid #F1F5F9">
+        <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:6px">Answers</div>
+        {% for ans in app.answers.all %}
+        <div style="font-size:12px;margin-bottom:4px"><span style="font-weight:600;color:#0F172A">{{ ans.question.question }}</span><span style="color:#64748B"> → {{ ans.answer }}</span></div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <a href="/campus/application/{{ app.pk }}/" class="cp-btn cp-btn-ghost" style="font-size:12px;padding:8px 12px">View Detail</a>
+        <button onclick="openStatus({{ app.pk }})" class="cp-btn cp-btn-primary" style="font-size:12px;padding:8px 14px">Update Status</button>
+        {% if app.status in 'shortlisted,interview,interviewed' %}
+        <button onclick="openInterview({{ app.pk }})" class="cp-btn" style="font-size:12px;padding:8px 14px;background:#F59E0B;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700">📅 Schedule Interview</button>
+        {% endif %}
+        {% if app.status == 'selected' and not app.offer_letter %}
+        <button onclick="openOfferLetter({{ app.pk }})" class="cp-btn" style="font-size:12px;padding:8px 14px;background:#10B981;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700">📜 Issue Offer Letter</button>
+        {% elif app.offer_letter %}
+        <a href="/campus/application/{{ app.pk }}/offer-letter/view/" class="cp-btn" style="font-size:12px;padding:8px 14px;background:#6366F1;color:#fff;border:none;border-radius:10px;text-decoration:none;font-weight:700">📜 View Offer Letter</a>
+        {% endif %}
+      </div>
+    </div>
   </div>
   {% endfor %}
+
   {% else %}
   <div style="text-align:center;padding:40px 20px;color:#94A3B8">
     <div style="font-size:3rem;margin-bottom:10px">📋</div>
     <div style="font-size:14px;font-weight:600">No applications yet</div>
-    <div style="font-size:12px;margin-top:4px">Post and publish opportunities to start receiving applications.</div>
+    <div style="font-size:12px;margin-top:4px">Publish this opportunity to start receiving applications.</div>
   </div>
   {% endif %}
 </div>
+
+<!-- Update Status Modal -->
+<div id="statusModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:24px;max-width:420px;width:90%;margin:auto">
+    <div style="font-size:17px;font-weight:800;color:#0F172A;margin-bottom:16px">Update Application Status</div>
+    <form method="post" id="statusForm" action="">
+      {% csrf_token %}
+      <div class="cp-field">
+        <label class="cp-label">New Status</label>
+        <select name="status" class="cp-input">
+          {% for val, label in status_choices %}
+          <option value="{{ val }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="cp-field">
+        <label class="cp-label">Note</label>
+        <textarea name="note" class="cp-input" style="min-height:70px" placeholder="Reason or message for student..."></textarea>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button type="button" onclick="document.getElementById('statusModal').style.display='none'" class="cp-btn cp-btn-ghost" style="flex:1">Cancel</button>
+        <button type="submit" class="cp-btn cp-btn-primary" style="flex:1">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Interview Modal -->
+<div id="interviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:24px;max-width:420px;width:90%;margin:auto">
+    <div style="font-size:17px;font-weight:800;color:#0F172A;margin-bottom:16px">📅 Schedule Interview</div>
+    <form method="post" id="interviewForm" action="">
+      {% csrf_token %}
+      <div class="cp-field"><label class="cp-label">Date &amp; Time *</label><input type="datetime-local" name="scheduled_at" class="cp-input" required></div>
+      <div class="cp-field"><label class="cp-label">Mode</label>
+        <select name="mode" class="cp-input">
+          <option value="offline">In-person</option>
+          <option value="online">Online</option>
+          <option value="phone">Phone</option>
+        </select>
+      </div>
+      <div class="cp-field"><label class="cp-label">Location / Venue</label><input type="text" name="location" class="cp-input" placeholder="Address or Google Meet link"></div>
+      <div class="cp-field"><label class="cp-label">Meeting Link</label><input type="url" name="link" class="cp-input" placeholder="https://..."></div>
+      <div class="cp-field"><label class="cp-label">Notes</label><textarea name="notes" class="cp-input" style="min-height:60px" placeholder="Instructions for student..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button type="button" onclick="document.getElementById('interviewModal').style.display='none'" class="cp-btn cp-btn-ghost" style="flex:1">Cancel</button>
+        <button type="submit" class="cp-btn cp-btn-primary" style="flex:1">Schedule</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Offer Letter Modal -->
+<div id="offerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:24px;max-width:460px;width:90%;margin:auto;max-height:90vh;overflow-y:auto">
+    <div style="font-size:17px;font-weight:800;color:#0F172A;margin-bottom:16px">📜 Issue Offer Letter</div>
+    <form method="post" id="offerForm" action="">
+      {% csrf_token %}
+      <div class="cp-field"><label class="cp-label">Designation / Role *</label><input type="text" name="designation" class="cp-input" required placeholder="e.g. Software Developer"></div>
+      <div class="cp-field"><label class="cp-label">Salary / CTC Offered</label><input type="text" name="salary_offered" class="cp-input" placeholder="e.g. ₹4.5 LPA"></div>
+      <div class="cp-row">
+        <div class="cp-field"><label class="cp-label">Joining Date</label><input type="date" name="joining_date" class="cp-input"></div>
+        <div class="cp-field"><label class="cp-label">Offer Valid Until</label><input type="date" name="valid_until" class="cp-input"></div>
+      </div>
+      <div class="cp-field"><label class="cp-label">Message to Candidate</label><textarea name="message" class="cp-input" style="min-height:100px" placeholder="Congratulations! We are pleased to offer..."></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button type="button" onclick="document.getElementById('offerModal').style.display='none'" class="cp-btn cp-btn-ghost" style="flex:1">Cancel</button>
+        <button type="submit" class="cp-btn" style="flex:1;background:#10B981;color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;padding:12px">Issue Letter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openStatus(appPk){
+  document.getElementById('statusForm').action = '/campus/company/applications/' + appPk + '/status/';
+  document.getElementById('statusModal').style.display = 'flex';
+}
+function openInterview(appPk){
+  document.getElementById('interviewForm').action = '/campus/company/applications/' + appPk + '/interview/';
+  document.getElementById('interviewModal').style.display = 'flex';
+}
+function openOfferLetter(appPk){
+  document.getElementById('offerForm').action = '/campus/company/applications/' + appPk + '/offer-letter/';
+  document.getElementById('offerModal').style.display = 'flex';
+}
+</script>
 {% endblock %}

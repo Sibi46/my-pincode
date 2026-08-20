@@ -308,7 +308,19 @@ def dashboard(request):
         return redirect('employer_dashboard')
     if request.user.user_type == 'advertiser' or hasattr(request.user, 'advertiser'):
         return redirect('advertiser_dashboard')
-    return redirect('jobseeker_dashboard')
+
+    # Community leader — redirect to their community
+    try:
+        from portal.models import CommunityLeader
+        leader = CommunityLeader.objects.filter(
+            user=request.user, status='accepted'
+        ).select_related('community').first()
+        if leader:
+            return redirect(f'/portal/c/{leader.community.page_id}/')
+    except Exception:
+        pass
+
+    return redirect('home')
 
 
 # ── JOBS ──────────────────────────────────────────────────────────────────────
@@ -931,7 +943,8 @@ def send_otp(request):
         return JsonResponse({'success': False, 'error': 'Enter a valid 10-digit mobile number.'})
 
     User = get_user_model()
-    if User.objects.filter(phone=phone).exists():
+    allow_existing = data.get('allow_existing', False) if isinstance(data, dict) else False
+    if User.objects.filter(phone=phone).exists() and not allow_existing:
         return JsonResponse({'success': False, 'already_registered': True,
                              'error': 'This phone number is already registered. Please sign in.'})
 
@@ -1000,6 +1013,34 @@ def check_phone(request):
     if user:
         return JsonResponse({'exists': True, 'name': user.first_name or user.username})
     return JsonResponse({'exists': False})
+
+
+def forgot_password(request):
+    phone = request.GET.get('phone', '')
+    return render(request, 'forgot_password.html', {'prefill_phone': phone})
+
+
+def reset_password(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    try:
+        data = json.loads(request.body)
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Invalid request'})
+    phone    = data.get('phone', '').strip()
+    password = data.get('password', '').strip()
+    if not phone or not password or len(password) < 6:
+        return JsonResponse({'success': False, 'error': 'Invalid data'})
+    User = get_user_model()
+    user = User.objects.filter(phone=phone).first()
+    if not user:
+        return JsonResponse({'success': False, 'error': 'No account found with this number'})
+    user.set_password(password)
+    user.save()
+    from django.contrib.auth import login as auth_login
+    auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    return JsonResponse({'success': True, 'redirect': '/dashboard/'})
 
 
 def phone_login(request):
@@ -1632,6 +1673,22 @@ def super_admin_users(request):
         messages.error(request, 'Super Admin access required.')
         return redirect('login')
     return _users_list(request)
+
+
+def super_admin_delete_user(request, user_id):
+    if not request.user.is_authenticated or request.user.admin_role != 'super_admin':
+        messages.error(request, 'Super Admin access required.')
+        return redirect('login')
+    if request.method != 'POST':
+        return redirect('super_admin_users')
+    target = get_object_or_404(User, pk=user_id)
+    if target.admin_role == 'super_admin':
+        messages.error(request, 'Cannot delete another Super Admin.')
+        return redirect('super_admin_users')
+    name = target.get_full_name() or target.username
+    target.delete()
+    messages.success(request, f'User "{name}" deleted.')
+    return redirect('super_admin_users')
 
 
 def _users_list(request):
@@ -2271,6 +2328,13 @@ def super_admin_dashboard(request):
         status='pending'
     ).select_related('business').order_by('purchased_at')[:5]
 
+    # Community pending
+    from portal.models import Community
+    community_pending_count = Community.objects.filter(is_verified=False, is_active=True).count()
+    community_pending = Community.objects.filter(
+        is_verified=False, is_active=True
+    ).select_related('created_by', 'category').order_by('created_at')[:10]
+
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
@@ -2288,6 +2352,8 @@ def super_admin_dashboard(request):
         'voucher_revenue': voucher_revenue,
         'pending_voucher_businesses': pending_voucher_businesses,
         'pending_voucher_slots': pending_voucher_slots,
+        'community_pending_count': community_pending_count,
+        'community_pending': community_pending,
     })
 
 
@@ -2613,6 +2679,10 @@ def terms(request):
 
 def privacy(request):
     return render(request, 'privacy.html')
+
+
+def about_page(request):
+    return render(request, 'about.html')
 
 
 def favicon(request):

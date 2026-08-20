@@ -1,0 +1,79 @@
+{% extends 'campus/base_campus.html' %}
+{% block title %}Update Profile – Campus{% endblock %}
+{% block content %}
+<div class="cp-topbar">
+  <a href="/campus/student/dashboard/" class="cp-back">&#8592;</a>
+  <div class="cp-topbar-title">OUR PINCODE <span>Campus</span></div>
+  <span class="cp-topbar-badge">Student</span>
+</div>
+<div class="cp-body">
+  <div class="cp-sec">Update Academic Profile</div>
+  {% if messages %}{% for m in messages %}<div class="cp-msg">{{ m }}</div>{% endfor %}{% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Basic Info</div></div>
+      <div style="padding:16px">
+        <div class="cp-row">
+          <div class="cp-field">
+            <label class="cp-label">Course</label>
+            <input name="course" class="cp-input" value="{{ student.course }}" placeholder="e.g. B.E Computer Science">
+          </div>
+          <div class="cp-field">
+            <label class="cp-label">Current Year</label>
+            <select name="year" class="cp-input">
+              {% for val, label in year_choices %}
+              <option value="{{ val }}" {% if student.year == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Skills (comma separated)</label>
+          <input name="skills" class="cp-input" value="{{ student.skills }}" placeholder="e.g. Python, Java, Communication">
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Resume (PDF)</label>
+          {% if student.resume %}<div style="font-size:12px;color:#64748B;margin-bottom:6px"><a href="{{ student.resume.url }}" target="_blank" style="color:#4F46E5">Current resume →</a></div>{% endif %}
+          <input type="file" name="resume" class="cp-input" accept=".pdf,.doc,.docx">
+        </div>
+      </div>
+    </div>
+
+    <div class="cp-card">
+      <div class="cp-card-head"><div class="cp-card-title">Academic Details</div></div>
+      <div style="padding:16px">
+        <div style="font-size:12px;color:#64748B;margin-bottom:12px">These are used to check your eligibility for job opportunities.</div>
+        <div class="cp-row">
+          <div class="cp-field">
+            <label class="cp-label">CGPA (out of 10)</label>
+            <input name="cgpa" class="cp-input" type="number" step="0.01" min="0" max="10" value="{{ student.cgpa|default:'' }}" placeholder="e.g. 7.50">
+          </div>
+          <div class="cp-field">
+            <label class="cp-label">Active Arrears</label>
+            <input name="active_arrears" class="cp-input" type="number" min="0" value="{{ student.active_arrears|default:'0' }}" placeholder="0">
+          </div>
+        </div>
+        <div class="cp-row">
+          <div class="cp-field">
+            <label class="cp-label">10th Percentage</label>
+            <input name="tenth_percent" class="cp-input" type="number" step="0.01" min="0" max="100" value="{{ student.tenth_percent|default:'' }}" placeholder="e.g. 85.00">
+          </div>
+          <div class="cp-field">
+            <label class="cp-label">12th Percentage</label>
+            <input name="twelfth_percent" class="cp-input" type="number" step="0.01" min="0" max="100" value="{{ student.twelfth_percent|default:'' }}" placeholder="e.g. 78.00">
+          </div>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">Expected Graduation Year</label>
+          <input name="graduation_year" class="cp-input" type="number" min="2020" max="2035" value="{{ student.graduation_year|default:'' }}" placeholder="e.g. 2026">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="cp-btn cp-btn-primary cp-btn-full">Save Profile</button>
+  </form>
+</div>
+{% endblock %}

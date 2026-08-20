@@ -1,0 +1,32 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}My Events{% endblock %}
+{% block content %}
+<div class="pcontent">
+  <div class="psec-header"><div class="psec-title">📅 My Events</div></div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    {% for r in registrations %}
+    <a href="/portal/event/{{ r.event.pk }}/" class="pcard" style="display:grid;grid-template-columns:70px 1fr;gap:0">
+      <div style="background:{% if r.event.date >= today %}linear-gradient(135deg,#1d4ed8,#7c3aed){% else %}#e5e7eb{% endif %};display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;color:{% if r.event.date >= today %}#fff{% else %}#94a3b8{% endif %}">
+        <div style="font-size:18px;font-weight:900;line-height:1">{{ r.event.date|date:"d" }}</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase">{{ r.event.date|date:"M" }}</div>
+      </div>
+      <div class="pcard-body">
+        <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:3px">{{ r.event.name }}</div>
+        <div style="font-size:11px;color:#64748b">{{ r.event.community.name }} · {{ r.event.time|time:"g:i A" }}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <span class="pbadge pbadge-blue">{{ r.get_role_display }}</span>
+          <span class="pbadge {% if r.status == 'approved' %}pbadge-green{% elif r.status == 'pending' %}pbadge-orange{% else %}pbadge-red{% endif %}">{{ r.get_status_display }}</span>
+          {% if r.attended %}<span class="pbadge pbadge-green">✓ Attended</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    {% empty %}
+    <div class="pempty">
+      <div class="pempty-icon">📅</div>
+      <div class="pempty-text">No events registered yet</div>
+      <a href="/portal/events/" class="pbtn pbtn-primary" style="margin-top:14px">Find Events</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
