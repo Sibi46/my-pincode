@@ -130,12 +130,16 @@
       <div class="pcard-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div class="pform-group">
-            <label class="pform-label">Location *</label>
-            <input type="text" name="location" class="pform-input" required placeholder="City / Area">
+            <label class="pform-label">Pincode *</label>
+            <div style="position:relative">
+              <input type="text" name="pincode" id="pincodeInput" class="pform-input" required placeholder="6-digit pincode" maxlength="6" inputmode="numeric" pattern="[0-9]{6}" oninput="onPincodeInput(this)">
+              <span id="pincodeSpinner" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:14px">⏳</span>
+            </div>
+            <div id="pincodeMsg" style="font-size:11px;margin-top:4px;color:#64748b"></div>
           </div>
           <div class="pform-group">
-            <label class="pform-label">Pincode *</label>
-            <input type="text" name="pincode" class="pform-input" required placeholder="6-digit pincode" maxlength="10">
+            <label class="pform-label">Location *</label>
+            <input type="text" name="location" id="locationInput" class="pform-input" required placeholder="Auto-filled from pincode">
           </div>
           <div class="pform-group">
             <label class="pform-label">Community Email</label>
@@ -186,6 +190,48 @@ function previewCreatorPhoto(input) {
     };
     reader.readAsDataURL(input.files[0]);
   }
+}
+
+var _pincodeTimer = null;
+function onPincodeInput(el) {
+  var val = el.value.replace(/\D/g,'');
+  el.value = val;
+  clearTimeout(_pincodeTimer);
+  var msg = document.getElementById('pincodeMsg');
+  if (val.length < 6) {
+    msg.textContent = '';
+    msg.style.color = '#64748b';
+    return;
+  }
+  document.getElementById('pincodeSpinner').style.display = 'inline';
+  msg.textContent = 'Looking up…';
+  msg.style.color = '#64748b';
+  _pincodeTimer = setTimeout(function(){ lookupPincode(val); }, 400);
+}
+
+function lookupPincode(pin) {
+  fetch('https://api.postalpincode.in/pincode/' + pin)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      document.getElementById('pincodeSpinner').style.display = 'none';
+      var msg = document.getElementById('pincodeMsg');
+      var locInput = document.getElementById('locationInput');
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+        var po = data[0].PostOffice[0];
+        var place = po.Block && po.Block !== 'NA' ? po.Block : po.District;
+        var full = place + ', ' + po.State;
+        locInput.value = full;
+        msg.textContent = '✅ ' + po.District + ', ' + po.State;
+        msg.style.color = '#059669';
+      } else {
+        msg.textContent = '❌ Pincode not found — enter location manually';
+        msg.style.color = '#ef4444';
+      }
+    })
+    .catch(function() {
+      document.getElementById('pincodeSpinner').style.display = 'none';
+      document.getElementById('pincodeMsg').textContent = 'Could not fetch — enter location manually';
+    });
 }
 </script>
 {% endblock %}
