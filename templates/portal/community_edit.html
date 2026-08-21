@@ -1,10 +1,10 @@
-{% extends 'portal/base_portal.html' %}
-{% block title %}Edit — {{ community.name }}{% endblock %}
+﻿{% extends 'portal/base_portal.html' %}
+{% block title %}Edit â€” {{ community.name }}{% endblock %}
 {% block content %}
 <div class="pcontent" style="max-width:700px">
   <div class="psec-header">
-    <div class="psec-title">✏️ Edit Community</div>
-    <a href="/portal/c/{{ community.page_id }}/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+    <div class="psec-title">âœï¸ Edit Community</div>
+    <a href="/portal/c/{{ community.page_id }}/" class="pbtn pbtn-outline pbtn-sm">â† Back</a>
   </div>
 
   {% if messages %}
@@ -28,10 +28,10 @@
           <input type="text" name="purpose" class="pform-input" required value="{{ community.purpose }}">
         </div>
         <div class="pform-group">
-          <label class="pform-label">Description * <span style="font-weight:400;color:#94a3b8">(max 100 words)</span></label>
+          <label class="pform-label">Description * <span style="font-weight:400;color:#94a3b8">(max 200 words)</span></label>
           <textarea name="description" id="descInput" class="pform-input" required rows="4" oninput="countWords(this)">{{ community.description }}</textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:4px">
-            <span id="wordCount" style="font-size:11px;font-weight:700;color:#94a3b8">0 / 100 words</span>
+            <span id="wordCount" style="font-size:11px;font-weight:700;color:#94a3b8">0 / 200 words</span>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -45,7 +45,7 @@
           <div class="pform-group">
             <label class="pform-label">Join Mode</label>
             <select name="join_mode" class="pform-input">
-              <option value="open" {% if community.join_mode == 'open' %}selected{% endif %}>Open — Anyone can join</option>
+              <option value="open" {% if community.join_mode == 'open' %}selected{% endif %}>Open â€” Anyone can join</option>
               <option value="approval" {% if community.join_mode == 'approval' %}selected{% endif %}>Admin Approval Required</option>
             </select>
           </div>
@@ -95,7 +95,7 @@
       </div>
     </div>
 
-    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px;margin-bottom:40px">💾 Save Changes</button>
+    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px;margin-bottom:40px">ðŸ’¾ Save Changes</button>
   </form>
 </div>
 {% endblock %}
@@ -106,12 +106,12 @@ function countWords(el) {
   var words = el.value.trim().split(/\s+/).filter(function(w){ return w.length > 0; });
   var count = words.length;
   var counter = document.getElementById('wordCount');
-  if (count > 100) {
-    el.value = words.slice(0, 100).join(' ');
-    count = 100;
+  if (count > 200) {
+    el.value = words.slice(0, 200).join(' ');
+    count = 200;
   }
-  counter.textContent = count + ' / 100 words';
-  counter.style.color = count >= 100 ? '#ef4444' : count >= 80 ? '#f59e0b' : '#94a3b8';
+  counter.textContent = count + ' / 200 words';
+  counter.style.color = count >= 200 ? '#ef4444' : count >= 160 ? '#f59e0b' : '#94a3b8';
 }
 // Init count on load
 document.addEventListener('DOMContentLoaded', function() {
@@ -120,3 +120,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
