@@ -15,7 +15,7 @@ from .models import (
     EventComment, EventAnnouncement, EventPhoto, EventRating,
     VolunteerRequest, Activity, ActivityPhoto,
     Post, PostLike, PostComment, ShortVideo, PortalNotification,
-    Flick, FlickLike,
+    Flick, FlickLike, FlickComment,
 )
 
 
@@ -1546,6 +1546,33 @@ def delete_flick(request, pk):
         flick.save()
         return JsonResponse({'deleted': True})
     return JsonResponse({'error': 'POST required'}, status=405)
+
+
+def flick_comments(request, pk):
+    flick = get_object_or_404(Flick, pk=pk, is_active=True)
+    comments = list(flick.flick_comments.select_related('user').values(
+        'id', 'text', 'created_at', 'user__first_name', 'user__last_name', 'user__username'
+    ))
+    for c in comments:
+        name = (c['user__first_name'] + ' ' + c['user__last_name']).strip()
+        c['name'] = name or c['user__username']
+        del c['user__first_name']; del c['user__last_name']; del c['user__username']
+        c['created_at'] = c['created_at'].strftime('%d %b')
+    return JsonResponse({'comments': comments, 'count': len(comments)})
+
+
+@login_required
+def flick_comment_add(request, pk):
+    flick = get_object_or_404(Flick, pk=pk, is_active=True)
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        text = data.get('text', '').strip()[:500]
+        if text:
+            c = FlickComment.objects.create(flick=flick, user=request.user, text=text)
+            name = request.user.get_full_name() or request.user.username
+            return JsonResponse({'ok': True, 'id': c.pk, 'name': name, 'text': text, 'created_at': c.created_at.strftime('%d %b'), 'count': flick.flick_comments.count()})
+    return JsonResponse({'ok': False})
 
 
 @login_required

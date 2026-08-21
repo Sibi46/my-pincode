@@ -117,19 +117,75 @@ body { background: #000; overflow-x: hidden; }
 
 .flick-actions {
   position: absolute;
-  bottom: 110px; right: 14px;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  bottom: 110px; right: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 22px;
   z-index: 10;
 }
 .flick-action-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
   background: none; border: none; color: #fff; cursor: pointer;
-  font-size: 26px;
+  font-size: 28px; text-decoration: none;
 }
 .flick-action-count {
   font-size: 11px; font-weight: 700; color: #fff;
 }
-.flick-action-btn.liked { color: #ef4444; }
+.flick-action-btn.liked .flick-heart { color: #ef4444; }
+.flick-heart { font-size: 28px; transition: transform .15s; display:block; }
+.flick-action-btn.liked .flick-heart { transform: scale(1.2); }
+
+/* Comment sheet */
+.flick-comment-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: #1a1a2e; border-radius: 20px 20px 0 0;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+  max-height: 75vh; display: flex; flex-direction: column;
+}
+.flick-comment-sheet.open { transform: translateY(0); }
+.flick-comment-sheet-handle {
+  width: 40px; height: 4px; background: rgba(255,255,255,.3);
+  border-radius: 2px; margin: 12px auto 0;
+}
+.flick-comment-sheet-title {
+  font-size: 14px; font-weight: 800; color: #fff;
+  text-align: center; padding: 10px 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.flick-comment-list {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.flick-comment-item { display: flex; gap: 10px; align-items: flex-start; }
+.flick-comment-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,#4f46e5,#7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.flick-comment-body { flex: 1; }
+.flick-comment-name { font-size: 12px; font-weight: 800; color: #a5b4fc; }
+.flick-comment-text { font-size: 13px; color: #e2e8f0; line-height: 1.4; }
+.flick-comment-time { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 2px; }
+.flick-comment-input-row {
+  display: flex; gap: 10px; padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  background: #1a1a2e;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+.flick-comment-input {
+  flex: 1; background: rgba(255,255,255,.1); border: none; border-radius: 20px;
+  padding: 10px 16px; color: #fff; font-size: 14px; outline: none;
+}
+.flick-comment-input::placeholder { color: rgba(255,255,255,.4); }
+.flick-comment-send {
+  background: #4f46e5; border: none; border-radius: 50%;
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; cursor: pointer; flex-shrink: 0;
+}
+.flick-sheet-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 99;
+  background: rgba(0,0,0,.5);
+}
+.flick-sheet-backdrop.open { display: block; }
 
 .flick-play-icon {
   position: absolute;
@@ -206,14 +262,18 @@ body { background: #000; overflow-x: hidden; }
         <button class="flick-action-btn {% if flick.pk in liked_ids %}liked{% endif %}"
                 onclick="likeFlick({{ flick.pk }}, this)"
                 id="likeBtn{{ flick.pk }}">
-          ❤️
+          <span class="flick-heart">❤️</span>
           <span class="flick-action-count" id="likeCount{{ flick.pk }}">{{ flick.like_count }}</span>
         </button>
+        <button class="flick-action-btn" onclick="openComments({{ flick.pk }})">
+          💬
+          <span class="flick-action-count" id="cmtCount{{ flick.pk }}">0</span>
+        </button>
         {% endif %}
-        <a href="/portal/c/{{ flick.community.page_id }}/" class="flick-action-btn" style="text-decoration:none">
-          🏘️
-          <span class="flick-action-count">Community</span>
-        </a>
+        <button class="flick-action-btn" onclick="shareFlick('{{ flick.community.name }}', '{{ flick.caption|escapejs }}', window.location.origin + '/portal/flicks/?community={{ flick.community.page_id }}')">
+          ↗️
+          <span class="flick-action-count">Share</span>
+        </button>
         {% if flick.is_flick and request.user == flick.posted_by %}
         <button class="flick-action-btn" onclick="deleteFlick({{ flick.pk }}, this)" style="color:rgba(255,100,100,.9)">
           🗑️
@@ -235,6 +295,29 @@ body { background: #000; overflow-x: hidden; }
   </div>
   {% endif %}
 
+</div>
+
+<!-- Comment sheet backdrop -->
+<div class="flick-sheet-backdrop" id="commentBackdrop" onclick="closeComments()"></div>
+
+<!-- Comment bottom sheet -->
+<div class="flick-comment-sheet" id="commentSheet">
+  <div class="flick-comment-sheet-handle"></div>
+  <div class="flick-comment-sheet-title">Comments</div>
+  <div class="flick-comment-list" id="commentList">
+    <div style="text-align:center;color:rgba(255,255,255,.4);padding:30px;font-size:13px">Loading…</div>
+  </div>
+  {% if request.user.is_authenticated %}
+  <div class="flick-comment-input-row">
+    <input type="text" class="flick-comment-input" id="commentInput" placeholder="Add a comment…" maxlength="500"
+           onkeydown="if(event.key==='Enter')sendComment()">
+    <button class="flick-comment-send" onclick="sendComment()">➤</button>
+  </div>
+  {% else %}
+  <div style="padding:14px;text-align:center;font-size:13px;color:rgba(255,255,255,.5)">
+    <a href="/login/" style="color:#a5b4fc">Login</a> to comment
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
 
@@ -300,12 +383,94 @@ function likeFlick(pk, btn) {
   }).then(function(r){ return r.json(); }).then(function(data) {
     var countEl = document.getElementById('likeCount' + pk);
     if (countEl) countEl.textContent = data.count;
-    if (data.liked) {
-      btn.classList.add('liked');
-    } else {
-      btn.classList.remove('liked');
+    if (data.liked) { btn.classList.add('liked'); } else { btn.classList.remove('liked'); }
+  });
+}
+
+// ── Comments ──
+var currentFlickPk = null;
+
+function openComments(pk) {
+  currentFlickPk = pk;
+  var sheet = document.getElementById('commentSheet');
+  var backdrop = document.getElementById('commentBackdrop');
+  var list = document.getElementById('commentList');
+  list.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:30px;font-size:13px">Loading…</div>';
+  sheet.classList.add('open');
+  backdrop.classList.add('open');
+  fetch(LIKE_URL_BASE + pk + '/comments/')
+    .then(function(r){ return r.json(); })
+    .then(function(data) { renderComments(data.comments, data.count); });
+}
+
+function closeComments() {
+  document.getElementById('commentSheet').classList.remove('open');
+  document.getElementById('commentBackdrop').classList.remove('open');
+  currentFlickPk = null;
+}
+
+function renderComments(comments, count) {
+  var list = document.getElementById('commentList');
+  if (!comments.length) {
+    list.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.4);padding:30px;font-size:13px">No comments yet. Be first!</div>';
+    return;
+  }
+  list.innerHTML = comments.map(function(c) {
+    return '<div class="flick-comment-item">' +
+      '<div class="flick-comment-avatar">' + c.name.charAt(0).toUpperCase() + '</div>' +
+      '<div class="flick-comment-body">' +
+        '<div class="flick-comment-name">' + c.name + '</div>' +
+        '<div class="flick-comment-text">' + c.text + '</div>' +
+        '<div class="flick-comment-time">' + c.created_at + '</div>' +
+      '</div></div>';
+  }).join('');
+  list.scrollTop = list.scrollHeight;
+  // Update count badge on slide
+  var countEl = document.getElementById('cmtCount' + currentFlickPk);
+  if (countEl) countEl.textContent = count;
+}
+
+function sendComment() {
+  if (!isLoggedIn) { window.location.href = '/login/'; return; }
+  var input = document.getElementById('commentInput');
+  var text = input.value.trim();
+  if (!text || !currentFlickPk) return;
+  input.value = '';
+  fetch(LIKE_URL_BASE + currentFlickPk + '/comment/add/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.ok) {
+      var list = document.getElementById('commentList');
+      var noMsg = list.querySelector('div[style*="No comments"]');
+      if (noMsg) noMsg.remove();
+      var item = document.createElement('div');
+      item.className = 'flick-comment-item';
+      item.innerHTML = '<div class="flick-comment-avatar">' + data.name.charAt(0).toUpperCase() + '</div>' +
+        '<div class="flick-comment-body">' +
+          '<div class="flick-comment-name">' + data.name + '</div>' +
+          '<div class="flick-comment-text">' + data.text + '</div>' +
+          '<div class="flick-comment-time">' + data.created_at + '</div>' +
+        '</div>';
+      list.appendChild(item);
+      list.scrollTop = list.scrollHeight;
+      var countEl = document.getElementById('cmtCount' + currentFlickPk);
+      if (countEl) countEl.textContent = data.count;
     }
   });
+}
+
+// ── Share ──
+function shareFlick(communityName, caption, url) {
+  var text = communityName + (caption ? ' — ' + caption : '');
+  if (navigator.share) {
+    navigator.share({ title: text, url: url }).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(url).then(function() {
+      alert('Link copied!');
+    }).catch(function() { alert('Share: ' + url); });
+  }
 }
 </script>
 {% endblock %}

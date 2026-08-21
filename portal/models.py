@@ -426,6 +426,19 @@ class FlickLike(models.Model):
         unique_together = ('flick', 'user')
 
 
+class FlickComment(models.Model):
+    flick      = models.ForeignKey(Flick, on_delete=models.CASCADE, related_name='flick_comments')
+    user       = models.ForeignKey(User, on_delete=models.CASCADE)
+    text       = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def comment_count(self):
+        return self.flick.flick_comments.count()
+
+
 class PortalNotification(models.Model):
     NOTIF_TYPES = [
         ('join_request','Join Request'),('join_approved','Membership Approved'),
