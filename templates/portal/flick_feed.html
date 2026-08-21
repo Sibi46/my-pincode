@@ -258,24 +258,22 @@ body { background: #000; overflow-x: hidden; }
 
       <!-- Actions -->
       <div class="flick-actions">
-        {% if flick.is_flick %}
         <button class="flick-action-btn {% if flick.pk in liked_ids %}liked{% endif %}"
-                onclick="likeFlick({{ flick.pk }}, this)"
+                onclick="likeFlick('{{ flick.pk }}', this)"
                 id="likeBtn{{ flick.pk }}">
           <span class="flick-heart">❤️</span>
           <span class="flick-action-count" id="likeCount{{ flick.pk }}">{{ flick.like_count }}</span>
         </button>
-        <button class="flick-action-btn" onclick="openComments({{ flick.pk }})">
+        <button class="flick-action-btn" onclick="openComments('{{ flick.pk }}', {{ flick.is_flick|yesno:'true,false' }})">
           💬
           <span class="flick-action-count" id="cmtCount{{ flick.pk }}">0</span>
         </button>
-        {% endif %}
         <button class="flick-action-btn" onclick="shareFlick('{{ flick.community.name }}', '{{ flick.caption|escapejs }}', window.location.origin + '/portal/flicks/?community={{ flick.community.page_id }}')">
           ↗️
           <span class="flick-action-count">Share</span>
         </button>
         {% if flick.is_flick and request.user == flick.posted_by %}
-        <button class="flick-action-btn" onclick="deleteFlick({{ flick.pk }}, this)" style="color:rgba(255,100,100,.9)">
+        <button class="flick-action-btn" onclick="deleteFlick('{{ flick.pk }}', this)" style="color:rgba(255,100,100,.9)">
           🗑️
           <span class="flick-action-count">Delete</span>
         </button>
@@ -377,6 +375,8 @@ function deleteFlick(pk, btn) {
 
 function likeFlick(pk, btn) {
   if (!isLoggedIn) { window.location.href = '/login/'; return; }
+  // ShortVideo items have pk like 'v5' — no like API for them
+  if (isNaN(parseInt(pk))) return;
   fetch(LIKE_URL_BASE + pk + '/like/', {
     method: 'POST',
     headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
@@ -390,7 +390,12 @@ function likeFlick(pk, btn) {
 // ── Comments ──
 var currentFlickPk = null;
 
-function openComments(pk) {
+function openComments(pk, isFlick) {
+  // ShortVideo items don't have comment API
+  if (!isFlick) {
+    if (!isLoggedIn) { window.location.href = '/login/'; return; }
+    return;
+  }
   currentFlickPk = pk;
   var sheet = document.getElementById('commentSheet');
   var backdrop = document.getElementById('commentBackdrop');
