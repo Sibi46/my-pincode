@@ -36,7 +36,7 @@
         {% if 'event_coordinator' not in taken_roles or m.current_role_key == 'event_coordinator' %}<option value="event_coordinator" {% if m.current_role_key == 'event_coordinator' %}selected{% endif %}>Event Coord.</option>{% endif %}
         {% if 'volunteer_coordinator' not in taken_roles or m.current_role_key == 'volunteer_coordinator' %}<option value="volunteer_coordinator" {% if m.current_role_key == 'volunteer_coordinator' %}selected{% endif %}>Volunteer Coord.</option>{% endif %}
         {% if 'media_coordinator' not in taken_roles or m.current_role_key == 'media_coordinator' %}<option value="media_coordinator" {% if m.current_role_key == 'media_coordinator' %}selected{% endif %}>Media Coord.</option>{% endif %}
-        <option value="other" {% if m.current_role_key == 'other' %}selected{% endif %}>Other…</option>
+        <option value="member" {% if m.current_role_key == 'member' %}selected{% endif %}>Member</option>
       </select>
       <input type="text" name="custom_role" placeholder="Role name…" class="custom-role-input"
         style="{% if m.current_role_key == 'other' %}display:block{% else %}display:none{% endif %};font-size:11px;padding:4px 6px;border-radius:8px;border:1.5px solid #c7d2fe;color:#374151;width:100%;margin-top:4px"

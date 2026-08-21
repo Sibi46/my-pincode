@@ -107,7 +107,7 @@ class CommunityLeader(models.Model):
         ('event_coordinator', 'Event Coordinator'),
         ('volunteer_coordinator', 'Volunteer Coordinator'),
         ('media_coordinator', 'Media Coordinator'),
-        ('other', 'Other'),
+        ('member', 'Member'),
     ]
     STATUSES = [('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')]
 

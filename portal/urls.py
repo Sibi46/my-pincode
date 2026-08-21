@@ -48,6 +48,7 @@ urlpatterns = [
     # Post interactions
     path('post/<int:pk>/like/',                 views.like_post,              name='portal_like_post'),
     path('post/<int:pk>/comment/',              views.comment_post,           name='portal_comment_post'),
+    path('post/<int:pk>/delete/',               views.delete_post,            name='portal_delete_post'),
 
     # Videos
     path('video/<int:pk>/delete/',              views.delete_video,           name='portal_delete_video'),

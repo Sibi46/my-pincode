@@ -583,9 +583,9 @@ def manage_members(request, page_id):
                 CommunityLeader.objects.filter(community=community, user=member.user).delete()
                 CommunityLeader.objects.create(
                     community=community, user=member.user, role=role, status='accepted',
-                    custom_role=custom_role if role == 'other' else ''
+                    custom_role=custom_role if role == 'member' else ''
                 )
-                role_label = custom_role if role == 'other' and custom_role else dict(CommunityLeader.ROLES).get(role, role)
+                role_label = custom_role if role == 'member' and custom_role else dict(CommunityLeader.ROLES).get(role, role)
                 messages.success(request, f'{member.user.get_full_name() or member.user.username} assigned as {role_label}.')
         return redirect(f'/portal/c/{page_id}/members/?status={request.POST.get("status_filter","approved")}')
 
@@ -595,7 +595,7 @@ def manage_members(request, page_id):
     # Roles already taken in this community (excluding 'other')
     taken_roles = set(
         CommunityLeader.objects.filter(community=community, status='accepted')
-        .exclude(role='other')
+        .exclude(role='member')
         .values_list('role', flat=True)
     )
     # Annotate each membership with the member's current leader role label
@@ -627,7 +627,7 @@ def add_leader(request, page_id):
     if request.method == 'POST':
         import random, string
         p          = request.POST
-        role       = p.get('role', 'other')
+        role       = p.get('role', 'member')
         email      = p.get('email', '').strip()
         phone      = p.get('phone', '').strip()
         role_label = dict(CommunityLeader.ROLES).get(role, role)
@@ -1317,6 +1317,18 @@ def comment_post(request, pk):
         if content:
             PostComment.objects.create(post=post, user=request.user, content=content)
     return redirect(request.META.get('HTTP_REFERER', f'/portal/c/{post.community.page_id}/'))
+
+
+@login_required
+def delete_post(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    community = post.community
+    if post.author == request.user or community.is_admin(request.user):
+        page_id = community.page_id
+        post.delete()
+        return redirect(f'/portal/c/{page_id}/')
+    messages.error(request, 'Permission denied.')
+    return redirect(f'/portal/c/{community.page_id}/')
 
 
 # ──────────────────────────────────────────────
