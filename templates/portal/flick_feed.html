@@ -135,7 +135,7 @@ body { background: #000; overflow-x: hidden; }
 
 /* Comment sheet */
 .flick-comment-sheet {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
   background: #1a1a2e; border-radius: 20px 20px 0 0;
   transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
   max-height: 75vh; display: flex; flex-direction: column;
@@ -182,7 +182,7 @@ body { background: #000; overflow-x: hidden; }
   color: #fff; font-size: 16px; cursor: pointer; flex-shrink: 0;
 }
 .flick-sheet-backdrop {
-  display: none; position: fixed; inset: 0; z-index: 99;
+  display: none; position: fixed; inset: 0; z-index: 299;
   background: rgba(0,0,0,.5);
 }
 .flick-sheet-backdrop.open { display: block; }
@@ -261,7 +261,7 @@ body { background: #000; overflow-x: hidden; }
         <button class="flick-action-btn {% if flick.pk in liked_ids %}liked{% endif %}"
                 onclick="likeFlick({{ flick.pk }}, this)"
                 id="likeBtn{{ flick.pk }}">
-          <span class="flick-heart">❤️</span>
+          <span class="flick-heart">{% if flick.pk in liked_ids %}❤️{% else %}🤍{% endif %}</span>
           <span class="flick-action-count" id="likeCount{{ flick.pk }}">{{ flick.like_count }}</span>
         </button>
         <button class="flick-action-btn" onclick="openComments({{ flick.pk }})">
@@ -381,7 +381,14 @@ function likeFlick(pk, btn) {
   }).then(function(r){ return r.json(); }).then(function(data) {
     var countEl = document.getElementById('likeCount' + pk);
     if (countEl) countEl.textContent = data.count;
-    if (data.liked) { btn.classList.add('liked'); } else { btn.classList.remove('liked'); }
+    var heart = btn.querySelector('.flick-heart');
+    if (data.liked) {
+      btn.classList.add('liked');
+      if (heart) heart.textContent = '❤️';
+    } else {
+      btn.classList.remove('liked');
+      if (heart) heart.textContent = '🤍';
+    }
   });
 }
 
