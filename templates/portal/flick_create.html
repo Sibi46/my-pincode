@@ -59,9 +59,17 @@
       </div>
     </div>
 
-    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:14px">
+    <button type="submit" id="submitBtn" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:14px">
       🚀 Post Flick
     </button>
+
+    <!-- Upload progress (hidden until submit) -->
+    <div id="uploadProgress" style="display:none;margin-top:14px">
+      <div style="background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin-bottom:8px">
+        <div id="uploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:99px;transition:width .3s ease"></div>
+      </div>
+      <div id="uploadStatus" style="text-align:center;font-size:13px;color:#64748b;font-weight:600">Uploading… 0%</div>
+    </div>
   </form>
   {% endif %}
 </div>
@@ -87,5 +95,58 @@ function previewMedia(input) {
     video.style.display = 'none';
   }
 }
+
+document.querySelector('form').addEventListener('submit', function(e) {
+  var file = document.getElementById('mediaInput').files[0];
+  if (!file) return;
+  e.preventDefault();
+
+  var form = this;
+  var btn = document.getElementById('submitBtn');
+  var progressWrap = document.getElementById('uploadProgress');
+  var bar = document.getElementById('uploadBar');
+  var status = document.getElementById('uploadStatus');
+
+  btn.disabled = true;
+  btn.textContent = 'Uploading…';
+  progressWrap.style.display = 'block';
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', form.action || window.location.pathname);
+
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = pct + '%';
+      status.textContent = 'Uploading… ' + pct + '%';
+      if (pct === 100) status.textContent = 'Processing… please wait';
+    }
+  };
+
+  xhr.onload = function() {
+    if (xhr.status >= 200 && xhr.status < 400) {
+      status.textContent = 'Done! Redirecting…';
+      bar.style.width = '100%';
+      document.open();
+      document.write(xhr.responseText);
+      document.close();
+      window.history.replaceState({}, '', xhr.responseURL || window.location.pathname);
+    } else {
+      status.textContent = 'Upload failed. Please try again.';
+      btn.disabled = false;
+      btn.textContent = '🚀 Post Flick';
+    }
+  };
+
+  xhr.onerror = function() {
+    status.textContent = 'Network error. Please try again.';
+    btn.disabled = false;
+    btn.textContent = '🚀 Post Flick';
+  };
+
+  var formData = new FormData(form);
+  xhr.setRequestHeader('X-CSRFToken', formData.get('csrfmiddlewaretoken'));
+  xhr.send(formData);
+});
 </script>
 {% endblock %}
