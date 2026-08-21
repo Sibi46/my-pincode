@@ -89,6 +89,7 @@ def community_page(request, page_id):
     events     = community.events.filter(is_active=True, date__gte=timezone.now().date()).order_by('date')[:5]
     activities = community.activities.filter(is_active=True).order_by('-date')[:5]
     videos     = community.videos.filter(is_active=True).order_by('-created_at')[:6]
+    flicks     = community.flicks.filter(is_active=True).order_by('-created_at')[:6]
     leaders    = community.leaders.filter(status='accepted').order_by('role')
     members    = community.memberships.filter(status='approved').select_related('user').prefetch_related('user__seeker')[:12]
 
@@ -96,7 +97,7 @@ def community_page(request, page_id):
         'community': community, 'is_member': is_member,
         'is_admin': is_admin, 'membership': membership,
         'posts': posts, 'causes': causes, 'events': events,
-        'activities': activities, 'videos': videos,
+        'activities': activities, 'videos': videos, 'flicks': flicks,
         'leaders': leaders, 'members': members,
     })
 
