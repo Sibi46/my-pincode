@@ -132,9 +132,15 @@ body { background: #000; overflow-x: hidden; }
 .flick-action-btn.liked { color: #ef4444; }
 
 .flick-play-icon {
-  position: absolute; font-size: 60px; color: rgba(255,255,255,.6);
-  pointer-events: none; z-index: 5;
-  transition: opacity .3s;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 64px; color: rgba(255,255,255,.85);
+  z-index: 5;
+  transition: opacity .25s;
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+  cursor: pointer;
+  user-select: none;
 }
 
 /* Bottom nav override for flick page */
@@ -170,8 +176,8 @@ body { background: #000; overflow-x: hidden; }
       {% if flick.media_type == 'video' %}
       <video class="flick-media" loop playsinline preload="none"
              src="{{ flick.media.url }}"
-             onclick="togglePlay(this)"></video>
-      <div class="flick-play-icon" id="playIcon{{ flick.pk }}">▶</div>
+             onclick="togglePlay(this, {{ flick.pk }})"></video>
+      <div class="flick-play-icon" id="playIcon{{ flick.pk }}" onclick="togglePlay(this.previousElementSibling, {{ flick.pk }})">▶</div>
       {% else %}
       <img class="flick-media" src="{{ flick.media.url }}" alt="{{ flick.caption }}">
       {% endif %}
@@ -206,6 +212,12 @@ body { background: #000; overflow-x: hidden; }
           🏘️
           <span class="flick-action-count">Community</span>
         </a>
+        {% if request.user == flick.posted_by %}
+        <button class="flick-action-btn" onclick="deleteFlick({{ flick.pk }}, this)" style="color:rgba(255,100,100,.9)">
+          🗑️
+          <span class="flick-action-count">Delete</span>
+        </button>
+        {% endif %}
       </div>
 
     </div>
@@ -234,8 +246,9 @@ var isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
 var observer = new IntersectionObserver(function(entries) {
   entries.forEach(function(entry) {
     var slide = entry.target;
+    var pk = slide.id.replace('flick-', '');
     var video = slide.querySelector('video');
-    var icon  = slide.querySelector('[id^="playIcon"]');
+    var icon  = document.getElementById('playIcon' + pk);
     if (video) {
       if (entry.isIntersecting) {
         video.play().catch(function(){});
@@ -243,6 +256,7 @@ var observer = new IntersectionObserver(function(entries) {
       } else {
         video.pause();
         video.currentTime = 0;
+        if (icon) icon.style.opacity = '1';
       }
     }
   });
@@ -252,8 +266,8 @@ document.querySelectorAll('.flick-slide').forEach(function(slide) {
   observer.observe(slide);
 });
 
-function togglePlay(video) {
-  var icon = video.parentElement.querySelector('[id^="playIcon"]');
+function togglePlay(video, pk) {
+  var icon = document.getElementById('playIcon' + pk);
   if (video.paused) {
     video.play();
     if (icon) icon.style.opacity = '0';
@@ -261,6 +275,19 @@ function togglePlay(video) {
     video.pause();
     if (icon) icon.style.opacity = '1';
   }
+}
+
+function deleteFlick(pk, btn) {
+  if (!confirm('Delete this Flick?')) return;
+  fetch(LIKE_URL_BASE + pk + '/delete/', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' }
+  }).then(function(r){ return r.json(); }).then(function(data) {
+    if (data.deleted) {
+      var slide = document.getElementById('flick-' + pk);
+      if (slide) slide.remove();
+    }
+  });
 }
 
 function likeFlick(pk, btn) {

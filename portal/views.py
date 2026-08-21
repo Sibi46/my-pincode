@@ -1503,6 +1503,16 @@ def like_flick(request, pk):
 
 
 @login_required
+def delete_flick(request, pk):
+    flick = get_object_or_404(Flick, pk=pk, posted_by=request.user)
+    if request.method == 'POST':
+        flick.is_active = False
+        flick.save()
+        return JsonResponse({'deleted': True})
+    return JsonResponse({'error': 'POST required'}, status=405)
+
+
+@login_required
 def admin_communities(request):
     if not _require_staff(request):
         return redirect('portal_home')

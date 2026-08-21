@@ -10,6 +10,7 @@ urlpatterns = [
     path('flicks/',                             views.flick_feed,             name='portal_flicks'),
     path('flicks/create/',                      views.create_flick,           name='portal_create_flick'),
     path('flick/<int:pk>/like/',               views.like_flick,             name='portal_like_flick'),
+    path('flick/<int:pk>/delete/',             views.delete_flick,           name='portal_delete_flick'),
     path('event/<int:pk>/',                     views.event_detail,           name='portal_event_detail'),
     path('videos/',                             views.videos_list,            name='portal_videos'),
     path('search/',                             views.portal_search,          name='portal_search'),
