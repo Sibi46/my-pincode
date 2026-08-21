@@ -1495,13 +1495,24 @@ def flick_feed(request):
     flicks_qs = flicks_qs.order_by('-created_at')
 
     liked_ids = set()
+    admin_community_ids = set()
     if request.user.is_authenticated:
         liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
+        # Communities where current user is admin/leader
+        from portal.models import CommunityLeader
+        admin_community_ids = set(
+            Community.objects.filter(created_by=request.user, is_active=True).values_list('page_id', flat=True)
+        ) | set(
+            CommunityLeader.objects.filter(user=request.user, status='accepted').values_list('community__page_id', flat=True)
+        )
+        if getattr(request.user, 'admin_role', '') == 'super_admin':
+            admin_community_ids = set(Community.objects.values_list('page_id', flat=True))
 
     return render(request, 'portal/flick_feed.html', {
         'flicks': flicks_qs,
         'liked_ids': liked_ids,
         'community_filter': community_filter,
+        'admin_community_ids': admin_community_ids,
     })
 
 
@@ -1568,6 +1579,29 @@ def delete_flick(request, pk):
         flick.save()
         return JsonResponse({'deleted': True})
     return JsonResponse({'error': 'POST required'}, status=405)
+
+
+def member_profile(request, user_id):
+    target = get_object_or_404(User, pk=user_id)
+    # Only community admins can view this
+    if not request.user.is_authenticated:
+        return redirect(f'/login/?next=/portal/member/{user_id}/')
+    is_any_admin = (
+        getattr(request.user, 'admin_role', '') == 'super_admin' or
+        CommunityLeader.objects.filter(user=request.user, status='accepted').exists() or
+        Community.objects.filter(created_by=request.user).exists()
+    )
+    if not is_any_admin:
+        messages.error(request, 'Access denied.')
+        return redirect('portal_home')
+    try:
+        profile = target.seeker
+    except Exception:
+        profile = None
+    return render(request, 'portal/member_profile.html', {
+        'target': target,
+        'profile': profile,
+    })
 
 
 @login_required

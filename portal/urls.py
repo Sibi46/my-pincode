@@ -61,6 +61,7 @@ urlpatterns = [
     path('leader/accept/<str:token>/',          views.leader_accept,          name='portal_leader_accept'),
 
     # User pages
+    path('member/<int:user_id>/',               views.member_profile,         name='portal_member_profile'),
     path('my/communities/',                     views.my_communities,         name='portal_my_communities'),
     path('my/events/',                          views.my_events,              name='portal_my_events'),
     path('my/notifications/',                   views.portal_notifications,   name='portal_notifications'),

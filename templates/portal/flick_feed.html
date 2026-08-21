@@ -250,9 +250,15 @@ body { background: #000; overflow-x: hidden; }
           {% endif %}
           <span class="flick-comm-name">{{ flick.community.name }}</span>
         </a>
-        <a href="/candidates/{{ flick.posted_by.pk }}/" class="flick-poster" style="text-decoration:none;display:block">
+        {% if flick.community.page_id in admin_community_ids %}
+        <a href="/portal/member/{{ flick.posted_by.pk }}/" class="flick-poster" style="text-decoration:none;display:block">
           <i class="fas fa-user-circle" style="margin-right:4px"></i>{{ flick.posted_by.get_full_name|default:flick.posted_by.username }}
         </a>
+        {% else %}
+        <div class="flick-poster">
+          <i class="fas fa-user-circle" style="margin-right:4px"></i>{{ flick.posted_by.get_full_name|default:flick.posted_by.username }}
+        </div>
+        {% endif %}
         {% if flick.approved_by %}
         <div style="font-size:10px;color:rgba(255,255,255,.55);margin-bottom:5px">
           ✓ Approved by {{ flick.approved_by.get_full_name|default:flick.approved_by.username }}
