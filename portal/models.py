@@ -399,13 +399,14 @@ class ShortVideo(models.Model):
 class Flick(models.Model):
     MEDIA_TYPES = [('video', 'Video'), ('image', 'Image')]
 
-    community  = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='flicks')
-    posted_by  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='portal_flicks')
-    caption    = models.CharField(max_length=300, blank=True)
-    media      = models.FileField(upload_to='portal/flicks/')
-    media_type = models.CharField(max_length=5, choices=MEDIA_TYPES, default='video')
-    is_active  = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    community       = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='flicks')
+    posted_by       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='portal_flicks')
+    caption         = models.CharField(max_length=300, blank=True)
+    media           = models.FileField(upload_to='portal/flicks/')
+    media_type      = models.CharField(max_length=5, choices=MEDIA_TYPES, default='video')
+    is_active       = models.BooleanField(default=True)
+    created_at      = models.DateTimeField(auto_now_add=True)
+    source_video_id = models.IntegerField(null=True, blank=True, unique=True)
 
     class Meta:
         ordering = ['-created_at']

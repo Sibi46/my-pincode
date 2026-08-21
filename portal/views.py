@@ -1443,48 +1443,35 @@ def edit_community(request, page_id):
 def flick_feed(request):
     community_filter = request.GET.get('community', '')
 
-    flicks_qs = Flick.objects.filter(is_active=True).select_related('community', 'posted_by')
+    # Auto-promote ShortVideos to Flick records so likes/comments work
     videos_qs = ShortVideo.objects.filter(is_active=True).select_related('community', 'uploader')
     if community_filter:
-        flicks_qs = flicks_qs.filter(community__page_id=community_filter)
         videos_qs = videos_qs.filter(community__page_id=community_filter)
+    for v in videos_qs:
+        Flick.objects.get_or_create(
+            source_video_id=v.pk,
+            defaults={
+                'community': v.community,
+                'posted_by': v.uploader,
+                'caption': v.title,
+                'media': v.video,
+                'media_type': 'video',
+                'is_active': True,
+                'created_at': v.created_at,
+            }
+        )
+
+    flicks_qs = Flick.objects.filter(is_active=True).select_related('community', 'posted_by')
+    if community_filter:
+        flicks_qs = flicks_qs.filter(community__page_id=community_filter)
+    flicks_qs = flicks_qs.order_by('-created_at')
 
     liked_ids = set()
     if request.user.is_authenticated:
         liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
 
-    # Normalise ShortVideo into flick-compatible objects
-    class _VideoWrap:
-        def __init__(self, v):
-            self._v = v
-            self.pk = f'v{v.pk}'
-            self.media_type = 'video'
-            self.media = v.video
-            self.caption = v.title
-            self.community = v.community
-            self.posted_by = v.uploader
-            self.created_at = v.created_at
-            self.is_flick = False
-        def like_count(self): return 0
-
-    class _FlickWrap:
-        def __init__(self, f):
-            self._f = f
-            self.pk = f.pk
-            self.media_type = f.media_type
-            self.media = f.media
-            self.caption = f.caption
-            self.community = f.community
-            self.posted_by = f.posted_by
-            self.created_at = f.created_at
-            self.is_flick = True
-        def like_count(self): return self._f.like_count()
-
-    items = [_FlickWrap(f) for f in flicks_qs] + [_VideoWrap(v) for v in videos_qs]
-    items.sort(key=lambda x: x.created_at, reverse=True)
-
     return render(request, 'portal/flick_feed.html', {
-        'flicks': items,
+        'flicks': flicks_qs,
         'liked_ids': liked_ids,
         'community_filter': community_filter,
     })
