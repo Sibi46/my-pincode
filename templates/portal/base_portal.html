@@ -366,16 +366,16 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
     <span>Home</span>
   </a>
   <a href="/portal/flicks/" class="pbot-nav-item {% if '/flicks' in request.path %}active{% endif %}">
-    <div class="pbot-icon">🎬</div>
-    <span>Flick</span>
+    <div class="pbot-icon"><i class="fas fa-users" style="font-size:18px"></i></div>
+    <span>Community</span>
   </a>
   <a href="/portal/create/" class="pbot-nav-item pbot-create">
     <div class="pbot-icon">➕</div>
     <span>Create</span>
   </a>
-  <a href="/portal/flicks/" class="pbot-nav-item {% if '/flicks' in request.path %}active{% endif %}">
-    <div class="pbot-icon"><i class="fas fa-users" style="font-size:18px"></i></div>
-    <span>Community</span>
+  <a href="/portal/communities/" class="pbot-nav-item {% if request.path == '/portal/communities/' %}active{% endif %}">
+    <div class="pbot-icon">🔍</div>
+    <span>Explore</span>
   </a>
 </nav>
 {% endblock %}
