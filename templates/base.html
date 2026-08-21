@@ -697,6 +697,26 @@ document.addEventListener('click',function(e){
 });
 </script>
 {% block extra_js %}{% endblock %}
+<script>
+/* Global field restrictions */
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll(
+    'input[name*="phone"],input[name="mobile"],input[name="contact_phone"],input[name="creator_phone"],input[type="tel"]'
+  ).forEach(function(el){
+    el.setAttribute('inputmode','numeric');
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/[^0-9]/g,'');
+    });
+  });
+  document.querySelectorAll(
+    'input[name="full_name"],input[name="first_name"],input[name="last_name"]'
+  ).forEach(function(el){
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/[^a-zA-Z\s]/g,'');
+    });
+  });
+});
+</script>
 
 {% if ads_by_type.popup %}
 {% with ad=ads_by_type.popup|first %}

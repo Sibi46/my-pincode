@@ -552,5 +552,37 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
   document.addEventListener('DOMContentLoaded', attachAll);
 })();
 </script>
+<script>
+/* Global field restrictions */
+document.addEventListener('DOMContentLoaded', function(){
+  /* Phone fields: numbers only */
+  document.querySelectorAll(
+    'input[name*="phone"],input[name="mobile"],input[name="contact_phone"],input[name="creator_phone"]'
+  ).forEach(function(el){
+    el.setAttribute('inputmode','numeric');
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/[^0-9]/g,'');
+    });
+    el.addEventListener('keypress',function(e){
+      if(!/[0-9]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab'].includes(e.key)){
+        e.preventDefault();
+      }
+    });
+  });
+  /* Name fields: letters and spaces only */
+  document.querySelectorAll(
+    'input[name="full_name"],input[name="first_name"],input[name="last_name"],input[name="name"]:not([name*="community"]):not([name*="event"]):not([name*="cause"]):not([name*="activity"])'
+  ).forEach(function(el){
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/[^a-zA-Z஀-௿ऀ-ॿ\s]/g,'');
+    });
+    el.addEventListener('keypress',function(e){
+      if(!/[a-zA-Z஀-௿ऀ-ॿ\s]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab'].includes(e.key)){
+        e.preventDefault();
+      }
+    });
+  });
+});
+</script>
 </body>
 </html>
