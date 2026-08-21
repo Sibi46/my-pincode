@@ -41,6 +41,60 @@
   <div class="pgrid">
     <div>
 
+      <!-- PENDING EVENT REQUESTS -->
+      {% if pending_events %}
+      <div class="pcard" style="margin-bottom:14px;border-color:#fde68a">
+        <div class="pcard-head" style="background:#fffbeb">
+          <div class="pcard-title" style="color:#92400e">⏳ Pending Event Requests ({{ pending_events|length }})</div>
+        </div>
+        <div class="pcard-body" style="padding:0">
+          {% for event in pending_events %}
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #fef3c7;flex-wrap:wrap">
+            <div style="flex:1;min-width:150px">
+              <div style="font-size:13px;font-weight:700;color:#0f172a">{{ event.name }}</div>
+              <div style="font-size:11px;color:#64748b">{{ event.date|date:"d M Y" }} · {{ event.time|time:"g:i A" }}</div>
+              <div style="font-size:11px;color:#94a3b8">By {{ event.created_by.get_full_name|default:event.created_by.username }}</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <form method="post" action="/portal/event/{{ event.pk }}/approve/">{% csrf_token %}<button type="submit" class="pbtn pbtn-green pbtn-sm">✓ Approve</button></form>
+              <form method="post" action="/portal/event/{{ event.pk }}/reject/" onsubmit="return confirm('Reject this event?')">{% csrf_token %}<button type="submit" class="pbtn pbtn-sm" style="background:#fee2e2;color:#dc2626;border:none">✗ Reject</button></form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- PENDING FLICK REQUESTS -->
+      {% if pending_flicks %}
+      <div class="pcard" style="margin-bottom:14px;border-color:#e9d5ff">
+        <div class="pcard-head" style="background:#faf5ff">
+          <div class="pcard-title" style="color:#6b21a8">🎬 Pending Flick Requests ({{ pending_flicks|length }})</div>
+        </div>
+        <div class="pcard-body" style="padding:0">
+          {% for flick in pending_flicks %}
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #f3e8ff;flex-wrap:wrap">
+            <div style="width:52px;height:52px;border-radius:8px;overflow:hidden;background:#0f172a;flex-shrink:0">
+              {% if flick.media_type == 'video' %}
+                <video src="{{ flick.media.url }}" style="width:100%;height:100%;object-fit:cover" muted preload="none"></video>
+              {% else %}
+                <img src="{{ flick.media.url }}" style="width:100%;height:100%;object-fit:cover">
+              {% endif %}
+            </div>
+            <div style="flex:1;min-width:120px">
+              <div style="font-size:13px;font-weight:700;color:#0f172a">{{ flick.caption|default:"No caption"|truncatechars:40 }}</div>
+              <div style="font-size:11px;color:#94a3b8">By {{ flick.posted_by.get_full_name|default:flick.posted_by.username }} · {{ flick.created_at|date:"d M Y" }}</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <form method="post" action="/portal/flick/{{ flick.pk }}/approve/">{% csrf_token %}<button type="submit" class="pbtn pbtn-green pbtn-sm">✓ Approve</button></form>
+              <form method="post" action="/portal/flick/{{ flick.pk }}/reject/" onsubmit="return confirm('Reject this flick?')">{% csrf_token %}<button type="submit" class="pbtn pbtn-sm" style="background:#fee2e2;color:#dc2626;border:none">✗ Reject</button></form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <!-- PENDING JOIN REQUESTS (president/creator only) -->
       {% if can_manage_members and recent_requests %}
       <div class="pcard" style="margin-bottom:14px">

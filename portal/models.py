@@ -75,9 +75,6 @@ class Community(models.Model):
             return True
         if self.created_by == user:
             return True
-        # Phone-match fallback: same phone number = same person (different account)
-        if user.phone and self.created_by_id and self.created_by.phone == user.phone:
-            return True
         return self.leaders.filter(user=user, status='accepted').exists()
 
     def can_manage_members(self, user):

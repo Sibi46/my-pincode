@@ -541,6 +541,8 @@ def community_dashboard(request, page_id):
         'recent_requests': community.memberships.filter(status='pending').select_related('user')[:5],
         'recent_volunteers': community.volunteer_requests.filter(status='pending')[:5],
         'upcoming_events': community.events.filter(is_active=True, date__gte=timezone.now().date()).order_by('date')[:3],
+        'pending_events': community.events.filter(is_active=False).select_related('created_by').order_by('date'),
+        'pending_flicks': community.flicks.filter(is_active=False).select_related('posted_by').order_by('-created_at'),
     })
 
 
@@ -1524,14 +1526,21 @@ def create_flick(request):
         media = request.FILES['media']
         media_type = 'video' if media.content_type.startswith('video') else 'image'
 
+        is_comm_admin = community.is_admin(request.user)
         flick = Flick.objects.create(
             community=community,
             posted_by=request.user,
             caption=p.get('caption', '').strip()[:300],
             media=media,
             media_type=media_type,
+            is_active=is_comm_admin,
         )
-        messages.success(request, 'Flick posted!')
+        if is_comm_admin:
+            messages.success(request, 'Flick posted!')
+        else:
+            if community.created_by:
+                _notify(community.created_by, 'flick_request', f'{request.user.get_full_name() or request.user.username} posted a Flick in {community.name} — awaiting your approval.', f'/portal/c/{community.page_id}/dashboard/')
+            messages.success(request, 'Flick submitted! Waiting for admin approval.')
         return redirect('portal_flicks')
 
     preselect = request.GET.get('community', '')
@@ -1559,6 +1568,27 @@ def delete_flick(request, pk):
         flick.save()
         return JsonResponse({'deleted': True})
     return JsonResponse({'error': 'POST required'}, status=405)
+
+
+@login_required
+def approve_flick(request, pk):
+    flick = get_object_or_404(Flick, pk=pk)
+    if flick.community and flick.community.is_admin(request.user):
+        flick.is_active = True
+        flick.save(update_fields=['is_active'])
+        messages.success(request, 'Flick approved and published.')
+    return redirect(f'/portal/c/{flick.community.page_id}/dashboard/')
+
+
+@login_required
+def reject_flick(request, pk):
+    flick = get_object_or_404(Flick, pk=pk)
+    if flick.community and flick.community.is_admin(request.user):
+        page_id = flick.community.page_id
+        flick.delete()
+        messages.success(request, 'Flick rejected and removed.')
+        return redirect(f'/portal/c/{page_id}/dashboard/')
+    return redirect('portal_home')
 
 
 def flick_comments(request, pk):
