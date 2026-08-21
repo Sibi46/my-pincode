@@ -361,11 +361,11 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
 {% block bottom_nav %}
 <!-- Default bottom nav -->
 <nav class="pbot-nav">
-  <a href="/portal/" class="pbot-nav-item {% if request.path == '/portal/' %}active{% endif %}">
+  <a href="/" class="pbot-nav-item">
     <div class="pbot-icon">🏠</div>
     <span>Home</span>
   </a>
-  <a href="/portal/flicks/" class="pbot-nav-item {% if '/flicks' in request.path %}active{% endif %}">
+  <a href="/portal/communities/" class="pbot-nav-item {% if '/communities' in request.path %}active{% endif %}">
     <div class="pbot-icon"><i class="fas fa-users" style="font-size:18px"></i></div>
     <span>Community</span>
   </a>
