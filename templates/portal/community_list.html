@@ -19,26 +19,29 @@
     <button type="submit" class="pbtn pbtn-primary">Search</button>
   </form>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px">
     {% for c in communities %}
     <a href="/portal/c/{{ c.page_id }}/" class="comm-card">
       <div class="comm-card-cover">
-        {% if c.cover %}<img src="{{ c.cover.url }}" alt="">{% endif %}
+        {% if c.cover %}
+          <img src="{{ c.cover.url }}" alt="" class="comm-card-cover-img">
+        {% endif %}
+        <div class="comm-card-cover-overlay"></div>
         {% if c.logo %}
           <img src="{{ c.logo.url }}" alt="{{ c.name }}" class="comm-card-logo">
         {% else %}
           <div class="comm-card-logo-wrap">{{ c.name|first|upper }}</div>
         {% endif %}
       </div>
-      <div class="comm-card-body" style="flex:1">
+      <div class="comm-card-body">
         <div class="comm-card-id">{{ c.page_id }}</div>
         <div class="comm-card-name">{{ c.name }}</div>
         <div class="comm-card-purpose">{{ c.purpose }}</div>
         <div class="comm-card-meta">
-          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ c.member_count }}</span>
+          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ c.member_count }} members</span>
           <span><i class="fas fa-map-marker-alt" style="color:#f97316"></i> {{ c.pincode }}</span>
           {% if c.is_verified %}<span class="pbadge pbadge-green">✓ Verified</span>{% endif %}
-          {% if c.category %}<span class="pbadge pbadge-blue">{{ c.category.name }}</span>{% endif %}
+          {% if c.category %}<span class="pbadge pbadge-blue">{{ c.category.icon }} {{ c.category.name }}</span>{% endif %}
         </div>
       </div>
     </a>

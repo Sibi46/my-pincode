@@ -98,17 +98,19 @@ select.pform-input{background:#fff}
 .p-nav-logo{height:32px;border-radius:6px;display:block}
 
 /* COMMUNITY CARD */
-.comm-card{background:#fff;border-radius:18px;border:1.5px solid #e5e7eb;overflow:hidden;transition:.2s;display:flex;flex-direction:column;text-decoration:none;color:inherit}
-.comm-card:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(29,78,216,.14);transform:translateY(-4px)}
-.comm-card-cover{height:140px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative;overflow:hidden;flex-shrink:0}
-.comm-card-cover>img:first-child{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.comm-card-logo{width:76px;height:76px;border-radius:14px;border:3px solid #fff;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);object-fit:cover;position:absolute;bottom:-30px;left:16px;z-index:2}
-.comm-card-logo-wrap{width:76px;height:76px;border-radius:14px;border:3px solid #fff;background:linear-gradient(135deg,#1d4ed8,#7c3aed);box-shadow:0 4px 16px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;position:absolute;bottom:-30px;left:16px;z-index:2;overflow:hidden}
-.comm-card-body{padding:38px 16px 16px;flex:1;display:flex;flex-direction:column;gap:4px}
-.comm-card-id{font-size:10px;font-weight:800;color:#1d4ed8;font-family:monospace;letter-spacing:.08em}
-.comm-card-name{font-size:16px;font-weight:800;color:#0f172a;line-height:1.25}
-.comm-card-purpose{font-size:12px;color:#64748b;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
-.comm-card-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:#94a3b8;flex-wrap:wrap;margin-top:auto}
+.comm-card{background:#fff;border-radius:20px;border:1.5px solid #e5e7eb;overflow:hidden;transition:.22s;display:flex;flex-direction:column;text-decoration:none;color:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.comm-card:hover{border-color:#a5b4fc;box-shadow:0 10px 32px rgba(29,78,216,.15);transform:translateY(-5px)}
+.comm-card-cover{height:160px;background:linear-gradient(135deg,#1d4ed8 0%,#7c3aed 100%);position:relative;overflow:hidden;flex-shrink:0}
+.comm-card-cover-img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:block}
+.comm-card-cover-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0) 40%,rgba(0,0,0,.45) 100%)}
+.comm-card-logo{width:64px;height:64px;border-radius:16px;border:3px solid #fff;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);object-fit:cover;position:absolute;bottom:-24px;left:18px;z-index:3}
+.comm-card-logo-wrap{width:64px;height:64px;border-radius:16px;border:3px solid #fff;background:linear-gradient(135deg,#4f46e5,#7c3aed);box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;position:absolute;bottom:-24px;left:18px;z-index:3}
+.comm-card-body{padding:32px 18px 16px;flex:1;display:flex;flex-direction:column}
+.comm-card-id{font-size:10px;font-weight:700;color:#6366f1;font-family:monospace;letter-spacing:.1em;margin-bottom:2px}
+.comm-card-name{font-size:15px;font-weight:800;color:#0f172a;line-height:1.3;margin-bottom:4px}
+.comm-card-purpose{font-size:12px;color:#64748b;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:12px;flex:1}
+.comm-card-meta{display:flex;align-items:center;gap:6px;font-size:11px;flex-wrap:wrap;padding-top:10px;border-top:1px solid #f1f5f9}
+.comm-card-meta span{color:#64748b;display:flex;align-items:center;gap:3px}
 
 /* ALERT */
 .palert{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:16px}
@@ -203,7 +205,7 @@ select.pform-input{background:#fff}
   /* Hero padding */
   .phero{padding:28px 16px}
   /* Community card cover taller on mobile */
-  .comm-card-cover{height:130px}
+  .comm-card-cover{height:140px}
   /* Stat grid 2-up on mobile */
   .stat-grid{grid-template-columns:repeat(2,1fr)}
   /* Tables scroll */
