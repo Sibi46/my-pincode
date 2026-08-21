@@ -865,6 +865,47 @@ document.addEventListener('DOMContentLoaded',function(){
   obs.observe(document.body, { childList: true, subtree: true });
 })();
 </script>
+<script>
+(function(){
+  function applyPhoneValidation(el){
+    if(el._phoneValidated) return;
+    el._phoneValidated = true;
+    el.setAttribute('maxlength','10');
+    el.setAttribute('pattern','[0-9]{10}');
+    el.setAttribute('inputmode','numeric');
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/\D/g,'').slice(0,10);
+    });
+  }
+  function applyPincodeAutofill(el){
+    if(el._pincodeWired) return;
+    el._pincodeWired = true;
+    el.setAttribute('maxlength','6');
+    el.setAttribute('inputmode','numeric');
+    el.addEventListener('input',function(){
+      this.value = this.value.replace(/\D/g,'').slice(0,6);
+      if(this.value.length===6){
+        var form = this.closest('form');
+        var locEl = form && (form.querySelector('[name="location"]') || form.querySelector('[name="city"]') || form.querySelector('[name="area"]'));
+        if(!locEl) return;
+        fetch('https://api.postalpincode.in/pincode/'+this.value)
+          .then(function(r){return r.json();})
+          .then(function(d){
+            if(d[0].Status==='Success'){
+              var po = d[0].PostOffice[0];
+              locEl.value = po.Name + ', ' + po.District + ', ' + po.State;
+            }
+          }).catch(function(){});
+      }
+    });
+  }
+  function attachAll(){
+    document.querySelectorAll('input[type="tel"],input[name*="phone"],input[name*="mobile"],input[name*="whatsapp"]').forEach(applyPhoneValidation);
+    document.querySelectorAll('input[name="pincode"],input[name*="pincode"]').forEach(applyPincodeAutofill);
+  }
+  document.addEventListener('DOMContentLoaded', attachAll);
+})();
+</script>
 </body>
 </html>
 
