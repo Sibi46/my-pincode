@@ -1575,7 +1575,8 @@ def approve_flick(request, pk):
     flick = get_object_or_404(Flick, pk=pk)
     if flick.community and flick.community.is_admin(request.user):
         flick.is_active = True
-        flick.save(update_fields=['is_active'])
+        flick.approved_by = request.user
+        flick.save(update_fields=['is_active', 'approved_by'])
         messages.success(request, 'Flick approved and published.')
     return redirect(f'/portal/c/{flick.community.page_id}/dashboard/')
 

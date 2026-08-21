@@ -250,7 +250,14 @@ body { background: #000; overflow-x: hidden; }
           {% endif %}
           <span class="flick-comm-name">{{ flick.community.name }}</span>
         </a>
-        <div class="flick-poster">{{ flick.posted_by.get_full_name|default:flick.posted_by.username }}</div>
+        <a href="/candidates/{{ flick.posted_by.pk }}/" class="flick-poster" style="text-decoration:none;display:block">
+          <i class="fas fa-user-circle" style="margin-right:4px"></i>{{ flick.posted_by.get_full_name|default:flick.posted_by.username }}
+        </a>
+        {% if flick.approved_by %}
+        <div style="font-size:10px;color:rgba(255,255,255,.55);margin-bottom:5px">
+          ✓ Approved by {{ flick.approved_by.get_full_name|default:flick.approved_by.username }}
+        </div>
+        {% endif %}
         {% if flick.caption %}
         <div class="flick-caption">{{ flick.caption }}</div>
         {% endif %}

@@ -407,6 +407,7 @@ class Flick(models.Model):
     media           = models.FileField(upload_to='portal/flicks/')
     media_type      = models.CharField(max_length=5, choices=MEDIA_TYPES, default='video')
     is_active       = models.BooleanField(default=True)
+    approved_by     = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_flicks')
     created_at      = models.DateTimeField(auto_now_add=True)
     source_video_id = models.IntegerField(null=True, blank=True, unique=True)
 
