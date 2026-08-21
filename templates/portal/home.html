@@ -14,25 +14,20 @@
   </div>
 
   <!-- SEARCH BAR -->
-  <form method="get" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:16px;margin-bottom:24px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end">
-    <div style="flex:2;min-width:200px">
-      <label class="pform-label">Search Communities</label>
-      <input type="text" name="q" value="{{ q }}" placeholder="Community name or Page ID..." class="pform-input">
+  <form method="get" class="portal-search-form">
+    <div class="portal-search-row">
+      <input type="text" name="q" value="{{ q }}" placeholder="🔍 Search communities or Page ID..." class="pform-input">
+      <input type="text" name="pincode" value="{{ pincode }}" placeholder="📍 Pincode" class="pform-input" style="max-width:140px">
     </div>
-    <div style="flex:1;min-width:120px">
-      <label class="pform-label">Pincode</label>
-      <input type="text" name="pincode" value="{{ pincode }}" placeholder="e.g. 641001" class="pform-input">
-    </div>
-    <div style="flex:1;min-width:140px">
-      <label class="pform-label">Category</label>
-      <select name="category" class="pform-input">
+    <div class="portal-search-row">
+      <select name="category" class="pform-input" style="flex:1">
         <option value="">All Categories</option>
         {% for cat in categories %}
         <option value="{{ cat.slug }}" {% if category == cat.slug %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
         {% endfor %}
       </select>
+      <button type="submit" class="pbtn pbtn-primary" style="white-space:nowrap">Search</button>
     </div>
-    <button type="submit" class="pbtn pbtn-primary" style="height:38px">Search</button>
   </form>
 
   <!-- STATS BAR -->
@@ -54,23 +49,26 @@
   </div>
 
   {% if communities %}
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:32px">
+  <div class="comm-grid">
     {% for c in communities|slice:":12" %}
-    <a href="/portal/c/{{ c.page_id }}/" class="comm-card" style="display:flex;flex-direction:column">
+    <a href="/portal/c/{{ c.page_id }}/" class="comm-card">
       <div class="comm-card-cover">
-        {% if c.cover %}<img src="{{ c.cover.url }}" alt="">{% endif %}
+        {% if c.cover %}
+          <img src="{{ c.cover.url }}" alt="" class="comm-card-cover-img">
+        {% endif %}
+        <div class="comm-card-cover-overlay"></div>
         {% if c.logo %}<img src="{{ c.logo.url }}" alt="{{ c.name }}" class="comm-card-logo">
         {% else %}<div class="comm-card-logo-wrap">{{ c.name|first|upper }}</div>{% endif %}
-        {% if c.category %}<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">{{ c.category.icon }} {{ c.category.name }}</span>{% endif %}
+        {% if c.category %}<span class="comm-card-cat-badge">{{ c.category.icon }} {{ c.category.name }}</span>{% endif %}
       </div>
-      <div class="comm-card-body" style="flex:1">
+      <div class="comm-card-body">
         <div class="comm-card-id">{{ c.page_id }}</div>
         <div class="comm-card-name">{{ c.name }}</div>
         <div class="comm-card-purpose">{{ c.purpose }}</div>
         <div class="comm-card-meta">
-          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ c.member_count }} members</span>
+          <span><i class="fas fa-users" style="color:#1d4ed8"></i> {{ c.member_count }}</span>
           <span><i class="fas fa-map-marker-alt" style="color:#f97316"></i> {{ c.pincode }}</span>
-          {% if c.is_verified %}<span class="pbadge pbadge-green">✓ Verified</span>{% endif %}
+          {% if c.is_verified %}<span class="pbadge pbadge-green">✓</span>{% endif %}
         </div>
       </div>
     </a>
