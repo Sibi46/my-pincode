@@ -71,7 +71,12 @@ class Community(models.Model):
     def is_admin(self, user):
         if not user.is_authenticated:
             return False
+        if getattr(user, 'admin_role', '') == 'super_admin':
+            return True
         if self.created_by == user:
+            return True
+        # Phone-match fallback: same phone number = same person (different account)
+        if user.phone and self.created_by_id and self.created_by.phone == user.phone:
             return True
         return self.leaders.filter(user=user, status='accepted').exists()
 

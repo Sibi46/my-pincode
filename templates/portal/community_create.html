@@ -44,7 +44,7 @@
             <label class="pform-label">Full Name</label>
             <input type="text" name="full_name" class="pform-input" value="{{ request.user.get_full_name|default:request.user.username }}" placeholder="Your full name">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="p2col">
             <div class="pform-group" style="margin-bottom:0">
               <label class="pform-label">Email ID <span style="font-size:10px;color:#7c3aed">(login email)</span></label>
               <input type="email" name="creator_email" class="pform-input" value="{{ request.user.email }}" placeholder="you@email.com">
@@ -72,7 +72,7 @@
             <label class="pform-label">Full Name *</label>
             <input type="text" name="full_name" class="pform-input" required placeholder="e.g. Kumar Raj">
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="p2col">
             <div class="pform-group" style="margin-bottom:0">
               <label class="pform-label">Email ID * <span style="font-size:10px;color:#7c3aed">(login email)</span></label>
               <input type="email" name="creator_email" class="pform-input" required placeholder="you@email.com">
@@ -108,7 +108,7 @@
             <span id="wordCount" style="font-size:11px;font-weight:700;color:#94a3b8">0 / 200 words</span>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group">
             <label class="pform-label">Category</label>
             <select name="category" class="pform-input">
@@ -131,7 +131,7 @@
     <div class="pcard" style="margin-bottom:16px">
       <div class="pcard-head"><div class="pcard-title">Location & Contact</div></div>
       <div class="pcard-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group">
             <label class="pform-label">Pincode *</label>
             <div style="position:relative">
@@ -160,7 +160,7 @@
     <div class="pcard" style="margin-bottom:16px">
       <div class="pcard-head"><div class="pcard-title">Logo & Cover</div></div>
       <div class="pcard-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group">
             <label class="pform-label">Community Logo</label>
             <input type="file" name="logo" accept="image/*" class="pform-input" style="padding:6px">

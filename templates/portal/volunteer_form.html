@@ -19,7 +19,7 @@
     {% csrf_token %}
     <div class="pcard">
       <div class="pcard-body">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group"><label class="pform-label">Full Name *</label><input type="text" name="name" class="pform-input" required value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}"></div>
           <div class="pform-group"><label class="pform-label">Mobile Number *</label><input type="text" name="mobile" class="pform-input" required placeholder="+91 99999 99999"></div>
           <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Email *</label><input type="email" name="email" class="pform-input" required value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"></div>

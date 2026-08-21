@@ -271,6 +271,11 @@ def create_community(request):
             password  = p.get('creator_password', '').strip()
             phone_c   = p.get('creator_phone', '').strip()
 
+            # If phone matches an existing account, require login first
+            if phone_c and User.objects.filter(phone=phone_c).exists():
+                messages.error(request, 'An account with this phone number already exists. Please log in first, then create your community.')
+                return redirect(f'/login/?next=/portal/community/create/')
+
             if not email or not password:
                 messages.error(request, 'Email and password are required to create your account.')
                 return render(request, 'portal/community_create.html', {'categories': categories})

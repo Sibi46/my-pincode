@@ -6,19 +6,19 @@
   <!-- COVER + HEADER -->
   <div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;overflow:hidden;margin-bottom:16px">
     <div style="height:160px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative">
-      {% if community.cover %}<img src="{{ community.cover.url }}" alt="" style="width:100%;height:100%;object-fit:cover">{% endif %}
+      {% if community.cover %}<img src="{{ community.cover.url }}" alt="" class="p-cover" style="position:absolute;inset:0">{% endif %}
       <div style="position:absolute;top:12px;left:14px">
         <span class="pbadge pbadge-blue" style="font-family:monospace;font-size:11px">{{ community.page_id }}</span>
         {% if community.is_verified %}<span class="pbadge pbadge-green" style="margin-left:6px">✓ Verified</span>{% endif %}
         {% if not community.is_verified %}<span class="pbadge" style="background:rgba(0,0,0,.4);color:#fff;margin-left:6px">Pending Verification</span>{% endif %}
       </div>
     </div>
-    <div style="padding:12px 18px 18px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+    <div class="ppage-header-body" style="padding:12px 18px 18px;display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
       <div style="margin-top:-32px;flex-shrink:0">
         {% if community.logo %}
-        <img src="{{ community.logo.url }}" alt="{{ community.name }}" style="width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);object-fit:cover">
+        <img src="{{ community.logo.url }}" alt="{{ community.name }}" class="p-logo">
         {% else %}
-        <div style="width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1d4ed8">{{ community.name|first }}</div>
+        <div class="p-logo-wrap">{{ community.name|first }}</div>
         {% endif %}
       </div>
       <div style="flex:1;min-width:200px">
@@ -32,7 +32,7 @@
         </div>
       </div>
       <!-- ACTION BUTTONS -->
-      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+      <div class="ppage-actions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
         {% if not user.is_authenticated %}
           <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
             <a href="/login/?next=/portal/c/{{ community.page_id }}/join/" class="pbtn pbtn-primary" style="width:100%;text-align:center">JOIN COMMUNITY</a>
@@ -189,7 +189,7 @@
               </div>
               <span class="pbadge pbadge-blue" style="margin-left:auto">{{ post.get_post_type_display }}</span>
             </div>
-            {% if post.image %}<img src="{{ post.image.url }}" alt="" style="width:100%;border-radius:8px;margin-bottom:8px;max-height:240px;object-fit:cover">{% endif %}
+            {% if post.image %}<img src="{{ post.image.url }}" alt="" class="p-post-img" style="margin-bottom:8px">{% endif %}
             <p style="font-size:13px;color:#374151;line-height:1.6">{{ post.content }}</p>
             <div style="display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid #f8fafc">
               <button onclick="likePost({{ post.pk }}, this)" data-liked="{{ post.likes.filter }} " style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;display:flex;align-items:center;gap:4px">
@@ -258,8 +258,8 @@
         <div class="pcard-body">
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             {% for m in members %}
-            <a href="/portal/c/{{ community.page_id }}/members/" title="{{ m.user.get_full_name }}" style="width:36px;height:36px;border-radius:50%;background:#eff6ff;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#1d4ed8;box-shadow:0 1px 4px rgba(0,0,0,.1);overflow:hidden;flex-shrink:0;text-decoration:none">
-              {% with p=m.user.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}{{ m.user.get_full_name|default:m.user.username|first|upper }}{% endif %}{% endwith %}
+            <a href="/portal/c/{{ community.page_id }}/members/" title="{{ m.user.get_full_name }}" class="p-avatar-wrap p-avatar-sm" style="border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.1);font-size:12px;text-decoration:none">
+              {% with p=m.user.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" class="p-avatar p-avatar-sm">{% else %}{{ m.user.get_full_name|default:m.user.username|first|upper }}{% endif %}{% endwith %}
             </a>
             {% endfor %}
           </div>
@@ -286,7 +286,7 @@
                 <span style="font-size:22px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6)">▶</span>
               </div>
               {% else %}
-              <img src="{{ f.media.url }}" style="width:100%;height:100%;object-fit:cover" alt="">
+              <img src="{{ f.media.url }}" class="p-cover" alt="">
               {% endif %}
             </a>
             {% endfor %}

@@ -20,7 +20,7 @@
     <div class="pcard" style="margin-bottom:14px">
       <div class="pcard-body">
         <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📅 Date &amp; Time</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" class="pform-input" required></div>
           <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" class="pform-input" required></div>
           <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" class="pform-input"></div>
@@ -37,7 +37,7 @@
           <label for="is_online" class="pform-label" style="margin:0">📹 This is an online event</label>
         </div>
         <div id="offline-fields">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="p2col">
             <div class="pform-group"><label class="pform-label">Venue / Address *</label><input type="text" name="location" class="pform-input" id="location-input" placeholder="Hall name, street, area"></div>
             <div class="pform-group"><label class="pform-label">Pincode</label><input type="text" name="pincode" class="pform-input" placeholder="641001"></div>
             <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Google Maps Link</label><input type="url" name="map_link" class="pform-input" placeholder="https://maps.google.com/..."></div>
@@ -58,7 +58,7 @@
     <div class="pcard" style="margin-bottom:14px">
       <div class="pcard-body">
         <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">🎟 Capacity &amp; Tickets</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group"><label class="pform-label">Max Participants</label><input type="number" name="max_participants" class="pform-input" placeholder="Leave blank for unlimited" min="1"></div>
           <div class="pform-group">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -76,7 +76,7 @@
     <div class="pcard" style="margin-bottom:14px">
       <div class="pcard-body">
         <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📞 Contact &amp; Media</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="p2col">
           <div class="pform-group"><label class="pform-label">Contact Person</label><input type="text" name="contact_person" class="pform-input" placeholder="Name"></div>
           <div class="pform-group"><label class="pform-label">Contact Phone</label><input type="text" name="contact_phone" class="pform-input" placeholder="+91 98765 43210"></div>
           <div class="pform-group" style="grid-column:1/-1"><label class="pform-label">Event Poster</label><input type="file" name="image" accept="image/*" class="pform-input" style="padding:6px"></div>

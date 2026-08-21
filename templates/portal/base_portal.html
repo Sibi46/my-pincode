@@ -77,18 +77,38 @@ a{text-decoration:none;color:inherit}
 textarea.pform-input{resize:vertical;min-height:90px}
 select.pform-input{background:#fff}
 
+/* ── STANDARDIZED IMAGE UTILITIES ── */
+/* Cover images: full-width banner, 16:9 feel */
+.p-cover{width:100%;height:100%;object-fit:cover;display:block}
+/* Community logo on detail page */
+.p-logo{width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);object-fit:cover;display:block;background:#eff6ff}
+.p-logo-wrap{width:72px;height:72px;border-radius:14px;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15);background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#1d4ed8}
+/* Small logo on cards */
+.p-logo-sm{width:60px;height:60px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);object-fit:cover;display:block;background:#eff6ff}
+.p-logo-sm-wrap{width:60px;height:60px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff}
+/* User avatars */
+.p-avatar{border-radius:50%;object-fit:cover;display:block;background:#eff6ff}
+.p-avatar-sm{width:36px;height:36px}
+.p-avatar-md{width:48px;height:48px}
+.p-avatar-lg{width:64px;height:64px}
+.p-avatar-wrap{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#1d4ed8;background:#eff6ff;flex-shrink:0}
+/* Post / media images */
+.p-post-img{width:100%;border-radius:10px;object-fit:cover;display:block;max-height:280px}
+/* Nav logo */
+.p-nav-logo{height:32px;border-radius:6px;display:block}
+
 /* COMMUNITY CARD */
-.comm-card{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;overflow:hidden;transition:.2s;display:flex;flex-direction:column}
-.comm-card:hover{border-color:#93c5fd;box-shadow:0 6px 24px rgba(29,78,216,.12);transform:translateY(-3px)}
-.comm-card-cover{height:90px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative;overflow:hidden}
-.comm-card-cover>img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.comm-card-logo{width:60px;height:60px;border-radius:50%;border:3.5px solid #fff;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.18);object-fit:cover;position:absolute;bottom:-26px;left:14px;z-index:2}
-.comm-card-logo-wrap{width:60px;height:60px;border-radius:50%;border:3.5px solid #fff;background:linear-gradient(135deg,#1d4ed8,#7c3aed);box-shadow:0 3px 12px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;position:absolute;bottom:-26px;left:14px;z-index:2;overflow:hidden}
-.comm-card-body{padding:34px 14px 14px}
-.comm-card-id{font-size:10px;font-weight:800;color:#1d4ed8;font-family:monospace;letter-spacing:.08em;margin-bottom:2px}
-.comm-card-name{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:3px;line-height:1.25}
-.comm-card-purpose{font-size:11px;color:#64748b;margin-bottom:10px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.comm-card-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:#94a3b8;flex-wrap:wrap}
+.comm-card{background:#fff;border-radius:18px;border:1.5px solid #e5e7eb;overflow:hidden;transition:.2s;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.comm-card:hover{border-color:#93c5fd;box-shadow:0 8px 28px rgba(29,78,216,.14);transform:translateY(-4px)}
+.comm-card-cover{height:140px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative;overflow:hidden;flex-shrink:0}
+.comm-card-cover>img:first-child{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.comm-card-logo{width:76px;height:76px;border-radius:14px;border:3px solid #fff;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);object-fit:cover;position:absolute;bottom:-30px;left:16px;z-index:2}
+.comm-card-logo-wrap{width:76px;height:76px;border-radius:14px;border:3px solid #fff;background:linear-gradient(135deg,#1d4ed8,#7c3aed);box-shadow:0 4px 16px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;position:absolute;bottom:-30px;left:16px;z-index:2;overflow:hidden}
+.comm-card-body{padding:38px 16px 16px;flex:1;display:flex;flex-direction:column;gap:4px}
+.comm-card-id{font-size:10px;font-weight:800;color:#1d4ed8;font-family:monospace;letter-spacing:.08em}
+.comm-card-name{font-size:16px;font-weight:800;color:#0f172a;line-height:1.25}
+.comm-card-purpose{font-size:12px;color:#64748b;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+.comm-card-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:#94a3b8;flex-wrap:wrap;margin-top:auto}
 
 /* ALERT */
 .palert{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:16px}
@@ -162,6 +182,38 @@ select.pform-input{background:#fff}
 .pbot-create{color:#4f46e5}
 /* push content up on mobile */
 @media(max-width:900px){.pcontent{padding-bottom:80px}.pfooter{padding-bottom:80px}}
+
+/* ── MOBILE UTILITIES ── */
+.p2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.p3col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ptable-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ptable-wrap .ptable{min-width:520px}
+.pflex-wrap{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media(max-width:600px){
+  /* Stack 2-col & 3-col grids to single column */
+  .p2col,.p3col{grid-template-columns:1fr}
+  /* iOS: prevent zoom on input focus */
+  .pform-input{font-size:16px}
+  /* Bigger tap targets for buttons */
+  .pbtn{font-size:13px;padding:11px 16px}
+  .pbtn-sm{font-size:12px;padding:7px 14px}
+  /* Section headers wrap on small screens */
+  .psec-header{flex-wrap:wrap;gap:8px}
+  .pcard-head{flex-wrap:wrap;gap:8px}
+  /* Hero padding */
+  .phero{padding:28px 16px}
+  /* Community card cover taller on mobile */
+  .comm-card-cover{height:130px}
+  /* Stat grid 2-up on mobile */
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  /* Tables scroll */
+  .ptable{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Community page action buttons full-width */
+  .ppage-actions{width:100%!important;flex-direction:row!important;flex-wrap:wrap!important}
+  .ppage-actions .pbtn{flex:1;justify-content:center;min-width:140px}
+  /* Logo overlap on community header */
+  .ppage-header-body{flex-wrap:wrap!important}
+}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
@@ -170,7 +222,7 @@ select.pform-input{background:#fff}
 <!-- NAV -->
 <nav class="pnav">
   <a href="/" class="pnav-logo">
-    <img src="/static/images/ourpincod.jpeg" alt="" style="height:32px;border-radius:6px">
+    <img src="/static/images/ourpincod.jpeg" alt="" class="p-nav-logo">
     <span><span class="ou">OUR</span><span class="pc">PINCODE</span> <span style="font-size:11px;font-weight:600;color:#6b7280">Communities</span></span>
   </a>
   <div class="pnav-links">

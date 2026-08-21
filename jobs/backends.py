@@ -14,4 +14,7 @@ class PhoneOrEmailBackend(ModelBackend):
         for user in User.objects.filter(email=username):
             if user.check_password(password):
                 return user
+        for user in User.objects.filter(username=username):
+            if user.check_password(password):
+                return user
         return None
