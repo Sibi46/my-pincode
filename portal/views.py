@@ -87,6 +87,7 @@ def community_page(request, page_id):
     posts      = community.posts.filter(is_active=True).order_by('-created_at')[:20]
     causes     = community.causes.filter(is_active=True).order_by('-created_at')[:5]
     events     = community.events.filter(is_active=True, date__gte=timezone.now().date()).order_by('date')[:5]
+    pending_events = community.events.filter(is_active=False).order_by('date') if is_admin else []
     activities = community.activities.filter(is_active=True).order_by('-date')[:5]
     videos     = community.videos.filter(is_active=True).order_by('-created_at')[:6]
     flicks     = community.flicks.filter(is_active=True).order_by('-created_at')[:6]
@@ -96,7 +97,7 @@ def community_page(request, page_id):
     return render(request, 'portal/community_page.html', {
         'community': community, 'is_member': is_member,
         'is_admin': is_admin, 'membership': membership,
-        'posts': posts, 'causes': causes, 'events': events,
+        'posts': posts, 'causes': causes, 'events': events, 'pending_events': pending_events,
         'activities': activities, 'videos': videos, 'flicks': flicks,
         'leaders': leaders, 'members': members,
     })
@@ -857,8 +858,10 @@ def create_event_standalone(request):
 @login_required
 def create_event(request, page_id):
     community = get_object_or_404(Community, page_id=page_id)
-    if not community.is_admin(request.user):
-        messages.error(request, 'Only community admins can create events.')
+    is_admin = community.is_admin(request.user)
+    is_member = _is_member(community, request.user)
+    if not (is_admin or is_member):
+        messages.error(request, 'Only community members can request events.')
         return redirect('portal_community', page_id=page_id)
 
     causes = community.causes.filter(is_active=True)
@@ -884,6 +887,7 @@ def create_event(request, page_id):
             require_profile_photo=p.get('require_profile_photo') == 'on',
             collect_contact=p.get('collect_contact') == 'on',
             upi_id=p.get('upi_id','').strip(),
+            is_active=is_admin,
         )
         if p.get('end_date'):
             event.end_date = p.get('end_date')
@@ -900,11 +904,16 @@ def create_event(request, page_id):
         if 'payment_qr' in request.FILES:
             event.payment_qr = request.FILES['payment_qr']
         event.save()
-        for m in community.memberships.filter(status='approved').select_related('user'):
-            _notify(m.user, 'new_event', f'New event in {community.name}: {event.name} on {event.date}', f'/portal/event/{event.pk}/')
-        messages.success(request, 'Event created!')
-        return redirect('portal_event_detail', pk=event.pk)
-    return render(request, 'portal/event_create.html', {'community': community, 'causes': causes})
+        if is_admin:
+            for m in community.memberships.filter(status='approved').select_related('user'):
+                _notify(m.user, 'new_event', f'New event in {community.name}: {event.name} on {event.date}', f'/portal/event/{event.pk}/')
+            messages.success(request, 'Event created!')
+        else:
+            if community.created_by:
+                _notify(community.created_by, 'event_request', f'{request.user.get_full_name() or request.user.username} requested to create event "{event.name}" in {community.name}', f'/portal/c/{community.page_id}/dashboard/')
+            messages.success(request, 'Event request submitted! Waiting for admin approval.')
+        return redirect('portal_community', page_id=page_id)
+    return render(request, 'portal/event_create.html', {'community': community, 'causes': causes, 'is_admin': is_admin})
 
 
 @login_required
@@ -1669,6 +1678,29 @@ def admin_delete_video(request, pk):
     video.save()
     messages.success(request, 'Video removed.')
     return redirect('portal_videos')
+
+
+@login_required
+def approve_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if event.community and event.community.is_admin(request.user):
+        event.is_active = True
+        event.save(update_fields=['is_active'])
+        for m in event.community.memberships.filter(status='approved').select_related('user'):
+            _notify(m.user, 'new_event', f'New event in {event.community.name}: {event.name} on {event.date}', f'/portal/event/{event.pk}/')
+        messages.success(request, f'Event "{event.name}" approved and published.')
+    return redirect(f'/portal/c/{event.community.page_id}/dashboard/')
+
+
+@login_required
+def reject_event(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    if event.community and event.community.is_admin(request.user):
+        page_id = event.community.page_id
+        event.delete()
+        messages.success(request, 'Event request rejected and removed.')
+        return redirect(f'/portal/c/{page_id}/dashboard/')
+    return redirect('portal_home')
 
 
 @login_required

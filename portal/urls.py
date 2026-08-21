@@ -44,6 +44,8 @@ urlpatterns = [
     path('event/<int:pk>/photos/',   views.event_photo_upload,        name='portal_event_photos'),
     path('event/<int:pk>/rate/',     views.event_rate,                name='portal_event_rate'),
     path('event/<int:pk>/status/',   views.event_update_status,       name='portal_event_status'),
+    path('event/<int:pk>/approve/',  views.approve_event,             name='portal_approve_event'),
+    path('event/<int:pk>/reject/',   views.reject_event,              name='portal_reject_event'),
 
     # Post interactions
     path('post/<int:pk>/like/',                 views.like_post,              name='portal_like_post'),

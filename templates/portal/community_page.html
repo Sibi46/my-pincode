@@ -231,14 +231,49 @@
     {% endfor %}
   </div>
 
+  <!-- ── PENDING EVENT REQUESTS (admin only) ── -->
+  {% if pending_events %}
+  <div class="csection" style="border-color:#fde68a">
+    <div class="csection-head" style="background:#fffbeb">
+      <div class="csection-title" style="color:#92400e">⏳ Pending Event Requests</div>
+    </div>
+    <div style="padding:0 16px">
+      {% for event in pending_events %}
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #fef3c7">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#0f172a">{{ event.name }}</div>
+          <div style="font-size:11px;color:#64748b">{{ event.date|date:"d M Y" }} · {{ event.time|time:"g:i A" }} · {{ event.location }}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px">Requested by {{ event.created_by.get_full_name|default:event.created_by.username }}</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-left:auto;flex-shrink:0">
+          <form method="post" action="/portal/event/{{ event.pk }}/approve/">
+            {% csrf_token %}
+            <button type="submit" class="pbtn pbtn-green pbtn-sm">✓ Approve</button>
+          </form>
+          <form method="post" action="/portal/event/{{ event.pk }}/reject/" onsubmit="return confirm('Reject and delete this event request?')">
+            {% csrf_token %}
+            <button type="submit" class="pbtn pbtn-sm" style="background:#fee2e2;color:#dc2626;border:none">✗ Reject</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <!-- ── EVENTS ── -->
-  {% if events %}
+  {% if events or is_member or is_admin %}
   <div class="csection">
     <div class="csection-head">
       <div class="csection-title">📅 Upcoming Events</div>
-      {% if is_admin %}<a href="/portal/events/create/?community={{ community.page_id }}" class="pbtn pbtn-primary pbtn-sm">+ Add</a>{% endif %}
+      {% if is_admin %}
+        <a href="/portal/c/{{ community.page_id }}/events/create/" class="pbtn pbtn-primary pbtn-sm">+ Add</a>
+      {% elif is_member %}
+        <a href="/portal/c/{{ community.page_id }}/events/create/" class="pbtn pbtn-outline pbtn-sm">Request Event</a>
+      {% endif %}
     </div>
-    <div class="csection-body" style="padding:0 16px">
+    {% if events %}
+    <div style="padding:0 16px">
       {% for event in events %}
       <a href="/portal/event/{{ event.pk }}/" class="event-item">
         <div class="event-date-box">
@@ -253,6 +288,9 @@
       </a>
       {% endfor %}
     </div>
+    {% else %}
+    <div class="pempty" style="padding:16px 0"><div class="pempty-text" style="font-size:13px">No upcoming events</div></div>
+    {% endif %}
   </div>
   {% endif %}
 

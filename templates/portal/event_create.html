@@ -3,9 +3,14 @@
 {% block content %}
 <div class="pcontent" style="max-width:700px">
   <div class="psec-header">
-    <div class="psec-title">📅 Create Event</div>
-    <a href="/portal/c/{{ community.page_id }}/dashboard/" class="pbtn pbtn-outline pbtn-sm">← Dashboard</a>
+    <div class="psec-title">📅 {% if is_admin %}Create Event{% else %}Request an Event{% endif %}</div>
+    <a href="/portal/c/{{ community.page_id }}/" class="pbtn pbtn-outline pbtn-sm">← Back</a>
   </div>
+  {% if not is_admin %}
+  <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:#92400e">
+    <b>⏳ Approval Required</b> — Your event request will be reviewed by the community admin before it goes live.
+  </div>
+  {% endif %}
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="pcard" style="margin-bottom:14px">
