@@ -315,16 +315,20 @@
 {% block bottom_nav %}
 <nav class="pbot-nav">
   <a href="/portal/" class="pbot-nav-item">
-    <span class="pbot-icon">🏠</span>
-    <span class="pbot-label">Home</span>
+    <div class="pbot-icon">🏠</div>
+    <span>Home</span>
   </a>
-  <a href="/portal/flicks/?community={{ community.page_id }}" class="pbot-nav-item active">
-    <span class="pbot-icon">🎬</span>
-    <span class="pbot-label">Flick</span>
+  <a href="/portal/flicks/" class="pbot-nav-item active">
+    <div class="pbot-icon"><i class="fas fa-users" style="font-size:18px"></i></div>
+    <span>Community</span>
   </a>
-  <a href="/portal/events/?community={{ community.page_id }}" class="pbot-nav-item">
-    <span class="pbot-icon">📅</span>
-    <span class="pbot-label">Events</span>
+  <a href="/portal/create/" class="pbot-nav-item pbot-create">
+    <div class="pbot-icon">➕</div>
+    <span>Create</span>
+  </a>
+  <a href="/portal/communities/" class="pbot-nav-item">
+    <div class="pbot-icon">🔍</div>
+    <span>Explore</span>
   </a>
 </nav>
 {% endblock %}
