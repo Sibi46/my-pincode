@@ -61,24 +61,18 @@
     <div class="fwiz-sub">Build your family profile step by step</div>
   </div>
 
-  {% with s=step|add:"0" %}
   <!-- Step indicator -->
   <div class="fwiz-steps">
-    {% for n,label in "1:Account,2:Gender,3:Status,4:You,5:Partner,6:Children,7:Pets,8:Grandparents"|split:"," %}
-    {% endfor %}
-    {% for item in "1:Account|2:Gender|3:Status|4:You|5:Partner|6:Children|7:Pets|8:Grands"|split:"|" %}
-      {% with num=item|slice:":1" lbl=item|slice:"2:" %}
+    {% for item in steps_list %}
       <div class="fwiz-step">
-        <div class="fwiz-step-circle {% if step == num %}active{% elif step > num %}done{% endif %}">
-          {% if step > num %}✓{% else %}{{ num }}{% endif %}
+        <div class="fwiz-step-circle {% if step == item.num %}active{% elif step_int > forloop.counter %}done{% endif %}">
+          {% if step_int > forloop.counter %}✓{% else %}{{ item.num }}{% endif %}
         </div>
-        <div class="fwiz-step-label {% if step == num %}active{% endif %}">{{ lbl }}</div>
+        <div class="fwiz-step-label {% if step == item.num %}active{% endif %}">{{ item.lbl }}</div>
       </div>
-      {% if not forloop.last %}<div class="fwiz-line {% if step > num %}done{% endif %}"></div>{% endif %}
-      {% endwith %}
+      {% if not forloop.last %}<div class="fwiz-line {% if step_int > forloop.counter %}done{% endif %}"></div>{% endif %}
     {% endfor %}
   </div>
-  {% endwith %}
 
   {% if errors %}
   <div class="ferr">{% for e in errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>

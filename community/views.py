@@ -306,8 +306,20 @@ def family_setup_wizard(request):
         creator=request.user, member_type__in=['grandfather', 'grandmother']
     ).order_by('side', 'member_type')
 
+    step_int = int(step) if str(step).isdigit() else 1
+    steps_list = [
+        {'num': '1', 'lbl': 'Account'},
+        {'num': '2', 'lbl': 'Gender'},
+        {'num': '3', 'lbl': 'Status'},
+        {'num': '4', 'lbl': 'You'},
+        {'num': '5', 'lbl': 'Partner'},
+        {'num': '6', 'lbl': 'Children'},
+        {'num': '7', 'lbl': 'Pets'},
+        {'num': '8', 'lbl': 'Grands'},
+    ]
     return render(request, 'community/family_setup_wizard.html', {
-        'setup': setup, 'step': step, 'errors': errors,
+        'setup': setup, 'step': step, 'step_int': step_int,
+        'errors': errors, 'steps_list': steps_list,
         'children': children, 'pets': pets, 'grandparents': grandparents,
     })
 
