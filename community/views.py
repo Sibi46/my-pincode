@@ -433,6 +433,23 @@ def family_hub(request):
     })
 
 
+@login_required
+def family_delete(request):
+    if request.method == 'POST':
+        try:
+            setup = FamilySetup.objects.get(user=request.user)
+            # Delete child linked users created for 18+ children
+            for member in FamilyMember.objects.filter(creator=request.user, child_linked_user__isnull=False):
+                member.child_linked_user.delete()
+            FamilyMember.objects.filter(creator=request.user).delete()
+            setup.delete()
+            messages.success(request, 'Family account deleted successfully.')
+        except FamilySetup.DoesNotExist:
+            pass
+        return redirect('/community/family/')
+    return render(request, 'community/family_delete_confirm.html')
+
+
 def family_login(request):
     """Separate login page for family accounts."""
     from django.contrib.auth import authenticate, login as auth_login
