@@ -3139,8 +3139,6 @@ def my_accounts(request):
     # Campus placement officer
     placement_officer = getattr(user, 'placement_officer', None)
 
-    # Jobs profile
-    from jobs.models import JobSeekerProfile, EmployerProfile
     seeker = getattr(user, 'seeker', None)
     company = getattr(user, 'company', None)
 
