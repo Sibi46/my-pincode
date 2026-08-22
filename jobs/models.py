@@ -22,6 +22,7 @@ class User(AbstractUser):
         ('freelancer',          'Freelancer'),
         # ── Advertiser ────────────────────────────────────
         ('advertiser',          'Advertiser'),
+        ('family_child',        'Family Child Account'),
     ]
 
     EMPLOYER_TYPES = [

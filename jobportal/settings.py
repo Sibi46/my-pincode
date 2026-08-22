@@ -69,6 +69,7 @@ AUTH_USER_MODEL = 'jobs.User'
 
 AUTHENTICATION_BACKENDS = [
     'jobs.backends.PhoneOrEmailBackend',
+    'jobs.backends.FamilyAccountBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

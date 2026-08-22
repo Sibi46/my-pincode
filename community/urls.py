@@ -6,6 +6,7 @@ urlpatterns = [
 
     # Grouped hubs
     path('family/',                        views.family_hub,            name='family_hub'),
+    path('family/login/',                  views.family_login,          name='family_login'),
     path('family/setup/',                  views.family_setup_wizard,   name='family_setup_wizard'),
     path('family/create/',                 views.family_member_create,  name='family_member_create'),
     path('family/member/<int:pk>/',        views.family_member_detail,  name='family_member_detail'),

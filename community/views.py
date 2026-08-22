@@ -98,84 +98,237 @@ def module_page(request, slug):
 # ── FAMILY HUB ────────────────────────────────────────────────────────────────
 @login_required
 def family_setup_wizard(request):
+    from django.contrib.auth.hashers import make_password
+    from datetime import date
+    import json
+
     setup, _ = FamilySetup.objects.get_or_create(user=request.user)
     step = request.POST.get('step') or request.GET.get('step', '1')
+    errors = []
 
     if request.method == 'POST':
+        # ── Step 1: Family Account (email + password) ──
         if step == '1':
-            setup.gender         = request.POST.get('gender', '')
-            setup.display_name   = request.POST.get('display_name', '').strip()
-            setup.age            = request.POST.get('age') or None
-            setup.village        = request.POST.get('village', '').strip()
-            setup.save()
-            return redirect('/community/family/setup/?step=2')
+            email    = request.POST.get('family_email', '').strip().lower()
+            password = request.POST.get('family_password', '').strip()
+            if not email:
+                errors.append('Please enter a family email address.')
+            elif FamilySetup.objects.filter(family_email=email).exclude(pk=setup.pk).exists():
+                errors.append('This email is already used by another family account.')
+            if not password:
+                errors.append('Please enter a password.')
+            if not errors:
+                setup.family_email    = email
+                setup.family_password = make_password(password)
+                setup.save()
+                return redirect('/community/family/setup/?step=2')
 
+        # ── Step 2: Gender ──
         elif step == '2':
-            setup.marital_status = request.POST.get('marital_status', '')
-            setup.save()
-            if setup.marital_status == 'married':
+            gender = request.POST.get('gender', '')
+            if not gender:
+                errors.append('Please select your gender.')
+            else:
+                setup.gender = gender
+                setup.save()
                 return redirect('/community/family/setup/?step=3')
-            return redirect('/community/family/setup/?step=4')
 
+        # ── Step 3: Marital Status ──
         elif step == '3':
-            setup.spouse_name = request.POST.get('spouse_name', '').strip()
-            setup.save()
-            return redirect('/community/family/setup/?step=4')
+            ms = request.POST.get('marital_status', '')
+            if not ms:
+                errors.append('Please select your marital status.')
+            else:
+                setup.marital_status = ms
+                setup.save()
+                return redirect('/community/family/setup/?step=4')
 
+        # ── Step 4: Self Details ──
         elif step == '4':
-            setup.grandfather_count = int(request.POST.get('grandfather_count', 0) or 0)
-            setup.grandmother_count = int(request.POST.get('grandmother_count', 0) or 0)
-            setup.father_count      = int(request.POST.get('father_count', 0) or 0)
-            setup.mother_count      = int(request.POST.get('mother_count', 0) or 0)
-            setup.son_count         = int(request.POST.get('son_count', 0) or 0)
-            setup.daughter_count    = int(request.POST.get('daughter_count', 0) or 0)
-            setup.uncle_count       = int(request.POST.get('uncle_count', 0) or 0)
-            setup.aunt_count        = int(request.POST.get('aunt_count', 0) or 0)
-            setup.cousin_count      = int(request.POST.get('cousin_count', 0) or 0)
-            setup.brother_count     = int(request.POST.get('brother_count', 0) or 0)
-            setup.sister_count      = int(request.POST.get('sister_count', 0) or 0)
-            setup.pet_count         = int(request.POST.get('pet_count', 0) or 0)
-            # Wife's side (only when married)
+            setup.self_full_name  = request.POST.get('self_full_name', '').strip()
+            setup.self_dob        = request.POST.get('self_dob') or None
+            setup.self_village    = request.POST.get('self_village', '').strip()
+            setup.self_occupation = request.POST.get('self_occupation', '').strip()
+            if 'self_photo' in request.FILES:
+                setup.self_photo = request.FILES['self_photo']
+            setup.save()
             if setup.marital_status == 'married':
-                setup.w_grandfather_count = int(request.POST.get('w_grandfather_count', 0) or 0)
-                setup.w_grandmother_count = int(request.POST.get('w_grandmother_count', 0) or 0)
-                setup.w_father_count      = int(request.POST.get('w_father_count', 0) or 0)
-                setup.w_mother_count      = int(request.POST.get('w_mother_count', 0) or 0)
-                setup.w_uncle_count       = int(request.POST.get('w_uncle_count', 0) or 0)
-                setup.w_aunt_count        = int(request.POST.get('w_aunt_count', 0) or 0)
-                setup.w_cousin_count      = int(request.POST.get('w_cousin_count', 0) or 0)
-                setup.w_brother_count     = int(request.POST.get('w_brother_count', 0) or 0)
-                setup.w_sister_count      = int(request.POST.get('w_sister_count', 0) or 0)
+                return redirect('/community/family/setup/?step=5')
+            return redirect('/community/family/setup/?step=6')
+
+        # ── Step 5: Partner Details (married only) ──
+        elif step == '5':
+            setup.partner_full_name  = request.POST.get('partner_full_name', '').strip()
+            setup.partner_dob        = request.POST.get('partner_dob') or None
+            setup.partner_village    = request.POST.get('partner_village', '').strip()
+            setup.partner_occupation = request.POST.get('partner_occupation', '').strip()
+            if 'partner_photo' in request.FILES:
+                setup.partner_photo = request.FILES['partner_photo']
+            setup.save()
+            return redirect('/community/family/setup/?step=6')
+
+        # ── Step 6: Children ──
+        elif step == '6':
+            # Delete existing children and re-create from form
+            FamilyMember.objects.filter(
+                creator=request.user,
+                member_type__in=['son', 'daughter']
+            ).delete()
+
+            names  = request.POST.getlist('child_name')
+            dobs   = request.POST.getlist('child_dob')
+            genders = request.POST.getlist('child_gender')
+            emails  = request.POST.getlist('child_email')
+            passwords = request.POST.getlist('child_password')
+
+            today = date.today()
+            for i, name in enumerate(names):
+                name = name.strip()
+                if not name:
+                    continue
+                dob_str = dobs[i] if i < len(dobs) else ''
+                gender  = genders[i] if i < len(genders) else 'male'
+                email   = emails[i].strip().lower() if i < len(emails) else ''
+                pwd     = passwords[i].strip() if i < len(passwords) else ''
+
+                dob_val = None
+                age_val = None
+                if dob_str:
+                    try:
+                        from datetime import datetime
+                        dob_val = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                        age_val = (today - dob_val).days // 365
+                    except Exception:
+                        pass
+
+                mtype = 'son' if gender == 'male' else 'daughter'
+                member = FamilyMember.objects.create(
+                    creator     = request.user,
+                    member_type = mtype,
+                    side        = 'husband',
+                    name        = name,
+                    dob         = dob_val,
+                    age         = age_val,
+                    child_email = email,
+                )
+
+                # Create login for 18+ children
+                if age_val and age_val >= 18 and email and pwd:
+                    from django.contrib.auth import get_user_model
+                    User = get_user_model()
+                    child_user, created = User.objects.get_or_create(
+                        email=email,
+                        defaults={
+                            'username': email.split('@')[0] + '_fam',
+                            'user_type': 'family_child',
+                        }
+                    )
+                    if created:
+                        child_user.set_password(pwd)
+                        child_user.save()
+                    member.child_password    = make_password(pwd)
+                    member.child_linked_user = child_user
+                    member.save()
+
+            return redirect('/community/family/setup/?step=7')
+
+        # ── Step 7: Pets ──
+        elif step == '7':
+            FamilyMember.objects.filter(creator=request.user, member_type='pet').delete()
+            names   = request.POST.getlist('pet_name')
+            species = request.POST.getlist('pet_species')
+            breeds  = request.POST.getlist('pet_breed')
+            for i, name in enumerate(names):
+                name = name.strip()
+                if not name:
+                    continue
+                FamilyMember.objects.create(
+                    creator     = request.user,
+                    member_type = 'pet',
+                    side        = 'husband',
+                    name        = name,
+                    species     = species[i] if i < len(species) else '',
+                    breed       = breeds[i] if i < len(breeds) else '',
+                )
+            return redirect('/community/family/setup/?step=8')
+
+        # ── Step 8: Grandparents ──
+        elif step == '8':
+            FamilyMember.objects.filter(
+                creator=request.user,
+                member_type__in=['grandfather', 'grandmother']
+            ).delete()
+
+            gp_fields = [
+                ('grandfather', 'gf_name', 'gf_dob', 'gf_village', 'gf_occupation', 'husband'),
+                ('grandmother', 'gm_name', 'gm_dob', 'gm_village', 'gm_occupation', 'husband'),
+            ]
+            if setup.marital_status == 'married':
+                gp_fields += [
+                    ('grandfather', 'wgf_name', 'wgf_dob', 'wgf_village', 'wgf_occupation', 'wife'),
+                    ('grandmother', 'wgm_name', 'wgm_dob', 'wgm_village', 'wgm_occupation', 'wife'),
+                ]
+
+            for mtype, nf, df, vf, of, side in gp_fields:
+                name = request.POST.get(nf, '').strip()
+                if not name:
+                    continue
+                dob_str = request.POST.get(df, '')
+                dob_val = None
+                if dob_str:
+                    try:
+                        from datetime import datetime
+                        dob_val = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                    except Exception:
+                        pass
+                FamilyMember.objects.create(
+                    creator     = request.user,
+                    member_type = mtype,
+                    side        = side,
+                    name        = name,
+                    dob         = dob_val,
+                    village     = request.POST.get(vf, '').strip(),
+                    occupation  = request.POST.get(of, '').strip(),
+                )
+
             setup.setup_done = True
             setup.save()
             return redirect('/community/family/')
 
-    ROWS = [
-        ('👴', 'Grandfather', 'grandfather_count', getattr(setup, 'grandfather_count', 0)),
-        ('👵', 'Grandmother', 'grandmother_count', getattr(setup, 'grandmother_count', 0)),
-        ('👨', 'Father',      'father_count',      getattr(setup, 'father_count', 0)),
-        ('👩', 'Mother',      'mother_count',      getattr(setup, 'mother_count', 0)),
-        ('👦', 'Son',         'son_count',         getattr(setup, 'son_count', 0)),
-        ('👧', 'Daughter',    'daughter_count',    getattr(setup, 'daughter_count', 0)),
-        ('👱', 'Brother',     'brother_count',     getattr(setup, 'brother_count', 0)),
-        ('👱‍♀️', 'Sister',  'sister_count',      getattr(setup, 'sister_count', 0)),
-        ('🧔', 'Uncle',       'uncle_count',       getattr(setup, 'uncle_count', 0)),
-        ('👩‍🦳', 'Aunt',    'aunt_count',        getattr(setup, 'aunt_count', 0)),
-        ('🧑', 'Cousin',      'cousin_count',      getattr(setup, 'cousin_count', 0)),
-        ('🐾', 'Pet',         'pet_count',         getattr(setup, 'pet_count', 0)),
-    ]
+    # Existing children and pets for pre-fill
+    children = FamilyMember.objects.filter(
+        creator=request.user, member_type__in=['son', 'daughter']
+    ).order_by('created_at')
+    pets = FamilyMember.objects.filter(
+        creator=request.user, member_type='pet'
+    ).order_by('created_at')
+    grandparents = FamilyMember.objects.filter(
+        creator=request.user, member_type__in=['grandfather', 'grandmother']
+    ).order_by('side', 'member_type')
+
     return render(request, 'community/family_setup_wizard.html', {
-        'setup': setup, 'step': step, 'rows': ROWS,
+        'setup': setup, 'step': step, 'errors': errors,
+        'children': children, 'pets': pets, 'grandparents': grandparents,
     })
 
 
 def family_hub(request):
     setup = None
     if request.user.is_authenticated:
-        setup, _ = FamilySetup.objects.get_or_create(user=request.user)
-        # redirect to wizard if not done
-        if not setup.setup_done and request.method == 'GET':
-            return redirect('/community/family/setup/?step=1')
+        # Child 18+ account — resolve to parent's FamilySetup
+        if getattr(request.user, 'user_type', '') == 'family_child':
+            child_member = FamilyMember.objects.filter(
+                child_linked_user=request.user
+            ).select_related('creator__family_setup').first()
+            if child_member and hasattr(child_member.creator, 'family_setup'):
+                setup = child_member.creator.family_setup
+            else:
+                setup = None
+        else:
+            setup, _ = FamilySetup.objects.get_or_create(user=request.user)
+            # redirect to wizard if not done
+            if not setup.setup_done and request.method == 'GET':
+                return redirect('/community/family/setup/?step=1')
 
     ROWS = [
         ('👴', 'Grandfather', 'grandfather_count'),
@@ -278,6 +431,21 @@ def family_hub(request):
         'combined_rows': combined_rows,
         'is_married':    is_married,
     })
+
+
+def family_login(request):
+    """Separate login page for family accounts."""
+    from django.contrib.auth import authenticate, login as auth_login
+    if request.method == 'POST':
+        email    = request.POST.get('family_email', '').strip()
+        password = request.POST.get('family_password', '').strip()
+        user = authenticate(request, username=email, password=password,
+                            backend='jobs.backends.FamilyAccountBackend')
+        if user:
+            auth_login(request, user, backend='jobs.backends.FamilyAccountBackend')
+            return redirect('/community/family/')
+        messages.error(request, 'Invalid family email or password.')
+    return render(request, 'community/family_login.html')
 
 
 @login_required

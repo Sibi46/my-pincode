@@ -816,9 +816,30 @@ class FamilySetup(models.Model):
     MARITAL_CHOICES = [('married', 'Married'), ('unmarried', 'Unmarried')]
 
     user             = models.OneToOneField(User, on_delete=models.CASCADE, related_name='family_setup')
-    # Step 1 — self info
+
+    # Family account credentials (separate login)
+    family_email    = models.EmailField(unique=True, null=True, blank=True)
+    family_password = models.CharField(max_length=128, blank=True)  # hashed
+
+    # Step 2 — gender & marital status
     gender           = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
     marital_status   = models.CharField(max_length=12, choices=MARITAL_CHOICES, blank=True)
+
+    # Step 4 — self details
+    self_full_name   = models.CharField(max_length=150, blank=True)
+    self_dob         = models.DateField(null=True, blank=True)
+    self_village     = models.CharField(max_length=150, blank=True)
+    self_occupation  = models.CharField(max_length=150, blank=True)
+    self_photo       = models.ImageField(upload_to='family/self/', blank=True, null=True)
+
+    # Step 5 — partner details (if married)
+    partner_full_name  = models.CharField(max_length=150, blank=True)
+    partner_dob        = models.DateField(null=True, blank=True)
+    partner_village    = models.CharField(max_length=150, blank=True)
+    partner_occupation = models.CharField(max_length=150, blank=True)
+    partner_photo      = models.ImageField(upload_to='family/partner/', blank=True, null=True)
+
+    # Legacy fields kept for backward compat
     spouse_name      = models.CharField(max_length=150, blank=True)
     display_name     = models.CharField(max_length=150, blank=True)
     village          = models.CharField(max_length=150, blank=True)
@@ -915,6 +936,14 @@ class FamilyMember(models.Model):
 
     species     = models.CharField(max_length=100, blank=True)
     breed       = models.CharField(max_length=100, blank=True)
+
+    # For children aged 18+ — give them a family login
+    child_email       = models.EmailField(blank=True)
+    child_password    = models.CharField(max_length=128, blank=True)  # hashed
+    child_linked_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='family_child_profile'
+    )
 
     created_at  = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Family Login{% endblock %}
+{% block content %}
+<style>
+.flogin-wrap{max-width:400px;margin:40px auto;padding:16px}
+.flogin-card{background:#fff;border-radius:20px;border:1.5px solid #e5e7eb;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.flogin-title{font-size:22px;font-weight:900;color:#0f172a;margin-bottom:4px}
+.flogin-sub{font-size:13px;color:#64748b;margin-bottom:24px}
+.fform-group{margin-bottom:16px}
+.fform-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.fform-input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;transition:.2s}
+.fform-input:focus{border-color:#1d4ed8;background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+.fbtn-primary{display:block;width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;text-align:center;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff;margin-top:8px}
+.ferr{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#b91c1c}
+</style>
+
+<div class="flogin-wrap">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:48px;margin-bottom:8px">👨‍👩‍👧‍👦</div>
+    <div style="font-size:22px;font-weight:900;color:#0f172a">Family Login</div>
+    <div style="font-size:13px;color:#64748b;margin-top:4px">Login with your family account credentials</div>
+  </div>
+
+  <div class="flogin-card">
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="ferr">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="fform-group">
+        <label class="fform-label">Family Email</label>
+        <input type="email" name="family_email" class="fform-input" placeholder="family@example.com" required autofocus>
+      </div>
+      <div class="fform-group" style="margin-bottom:20px">
+        <label class="fform-label">Password</label>
+        <input type="password" name="family_password" class="fform-input" placeholder="Your family password" required>
+      </div>
+      <button type="submit" class="fbtn-primary">🔓 Login to Family</button>
+    </form>
+
+    <div style="text-align:center;margin-top:20px;font-size:13px;color:#64748b">
+      Don't have a family account?
+      <a href="/login/" style="color:#1d4ed8;font-weight:700">Login with phone</a>
+      then set up your family.
+    </div>
+  </div>
+</div>
+{% endblock %}
