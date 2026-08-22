@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% block title %}My Accounts{% endblock %}
+{% block content %}
+<style>
+.mac-wrap{max-width:560px;margin:0 auto;padding:16px 16px 80px}
+.mac-header{text-align:center;padding:28px 0 20px}
+.mac-title{font-size:22px;font-weight:900;color:#0f172a}
+.mac-sub{font-size:13px;color:#64748b;margin-top:4px}
+.mac-card{background:#fff;border-radius:18px;border:1.5px solid #e5e7eb;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.mac-card-header{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid #f1f5f9}
+.mac-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.mac-card-title{font-size:14px;font-weight:800;color:#0f172a}
+.mac-card-type{font-size:11px;color:#94a3b8;font-weight:600;margin-top:1px}
+.mac-badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;margin-left:auto;flex-shrink:0}
+.mac-badge-active{background:#dcfce7;color:#15803d}
+.mac-badge-pending{background:#fef3c7;color:#92400e}
+.mac-row{display:flex;align-items:center;padding:11px 18px;border-bottom:1px solid #f8fafc;gap:10px}
+.mac-row:last-child{border-bottom:none}
+.mac-row-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.mac-row-label{font-size:11px;color:#94a3b8;font-weight:600;min-width:72px;flex-shrink:0}
+.mac-row-value{font-size:13px;font-weight:700;color:#0f172a;flex:1;word-break:break-all}
+.mac-row-value.masked{font-family:monospace;letter-spacing:2px;color:#64748b}
+.mac-link{font-size:12px;color:#1d4ed8;font-weight:700;text-decoration:none;margin-left:auto;flex-shrink:0}
+.mac-community-item{padding:12px 18px;border-bottom:1px solid #f8fafc;display:flex;align-items:center;gap:10px}
+.mac-community-item:last-child{border-bottom:none}
+.mac-comm-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.mac-comm-logo img{width:100%;height:100%;object-fit:cover}
+.mac-empty{text-align:center;padding:20px;font-size:13px;color:#94a3b8}
+.mac-section-label{font-size:11px;font-weight:800;color:#94a3b8;letter-spacing:.06em;text-transform:uppercase;padding:16px 0 6px}
+</style>
+
+<div class="mac-wrap">
+  <div class="mac-header">
+    <div style="font-size:40px;margin-bottom:8px">🔐</div>
+    <div class="mac-title">My Accounts</div>
+    <div class="mac-sub">All your linked accounts and login details</div>
+  </div>
+
+  <!-- ── MAIN ACCOUNT ── -->
+  <div class="mac-section-label">Main Account</div>
+  <div class="mac-card">
+    <div class="mac-card-header">
+      <div class="mac-icon" style="background:#eff6ff">👤</div>
+      <div>
+        <div class="mac-card-title">{{ user.get_full_name|default:user.username }}</div>
+        <div class="mac-card-type">Phone / Email Login</div>
+      </div>
+      <span class="mac-badge mac-badge-active">Active</span>
+    </div>
+    {% if user.phone %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📱</span>
+      <span class="mac-row-label">Phone</span>
+      <span class="mac-row-value">{{ user.phone }}</span>
+    </div>
+    {% endif %}
+    {% if user.email %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📧</span>
+      <span class="mac-row-label">Email</span>
+      <span class="mac-row-value">{{ user.email }}</span>
+    </div>
+    {% endif %}
+    <div class="mac-row">
+      <span class="mac-row-icon">🏷️</span>
+      <span class="mac-row-label">Account Type</span>
+      <span class="mac-row-value">{{ user.get_user_type_display }}</span>
+    </div>
+    <div class="mac-row">
+      <span class="mac-row-icon">🔑</span>
+      <span class="mac-row-label">Password</span>
+      <span class="mac-row-value masked">••••••••</span>
+      <a href="/profile/edit/" class="mac-link">Change</a>
+    </div>
+  </div>
+
+  <!-- ── FAMILY ACCOUNT ── -->
+  {% if family_setup and family_setup.family_email %}
+  <div class="mac-section-label">Family Account</div>
+  <div class="mac-card">
+    <div class="mac-card-header">
+      <div class="mac-icon" style="background:#fdf4ff">👨‍👩‍👧‍👦</div>
+      <div>
+        <div class="mac-card-title">Family Hub</div>
+        <div class="mac-card-type">Family Email Login</div>
+      </div>
+      <span class="mac-badge mac-badge-active">Active</span>
+    </div>
+    <div class="mac-row">
+      <span class="mac-row-icon">📧</span>
+      <span class="mac-row-label">Email</span>
+      <span class="mac-row-value">{{ family_setup.family_email }}</span>
+    </div>
+    <div class="mac-row">
+      <span class="mac-row-icon">🔑</span>
+      <span class="mac-row-label">Password</span>
+      <span class="mac-row-value masked">••••••••</span>
+      <a href="/community/family/setup/?step=1" class="mac-link">Change</a>
+    </div>
+    <div class="mac-row">
+      <span class="mac-row-icon">🔗</span>
+      <span class="mac-row-label">Login URL</span>
+      <span class="mac-row-value" style="font-size:12px;color:#64748b">/community/family/login/</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── COMMUNITIES ── -->
+  {% if communities %}
+  <div class="mac-section-label">Communities Created</div>
+  <div class="mac-card">
+    {% for comm in communities %}
+    <div class="mac-community-item">
+      <div class="mac-comm-logo">
+        {% if comm.logo %}<img src="{{ comm.logo.url }}">{% else %}🏘️{% endif %}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:800;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ comm.name }}</div>
+        <div style="font-size:11px;color:#94a3b8;font-weight:600">{{ comm.page_id }}</div>
+        {% if comm.email %}
+        <div style="font-size:11px;color:#64748b;margin-top:1px">📧 {{ comm.email }}</div>
+        {% endif %}
+      </div>
+      <a href="/portal/c/{{ comm.page_id }}/" style="font-size:11px;color:#1d4ed8;font-weight:700;text-decoration:none;flex-shrink:0">View →</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── CAMPUS COMPANY ── -->
+  {% if campus_company %}
+  <div class="mac-section-label">Campus Business Account</div>
+  <div class="mac-card">
+    <div class="mac-card-header">
+      <div class="mac-icon" style="background:#f0fdf4">🏢</div>
+      <div>
+        <div class="mac-card-title">{{ campus_company.name }}</div>
+        <div class="mac-card-type">Campus Company</div>
+      </div>
+      <span class="mac-badge mac-badge-active">Active</span>
+    </div>
+    {% if campus_company.email %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📧</span>
+      <span class="mac-row-label">Email</span>
+      <span class="mac-row-value">{{ campus_company.email }}</span>
+    </div>
+    {% endif %}
+    {% if campus_company.phone %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📱</span>
+      <span class="mac-row-label">Phone</span>
+      <span class="mac-row-value">{{ campus_company.phone }}</span>
+    </div>
+    {% endif %}
+    <div class="mac-row">
+      <span class="mac-row-icon">🔑</span>
+      <span class="mac-row-label">Password</span>
+      <span class="mac-row-value masked">••••••••</span>
+      <a href="/profile/edit/" class="mac-link">Change</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── PLACEMENT OFFICER ── -->
+  {% if placement_officer %}
+  <div class="mac-section-label">Institution Account</div>
+  <div class="mac-card">
+    <div class="mac-card-header">
+      <div class="mac-icon" style="background:#fff7ed">🎓</div>
+      <div>
+        <div class="mac-card-title">{{ placement_officer.institution.name }}</div>
+        <div class="mac-card-type">Placement Officer — {{ placement_officer.designation }}</div>
+      </div>
+    </div>
+    {% if placement_officer.institution.email %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📧</span>
+      <span class="mac-row-label">Inst. Email</span>
+      <span class="mac-row-value">{{ placement_officer.institution.email }}</span>
+    </div>
+    {% endif %}
+    <div class="mac-row">
+      <span class="mac-row-icon">🔑</span>
+      <span class="mac-row-label">Password</span>
+      <span class="mac-row-value masked">••••••••</span>
+      <a href="/profile/edit/" class="mac-link">Change</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── EMPLOYER / JOB PORTAL ── -->
+  {% if company %}
+  <div class="mac-section-label">Business / Employer Account</div>
+  <div class="mac-card">
+    <div class="mac-card-header">
+      <div class="mac-icon" style="background:#f0f9ff">💼</div>
+      <div>
+        <div class="mac-card-title">{{ company.name|default:user.get_full_name }}</div>
+        <div class="mac-card-type">Employer Account</div>
+      </div>
+      <span class="mac-badge mac-badge-active">Active</span>
+    </div>
+    {% if company.email %}
+    <div class="mac-row">
+      <span class="mac-row-icon">📧</span>
+      <span class="mac-row-label">Email</span>
+      <span class="mac-row-value">{{ company.email }}</span>
+    </div>
+    {% endif %}
+    <div class="mac-row">
+      <span class="mac-row-icon">🔑</span>
+      <span class="mac-row-label">Password</span>
+      <span class="mac-row-value masked">••••••••</span>
+      <a href="/profile/edit/" class="mac-link">Change</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- no accounts at all -->
+  {% if not family_setup and not communities and not campus_company and not placement_officer and not company %}
+  <div style="text-align:center;padding:32px 16px;color:#94a3b8;font-size:13px">
+    Only your main account is active.<br>
+    Create a community or set up a family account to see them here.
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:4px">
+    <a href="/profile/edit/" style="font-size:13px;color:#1d4ed8;font-weight:700;text-decoration:none">✏️ Edit Profile</a>
+  </div>
+</div>
+{% endblock %}

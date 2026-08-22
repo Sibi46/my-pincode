@@ -3119,6 +3119,43 @@ def profile_redirect(request):
 
 
 @login_required
+def my_accounts(request):
+    user = request.user
+
+    # Family account
+    family_setup = None
+    try:
+        family_setup = user.family_setup
+    except Exception:
+        pass
+
+    # Communities created (portal)
+    from portal.models import Community
+    communities = Community.objects.filter(created_by=user, is_active=True).order_by('-created_at')
+
+    # Campus company
+    campus_company = getattr(user, 'campus_company', None)
+
+    # Campus placement officer
+    placement_officer = getattr(user, 'placement_officer', None)
+
+    # Jobs profile
+    from jobs.models import JobSeekerProfile, EmployerProfile
+    seeker = getattr(user, 'seeker', None)
+    company = getattr(user, 'company', None)
+
+    return render(request, 'my_accounts.html', {
+        'user': user,
+        'family_setup': family_setup,
+        'communities': communities,
+        'campus_company': campus_company,
+        'placement_officer': placement_officer,
+        'seeker': seeker,
+        'company': company,
+    })
+
+
+@login_required
 def profile_edit(request):
     user = request.user
     # get sub-profile if exists
