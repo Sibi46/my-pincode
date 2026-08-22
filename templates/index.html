@@ -297,8 +297,6 @@ a{text-decoration:none;color:inherit}
     </a>
   </div>
 
-  <a href="/about/" style="font-size:13px;font-weight:600;color:#374151;text-decoration:none;white-space:nowrap;padding:4px 2px;border-bottom:2px solid transparent;transition:.2s" onmouseover="this.style.color='#1d4ed8';this.style.borderBottomColor='#1d4ed8'" onmouseout="this.style.color='#374151';this.style.borderBottomColor='transparent'">EVOXU</a>
-  <a href="#smart-marketing" class="tb-smartmkt" style="background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:700;white-space:nowrap;transition:.2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">📣 Smart Marketing</a>
   <div class="tb-sep"></div>
   {% if request.user.is_authenticated %}
     <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/" style="display:flex;align-items:center;gap:7px;text-decoration:none;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:20px;padding:5px 13px 5px 8px;font-size:13px;font-weight:700;color:#1e293b;white-space:nowrap;transition:.2s" onmouseover="this.style.borderColor='#1d4ed8';this.style.color='#1d4ed8'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#1e293b'">
@@ -325,7 +323,6 @@ a{text-decoration:none;color:inherit}
   <a href="/vouchers/marketplace/"><i class="fas fa-gift"></i> Gift Vouchers</a>
   <a href="/advertise/register/"><i class="fas fa-bullhorn"></i> Promote Business</a>
   <a href="/portal/" style="background:linear-gradient(135deg,#eff6ff,#f0fdf4)"><i class="fas fa-users" style="color:#059669"></i> Communities (New)</a>
-  <a href="/about/"><i class="fas fa-info-circle"></i> EVOXU</a>
   {% if request.user.is_authenticated %}
     <a href="/{% if request.user.is_employer %}employer{% else %}jobseeker{% endif %}/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
     <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -872,7 +869,9 @@ var olxAdCur = 0;
       </div>
       <div class="footer-links">
         <h4>Company</h4>
-        <a href="#">About Us</a>
+        <a href="/about/">About Us</a>
+        <a href="/about/" style="color:#f59e0b;font-weight:700">EVOXU Pvt Ltd</a>
+        <a href="#smart-marketing" style="color:#ef4444;font-weight:700">📣 Smart Marketing</a>
         <a href="/complaint/submit/">Submit Complaint</a>
         <a href="#">Privacy Policy</a>
         <a href="#">Terms of Service</a>
