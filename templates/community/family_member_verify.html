@@ -1,60 +1,84 @@
 {% extends 'base.html' %}
-{% block title %}Verify Relationship – OUR PINCODE{% endblock %}
+{% block title %}{{ member.name }} – Family Verification{% endblock %}
 {% block content %}
 <style>
 nav.navbar{display:none!important}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
 
-.vcard{background:#fff;border-radius:24px;box-shadow:0 8px 40px rgba(79,70,229,.12);padding:32px 24px;max-width:380px;width:100%;text-align:center}
-.vcard-avatar{width:80px;height:80px;border-radius:20px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 16px;overflow:hidden}
-.vcard-avatar img{width:100%;height:100%;object-fit:cover;border-radius:20px}
-.vcard-relation{display:inline-block;background:#EEF2FF;color:#4F46E5;font-size:11px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:.05em;margin-bottom:16px}
-.vcard-q{font-size:18px;font-weight:800;color:#0F172A;line-height:1.4;margin-bottom:6px}
-.vcard-sub{font-size:13px;color:#64748B;margin-bottom:28px}
-.vcard-btn-yes{width:100%;padding:15px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,70,229,.3);margin-bottom:10px}
-.vcard-btn-no{width:100%;padding:13px;background:#F1F5F9;color:#64748B;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.vcard-name{font-size:20px;font-weight:900;color:#0F172A;margin-bottom:4px}
-.vcard-from{font-size:12px;color:#94A3B8;margin-bottom:20px}
+.vwrap{max-width:380px;width:100%}
 
-/* icons map */
-.rel-icon{font-size:2rem}
+/* Header band */
+.vband{background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:24px 24px 0 0;padding:32px 24px 24px;text-align:center}
+.vavatar{width:88px;height:88px;border-radius:22px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 16px;overflow:hidden;border:3px solid rgba(255,255,255,.4)}
+.vavatar img{width:100%;height:100%;object-fit:cover;border-radius:19px}
+.vmember-name{font-size:26px;font-weight:900;color:#fff;margin-bottom:6px;letter-spacing:-.01em}
+.vrelation-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:800;padding:5px 14px;border-radius:20px;letter-spacing:.04em}
+
+/* Owner chips */
+.vowners{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.vchip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px}
+
+/* Body card */
+.vbody{background:#fff;border-radius:0 0 24px 24px;padding:28px 24px;box-shadow:0 8px 40px rgba(79,70,229,.14)}
+.vq{font-size:18px;font-weight:800;color:#0F172A;text-align:center;line-height:1.4;margin-bottom:6px}
+.vsub{font-size:13px;color:#64748B;text-align:center;margin-bottom:28px;line-height:1.5}
+
+.vbtn-yes{width:100%;padding:15px;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(79,70,229,.3);margin-bottom:10px;display:block;text-decoration:none;text-align:center}
+.vbtn-no{width:100%;padding:13px;background:#F1F5F9;color:#64748B;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+
+.vfooter{text-align:center;margin-top:18px;font-size:11px;color:#94A3B8}
 </style>
 
-<div class="vcard">
+<div class="vwrap">
+  <div class="vband">
+    <div class="vavatar">
+      {% if member.photo %}
+        <img src="{{ member.photo.url }}" alt="{{ member.name }}">
+      {% else %}
+        {% if member.member_type == 'grandfather' %}👴
+        {% elif member.member_type == 'grandmother' %}👵
+        {% elif member.member_type == 'father' %}👨
+        {% elif member.member_type == 'mother' %}👩
+        {% elif member.member_type == 'uncle' %}🧔
+        {% elif member.member_type == 'aunt' %}👩‍🦳
+        {% elif member.member_type == 'cousin' %}🧑
+        {% elif member.member_type == 'brother' %}👱
+        {% elif member.member_type == 'sister' %}👱‍♀️
+        {% elif member.member_type == 'son' %}👦
+        {% elif member.member_type == 'daughter' %}👧
+        {% elif member.member_type == 'pet' %}🐾
+        {% else %}👤{% endif %}
+      {% endif %}
+    </div>
 
-  <div class="vcard-avatar">
-    {% if member.photo %}
-      <img src="{{ member.photo.url }}" alt="{{ member.name }}">
-    {% else %}
-      {% if member.member_type == 'grandfather' %}👴
-      {% elif member.member_type == 'grandmother' %}👵
-      {% elif member.member_type == 'father' %}👨
-      {% elif member.member_type == 'mother' %}👩
-      {% elif member.member_type == 'uncle' %}🧔
-      {% elif member.member_type == 'aunt' %}👩‍🦳
-      {% elif member.member_type == 'cousin' %}🧑
-      {% elif member.member_type == 'brother' %}👱
-      {% elif member.member_type == 'sister' %}👱‍♀️
-      {% elif member.member_type == 'son' %}👦
-      {% elif member.member_type == 'daughter' %}👧
-      {% elif member.member_type == 'pet' %}🐾
-      {% else %}👤{% endif %}
-    {% endif %}
+    <div class="vmember-name">{{ member.name }}</div>
+    <div class="vrelation-tag">
+      {% if member.member_type == 'grandfather' %}👴{% elif member.member_type == 'grandmother' %}👵{% elif member.member_type == 'uncle' %}🧔{% elif member.member_type == 'aunt' %}👩‍🦳{% elif member.member_type == 'brother' %}👱{% elif member.member_type == 'sister' %}👱‍♀️{% elif member.member_type == 'cousin' %}🧑{% else %}👤{% endif %}
+      {{ member.get_member_type_display }}
+    </div>
+
+    <!-- Show whose uncle/relative they are -->
+    <div class="vowners">
+      <div class="vchip">👤 {{ self_name }}'s {{ member.get_member_type_display }}</div>
+      {% if partner_name and partner_name != 'Partner' %}
+      <div class="vchip">💑 {{ partner_name }}'s {{ member.get_member_type_display }}</div>
+      {% endif %}
+    </div>
   </div>
 
-  <div class="vcard-relation">{{ member.get_member_type_display }}</div>
+  <div class="vbody">
+    <div class="vq">Are you {{ owner_name }}'s<br>{{ member.get_member_type_display }}?</div>
+    <div class="vsub">
+      {{ owner_name }} has added <strong>{{ member.name }}</strong> as their {{ member.get_member_type_display }} on OUR PINCODE Family Circle.
+    </div>
 
-  <div class="vcard-name">{{ member.name }}</div>
-  <div class="vcard-from">Added by {{ creator_name }}</div>
+    <a href="/community/family/?verified={{ member.pk }}" class="vbtn-yes">
+      ✅ Yes, I am {{ member.name }}
+    </a>
+    <button class="vbtn-no" onclick="history.back()">❌ No, this is not me</button>
+  </div>
 
-  <div class="vcard-q">Are you {{ creator_name }}'s {{ member.get_member_type_display }}?</div>
-  <div class="vcard-sub">{{ creator_name }} has added you as a family member on OUR PINCODE.</div>
-
-  <a href="/community/family/?verified={{ member.pk }}" style="display:block;text-decoration:none">
-    <button class="vcard-btn-yes">✅ Yes, I'm their {{ member.get_member_type_display }}</button>
-  </a>
-  <button class="vcard-btn-no" onclick="history.back()">❌ No, this is not me</button>
-
+  <div class="vfooter">OUR PINCODE · Family Circle</div>
 </div>
 {% endblock %}
