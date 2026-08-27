@@ -104,10 +104,30 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
   <a href="/community/" class="fh-back">&#8592;</a>
   <div class="fh-topbar-title">Family <span>Circle</span></div>
   {% if request.user.is_authenticated and setup and setup.setup_done %}
+  <button onclick="shareFamily()" class="fh-topbar-btn" style="background:#F0FDF4;color:#16A34A;border:1.5px solid #BBF7D0">🔗 Share</button>
   <a href="/community/family/setup/?step=1" class="fh-topbar-btn" style="background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE">✏️ Edit</a>
   <a href="/community/family/delete/" class="fh-topbar-btn" style="background:#FEF2F2;color:#DC2626;border:1.5px solid #FECACA">🗑️</a>
   {% endif %}
 </div>
+
+<div id="shareToast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0F172A;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:9999;white-space:nowrap">✅ Link copied!</div>
+
+<script>
+function shareFamily(){
+  var url = window.location.origin + '/community/family/';
+  var name = '{{ setup.house_name|default:setup.self_full_name|default:"Our Family" }}';
+  var text = name + ' — Family Circle on OUR PINCODE';
+  if(navigator.share){
+    navigator.share({title: text, url: url}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(url).then(function(){
+      var t = document.getElementById('shareToast');
+      t.style.display = 'block';
+      setTimeout(function(){ t.style.display = 'none'; }, 2500);
+    });
+  }
+}
+</script>
 
 {% if request.user.is_authenticated and setup %}
 
