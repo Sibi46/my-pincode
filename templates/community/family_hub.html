@@ -133,11 +133,11 @@ function shareFamily(){
 
 <!-- MAIN FLOW TABS -->
 <div class="fh-mainnav">
-  <button class="fh-maintab active" onclick="showFlow('relatives', this)">
-    <span class="fh-mainicon">🤝</span> Relatives & Friends
-  </button>
-  <button class="fh-maintab" onclick="showFlow('family', this)">
+  <button class="fh-maintab active" onclick="showFlow('family', this)">
     <span class="fh-mainicon">👨‍👩‍👧‍👦</span> My Family
+  </button>
+  <button class="fh-maintab" onclick="showFlow('relatives', this)">
+    <span class="fh-mainicon">🤝</span> Relatives & Friends
   </button>
 </div>
 
@@ -159,7 +159,7 @@ function shareFamily(){
 <!-- ════════════════════════════════
      FLOW 1 — MY FAMILY
 ════════════════════════════════ -->
-<div class="fh-flow" id="flow-family">
+<div class="fh-flow active" id="flow-family">
 {% if setup.setup_done %}
 
   <!-- ── ME ── -->
@@ -282,7 +282,7 @@ function shareFamily(){
 <!-- ════════════════════════════════
      FLOW 2 — RELATIVES & FRIENDS
 ════════════════════════════════ -->
-<div class="fh-flow active" id="flow-relatives">
+<div class="fh-flow" id="flow-relatives">
 
   <!-- Sub tabs -->
   <div class="fh-tabnav" id="tabnav-relatives">
@@ -290,92 +290,90 @@ function shareFamily(){
     <button class="fh-tab" onclick="showTab('friends','relatives',this)"><span class="fh-tab-icon">🤝</span> Friends</button>
   </div>
 
-  <!-- RELATIVES -->
+  <!-- RELATIVES — split layout -->
   <div class="fh-section active" id="tab-relatives-relatives">
     {% if setup.setup_done %}
-    <!-- Uncle & Aunt -->
-    {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
-      {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
-        {% if h_members or w_members %}
-        <div class="fh-rel-group">
-          <div class="fh-rel-group-head">
-            <div class="fh-rel-group-title">{{ icon }} {{ label }}</div>
-            <button onclick="openSidePicker('{{ mtype }}','{{ icon }} {{ label }}')" class="fh-rel-group-add" style="background:none;border:none;cursor:pointer;font-size:13px;font-weight:700;color:#4F46E5;padding:4px 8px;border-radius:8px;background:#EEF2FF">＋</button>
-          </div>
-          {% for m in h_members %}
-          <a href="/community/family/member/{{ m.pk }}/" class="fh-rel-row">
-            <div class="fh-rel-avatar">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="">{% else %}{{ icon }}{% endif %}</div>
-            <div><div class="fh-rel-name">{{ m.name }}</div><div class="fh-rel-sub">{% if m.village %}{{ m.village }}{% elif m.age %}Age {{ m.age }}{% else %}{{ label }}{% endif %}</div></div>
-          </a>
-          {% endfor %}
-          {% for m in w_members %}
-          <a href="/community/family/member/{{ m.pk }}/" class="fh-rel-row">
-            <div class="fh-rel-avatar">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="">{% else %}{{ icon }}{% endif %}</div>
-            <div><div class="fh-rel-name">{{ m.name }}</div><div class="fh-rel-sub">{% if m.village %}{{ m.village }}{% elif m.age %}Age {{ m.age }}{% else %}{{ label }}{% endif %}</div></div>
-          </a>
-          {% endfor %}
+
+    <!-- Two-column split -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
+
+      <!-- LEFT: My Side -->
+      <div>
+        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          👤 {{ setup.self_name|default:"My Side" }}
         </div>
-        {% endif %}
-      {% endif %}
-    {% endfor %}
+        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
 
-    <!-- Add Grands -->
-    <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">👴 Add Grandparents</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button onclick="openSidePicker('grandfather','👴 Grandfather')" style="display:inline-flex;align-items:center;gap:6px;background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#92400E;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👴 Grandfather</button>
-        <button onclick="openSidePicker('grandmother','👵 Grandmother')" style="display:inline-flex;align-items:center;gap:6px;background:#FCE7F3;border:1.5px solid #FBCFE8;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#9D174D;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👵 Grandmother</button>
-      </div>
-    </div>
+          {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
+          {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
+          {% if h_members %}
+          <div style="margin-bottom:8px">
+            <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:4px">{{ icon }} {{ label }}</div>
+            {% for m in h_members %}
+            <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:4px;text-decoration:none;border:1px solid #E2E8F0">
+              <div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
+              <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endif %}
+          {% endfor %}
 
-    <!-- Add Siblings -->
-    <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">👫 Add Siblings</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button onclick="openSidePicker('brother','👱 Brother')" style="display:inline-flex;align-items:center;gap:6px;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#4F46E5;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👱 Brother</button>
-        <button onclick="openSidePicker('sister','👱‍♀️ Sister')" style="display:inline-flex;align-items:center;gap:6px;background:#FCE7F3;border:1.5px solid #FBCFE8;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#BE185D;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👱‍♀️ Sister</button>
+          <!-- My side add buttons -->
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+            <button onclick="goAdd('grandfather','husband')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#92400E;cursor:pointer;width:100%">＋ 👴 Grandfather</button>
+            <button onclick="goAdd('grandmother','husband')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#9D174D;cursor:pointer;width:100%">＋ 👵 Grandmother</button>
+            <button onclick="goAdd('brother','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 👱 Brother</button>
+            <button onclick="goAdd('sister','husband')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 👱‍♀️ Sister</button>
+            <button onclick="goAdd('uncle','husband')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#C2410C;cursor:pointer;width:100%">＋ 🧔 Uncle</button>
+            <button onclick="goAdd('aunt','husband')" style="display:flex;align-items:center;gap:5px;background:#F0FDF4;border:1.5px dashed #BBF7D0;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#166534;cursor:pointer;width:100%">＋ 👩‍🦳 Aunt</button>
+            <button onclick="goAdd('cousin','husband')" style="display:flex;align-items:center;gap:5px;background:#F5F3FF;border:1.5px dashed #DDD6FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#6D28D9;cursor:pointer;width:100%">＋ 🧑 Cousin</button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Add Relatives -->
-    <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">🤝 Add Relatives</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <button onclick="openSidePicker('uncle','🧔 Uncle')" style="display:inline-flex;align-items:center;gap:6px;background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#C2410C;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>🧔 Uncle</button>
-        <button onclick="openSidePicker('aunt','👩‍🦳 Aunt')" style="display:inline-flex;align-items:center;gap:6px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#166534;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👩‍🦳 Aunt</button>
-        <button onclick="openSidePicker('cousin','🧑 Cousin')" style="display:inline-flex;align-items:center;gap:6px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#6D28D9;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>🧑 Cousin</button>
-      </div>
-    </div>
+      <!-- RIGHT: Partner's Side -->
+      <div>
+        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          💑 {{ setup.partner_name|default:"Partner Side" }}
+        </div>
+        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
 
-    <!-- Side Picker Modal -->
-    <div id="sidePickerOverlay" onclick="closeSidePicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:flex-end;justify-content:center"></div>
-    <div id="sidePickerSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border-radius:22px 22px 0 0;padding:24px 20px 32px;z-index:1000;box-shadow:0 -8px 32px rgba(0,0,0,.18)">
-      <div style="width:36px;height:4px;background:#E2E8F0;border-radius:4px;margin:0 auto 20px"></div>
-      <div id="sidePickerTitle" style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:6px;text-align:center"></div>
-      <div style="font-size:12px;color:#64748B;text-align:center;margin-bottom:20px">Whose side is this relative on?</div>
-      <div style="display:flex;gap:12px">
-        <button onclick="goAdd('husband')" style="flex:1;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;padding:16px 10px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.4">
-          👤 My Side<br><span style="font-size:10px;font-weight:500;opacity:.85">Your relatives</span>
-        </button>
-        <button onclick="goAdd('wife')" style="flex:1;background:linear-gradient(135deg,#BE185D,#7C3AED);color:#fff;border:none;border-radius:14px;padding:16px 10px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.4">
-          💑 Partner's Side<br><span style="font-size:10px;font-weight:500;opacity:.85">Partner's relatives</span>
-        </button>
+          {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
+          {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
+          {% if w_members %}
+          <div style="margin-bottom:8px">
+            <div style="font-size:10px;font-weight:700;color:#BE185D;margin-bottom:4px">{{ icon }} {{ label }}</div>
+            {% for m in w_members %}
+            <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:4px;text-decoration:none;border:1px solid #FBCFE8">
+              <div style="width:32px;height:32px;border-radius:8px;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
+              <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+
+          <!-- Partner side add buttons -->
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+            <button onclick="goAdd('grandfather','wife')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#92400E;cursor:pointer;width:100%">＋ 👴 Grandfather</button>
+            <button onclick="goAdd('grandmother','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#9D174D;cursor:pointer;width:100%">＋ 👵 Grandmother</button>
+            <button onclick="goAdd('brother','wife')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 👱 Brother</button>
+            <button onclick="goAdd('sister','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 👱‍♀️ Sister</button>
+            <button onclick="goAdd('uncle','wife')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#C2410C;cursor:pointer;width:100%">＋ 🧔 Uncle</button>
+            <button onclick="goAdd('aunt','wife')" style="display:flex;align-items:center;gap:5px;background:#F0FDF4;border:1.5px dashed #BBF7D0;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#166534;cursor:pointer;width:100%">＋ 👩‍🦳 Aunt</button>
+            <button onclick="goAdd('cousin','wife')" style="display:flex;align-items:center;gap:5px;background:#F5F3FF;border:1.5px dashed #DDD6FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#6D28D9;cursor:pointer;width:100%">＋ 🧑 Cousin</button>
+          </div>
+        </div>
       </div>
-    </div>
+
+    </div><!-- /grid -->
+
     <script>
-    var _spType='';
-    function openSidePicker(type,label){
-      _spType=type;
-      document.getElementById('sidePickerTitle').textContent='Add '+label;
-      document.getElementById('sidePickerOverlay').style.display='flex';
-      document.getElementById('sidePickerSheet').style.display='block';
-    }
-    function closeSidePicker(){
-      document.getElementById('sidePickerOverlay').style.display='none';
-      document.getElementById('sidePickerSheet').style.display='none';
-    }
-    function goAdd(side){
-      window.location='/community/family/create/?type='+_spType+'&side='+side;
+    function goAdd(type, side){
+      window.location='/community/family/create/?type='+type+'&side='+side;
     }
     </script>
     {% else %}
