@@ -12,9 +12,10 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 .fh-topbar-title span{color:#4F46E5}
 .fh-topbar-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:18px;font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0}
 
-/* ── MAIN TAB NAV (Flow 1 vs Flow 2) ── */
-.fh-mainnav{background:#fff;border-bottom:2px solid #E0E7FF;display:flex;padding:0 16px;gap:0}
-.fh-maintab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all .2s;font-size:13px;font-weight:700;color:#94A3B8}
+/* ── MAIN TAB NAV ── */
+.fh-mainnav{background:#fff;border-bottom:2px solid #E0E7FF;display:flex;padding:0 8px;gap:0;overflow-x:auto;scrollbar-width:none}
+.fh-mainnav::-webkit-scrollbar{display:none}
+.fh-maintab{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 14px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all .2s;font-size:12px;font-weight:700;color:#94A3B8;white-space:nowrap}
 .fh-maintab.active{color:#4F46E5;border-bottom-color:#4F46E5}
 .fh-mainicon{font-size:1.2rem}
 
@@ -137,7 +138,13 @@ function shareFamily(){
     <span class="fh-mainicon">👨‍👩‍👧‍👦</span> My Family
   </button>
   <button class="fh-maintab" onclick="showFlow('relatives', this)">
-    <span class="fh-mainicon">🤝</span> Relatives & Friends
+    <span class="fh-mainicon">👨‍👩‍👧</span> Relatives
+  </button>
+  <button class="fh-maintab" onclick="showFlow('friends', this)">
+    <span class="fh-mainicon">🤝</span> Friends
+  </button>
+  <button class="fh-maintab" onclick="showFlow('colleagues', this)">
+    <span class="fh-mainicon">💼</span> Colleagues
   </button>
 </div>
 
@@ -284,14 +291,8 @@ function shareFamily(){
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-relatives">
 
-  <!-- Sub tabs -->
-  <div class="fh-tabnav" id="tabnav-relatives">
-    <button class="fh-tab active" onclick="showTab('relatives','relatives',this)"><span class="fh-tab-icon">👨‍👩‍👧</span> Relatives</button>
-    <button class="fh-tab" onclick="showTab('friends','relatives',this)"><span class="fh-tab-icon">🤝</span> Friends</button>
-  </div>
-
   <!-- RELATIVES — split layout -->
-  <div class="fh-section active" id="tab-relatives-relatives">
+  <div id="tab-relatives-relatives">
     {% if setup.setup_done %}
 
     <!-- Two-column split -->
@@ -386,9 +387,14 @@ function shareFamily(){
     {% endif %}
   </div>
 
-  <!-- FRIENDS -->
-  <div class="fh-section" id="tab-relatives-friends">
-    <div class="fh-sec-title">My Friends</div>
+</div><!-- /flow-relatives -->
+
+
+<!-- ════════════════════════════════
+     FLOW 3 — FRIENDS
+════════════════════════════════ -->
+<div class="fh-flow" id="flow-friends">
+  <div style="padding:16px">
     {% if friends %}
       {% for f in friends %}
       <a href="#" class="fh-friend-row">
@@ -405,8 +411,22 @@ function shareFamily(){
     </div>
     {% endif %}
   </div>
+</div><!-- /flow-friends -->
 
-</div><!-- /flow-relatives -->
+
+<!-- ════════════════════════════════
+     FLOW 4 — COLLEAGUES
+════════════════════════════════ -->
+<div class="fh-flow" id="flow-colleagues">
+  <div style="padding:16px">
+    <div class="fh-empty">
+      <span class="fh-empty-icon">💼</span>
+      <div class="fh-empty-t">No colleagues yet</div>
+      <div class="fh-empty-s">Add colleagues from your workplace to keep in touch.</div>
+      <a href="/community/" class="fh-empty-btn">Explore Communities</a>
+    </div>
+  </div>
+</div><!-- /flow-colleagues -->
 
 {% else %}
 <div class="fh-guest">
