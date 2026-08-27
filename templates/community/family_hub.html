@@ -275,7 +275,7 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
     {% if setup.setup_done %}
     <!-- Uncle & Aunt -->
     {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
-      {% if mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
+      {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
         {% if h_members or w_members %}
         <div class="fh-rel-group">
           <div class="fh-rel-group-head">
@@ -299,9 +299,18 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
       {% endif %}
     {% endfor %}
 
+    <!-- Add Grands -->
+    <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">👴 Add Grandparents</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <button onclick="openSidePicker('grandfather','👴 Grandfather')" style="display:inline-flex;align-items:center;gap:6px;background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#92400E;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👴 Grandfather</button>
+        <button onclick="openSidePicker('grandmother','👵 Grandmother')" style="display:inline-flex;align-items:center;gap:6px;background:#FCE7F3;border:1.5px solid #FBCFE8;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#9D174D;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👵 Grandmother</button>
+      </div>
+    </div>
+
     <!-- Add Relatives -->
     <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">Add Relatives</div>
+      <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">🤝 Add Relatives</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
         <button onclick="openSidePicker('brother','👱 Brother')" style="display:inline-flex;align-items:center;gap:6px;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#4F46E5;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👱 Brother</button>
         <button onclick="openSidePicker('sister','👱‍♀️ Sister')" style="display:inline-flex;align-items:center;gap:6px;background:#FCE7F3;border:1.5px solid #FBCFE8;border-radius:20px;padding:8px 16px;font-size:12px;font-weight:700;color:#BE185D;cursor:pointer"><span style="font-size:15px;font-weight:900;line-height:1">+</span>👱‍♀️ Sister</button>
