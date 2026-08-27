@@ -107,46 +107,21 @@ def family_setup_wizard(request):
     errors = []
 
     if request.method == 'POST':
-        # ── Step 1: Family Account (email only — password auto-generated) ──
+        # ── Step 1: Family Account (email + password) ──
         if step == '1':
-            import secrets, string
-            from django.core.mail import send_mail
-            email = request.POST.get('family_email', '').strip().lower()
+            email    = request.POST.get('family_email', '').strip().lower()
+            password = request.POST.get('family_password', '').strip()
             if not email:
                 errors.append('Please enter a family email address.')
             elif FamilySetup.objects.filter(family_email=email).exclude(pk=setup.pk).exists():
                 errors.append('This email is already used by another family account.')
+            if not password:
+                errors.append('Please enter a password.')
             if not errors:
-                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
                 setup.house_name      = request.POST.get('house_name', '').strip()
                 setup.family_email    = email
                 setup.family_password = make_password(password)
                 setup.save()
-                import threading
-                def _send_welcome(to_email, house, pwd):
-                    import logging, traceback
-                    logger = logging.getLogger('django')
-                    try:
-                        send_mail(
-                            subject='Welcome to OUR PINCODE — Your Family Circle Account',
-                            message=(
-                                f"Welcome to OUR PINCODE!\n\n"
-                                f"Your Family Circle has been created successfully.\n\n"
-                                f"Family Name : {house}\n"
-                                f"Login Email : {to_email}\n"
-                                f"Password    : {pwd}\n\n"
-                                f"Login here:\n"
-                                f"https://www.mypincod.com/community/family/login/\n\n"
-                                f"With love,\nOUR PINCODE Team"
-                            ),
-                            from_email=None,
-                            recipient_list=[to_email],
-                            fail_silently=False,
-                        )
-                        logger.info(f"Family welcome email sent to {to_email}")
-                    except Exception as e:
-                        logger.error(f"Family welcome email FAILED to {to_email}: {traceback.format_exc()}")
-                threading.Thread(target=_send_welcome, args=(email, setup.house_name, password), daemon=True).start()
                 return redirect('/community/family/setup/?step=2')
 
         # ── Step 2: Gender ──
