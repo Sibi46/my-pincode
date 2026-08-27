@@ -817,6 +817,9 @@ class FamilySetup(models.Model):
 
     user             = models.OneToOneField(User, on_delete=models.CASCADE, related_name='family_setup')
 
+    # Family house name
+    house_name      = models.CharField(max_length=150, blank=True)
+
     # Family account credentials (separate login)
     family_email    = models.EmailField(unique=True, null=True, blank=True)
     family_password = models.CharField(max_length=128, blank=True)  # hashed
@@ -834,10 +837,13 @@ class FamilySetup(models.Model):
 
     # Step 5 — partner details (if married)
     partner_full_name  = models.CharField(max_length=150, blank=True)
+    partner_gender     = models.CharField(max_length=10, blank=True)
     partner_dob        = models.DateField(null=True, blank=True)
     partner_village    = models.CharField(max_length=150, blank=True)
     partner_occupation = models.CharField(max_length=150, blank=True)
     partner_photo      = models.ImageField(upload_to='family/partner/', blank=True, null=True)
+    partner_email      = models.EmailField(blank=True)
+    partner_password   = models.CharField(max_length=128, blank=True)
 
     # Legacy fields kept for backward compat
     spouse_name      = models.CharField(max_length=150, blank=True)
