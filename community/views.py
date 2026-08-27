@@ -107,20 +107,39 @@ def family_setup_wizard(request):
     errors = []
 
     if request.method == 'POST':
-        # ── Step 1: Family Account (email + password) ──
+        # ── Step 1: Family Account (email only — password auto-generated) ──
         if step == '1':
-            email    = request.POST.get('family_email', '').strip().lower()
-            password = request.POST.get('family_password', '').strip()
+            import secrets, string
+            from django.core.mail import send_mail
+            email = request.POST.get('family_email', '').strip().lower()
             if not email:
                 errors.append('Please enter a family email address.')
             elif FamilySetup.objects.filter(family_email=email).exclude(pk=setup.pk).exists():
                 errors.append('This email is already used by another family account.')
-            if not password:
-                errors.append('Please enter a password.')
             if not errors:
+                password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(10))
+                setup.house_name      = request.POST.get('house_name', '').strip()
                 setup.family_email    = email
                 setup.family_password = make_password(password)
                 setup.save()
+                try:
+                    send_mail(
+                        subject='Your Family Circle Login — OUR PINCODE',
+                        message=(
+                            f"Hello,\n\n"
+                            f"Your Family Circle account has been created on OUR PINCODE.\n\n"
+                            f"Family Name : {setup.house_name}\n"
+                            f"Email       : {email}\n"
+                            f"Password    : {password}\n\n"
+                            f"Login at: https://www.mypincod.com/community/family/login/\n\n"
+                            f"— OUR PINCODE Team"
+                        ),
+                        from_email=None,
+                        recipient_list=[email],
+                        fail_silently=True,
+                    )
+                except Exception:
+                    pass
                 return redirect('/community/family/setup/?step=2')
 
         # ── Step 2: Gender ──
@@ -159,26 +178,56 @@ def family_setup_wizard(request):
         # ── Step 5: Partner Details (married only) ──
         elif step == '5':
             setup.partner_full_name  = request.POST.get('partner_full_name', '').strip()
+            setup.partner_gender     = request.POST.get('partner_gender', '').strip()
             setup.partner_dob        = request.POST.get('partner_dob') or None
             setup.partner_village    = request.POST.get('partner_village', '').strip()
             setup.partner_occupation = request.POST.get('partner_occupation', '').strip()
+            p_email = request.POST.get('partner_email', '').strip().lower()
+            p_pwd   = request.POST.get('partner_password', '').strip()
+            if p_email:
+                setup.partner_email = p_email
+            if p_pwd:
+                setup.partner_password = make_password(p_pwd)
             if 'partner_photo' in request.FILES:
                 setup.partner_photo = request.FILES['partner_photo']
             setup.save()
             return redirect('/community/family/setup/?step=6')
 
-        # ── Step 6: Children ──
+        # ── Step 6: Pets ──
         elif step == '6':
-            # Delete existing children and re-create from form
+            FamilyMember.objects.filter(creator=request.user, member_type='pet').delete()
+            names   = request.POST.getlist('pet_name')
+            species = request.POST.getlist('pet_species')
+            breeds  = request.POST.getlist('pet_breed')
+            for i, name in enumerate(names):
+                name = name.strip()
+                if not name:
+                    continue
+                pet = FamilyMember.objects.create(
+                    creator     = request.user,
+                    member_type = 'pet',
+                    side        = 'husband',
+                    name        = name,
+                    species     = species[i] if i < len(species) else '',
+                    breed       = breeds[i] if i < len(breeds) else '',
+                )
+                photos = request.FILES.getlist('pet_photo')
+                if i < len(photos) and photos[i]:
+                    pet.photo = photos[i]
+                    pet.save()
+            return redirect('/community/family/setup/?step=7')
+
+        # ── Step 7: Children ──
+        elif step == '7':
             FamilyMember.objects.filter(
                 creator=request.user,
                 member_type__in=['son', 'daughter']
             ).delete()
 
-            names  = request.POST.getlist('child_name')
-            dobs   = request.POST.getlist('child_dob')
-            genders = request.POST.getlist('child_gender')
-            emails  = request.POST.getlist('child_email')
+            names     = request.POST.getlist('child_name')
+            dobs      = request.POST.getlist('child_dob')
+            genders   = request.POST.getlist('child_gender')
+            emails    = request.POST.getlist('child_email')
             passwords = request.POST.getlist('child_password')
 
             today = date.today()
@@ -211,8 +260,11 @@ def family_setup_wizard(request):
                     age         = age_val,
                     child_email = email,
                 )
+                photos = request.FILES.getlist('child_photo')
+                if i < len(photos) and photos[i]:
+                    member.photo = photos[i]
+                    member.save()
 
-                # Create login for 18+ children
                 if age_val and age_val >= 18 and email and pwd:
                     from django.contrib.auth import get_user_model
                     User = get_user_model()
@@ -230,29 +282,11 @@ def family_setup_wizard(request):
                     member.child_linked_user = child_user
                     member.save()
 
-            return redirect('/community/family/setup/?step=7')
+            setup.setup_done = True
+            setup.save()
+            return redirect('/community/family/?setup_done=1')
 
-        # ── Step 7: Pets ──
-        elif step == '7':
-            FamilyMember.objects.filter(creator=request.user, member_type='pet').delete()
-            names   = request.POST.getlist('pet_name')
-            species = request.POST.getlist('pet_species')
-            breeds  = request.POST.getlist('pet_breed')
-            for i, name in enumerate(names):
-                name = name.strip()
-                if not name:
-                    continue
-                FamilyMember.objects.create(
-                    creator     = request.user,
-                    member_type = 'pet',
-                    side        = 'husband',
-                    name        = name,
-                    species     = species[i] if i < len(species) else '',
-                    breed       = breeds[i] if i < len(breeds) else '',
-                )
-            return redirect('/community/family/setup/?step=8')
-
-        # ── Step 8: Grandparents ──
+        # ── Step 8: Grandparents (optional, from hub) ──
         elif step == '8':
             FamilyMember.objects.filter(
                 creator=request.user,
@@ -293,7 +327,7 @@ def family_setup_wizard(request):
 
             setup.setup_done = True
             setup.save()
-            return redirect('/community/family/')
+            return redirect('/community/family/?setup_done=1')
 
     # Existing children and pets for pre-fill
     children = FamilyMember.objects.filter(
@@ -313,14 +347,15 @@ def family_setup_wizard(request):
         {'num': '3', 'lbl': 'Status'},
         {'num': '4', 'lbl': 'You'},
         {'num': '5', 'lbl': 'Partner'},
-        {'num': '6', 'lbl': 'Children'},
-        {'num': '7', 'lbl': 'Pets'},
-        {'num': '8', 'lbl': 'Grands'},
+        {'num': '6', 'lbl': 'Pets'},
+        {'num': '7', 'lbl': 'Children'},
     ]
+    back_step = '5' if (setup and setup.marital_status == 'married') else '4'
     return render(request, 'community/family_setup_wizard.html', {
         'setup': setup, 'step': step, 'step_int': step_int,
         'errors': errors, 'steps_list': steps_list,
         'children': children, 'pets': pets, 'grandparents': grandparents,
+        'back_step': back_step,
     })
 
 
@@ -436,12 +471,27 @@ def family_hub(request):
                     if w_cnt > 0:
                         combined_rows.append((mtype, label, icon, 0, [], w_cnt, w_map.get(mtype, [])))
 
+    # Family count
+    core_count = 0
+    total_count = 0
+    if setup and setup.setup_done:
+        core_count = 1  # me
+        if is_married:
+            core_count += 1  # partner
+        children_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['son', 'daughter']).count()
+        pets_count = FamilyMember.objects.filter(creator=request.user, member_type='pet').count()
+        grands_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['grandfather', 'grandmother']).count()
+        relatives_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['brother','sister','uncle','aunt','cousin','friend']).count()
+        total_count = core_count + children_count + pets_count + grands_count + relatives_count
+
     return render(request, 'community/family_hub.html', {
-        'setup':         setup,
-        'setup_rows':    setup_rows,
-        'active_tabs':   active_tabs,
-        'combined_rows': combined_rows,
-        'is_married':    is_married,
+        'setup':          setup,
+        'setup_rows':     setup_rows,
+        'active_tabs':    active_tabs,
+        'combined_rows':  combined_rows,
+        'is_married':     is_married,
+        'core_count':     core_count,
+        'total_count':    total_count,
     })
 
 

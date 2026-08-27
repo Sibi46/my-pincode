@@ -2,582 +2,561 @@
 {% block title %}Family Setup{% endblock %}
 {% block content %}
 <style>
-:root{--fam-blue:#1d4ed8;--fam-purple:#7c3aed;--fam-grad:linear-gradient(135deg,#1d4ed8,#7c3aed)}
-.fwiz-wrap{max-width:520px;margin:0 auto;padding:16px}
-.fwiz-header{text-align:center;margin-bottom:24px}
-.fwiz-title{font-size:22px;font-weight:900;color:#0f172a}
-.fwiz-sub{font-size:13px;color:#64748b;margin-top:4px}
-.fwiz-steps{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:4px}
-.fwiz-step{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:44px}
-.fwiz-step-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid #e2e8f0;background:#f8fafc;color:#94a3b8;transition:.2s}
-.fwiz-step-circle.done{background:var(--fam-blue);border-color:var(--fam-blue);color:#fff}
-.fwiz-step-circle.active{background:var(--fam-grad);border-color:transparent;color:#fff;box-shadow:0 0 0 4px rgba(99,102,241,.2)}
-.fwiz-step-label{font-size:9px;color:#94a3b8;font-weight:600;white-space:nowrap}
-.fwiz-step-label.active{color:var(--fam-blue);font-weight:800}
-.fwiz-line{width:20px;height:2px;background:#e2e8f0;margin:0 2px;margin-bottom:16px;flex-shrink:0}
-.fwiz-line.done{background:var(--fam-blue)}
-.fwiz-card{background:#fff;border-radius:20px;border:1.5px solid #e5e7eb;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:16px}
-.fwiz-section-title{font-size:17px;font-weight:900;color:#0f172a;margin-bottom:4px}
-.fwiz-section-sub{font-size:12px;color:#64748b;margin-bottom:20px}
-.fform-group{margin-bottom:16px}
-.fform-label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
-.fform-input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;transition:.2s}
-.fform-input:focus{border-color:var(--fam-blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
-.fgender-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
-.fgender-card{border:2px solid #e2e8f0;border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;transition:.2s;background:#f8fafc}
-.fgender-card:hover{border-color:#a5b4fc;background:#eff6ff}
-.fgender-card input{display:none}
-.fgender-card.selected,.fgender-card input:checked~*{border-color:var(--fam-blue)}
-.fgender-card label{cursor:pointer;display:block}
-.fgender-icon{font-size:36px;display:block;margin-bottom:8px}
-.fgender-name{font-size:14px;font-weight:800;color:#0f172a}
-.fbtn{display:block;width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;transition:.2s}
-.fbtn-primary{background:var(--fam-grad);color:#fff}
-.fbtn-primary:hover{opacity:.92}
-.fbtn-outline{background:transparent;border:1.5px solid #e2e8f0;color:#64748b}
-.fbtn-sm{padding:9px 16px;font-size:13px;width:auto;display:inline-block}
-.ferr{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#b91c1c}
-/* Child/pet repeater */
-.frepeat-item{background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:12px;position:relative}
-.frepeat-remove{position:absolute;top:12px;right:12px;background:#fee2e2;border:none;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;color:#dc2626;display:flex;align-items:center;justify-content:center}
-.fadd-btn{display:flex;align-items:center;gap:8px;background:#eff6ff;border:1.5px dashed #93c5fd;border-radius:12px;padding:12px 16px;width:100%;cursor:pointer;font-size:13px;font-weight:700;color:var(--fam-blue);margin-bottom:4px}
-.fchild-age-badge{display:inline-block;background:#fef3c7;color:#92400e;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;margin-left:8px}
-.f18-section{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:12px;margin-top:10px}
-.f18-title{font-size:12px;font-weight:800;color:#1d4ed8;margin-bottom:8px}
-.fphoto-box{width:80px;height:80px;border-radius:14px;border:2px dashed #e2e8f0;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#f8fafc;flex-shrink:0}
+nav.navbar{display:none!important}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100vh}
+:root{--blue:#1d4ed8;--purple:#7c3aed;--grad:linear-gradient(135deg,#1d4ed8,#7c3aed)}
+
+/* ── TOP BAR ── */
+.fw-topbar{background:#fff;border-bottom:1px solid #E0E7FF;padding:0 16px;height:52px;display:flex;align-items:center;gap:10px}
+.fw-back{width:34px;height:34px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:17px;flex-shrink:0}
+.fw-topbar-title{font-size:16px;font-weight:800;color:#0F172A;flex:1}
+.fw-topbar-step{font-size:12px;font-weight:700;color:#7C3AED;background:#F3E8FF;padding:4px 10px;border-radius:12px}
+
+/* ── STEP FLOW BAR ── */
+.fw-flow{background:#fff;border-bottom:1px solid #E0E7FF;padding:14px 0 12px;overflow-x:auto;scrollbar-width:none}
+.fw-flow::-webkit-scrollbar{display:none}
+.fw-flow-inner{display:flex;align-items:flex-start;min-width:max-content;padding:0 16px;gap:0}
+.fw-step{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:52px;position:relative}
+.fw-step-circle{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid #E2E8F0;background:#F8FAFC;transition:all .3s;position:relative;z-index:1}
+.fw-step-circle.done{background:var(--blue);border-color:var(--blue)}
+.fw-step-circle.active{background:var(--grad);border-color:transparent;box-shadow:0 0 0 4px rgba(99,102,241,.2)}
+.fw-step-label{font-size:9px;font-weight:700;color:#94A3B8;white-space:nowrap;letter-spacing:.02em}
+.fw-step-label.active{color:var(--blue)}
+.fw-step-label.done{color:#64748B}
+.fw-connector{width:28px;height:2px;background:#E2E8F0;margin-top:18px;flex-shrink:0;transition:all .3s}
+.fw-connector.done{background:var(--blue)}
+
+/* ── CONTENT ── */
+.fw-body{max-width:520px;margin:0 auto;padding:20px 16px 80px}
+
+/* ── CARD ── */
+.fw-card{background:#fff;border-radius:20px;border:1px solid #E0E7FF;box-shadow:0 2px 16px rgba(79,70,229,.07);overflow:hidden;margin-bottom:16px}
+.fw-card-head{background:var(--grad);padding:20px 22px;display:flex;align-items:center;gap:14px}
+.fw-card-icon{width:48px;height:48px;background:rgba(255,255,255,.2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.fw-card-title{font-size:18px;font-weight:800;color:#fff}
+.fw-card-sub{font-size:12px;color:rgba(255,255,255,.75);margin-top:3px}
+.fw-card-body{padding:22px}
+
+/* ── FORM ── */
+.fg{margin-bottom:16px}
+.fl{display:block;font-size:11px;font-weight:800;color:#374151;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.fi{width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;outline:none;background:#F8FAFC;transition:.2s;font-family:inherit}
+.fi:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.1)}
+
+/* ── GENDER PICK ── */
+.fw-pick-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+.fw-pick{border:2px solid #E2E8F0;border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;transition:.2s;background:#F8FAFC;position:relative}
+.fw-pick:hover{border-color:#A5B4FC;background:#EEF2FF}
+.fw-pick input{position:absolute;opacity:0;pointer-events:none}
+.fw-pick.selected{border-color:var(--blue);background:#EFF6FF}
+.fw-pick-icon{font-size:2.4rem;display:block;margin-bottom:8px}
+.fw-pick-name{font-size:14px;font-weight:800;color:#0F172A}
+
+/* ── BUTTONS ── */
+.fbtn{display:block;width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none;transition:.2s;font-family:inherit}
+.fbtn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.3)}
+.fbtn-primary:active{transform:scale(.98)}
+.fbtn-outline{background:#fff;border:1.5px solid #E2E8F0;color:#64748B;width:auto;padding:11px 18px;display:inline-block}
+.fw-btn-row{display:flex;gap:10px;margin-top:4px}
+
+/* ── REPEATER ── */
+.frep{background:#F8FAFC;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px;margin-bottom:12px;position:relative}
+.frep-remove{position:absolute;top:12px;right:12px;background:#FEE2E2;border:none;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:13px;color:#DC2626;display:flex;align-items:center;justify-content:center;line-height:1}
+.fadd-btn{display:flex;align-items:center;gap:8px;background:#EFF6FF;border:1.5px dashed #93C5FD;border-radius:12px;padding:12px 16px;width:100%;cursor:pointer;font-size:13px;font-weight:700;color:var(--blue);margin-bottom:12px;font-family:inherit}
+.f18-sec{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:12px;margin-top:10px}
+.f18-title{font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px}
+
+/* ── PHOTO BOX ── */
+.fphoto-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.fphoto-box{width:72px;height:72px;border-radius:14px;border:2px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:#F8FAFC;flex-shrink:0}
 .fphoto-box img{width:100%;height:100%;object-fit:cover}
-.fphoto-row{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.fphoto-hint{font-size:12px;color:#64748b}
-@media(max-width:480px){
-  .fwiz-step-label{display:none}
-  .fwiz-line{width:12px}
-}
+.fphoto-hint{font-size:12px;color:#64748B;margin-top:3px}
+
+/* ── ERROR ── */
+.ferr{background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:#B91C1C}
+
+/* ── 2-COL GRID ── */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── GP SECTION ── */
+.fgp-side{font-size:13px;font-weight:800;color:var(--blue);padding-bottom:8px;border-bottom:1.5px solid #E5E7EB;margin-bottom:12px}
+.fgp-box{background:#F8FAFC;border-radius:12px;padding:14px;margin-bottom:12px}
+.fgp-box-title{font-size:12px;font-weight:700;color:#374151;margin-bottom:10px}
 </style>
 
-<div class="fwiz-wrap">
-  <div class="fwiz-header">
-    <div style="font-size:36px;margin-bottom:8px">👨‍👩‍👧‍👦</div>
-    <div class="fwiz-title">Family Setup</div>
-    <div class="fwiz-sub">Build your family profile step by step</div>
-  </div>
+<!-- TOP BAR -->
+<div class="fw-topbar">
+  <a href="/community/family/" class="fw-back">&#8592;</a>
+  <div class="fw-topbar-title">👨‍👩‍👧‍👦 Family Setup</div>
+  <div class="fw-topbar-step">Step {{ step_int }} of {{ steps_list|length }}</div>
+</div>
 
-  <!-- Step indicator -->
-  <div class="fwiz-steps">
+<!-- STEP FLOW BAR -->
+<div class="fw-flow">
+  <div class="fw-flow-inner">
     {% for item in steps_list %}
-      <div class="fwiz-step">
-        <div class="fwiz-step-circle {% if step == item.num %}active{% elif step_int > forloop.counter %}done{% endif %}">
-          {% if step_int > forloop.counter %}✓{% else %}{{ item.num }}{% endif %}
-        </div>
-        <div class="fwiz-step-label {% if step == item.num %}active{% endif %}">{{ item.lbl }}</div>
+    <div class="fw-step">
+      <div class="fw-step-circle {% if step == item.num %}active{% elif step_int > forloop.counter %}done{% endif %}">
+        {% if step_int > forloop.counter %}✓
+        {% elif item.num == "1" %}🔐
+        {% elif item.num == "2" %}👤
+        {% elif item.num == "3" %}💍
+        {% elif item.num == "4" %}📝
+        {% elif item.num == "5" %}💑
+        {% elif item.num == "6" %}🐾
+        {% elif item.num == "7" %}👶
+        {% endif %}
       </div>
-      {% if not forloop.last %}<div class="fwiz-line {% if step_int > forloop.counter %}done{% endif %}"></div>{% endif %}
+      <div class="fw-step-label {% if step == item.num %}active{% elif step_int > forloop.counter %}done{% endif %}">{{ item.lbl }}</div>
+    </div>
+    {% if not forloop.last %}<div class="fw-connector {% if step_int > forloop.counter %}done{% endif %}"></div>{% endif %}
     {% endfor %}
   </div>
+</div>
 
-  {% if errors %}
-  <div class="ferr">{% for e in errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
-  {% endif %}
+<div class="fw-body">
 
-  <!-- ── STEP 1: Family Account ── -->
-  {% if step == "1" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">🔐 Create Family Account</div>
-    <div class="fwiz-section-sub">This email & password is for your family login — separate from your phone login.</div>
+{% if errors %}
+<div class="ferr">{% for e in errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+{% endif %}
+
+<!-- ══ STEP 1: Account ══ -->
+{% if step == "1" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">🔐</div>
+    <div>
+      <div class="fw-card-title">Family Account</div>
+      <div class="fw-card-sub">Create a separate family login</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
     <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="1">
-      <div class="fform-group">
-        <label class="fform-label">Family Email *</label>
-        <input type="email" name="family_email" class="fform-input" placeholder="family@example.com"
-               value="{{ setup.family_email|default:'' }}" required>
+      {% csrf_token %}<input type="hidden" name="step" value="1">
+      <div class="fg">
+        <label class="fl">Create Family House Name *</label>
+        <input type="text" name="house_name" class="fi" placeholder="e.g. Sharma Family, Rose Villa…" value="{{ setup.house_name }}" required>
       </div>
-      <div class="fform-group" style="margin-bottom:24px">
-        <label class="fform-label">Password *</label>
-        <input type="password" name="family_password" class="fform-input" placeholder="Min 6 characters" minlength="6" required>
+      <div class="fg" style="margin-bottom:8px">
+        <label class="fl">Family Email *</label>
+        <input type="email" name="family_email" class="fi" placeholder="family@example.com" value="{{ setup.family_email|default:'' }}" required>
+      </div>
+      <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;color:#1D4ED8;font-weight:600">
+        📧 A password will be automatically sent to this email address.
       </div>
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 2: Gender ── -->
-  {% elif step == "2" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">👤 Your Gender</div>
-    <div class="fwiz-section-sub">Select your gender to personalise the family profile.</div>
+<!-- ══ STEP 2: Gender ══ -->
+{% elif step == "2" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">👤</div>
+    <div>
+      <div class="fw-card-title">Your Gender</div>
+      <div class="fw-card-sub">Select to personalise your family profile</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
     <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="2">
-      <div class="fgender-row" style="margin-bottom:24px">
-        <label class="fgender-card {% if setup.gender == 'male' %}selected{% endif %}" onclick="selectGender(this,'male')">
+      {% csrf_token %}<input type="hidden" name="step" value="2">
+      <div class="fw-pick-row" style="margin-bottom:24px">
+        <label class="fw-pick {% if setup.gender == 'male' %}selected{% endif %}" onclick="pick(this)">
           <input type="radio" name="gender" value="male" {% if setup.gender == 'male' %}checked{% endif %}>
-          <span class="fgender-icon">👨</span>
-          <span class="fgender-name">Male</span>
+          <span class="fw-pick-icon">👨</span>
+          <span class="fw-pick-name">Male</span>
         </label>
-        <label class="fgender-card {% if setup.gender == 'female' %}selected{% endif %}" onclick="selectGender(this,'female')">
+        <label class="fw-pick {% if setup.gender == 'female' %}selected{% endif %}" onclick="pick(this)">
           <input type="radio" name="gender" value="female" {% if setup.gender == 'female' %}checked{% endif %}>
-          <span class="fgender-icon">👩</span>
-          <span class="fgender-name">Female</span>
+          <span class="fw-pick-icon">👩</span>
+          <span class="fw-pick-name">Female</span>
         </label>
       </div>
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 3: Marital Status ── -->
-  {% elif step == "3" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">💍 Marital Status</div>
-    <div class="fwiz-section-sub">Are you married or unmarried?</div>
+<!-- ══ STEP 3: Marital Status ══ -->
+{% elif step == "3" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">💍</div>
+    <div>
+      <div class="fw-card-title">Marital Status</div>
+      <div class="fw-card-sub">Are you married or unmarried?</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
     <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="3">
-      <div class="fgender-row" style="margin-bottom:24px">
-        <label class="fgender-card {% if setup.marital_status == 'married' %}selected{% endif %}" onclick="selectGender(this,'married')">
+      {% csrf_token %}<input type="hidden" name="step" value="3">
+      <div class="fw-pick-row" style="margin-bottom:24px">
+        <label class="fw-pick {% if setup.marital_status == 'married' %}selected{% endif %}" onclick="pick(this)">
           <input type="radio" name="marital_status" value="married" {% if setup.marital_status == 'married' %}checked{% endif %}>
-          <span class="fgender-icon">💑</span>
-          <span class="fgender-name">Married</span>
+          <span class="fw-pick-icon">💑</span>
+          <span class="fw-pick-name">Married</span>
         </label>
-        <label class="fgender-card {% if setup.marital_status == 'unmarried' %}selected{% endif %}" onclick="selectGender(this,'unmarried')">
+        <label class="fw-pick {% if setup.marital_status == 'unmarried' %}selected{% endif %}" onclick="pick(this)">
           <input type="radio" name="marital_status" value="unmarried" {% if setup.marital_status == 'unmarried' %}checked{% endif %}>
-          <span class="fgender-icon">🙋</span>
-          <span class="fgender-name">Unmarried</span>
+          <span class="fw-pick-icon">🙋</span>
+          <span class="fw-pick-name">Unmarried</span>
         </label>
       </div>
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 4: Self Details ── -->
-  {% elif step == "4" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">📝 Your Details</div>
-    <div class="fwiz-section-sub">Tell us about yourself.</div>
+<!-- ══ STEP 4: Self Details ══ -->
+{% elif step == "4" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">📝</div>
+    <div>
+      <div class="fw-card-title">Your Details</div>
+      <div class="fw-card-sub">Tell us about yourself</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
     <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="4">
-
-      <!-- Photo -->
+      {% csrf_token %}<input type="hidden" name="step" value="4">
       <div class="fphoto-row">
         <div class="fphoto-box" onclick="document.getElementById('selfPhoto').click()" id="selfPhotoBox">
-          {% if setup.self_photo %}
-            <img src="{{ setup.self_photo.url }}" id="selfPhotoPreview">
-          {% else %}
-            <span style="font-size:28px">📷</span>
-          {% endif %}
+          {% if setup.self_photo %}<img src="{{ setup.self_photo.url }}" id="selfPhotoPreview">{% else %}<span style="font-size:26px">📷</span>{% endif %}
         </div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:2px">Profile Photo</div>
+          <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px">Profile Photo</div>
           <div class="fphoto-hint">Tap to upload (optional)</div>
         </div>
         <input type="file" id="selfPhoto" name="self_photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'selfPhotoBox','selfPhotoPreview')">
       </div>
-
-      <div class="fform-group">
-        <label class="fform-label">Full Name *</label>
-        <input type="text" name="self_full_name" class="fform-input" placeholder="Your full name"
-               value="{{ setup.self_full_name }}" required>
+      <div class="fg">
+        <label class="fl">Full Name *</label>
+        <input type="text" name="self_full_name" class="fi" placeholder="Your full name" value="{{ setup.self_full_name }}" required>
       </div>
-      <div class="fform-group">
-        <label class="fform-label">Date of Birth</label>
-        <input type="date" name="self_dob" class="fform-input"
-               value="{% if setup.self_dob %}{{ setup.self_dob|date:'Y-m-d' }}{% endif %}">
+      <div class="fg2">
+        <div class="fg">
+          <label class="fl">Date of Birth</label>
+          <input type="date" name="self_dob" class="fi" value="{% if setup.self_dob %}{{ setup.self_dob|date:'Y-m-d' }}{% endif %}">
+        </div>
+        <div class="fg">
+          <label class="fl">Born Village / Area</label>
+          <input type="text" name="self_village" class="fi" placeholder="Born place" value="{{ setup.self_village }}">
+        </div>
       </div>
-      <div class="fform-group">
-        <label class="fform-label">Born Village / City</label>
-        <input type="text" name="self_village" class="fform-input" placeholder="e.g. Chennai"
-               value="{{ setup.self_village }}">
-      </div>
-      <div class="fform-group" style="margin-bottom:24px">
-        <label class="fform-label">Occupation</label>
-        <input type="text" name="self_occupation" class="fform-input" placeholder="e.g. Engineer, Farmer…"
-               value="{{ setup.self_occupation }}">
+      <div class="fg" style="margin-bottom:24px">
+        <label class="fl">Occupation</label>
+        <input type="text" name="self_occupation" class="fi" placeholder="e.g. Engineer, Farmer…" value="{{ setup.self_occupation }}">
       </div>
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 5: Partner Details ── -->
-  {% elif step == "5" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">
-      {% if setup.gender == 'male' %}👩 Wife's Details{% else %}👨 Husband's Details{% endif %}
+<!-- ══ STEP 5: Partner ══ -->
+{% elif step == "5" %}
+<div class="fw-card">
+  <div class="fw-card-head" style="background:linear-gradient(135deg,#BE185D,#7C3AED)">
+    <div class="fw-card-icon">💑</div>
+    <div>
+      <div class="fw-card-title">Partner's Details</div>
+      <div class="fw-card-sub">Enter your partner's information</div>
     </div>
-    <div class="fwiz-section-sub">Enter your partner's information.</div>
+  </div>
+  <div class="fw-card-body">
     <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="5">
-
+      {% csrf_token %}<input type="hidden" name="step" value="5">
       <div class="fphoto-row">
         <div class="fphoto-box" onclick="document.getElementById('partnerPhoto').click()" id="partnerPhotoBox">
-          {% if setup.partner_photo %}
-            <img src="{{ setup.partner_photo.url }}" id="partnerPhotoPreview">
-          {% else %}
-            <span style="font-size:28px">📷</span>
-          {% endif %}
+          {% if setup.partner_photo %}<img src="{{ setup.partner_photo.url }}" id="partnerPhotoPreview">{% else %}<span style="font-size:26px">📷</span>{% endif %}
         </div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:2px">Partner's Photo</div>
+          <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px">Partner's Photo</div>
           <div class="fphoto-hint">Tap to upload (optional)</div>
         </div>
         <input type="file" id="partnerPhoto" name="partner_photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'partnerPhotoBox','partnerPhotoPreview')">
       </div>
-
-      <div class="fform-group">
-        <label class="fform-label">Full Name *</label>
-        <input type="text" name="partner_full_name" class="fform-input" placeholder="Partner's full name"
-               value="{{ setup.partner_full_name }}" required>
+      <div class="fg">
+        <label class="fl">Partner Gender *</label>
+        <div class="fw-pick-row" style="margin-bottom:4px">
+          <label class="fw-pick {% if setup.partner_gender == 'male' %}selected{% endif %}" onclick="pick(this)">
+            <input type="radio" name="partner_gender" value="male" {% if setup.partner_gender == 'male' %}checked{% endif %}>
+            <span class="fw-pick-icon">👨</span>
+            <span class="fw-pick-name">Male</span>
+          </label>
+          <label class="fw-pick {% if setup.partner_gender == 'female' or not setup.partner_gender %}selected{% endif %}" onclick="pick(this)">
+            <input type="radio" name="partner_gender" value="female" {% if setup.partner_gender == 'female' or not setup.partner_gender %}checked{% endif %}>
+            <span class="fw-pick-icon">👩</span>
+            <span class="fw-pick-name">Female</span>
+          </label>
+        </div>
       </div>
-      <div class="fform-group">
-        <label class="fform-label">Date of Birth</label>
-        <input type="date" name="partner_dob" class="fform-input"
-               value="{% if setup.partner_dob %}{{ setup.partner_dob|date:'Y-m-d' }}{% endif %}">
+      <div class="fg">
+        <label class="fl">Full Name *</label>
+        <input type="text" name="partner_full_name" class="fi" placeholder="Partner's full name" value="{{ setup.partner_full_name }}" required>
       </div>
-      <div class="fform-group">
-        <label class="fform-label">Born Village / City</label>
-        <input type="text" name="partner_village" class="fform-input" placeholder="e.g. Madurai"
-               value="{{ setup.partner_village }}">
+      <div class="fg2">
+        <div class="fg">
+          <label class="fl">Date of Birth</label>
+          <input type="date" name="partner_dob" class="fi" value="{% if setup.partner_dob %}{{ setup.partner_dob|date:'Y-m-d' }}{% endif %}">
+        </div>
+        <div class="fg">
+          <label class="fl">Born Village / Area</label>
+          <input type="text" name="partner_village" class="fi" placeholder="Born place" value="{{ setup.partner_village }}">
+        </div>
       </div>
-      <div class="fform-group" style="margin-bottom:24px">
-        <label class="fform-label">Occupation</label>
-        <input type="text" name="partner_occupation" class="fform-input" placeholder="e.g. Teacher…"
-               value="{{ setup.partner_occupation }}">
+      <div class="fg">
+        <label class="fl">Occupation</label>
+        <input type="text" name="partner_occupation" class="fi" placeholder="e.g. Teacher…" value="{{ setup.partner_occupation }}">
+      </div>
+      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:800;color:#16A34A;margin-bottom:10px">🔑 Partner Login (optional)</div>
+        <div class="fg"><label class="fl">Partner Email</label><input type="email" name="partner_email" class="fi" placeholder="partner@example.com" value="{{ setup.partner_email }}"></div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Password</label><input type="password" name="partner_password" class="fi" placeholder="Min 6 characters" minlength="6"></div>
       </div>
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 6: Children ── -->
-  {% elif step == "6" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">👶 Children</div>
-    <div class="fwiz-section-sub">Add your children. If a child is 18 or older, you can give them a family login.</div>
-    <form method="post" id="childForm">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="6">
+<!-- ══ STEP 6: Pets ══ -->
+{% elif step == "6" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">🐾</div>
+    <div>
+      <div class="fw-card-title">Pets</div>
+      <div class="fw-card-sub">Add your pets (optional, skip if none)</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}<input type="hidden" name="step" value="6">
+      <div id="petList">
+        {% for pet in pets %}
+        <div class="frep">
+          <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+          <div class="fphoto-row" style="margin-bottom:12px">
+            <div class="fphoto-box" onclick="this.nextElementSibling.click()">
+              {% if pet.photo %}<img src="{{ pet.photo.url }}">{% else %}<span style="font-size:22px">🐾</span>{% endif %}
+            </div>
+            <input type="file" name="pet_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
+            <div class="fphoto-hint">Pet's photo (optional)</div>
+          </div>
+          <div class="fg"><label class="fl">Pet Name *</label><input type="text" name="pet_name" class="fi" value="{{ pet.name }}" placeholder="e.g. Tommy" required></div>
+          <div class="fg2">
+            <div class="fg" style="margin-bottom:0"><label class="fl">Type</label><input type="text" name="pet_species" class="fi" value="{{ pet.species }}" placeholder="Dog, Cat…"></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Breed</label><input type="text" name="pet_breed" class="fi" value="{{ pet.breed }}" placeholder="Labrador…"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="fadd-btn" onclick="addPet()"><span style="font-size:18px">+</span> Add Pet</button>
+      <div class="fw-btn-row">
+        <button type="button" onclick="location.href='/community/family/setup/?step={% if setup.marital_status == "married" %}5{% else %}4{% endif %}'" class="fbtn fbtn-outline">← Back</button>
+        <button type="submit" class="fbtn fbtn-primary" style="flex:1">Continue →</button>
+      </div>
+    </form>
+  </div>
+</div>
 
+<!-- ══ STEP 7: Children ══ -->
+{% elif step == "7" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">👶</div>
+    <div>
+      <div class="fw-card-title">Children</div>
+      <div class="fw-card-sub">Add your children (skip if none)</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
+    <form method="post" enctype="multipart/form-data" id="childForm">
+      {% csrf_token %}<input type="hidden" name="step" value="7">
       <div id="childList">
         {% for child in children %}
-        <div class="frepeat-item">
-          <button type="button" class="frepeat-remove" onclick="removeItem(this)">✕</button>
-          <div class="fform-group">
-            <label class="fform-label">Name *</label>
-            <input type="text" name="child_name" class="fform-input" value="{{ child.name }}" placeholder="Child's name" required>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="fform-group">
-              <label class="fform-label">Date of Birth</label>
-              <input type="date" name="child_dob" class="fform-input child-dob"
-                     value="{% if child.dob %}{{ child.dob|date:'Y-m-d' }}{% endif %}"
-                     onchange="checkChildAge(this)">
+        <div class="frep">
+          <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+          <div class="fphoto-row" style="margin-bottom:12px">
+            <div class="fphoto-box" onclick="this.nextElementSibling.click()" id="childPhotoBox_{{ forloop.counter }}">
+              {% if child.photo %}<img src="{{ child.photo.url }}">{% else %}<span style="font-size:22px">📷</span>{% endif %}
             </div>
-            <div class="fform-group">
-              <label class="fform-label">Gender</label>
-              <select name="child_gender" class="fform-input">
+            <input type="file" name="child_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
+            <div class="fphoto-hint">Child's photo (optional)</div>
+          </div>
+          <div class="fg">
+            <label class="fl">Name *</label>
+            <input type="text" name="child_name" class="fi" value="{{ child.name }}" placeholder="Child's name" required>
+          </div>
+          <div class="fg2">
+            <div class="fg">
+              <label class="fl">Date of Birth</label>
+              <input type="date" name="child_dob" class="fi" value="{% if child.dob %}{{ child.dob|date:'Y-m-d' }}{% endif %}" onchange="checkChildAge(this)">
+            </div>
+            <div class="fg">
+              <label class="fl">Gender</label>
+              <select name="child_gender" class="fi">
                 <option value="male" {% if child.member_type == 'son' %}selected{% endif %}>Male</option>
                 <option value="female" {% if child.member_type == 'daughter' %}selected{% endif %}>Female</option>
               </select>
             </div>
           </div>
-          <div class="f18-section" style="{% if not child.child_email %}display:none{% endif %}">
+          <div class="f18-sec" style="{% if not child.child_email %}display:none{% endif %}">
             <div class="f18-title">🔑 Age 18+ — Family Login</div>
-            <div class="fform-group">
-              <label class="fform-label">Email</label>
-              <input type="email" name="child_email" class="fform-input" value="{{ child.child_email }}" placeholder="child@example.com">
-            </div>
-            <div class="fform-group" style="margin-bottom:0">
-              <label class="fform-label">Password</label>
-              <input type="password" name="child_password" class="fform-input" placeholder="Min 6 characters">
-            </div>
-          </div>
-        </div>
-        {% empty %}
-        <!-- empty — JS will add first item automatically if wanted -->
-        {% endfor %}
-      </div>
-
-      <button type="button" class="fadd-btn" onclick="addChild()">
-        <span style="font-size:18px">+</span> Add Child
-      </button>
-
-      <div style="display:flex;gap:10px;margin-top:8px">
-        <button type="button" onclick="location.href='/community/family/setup/?step={% if setup.marital_status == 'married' %}5{% else %}4{% endif %}'"
-                class="fbtn fbtn-outline fbtn-sm">← Back</button>
-        <button type="submit" class="fbtn fbtn-primary" style="flex:1">Continue →</button>
-      </div>
-    </form>
-  </div>
-
-  <!-- ── STEP 7: Pets ── -->
-  {% elif step == "7" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">🐾 Pets</div>
-    <div class="fwiz-section-sub">Add your pets (optional). Skip if none.</div>
-    <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="7">
-      <div id="petList">
-        {% for pet in pets %}
-        <div class="frepeat-item">
-          <button type="button" class="frepeat-remove" onclick="removeItem(this)">✕</button>
-          <div class="fform-group">
-            <label class="fform-label">Pet Name *</label>
-            <input type="text" name="pet_name" class="fform-input" value="{{ pet.name }}" placeholder="e.g. Tommy" required>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <div class="fform-group" style="margin-bottom:0">
-              <label class="fform-label">Type</label>
-              <input type="text" name="pet_species" class="fform-input" value="{{ pet.species }}" placeholder="Dog, Cat…">
-            </div>
-            <div class="fform-group" style="margin-bottom:0">
-              <label class="fform-label">Breed</label>
-              <input type="text" name="pet_breed" class="fform-input" value="{{ pet.breed }}" placeholder="Labrador…">
-            </div>
+            <div class="fg"><label class="fl">Email</label><input type="email" name="child_email" class="fi" value="{{ child.child_email }}" placeholder="child@example.com"></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Password</label><input type="password" name="child_password" class="fi" placeholder="Min 6 characters"></div>
           </div>
         </div>
         {% endfor %}
       </div>
-      <button type="button" class="fadd-btn" onclick="addPet()">
-        <span style="font-size:18px">+</span> Add Pet
-      </button>
-      <div style="display:flex;gap:10px;margin-top:8px">
-        <button type="button" onclick="location.href='/community/family/setup/?step=6'"
-                class="fbtn fbtn-outline fbtn-sm">← Back</button>
-        <button type="submit" class="fbtn fbtn-primary" style="flex:1">Continue →</button>
+      <button type="button" class="fadd-btn" onclick="addChild()"><span style="font-size:18px">+</span> Add Child</button>
+      <div class="fw-btn-row">
+        <button type="button" onclick="location.href='/community/family/setup/?step=6'" class="fbtn fbtn-outline">← Back</button>
+        <button type="submit" class="fbtn fbtn-primary" style="flex:1">✅ Complete Setup</button>
       </div>
     </form>
   </div>
+</div>
 
-  <!-- ── STEP 8: Grandparents ── -->
-  {% elif step == "8" %}
-  <div class="fwiz-card">
-    <div class="fwiz-section-title">👴👵 Grandparents</div>
-    <div class="fwiz-section-sub">Enter grandparent details (leave blank to skip).</div>
+<!-- ══ STEP 8: Grandparents (optional, accessed from hub) ══ -->
+{% elif step == "8" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">👴</div>
+    <div>
+      <div class="fw-card-title">Grandparents</div>
+      <div class="fw-card-sub">Leave blank to skip</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
     <form method="post">
-      {% csrf_token %}
-      <input type="hidden" name="step" value="8">
+      {% csrf_token %}<input type="hidden" name="step" value="8">
 
-      <!-- Your side grandfather -->
-      {% with gf=grandparents|dictsort:"member_type"|first %}
-      <div style="font-size:13px;font-weight:800;color:#1d4ed8;margin-bottom:12px;padding-bottom:8px;border-bottom:1.5px solid #e5e7eb">
-        👨‍👧 Your Side
+      <div class="fgp-side">👨‍👧 Your Side</div>
+      <div class="fgp-box">
+        <div class="fgp-box-title">👴 Grandfather</div>
+        <div class="fg"><label class="fl">Name</label><input type="text" name="gf_name" class="fi" placeholder="Grandfather's name" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.name }}{% endif %}{% endfor %}"></div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Date of Birth</label><input type="date" name="gf_dob" class="fi" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}"></div>
+          <div class="fg"><label class="fl">Born Village / Area</label><input type="text" name="gf_village" class="fi" placeholder="Born place" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.village }}{% endif %}{% endfor %}"></div>
+        </div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Occupation</label><input type="text" name="gf_occupation" class="fi" placeholder="e.g. Farmer" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.occupation }}{% endif %}{% endfor %}"></div>
       </div>
-      <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">👴 Grandfather</div>
-        <div class="fform-group">
-          <label class="fform-label">Name</label>
-          <input type="text" name="gf_name" class="fform-input" placeholder="Grandfather's name"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.name }}{% endif %}{% endfor %}">
+      <div class="fgp-box">
+        <div class="fgp-box-title">👵 Grandmother</div>
+        <div class="fg"><label class="fl">Name</label><input type="text" name="gm_name" class="fi" placeholder="Grandmother's name" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.name }}{% endif %}{% endfor %}"></div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Date of Birth</label><input type="date" name="gm_dob" class="fi" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}"></div>
+          <div class="fg"><label class="fl">Born Village / Area</label><input type="text" name="gm_village" class="fi" placeholder="Born place" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.village }}{% endif %}{% endfor %}"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="fform-group">
-            <label class="fform-label">Date of Birth</label>
-            <input type="date" name="gf_dob" class="fform-input"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}">
-          </div>
-          <div class="fform-group">
-            <label class="fform-label">Village / City</label>
-            <input type="text" name="gf_village" class="fform-input" placeholder="Born place"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.village }}{% endif %}{% endfor %}">
-          </div>
-        </div>
-        <div class="fform-group" style="margin-bottom:0">
-          <label class="fform-label">Occupation</label>
-          <input type="text" name="gf_occupation" class="fform-input" placeholder="e.g. Farmer"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'husband' %}{{ gp.occupation }}{% endif %}{% endfor %}">
-        </div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Occupation</label><input type="text" name="gm_occupation" class="fi" placeholder="e.g. Homemaker" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.occupation }}{% endif %}{% endfor %}"></div>
       </div>
-
-      <div style="background:#f8fafc;border-radius:12px;padding:14px;margin-bottom:20px">
-        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">👵 Grandmother</div>
-        <div class="fform-group">
-          <label class="fform-label">Name</label>
-          <input type="text" name="gm_name" class="fform-input" placeholder="Grandmother's name"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.name }}{% endif %}{% endfor %}">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="fform-group">
-            <label class="fform-label">Date of Birth</label>
-            <input type="date" name="gm_dob" class="fform-input"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}">
-          </div>
-          <div class="fform-group">
-            <label class="fform-label">Village / City</label>
-            <input type="text" name="gm_village" class="fform-input" placeholder="Born place"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.village }}{% endif %}{% endfor %}">
-          </div>
-        </div>
-        <div class="fform-group" style="margin-bottom:0">
-          <label class="fform-label">Occupation</label>
-          <input type="text" name="gm_occupation" class="fform-input" placeholder="e.g. Homemaker"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'husband' %}{{ gp.occupation }}{% endif %}{% endfor %}">
-        </div>
-      </div>
-      {% endwith %}
 
       {% if setup.marital_status == 'married' %}
-      <div style="font-size:13px;font-weight:800;color:#7c3aed;margin-bottom:12px;padding-bottom:8px;border-bottom:1.5px solid #e5e7eb">
-        {% if setup.gender == 'male' %}👩 Wife's Side{% else %}👨 Husband's Side{% endif %}
+      <div class="fgp-side" style="color:#7C3AED;margin-top:8px">💑 Partner's Side</div>
+      <div class="fgp-box" style="background:#FAF5FF">
+        <div class="fgp-box-title">👴 Grandfather</div>
+        <div class="fg"><label class="fl">Name</label><input type="text" name="wgf_name" class="fi" placeholder="Grandfather's name" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.name }}{% endif %}{% endfor %}"></div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Date of Birth</label><input type="date" name="wgf_dob" class="fi" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}"></div>
+          <div class="fg"><label class="fl">Born Village / Area</label><input type="text" name="wgf_village" class="fi" placeholder="Born place" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.village }}{% endif %}{% endfor %}"></div>
+        </div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Occupation</label><input type="text" name="wgf_occupation" class="fi" placeholder="e.g. Farmer" value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.occupation }}{% endif %}{% endfor %}"></div>
       </div>
-
-      <div style="background:#faf5ff;border-radius:12px;padding:14px;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">👴 Grandfather</div>
-        <div class="fform-group">
-          <label class="fform-label">Name</label>
-          <input type="text" name="wgf_name" class="fform-input" placeholder="Grandfather's name"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.name }}{% endif %}{% endfor %}">
+      <div class="fgp-box" style="background:#FAF5FF">
+        <div class="fgp-box-title">👵 Grandmother</div>
+        <div class="fg"><label class="fl">Name</label><input type="text" name="wgm_name" class="fi" placeholder="Grandmother's name" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.name }}{% endif %}{% endfor %}"></div>
+        <div class="fg2">
+          <div class="fg"><label class="fl">Date of Birth</label><input type="date" name="wgm_dob" class="fi" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}"></div>
+          <div class="fg"><label class="fl">Born Village / Area</label><input type="text" name="wgm_village" class="fi" placeholder="Born place" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.village }}{% endif %}{% endfor %}"></div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="fform-group">
-            <label class="fform-label">Date of Birth</label>
-            <input type="date" name="wgf_dob" class="fform-input"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}">
-          </div>
-          <div class="fform-group">
-            <label class="fform-label">Village / City</label>
-            <input type="text" name="wgf_village" class="fform-input" placeholder="Born place"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.village }}{% endif %}{% endfor %}">
-          </div>
-        </div>
-        <div class="fform-group" style="margin-bottom:0">
-          <label class="fform-label">Occupation</label>
-          <input type="text" name="wgf_occupation" class="fform-input" placeholder="e.g. Farmer"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandfather' and gp.side == 'wife' %}{{ gp.occupation }}{% endif %}{% endfor %}">
-        </div>
-      </div>
-
-      <div style="background:#faf5ff;border-radius:12px;padding:14px;margin-bottom:20px">
-        <div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:10px">👵 Grandmother</div>
-        <div class="fform-group">
-          <label class="fform-label">Name</label>
-          <input type="text" name="wgm_name" class="fform-input" placeholder="Grandmother's name"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.name }}{% endif %}{% endfor %}">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="fform-group">
-            <label class="fform-label">Date of Birth</label>
-            <input type="date" name="wgm_dob" class="fform-input"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' and gp.dob %}{{ gp.dob|date:'Y-m-d' }}{% endif %}{% endfor %}">
-          </div>
-          <div class="fform-group">
-            <label class="fform-label">Village / City</label>
-            <input type="text" name="wgm_village" class="fform-input" placeholder="Born place"
-              value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.village }}{% endif %}{% endfor %}">
-          </div>
-        </div>
-        <div class="fform-group" style="margin-bottom:0">
-          <label class="fform-label">Occupation</label>
-          <input type="text" name="wgm_occupation" class="fform-input" placeholder="e.g. Homemaker"
-            value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.occupation }}{% endif %}{% endfor %}">
-        </div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Occupation</label><input type="text" name="wgm_occupation" class="fi" placeholder="e.g. Homemaker" value="{% for gp in grandparents %}{% if gp.member_type == 'grandmother' and gp.side == 'wife' %}{{ gp.occupation }}{% endif %}{% endfor %}"></div>
       </div>
       {% endif %}
 
-      <div style="display:flex;gap:10px">
-        <button type="button" onclick="location.href='/community/family/setup/?step=7'"
-                class="fbtn fbtn-outline fbtn-sm">← Back</button>
-        <button type="submit" class="fbtn fbtn-primary" style="flex:1">🎉 Complete Setup</button>
+      <div class="fw-btn-row">
+        <button type="button" onclick="location.href='/community/family/setup/?step=7'" class="fbtn fbtn-outline">← Back</button>
+        <button type="submit" class="fbtn fbtn-primary" style="flex:1">✅ Complete Setup</button>
       </div>
     </form>
   </div>
-  {% endif %}
 </div>
+{% endif %}
+
+</div><!-- /fw-body -->
 
 <script>
-function selectGender(el, val) {
-  document.querySelectorAll('.fgender-card').forEach(c => c.classList.remove('selected'));
+function pick(el){
+  el.closest('.fw-pick-row').querySelectorAll('.fw-pick').forEach(function(c){c.classList.remove('selected')});
   el.classList.add('selected');
-  el.querySelector('input').checked = true;
+  el.querySelector('input').checked=true;
 }
-
-function previewPhoto(input, boxId, previewId) {
-  if (!input.files || !input.files[0]) return;
-  var box = document.getElementById(boxId);
-  var prev = document.getElementById(previewId);
-  if (!prev) {
-    prev = document.createElement('img');
-    prev.id = previewId;
-    box.innerHTML = '';
-    box.appendChild(prev);
-  }
-  prev.src = URL.createObjectURL(input.files[0]);
-  prev.style.cssText = 'width:100%;height:100%;object-fit:cover';
+function previewPhoto(input,boxId,previewId){
+  if(!input.files||!input.files[0])return;
+  var box=document.getElementById(boxId);
+  var prev=document.getElementById(previewId);
+  if(!prev){prev=document.createElement('img');prev.id=previewId;box.innerHTML='';box.appendChild(prev);}
+  prev.src=URL.createObjectURL(input.files[0]);
+  prev.style.cssText='width:100%;height:100%;object-fit:cover';
 }
-
-function checkChildAge(input) {
-  if (!input.value) return;
-  var dob = new Date(input.value);
-  var age = Math.floor((new Date() - dob) / (365.25 * 24 * 3600 * 1000));
-  var item = input.closest('.frepeat-item');
-  var sec = item.querySelector('.f18-section');
-  if (age >= 18) {
-    sec.style.display = 'block';
-  } else {
-    sec.style.display = 'none';
-  }
+function previewPhotoInline(input){
+  if(!input.files||!input.files[0])return;
+  var box=input.previousElementSibling;
+  box.innerHTML='';
+  var img=document.createElement('img');
+  img.src=URL.createObjectURL(input.files[0]);
+  img.style.cssText='width:100%;height:100%;object-fit:cover';
+  box.appendChild(img);
 }
-
-function addChild() {
-  var list = document.getElementById('childList');
-  var div = document.createElement('div');
-  div.className = 'frepeat-item';
-  div.innerHTML = `
-    <button type="button" class="frepeat-remove" onclick="removeItem(this)">✕</button>
-    <div class="fform-group">
-      <label class="fform-label">Name *</label>
-      <input type="text" name="child_name" class="fform-input" placeholder="Child's name" required>
+function checkChildAge(input){
+  if(!input.value)return;
+  var age=Math.floor((new Date()-new Date(input.value))/(365.25*24*3600*1000));
+  input.closest('.frep').querySelector('.f18-sec').style.display=age>=18?'block':'none';
+}
+function addChild(){
+  var div=document.createElement('div');div.className='frep';
+  div.innerHTML=`<button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+    <div class="fphoto-row" style="margin-bottom:12px">
+      <div class="fphoto-box" onclick="this.nextElementSibling.click()"><span style="font-size:22px">📷</span></div>
+      <input type="file" name="child_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
+      <div class="fphoto-hint">Child's photo (optional)</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="fform-group">
-        <label class="fform-label">Date of Birth</label>
-        <input type="date" name="child_dob" class="fform-input child-dob" onchange="checkChildAge(this)">
-      </div>
-      <div class="fform-group">
-        <label class="fform-label">Gender</label>
-        <select name="child_gender" class="fform-input">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-      </div>
+    <div class="fg"><label class="fl">Name *</label><input type="text" name="child_name" class="fi" placeholder="Child's name" required></div>
+    <div class="fg2">
+      <div class="fg"><label class="fl">Date of Birth</label><input type="date" name="child_dob" class="fi" onchange="checkChildAge(this)"></div>
+      <div class="fg"><label class="fl">Gender</label><select name="child_gender" class="fi"><option value="male">Male</option><option value="female">Female</option></select></div>
     </div>
-    <div class="f18-section" style="display:none">
+    <div class="f18-sec" style="display:none">
       <div class="f18-title">🔑 Age 18+ — Family Login</div>
-      <div class="fform-group">
-        <label class="fform-label">Email</label>
-        <input type="email" name="child_email" class="fform-input" placeholder="child@example.com">
-      </div>
-      <div class="fform-group" style="margin-bottom:0">
-        <label class="fform-label">Password</label>
-        <input type="password" name="child_password" class="fform-input" placeholder="Min 6 characters">
-      </div>
+      <div class="fg"><label class="fl">Email</label><input type="email" name="child_email" class="fi" placeholder="child@example.com"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Password</label><input type="password" name="child_password" class="fi" placeholder="Min 6 characters"></div>
     </div>`;
-  list.appendChild(div);
+  document.getElementById('childList').appendChild(div);
 }
-
-function addPet() {
-  var list = document.getElementById('petList');
-  var div = document.createElement('div');
-  div.className = 'frepeat-item';
-  div.innerHTML = `
-    <button type="button" class="frepeat-remove" onclick="removeItem(this)">✕</button>
-    <div class="fform-group">
-      <label class="fform-label">Pet Name *</label>
-      <input type="text" name="pet_name" class="fform-input" placeholder="e.g. Tommy" required>
+function addPet(){
+  var div=document.createElement('div');div.className='frep';
+  div.innerHTML=`<button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+    <div class="fphoto-row" style="margin-bottom:12px">
+      <div class="fphoto-box" onclick="this.nextElementSibling.click()"><span style="font-size:22px">🐾</span></div>
+      <input type="file" name="pet_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
+      <div class="fphoto-hint">Pet's photo (optional)</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="fform-group" style="margin-bottom:0">
-        <label class="fform-label">Type</label>
-        <input type="text" name="pet_species" class="fform-input" placeholder="Dog, Cat…">
-      </div>
-      <div class="fform-group" style="margin-bottom:0">
-        <label class="fform-label">Breed</label>
-        <input type="text" name="pet_breed" class="fform-input" placeholder="Labrador…">
-      </div>
+    <div class="fg"><label class="fl">Pet Name *</label><input type="text" name="pet_name" class="fi" placeholder="e.g. Tommy" required></div>
+    <div class="fg2">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Type</label><input type="text" name="pet_species" class="fi" placeholder="Dog, Cat…"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Breed</label><input type="text" name="pet_breed" class="fi" placeholder="Labrador…"></div>
     </div>`;
-  list.appendChild(div);
+  document.getElementById('petList').appendChild(div);
 }
+function removeItem(btn){btn.closest('.frep').remove();}
 
-function removeItem(btn) {
-  btn.closest('.frepeat-item').remove();
-}
+// Auto-scroll active step into view
+document.addEventListener('DOMContentLoaded',function(){
+  var active=document.querySelector('.fw-step-circle.active');
+  if(active)active.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+});
 </script>
 {% endblock %}
