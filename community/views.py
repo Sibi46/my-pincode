@@ -178,23 +178,6 @@ def family_setup_wizard(request):
                     occupation=request.POST.get('mother_occupation', '').strip(),
                 )
 
-            # Siblings (your side)
-            FamilyMember.objects.filter(creator=request.user, member_type__in=['brother', 'sister'], side='husband').delete()
-            sib_names   = request.POST.getlist('sibling_name')
-            sib_genders = request.POST.getlist('sibling_gender')
-            sib_dobs    = request.POST.getlist('sibling_dob')
-            for i, sname in enumerate(sib_names):
-                sname = sname.strip()
-                if not sname:
-                    continue
-                sgender = sib_genders[i] if i < len(sib_genders) else 'male'
-                sdob    = sib_dobs[i] if i < len(sib_dobs) else ''
-                FamilyMember.objects.create(
-                    creator=request.user,
-                    member_type='brother' if sgender == 'male' else 'sister',
-                    side='husband', name=sname, dob=sdob or None,
-                )
-
             if setup.marital_status == 'married':
                 return redirect('/community/family/setup/?step=5')
             return redirect('/community/family/setup/?step=6')
@@ -238,23 +221,6 @@ def family_setup_wizard(request):
                     dob=request.POST.get('p_mother_dob') or None,
                     village=request.POST.get('p_mother_village', '').strip(),
                     occupation=request.POST.get('p_mother_occupation', '').strip(),
-                )
-
-            # Siblings (partner's side)
-            FamilyMember.objects.filter(creator=request.user, member_type__in=['brother', 'sister'], side='wife').delete()
-            ps_names   = request.POST.getlist('p_sibling_name')
-            ps_genders = request.POST.getlist('p_sibling_gender')
-            ps_dobs    = request.POST.getlist('p_sibling_dob')
-            for i, sname in enumerate(ps_names):
-                sname = sname.strip()
-                if not sname:
-                    continue
-                sgender = ps_genders[i] if i < len(ps_genders) else 'male'
-                sdob    = ps_dobs[i] if i < len(ps_dobs) else ''
-                FamilyMember.objects.create(
-                    creator=request.user,
-                    member_type='brother' if sgender == 'male' else 'sister',
-                    side='wife', name=sname, dob=sdob or None,
                 )
 
             return redirect('/community/family/setup/?step=6')

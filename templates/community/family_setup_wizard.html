@@ -299,47 +299,10 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
         </div>
       </div>
 
-      <!-- Siblings -->
-      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:24px">
-        <div style="font-size:12px;font-weight:800;color:#15803D;margin-bottom:10px">👫 Your Brothers & Sisters (optional)</div>
-        <div id="siblingList">
-          {% for sib in my_siblings %}
-          <div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #D1FAE5">
-            <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
-            <div class="fg2">
-              <div class="fg">
-                <label class="fl">Name</label>
-                <input type="text" name="sibling_name" class="fi" value="{{ sib.name }}" placeholder="Name">
-              </div>
-              <div class="fg">
-                <label class="fl">Gender</label>
-                <select name="sibling_gender" class="fi">
-                  <option value="male" {% if sib.member_type == 'brother' %}selected{% endif %}>Male (Brother)</option>
-                  <option value="female" {% if sib.member_type == 'sister' %}selected{% endif %}>Female (Sister)</option>
-                </select>
-              </div>
-            </div>
-            <div class="fg" style="margin-bottom:0">
-              <label class="fl">Date of Birth</label>
-              <input type="date" name="sibling_dob" class="fi" value="{% if sib.dob %}{{ sib.dob|date:'Y-m-d' }}{% endif %}">
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <button type="button" class="fbtn" style="background:#DCFCE7;color:#15803D;font-size:13px;padding:8px 14px;margin-bottom:0" onclick="addSibling()">+ Add Sibling</button>
-      </div>
-
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
 </div>
-
-<script>
-function addSibling(){
-  var html='<div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #D1FAE5"><button type="button" class="frep-remove" onclick="removeItem(this)">✕</button><div class="fg2"><div class="fg"><label class="fl">Name</label><input type="text" name="sibling_name" class="fi" placeholder="Name"></div><div class="fg"><label class="fl">Gender</label><select name="sibling_gender" class="fi"><option value="male">Male (Brother)</option><option value="female">Female (Sister)</option></select></div></div><div class="fg" style="margin-bottom:0"><label class="fl">Date of Birth</label><input type="date" name="sibling_dob" class="fi"></div></div>';
-  document.getElementById('siblingList').insertAdjacentHTML('beforeend',html);
-}
-</script>
 
 <!-- ══ STEP 5: Partner ══ -->
 {% elif step == "5" %}
@@ -449,47 +412,10 @@ function addSibling(){
         </div>
       </div>
 
-      <!-- Partner's Siblings -->
-      <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:12px;padding:14px;margin-bottom:24px">
-        <div style="font-size:12px;font-weight:800;color:#6D28D9;margin-bottom:10px">👫 Partner's Brothers & Sisters (optional)</div>
-        <div id="pSiblingList">
-          {% for sib in p_siblings %}
-          <div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #DDD6FE">
-            <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
-            <div class="fg2">
-              <div class="fg">
-                <label class="fl">Name</label>
-                <input type="text" name="p_sibling_name" class="fi" value="{{ sib.name }}" placeholder="Name">
-              </div>
-              <div class="fg">
-                <label class="fl">Gender</label>
-                <select name="p_sibling_gender" class="fi">
-                  <option value="male" {% if sib.member_type == 'brother' %}selected{% endif %}>Male (Brother)</option>
-                  <option value="female" {% if sib.member_type == 'sister' %}selected{% endif %}>Female (Sister)</option>
-                </select>
-              </div>
-            </div>
-            <div class="fg" style="margin-bottom:0">
-              <label class="fl">Date of Birth</label>
-              <input type="date" name="p_sibling_dob" class="fi" value="{% if sib.dob %}{{ sib.dob|date:'Y-m-d' }}{% endif %}">
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <button type="button" class="fbtn" style="background:#EDE9FE;color:#6D28D9;font-size:13px;padding:8px 14px;margin-bottom:0" onclick="addPSibling()">+ Add Sibling</button>
-      </div>
-
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
 </div>
-
-<script>
-function addPSibling(){
-  var html='<div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #DDD6FE"><button type="button" class="frep-remove" onclick="removeItem(this)">✕</button><div class="fg2"><div class="fg"><label class="fl">Name</label><input type="text" name="p_sibling_name" class="fi" placeholder="Name"></div><div class="fg"><label class="fl">Gender</label><select name="p_sibling_gender" class="fi"><option value="male">Male (Brother)</option><option value="female">Female (Sister)</option></select></div></div><div class="fg" style="margin-bottom:0"><label class="fl">Date of Birth</label><input type="date" name="p_sibling_dob" class="fi"></div></div>';
-  document.getElementById('pSiblingList').insertAdjacentHTML('beforeend',html);
-}
-</script>
 
 <!-- ══ STEP 6: Children ══ -->
 {% elif step == "6" %}
