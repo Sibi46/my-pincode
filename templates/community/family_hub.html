@@ -301,7 +301,7 @@ function shareFamily(){
       <!-- LEFT: My Side -->
       <div>
         <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          👤 {{ setup.self_name|default:"My Side" }}
+          👤 {{ setup.self_full_name|default:"My Side" }}
         </div>
         <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
 
@@ -337,7 +337,7 @@ function shareFamily(){
       <!-- RIGHT: Partner's Side -->
       <div>
         <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          💑 {{ setup.partner_name|default:"Partner Side" }}
+          💑 {{ setup.partner_full_name|default:"Partner Side" }}
         </div>
         <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
 
@@ -395,19 +395,49 @@ function shareFamily(){
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-friends">
   <div style="padding:16px">
-    {% if friends %}
-      {% for f in friends %}
-      <a href="#" class="fh-friend-row">
-        <div class="fh-friend-avatar">{% with p=f.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" alt="">{% else %}{{ f.get_full_name|default:f.username|first|upper }}{% endif %}{% endwith %}</div>
-        <div><div class="fh-friend-name">{{ f.get_full_name|default:f.username }}</div><div class="fh-friend-sub">📍 {{ f.pincode|default:"—" }}</div></div>
-      </a>
-      {% endfor %}
+    {% if setup and setup.setup_done %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
+
+      <!-- My Friends -->
+      <div>
+        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          👤 {{ setup.self_full_name|default:"My Side" }}
+        </div>
+        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
+          {% for f in friends %}
+          <a href="#" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:6px;text-decoration:none;border:1px solid #E2E8F0">
+            <div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#4F46E5;flex-shrink:0;overflow:hidden">{% with p=f.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ f.get_full_name|default:f.username|first|upper }}{% endif %}{% endwith %}</div>
+            <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.get_full_name|default:f.username }}</div><div style="font-size:10px;color:#64748B">📍 {{ f.pincode|default:"—" }}</div></div>
+          </a>
+          {% empty %}
+          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No friends yet</div>
+          {% endfor %}
+          <div style="margin-top:6px">
+            <button onclick="goAdd('friend','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 🤝 Add Friend</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partner's Friends -->
+      <div>
+        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          💑 {{ setup.partner_full_name|default:"Partner Side" }}
+        </div>
+        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
+          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No friends yet</div>
+          <div style="margin-top:6px">
+            <button onclick="goAdd('friend','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 🤝 Add Friend</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
     {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">🤝</span>
-      <div class="fh-empty-t">No friends yet</div>
-      <div class="fh-empty-s">Connect with people in your community to see them here.</div>
-      <a href="/community/" class="fh-empty-btn">Explore Communities</a>
+      <div class="fh-empty-t">Complete setup first</div>
+      <div class="fh-empty-s">Set up your family to add friends.</div>
+      <a href="/community/family/setup/?step=1" class="fh-empty-btn">Start Setup</a>
     </div>
     {% endif %}
   </div>
@@ -419,12 +449,44 @@ function shareFamily(){
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-colleagues">
   <div style="padding:16px">
+    {% if setup and setup.setup_done %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
+
+      <!-- My Colleagues -->
+      <div>
+        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          👤 {{ setup.self_full_name|default:"My Side" }}
+        </div>
+        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
+          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No colleagues yet</div>
+          <div style="margin-top:6px">
+            <button onclick="goAdd('other','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 💼 Add Colleague</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Partner's Colleagues -->
+      <div>
+        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
+          💑 {{ setup.partner_full_name|default:"Partner Side" }}
+        </div>
+        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
+          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No colleagues yet</div>
+          <div style="margin-top:6px">
+            <button onclick="goAdd('other','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 💼 Add Colleague</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">💼</span>
-      <div class="fh-empty-t">No colleagues yet</div>
-      <div class="fh-empty-s">Add colleagues from your workplace to keep in touch.</div>
-      <a href="/community/" class="fh-empty-btn">Explore Communities</a>
+      <div class="fh-empty-t">Complete setup first</div>
+      <div class="fh-empty-s">Set up your family to add colleagues.</div>
+      <a href="/community/family/setup/?step=1" class="fh-empty-btn">Start Setup</a>
     </div>
+    {% endif %}
   </div>
 </div><!-- /flow-colleagues -->
 
