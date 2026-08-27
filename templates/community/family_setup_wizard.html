@@ -104,8 +104,8 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
         {% elif item.num == "3" %}💍
         {% elif item.num == "4" %}📝
         {% elif item.num == "5" %}💑
-        {% elif item.num == "6" %}🐾
-        {% elif item.num == "7" %}👶
+        {% elif item.num == "6" %}👶
+        {% elif item.num == "7" %}🐾
         {% endif %}
       </div>
       <div class="fw-step-label {% if step == item.num %}active{% elif step_int > forloop.counter %}done{% endif %}">{{ item.lbl }}</div>
@@ -322,49 +322,8 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
   </div>
 </div>
 
-<!-- ══ STEP 6: Pets ══ -->
+<!-- ══ STEP 6: Children ══ -->
 {% elif step == "6" %}
-<div class="fw-card">
-  <div class="fw-card-head">
-    <div class="fw-card-icon">🐾</div>
-    <div>
-      <div class="fw-card-title">Pets</div>
-      <div class="fw-card-sub">Add your pets (optional, skip if none)</div>
-    </div>
-  </div>
-  <div class="fw-card-body">
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}<input type="hidden" name="step" value="6">
-      <div id="petList">
-        {% for pet in pets %}
-        <div class="frep">
-          <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
-          <div class="fphoto-row" style="margin-bottom:12px">
-            <div class="fphoto-box" onclick="this.nextElementSibling.click()">
-              {% if pet.photo %}<img src="{{ pet.photo.url }}">{% else %}<span style="font-size:22px">🐾</span>{% endif %}
-            </div>
-            <input type="file" name="pet_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
-            <div class="fphoto-hint">Pet's photo (optional)</div>
-          </div>
-          <div class="fg"><label class="fl">Pet Name *</label><input type="text" name="pet_name" class="fi" value="{{ pet.name }}" placeholder="e.g. Tommy" required></div>
-          <div class="fg2">
-            <div class="fg" style="margin-bottom:0"><label class="fl">Type</label><input type="text" name="pet_species" class="fi" value="{{ pet.species }}" placeholder="Dog, Cat…"></div>
-            <div class="fg" style="margin-bottom:0"><label class="fl">Breed</label><input type="text" name="pet_breed" class="fi" value="{{ pet.breed }}" placeholder="Labrador…"></div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      <button type="button" class="fadd-btn" onclick="addPet()"><span style="font-size:18px">+</span> Add Pet</button>
-      <div class="fw-btn-row">
-        <button type="button" onclick="location.href='/community/family/setup/?step={% if setup.marital_status == "married" %}5{% else %}4{% endif %}'" class="fbtn fbtn-outline">← Back</button>
-        <button type="submit" class="fbtn fbtn-primary" style="flex:1">Continue →</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ══ STEP 7: Children ══ -->
-{% elif step == "7" %}
 <div class="fw-card">
   <div class="fw-card-head">
     <div class="fw-card-icon">👶</div>
@@ -375,7 +334,7 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
   </div>
   <div class="fw-card-body">
     <form method="post" enctype="multipart/form-data" id="childForm">
-      {% csrf_token %}<input type="hidden" name="step" value="7">
+      {% csrf_token %}<input type="hidden" name="step" value="6">
       <div id="childList">
         {% for child in children %}
         <div class="frep">
@@ -413,6 +372,47 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
         {% endfor %}
       </div>
       <button type="button" class="fadd-btn" onclick="addChild()"><span style="font-size:18px">+</span> Add Child</button>
+      <div class="fw-btn-row">
+        <button type="button" onclick="location.href='/community/family/setup/?step={% if setup.marital_status == "married" %}5{% else %}4{% endif %}'" class="fbtn fbtn-outline">← Back</button>
+        <button type="submit" class="fbtn fbtn-primary" style="flex:1">Continue →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ STEP 7: Pets ══ -->
+{% elif step == "7" %}
+<div class="fw-card">
+  <div class="fw-card-head">
+    <div class="fw-card-icon">🐾</div>
+    <div>
+      <div class="fw-card-title">Pets</div>
+      <div class="fw-card-sub">Add your pets (optional, skip if none)</div>
+    </div>
+  </div>
+  <div class="fw-card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}<input type="hidden" name="step" value="7">
+      <div id="petList">
+        {% for pet in pets %}
+        <div class="frep">
+          <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+          <div class="fphoto-row" style="margin-bottom:12px">
+            <div class="fphoto-box" onclick="this.nextElementSibling.click()">
+              {% if pet.photo %}<img src="{{ pet.photo.url }}">{% else %}<span style="font-size:22px">🐾</span>{% endif %}
+            </div>
+            <input type="file" name="pet_photo" accept="image/*" style="display:none" onchange="previewPhotoInline(this)">
+            <div class="fphoto-hint">Pet's photo (optional)</div>
+          </div>
+          <div class="fg"><label class="fl">Pet Name *</label><input type="text" name="pet_name" class="fi" value="{{ pet.name }}" placeholder="e.g. Tommy" required></div>
+          <div class="fg2">
+            <div class="fg" style="margin-bottom:0"><label class="fl">Type</label><input type="text" name="pet_species" class="fi" value="{{ pet.species }}" placeholder="Dog, Cat…"></div>
+            <div class="fg" style="margin-bottom:0"><label class="fl">Breed</label><input type="text" name="pet_breed" class="fi" value="{{ pet.breed }}" placeholder="Labrador…"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="fadd-btn" onclick="addPet()"><span style="font-size:18px">+</span> Add Pet</button>
       <div class="fw-btn-row">
         <button type="button" onclick="location.href='/community/family/setup/?step=6'" class="fbtn fbtn-outline">← Back</button>
         <button type="submit" class="fbtn fbtn-primary" style="flex:1">✅ Complete Setup</button>
