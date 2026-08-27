@@ -144,7 +144,7 @@ def family_setup_wizard(request):
                 setup.save()
                 return redirect('/community/family/setup/?step=4')
 
-        # ── Step 4: Self Details ──
+        # ── Step 4: Self Details + Your Father / Mother / Siblings ──
         elif step == '4':
             setup.self_full_name  = request.POST.get('self_full_name', '').strip()
             setup.self_dob        = request.POST.get('self_dob') or None
@@ -153,11 +153,53 @@ def family_setup_wizard(request):
             if 'self_photo' in request.FILES:
                 setup.self_photo = request.FILES['self_photo']
             setup.save()
+
+            # Father (your side)
+            FamilyMember.objects.filter(creator=request.user, member_type='father', side='husband').delete()
+            father_name = request.POST.get('father_name', '').strip()
+            if father_name:
+                FamilyMember.objects.create(
+                    creator=request.user, member_type='father', side='husband',
+                    name=father_name,
+                    dob=request.POST.get('father_dob') or None,
+                    village=request.POST.get('father_village', '').strip(),
+                    occupation=request.POST.get('father_occupation', '').strip(),
+                )
+
+            # Mother (your side)
+            FamilyMember.objects.filter(creator=request.user, member_type='mother', side='husband').delete()
+            mother_name = request.POST.get('mother_name', '').strip()
+            if mother_name:
+                FamilyMember.objects.create(
+                    creator=request.user, member_type='mother', side='husband',
+                    name=mother_name,
+                    dob=request.POST.get('mother_dob') or None,
+                    village=request.POST.get('mother_village', '').strip(),
+                    occupation=request.POST.get('mother_occupation', '').strip(),
+                )
+
+            # Siblings (your side)
+            FamilyMember.objects.filter(creator=request.user, member_type__in=['brother', 'sister'], side='husband').delete()
+            sib_names   = request.POST.getlist('sibling_name')
+            sib_genders = request.POST.getlist('sibling_gender')
+            sib_dobs    = request.POST.getlist('sibling_dob')
+            for i, sname in enumerate(sib_names):
+                sname = sname.strip()
+                if not sname:
+                    continue
+                sgender = sib_genders[i] if i < len(sib_genders) else 'male'
+                sdob    = sib_dobs[i] if i < len(sib_dobs) else ''
+                FamilyMember.objects.create(
+                    creator=request.user,
+                    member_type='brother' if sgender == 'male' else 'sister',
+                    side='husband', name=sname, dob=sdob or None,
+                )
+
             if setup.marital_status == 'married':
                 return redirect('/community/family/setup/?step=5')
             return redirect('/community/family/setup/?step=6')
 
-        # ── Step 5: Partner Details (married only) ──
+        # ── Step 5: Partner Details + Partner's Father / Mother / Siblings ──
         elif step == '5':
             setup.partner_full_name  = request.POST.get('partner_full_name', '').strip()
             setup.partner_gender     = request.POST.get('partner_gender', '').strip()
@@ -173,6 +215,48 @@ def family_setup_wizard(request):
             if 'partner_photo' in request.FILES:
                 setup.partner_photo = request.FILES['partner_photo']
             setup.save()
+
+            # Father (partner's side)
+            FamilyMember.objects.filter(creator=request.user, member_type='father', side='wife').delete()
+            pf_name = request.POST.get('p_father_name', '').strip()
+            if pf_name:
+                FamilyMember.objects.create(
+                    creator=request.user, member_type='father', side='wife',
+                    name=pf_name,
+                    dob=request.POST.get('p_father_dob') or None,
+                    village=request.POST.get('p_father_village', '').strip(),
+                    occupation=request.POST.get('p_father_occupation', '').strip(),
+                )
+
+            # Mother (partner's side)
+            FamilyMember.objects.filter(creator=request.user, member_type='mother', side='wife').delete()
+            pm_name = request.POST.get('p_mother_name', '').strip()
+            if pm_name:
+                FamilyMember.objects.create(
+                    creator=request.user, member_type='mother', side='wife',
+                    name=pm_name,
+                    dob=request.POST.get('p_mother_dob') or None,
+                    village=request.POST.get('p_mother_village', '').strip(),
+                    occupation=request.POST.get('p_mother_occupation', '').strip(),
+                )
+
+            # Siblings (partner's side)
+            FamilyMember.objects.filter(creator=request.user, member_type__in=['brother', 'sister'], side='wife').delete()
+            ps_names   = request.POST.getlist('p_sibling_name')
+            ps_genders = request.POST.getlist('p_sibling_gender')
+            ps_dobs    = request.POST.getlist('p_sibling_dob')
+            for i, sname in enumerate(ps_names):
+                sname = sname.strip()
+                if not sname:
+                    continue
+                sgender = ps_genders[i] if i < len(ps_genders) else 'male'
+                sdob    = ps_dobs[i] if i < len(ps_dobs) else ''
+                FamilyMember.objects.create(
+                    creator=request.user,
+                    member_type='brother' if sgender == 'male' else 'sister',
+                    side='wife', name=sname, dob=sdob or None,
+                )
+
             return redirect('/community/family/setup/?step=6')
 
         # ── Step 6: Children ──
@@ -306,50 +390,7 @@ def family_setup_wizard(request):
             setup.save()
             return redirect('/community/family/?setup_done=1')
 
-        # ── Step 8: Grandparents (optional, from hub) ──
-        elif step == '8':
-            FamilyMember.objects.filter(
-                creator=request.user,
-                member_type__in=['grandfather', 'grandmother']
-            ).delete()
-
-            gp_fields = [
-                ('grandfather', 'gf_name', 'gf_dob', 'gf_village', 'gf_occupation', 'husband'),
-                ('grandmother', 'gm_name', 'gm_dob', 'gm_village', 'gm_occupation', 'husband'),
-            ]
-            if setup.marital_status == 'married':
-                gp_fields += [
-                    ('grandfather', 'wgf_name', 'wgf_dob', 'wgf_village', 'wgf_occupation', 'wife'),
-                    ('grandmother', 'wgm_name', 'wgm_dob', 'wgm_village', 'wgm_occupation', 'wife'),
-                ]
-
-            for mtype, nf, df, vf, of, side in gp_fields:
-                name = request.POST.get(nf, '').strip()
-                if not name:
-                    continue
-                dob_str = request.POST.get(df, '')
-                dob_val = None
-                if dob_str:
-                    try:
-                        from datetime import datetime
-                        dob_val = datetime.strptime(dob_str, '%Y-%m-%d').date()
-                    except Exception:
-                        pass
-                FamilyMember.objects.create(
-                    creator     = request.user,
-                    member_type = mtype,
-                    side        = side,
-                    name        = name,
-                    dob         = dob_val,
-                    village     = request.POST.get(vf, '').strip(),
-                    occupation  = request.POST.get(of, '').strip(),
-                )
-
-            setup.setup_done = True
-            setup.save()
-            return redirect('/community/family/?setup_done=1')
-
-    # Existing children and pets for pre-fill
+    # Existing members for pre-fill
     children = FamilyMember.objects.filter(
         creator=request.user, member_type__in=['son', 'daughter']
     ).order_by('created_at')
@@ -359,13 +400,19 @@ def family_setup_wizard(request):
     grandparents = FamilyMember.objects.filter(
         creator=request.user, member_type__in=['grandfather', 'grandmother']
     ).order_by('side', 'member_type')
+    my_father   = FamilyMember.objects.filter(creator=request.user, member_type='father',  side='husband').first()
+    my_mother   = FamilyMember.objects.filter(creator=request.user, member_type='mother',  side='husband').first()
+    my_siblings = FamilyMember.objects.filter(creator=request.user, member_type__in=['brother','sister'], side='husband').order_by('created_at')
+    p_father    = FamilyMember.objects.filter(creator=request.user, member_type='father',  side='wife').first()
+    p_mother    = FamilyMember.objects.filter(creator=request.user, member_type='mother',  side='wife').first()
+    p_siblings  = FamilyMember.objects.filter(creator=request.user, member_type__in=['brother','sister'], side='wife').order_by('created_at')
 
     step_int = int(step) if str(step).isdigit() else 1
     steps_list = [
         {'num': '1', 'lbl': 'Account'},
         {'num': '2', 'lbl': 'Gender'},
         {'num': '3', 'lbl': 'Status'},
-        {'num': '4', 'lbl': 'You'},
+        {'num': '4', 'lbl': 'You & Family'},
         {'num': '5', 'lbl': 'Partner'},
         {'num': '6', 'lbl': 'Children'},
         {'num': '7', 'lbl': 'Pets'},
@@ -375,6 +422,8 @@ def family_setup_wizard(request):
         'setup': setup, 'step': step, 'step_int': step_int,
         'errors': errors, 'steps_list': steps_list,
         'children': children, 'pets': pets, 'grandparents': grandparents,
+        'my_father': my_father, 'my_mother': my_mother, 'my_siblings': my_siblings,
+        'p_father': p_father, 'p_mother': p_mother, 'p_siblings': p_siblings,
         'back_step': back_step,
     })
 

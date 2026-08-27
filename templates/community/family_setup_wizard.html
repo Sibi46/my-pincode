@@ -248,14 +248,98 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
           <input type="text" name="self_village" class="fi" placeholder="Born place" value="{{ setup.self_village }}">
         </div>
       </div>
-      <div class="fg" style="margin-bottom:24px">
+      <div class="fg">
         <label class="fl">Occupation</label>
         <input type="text" name="self_occupation" class="fi" placeholder="e.g. Engineer, Farmer…" value="{{ setup.self_occupation }}">
       </div>
+
+      <!-- Father -->
+      <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#C2410C;margin-bottom:10px">👨 Your Father (optional)</div>
+        <div class="fg">
+          <label class="fl">Father's Name</label>
+          <input type="text" name="father_name" class="fi" placeholder="Father's full name" value="{{ my_father.name|default:'' }}">
+        </div>
+        <div class="fg2">
+          <div class="fg">
+            <label class="fl">Date of Birth</label>
+            <input type="date" name="father_dob" class="fi" value="{% if my_father and my_father.dob %}{{ my_father.dob|date:'Y-m-d' }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label class="fl">Born Village / Area</label>
+            <input type="text" name="father_village" class="fi" placeholder="Village" value="{{ my_father.village|default:'' }}">
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Occupation</label>
+          <input type="text" name="father_occupation" class="fi" placeholder="e.g. Farmer" value="{{ my_father.occupation|default:'' }}">
+        </div>
+      </div>
+
+      <!-- Mother -->
+      <div style="background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#BE123C;margin-bottom:10px">👩 Your Mother (optional)</div>
+        <div class="fg">
+          <label class="fl">Mother's Name</label>
+          <input type="text" name="mother_name" class="fi" placeholder="Mother's full name" value="{{ my_mother.name|default:'' }}">
+        </div>
+        <div class="fg2">
+          <div class="fg">
+            <label class="fl">Date of Birth</label>
+            <input type="date" name="mother_dob" class="fi" value="{% if my_mother and my_mother.dob %}{{ my_mother.dob|date:'Y-m-d' }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label class="fl">Born Village / Area</label>
+            <input type="text" name="mother_village" class="fi" placeholder="Village" value="{{ my_mother.village|default:'' }}">
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Occupation</label>
+          <input type="text" name="mother_occupation" class="fi" placeholder="e.g. Homemaker" value="{{ my_mother.occupation|default:'' }}">
+        </div>
+      </div>
+
+      <!-- Siblings -->
+      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:24px">
+        <div style="font-size:12px;font-weight:800;color:#15803D;margin-bottom:10px">👫 Your Brothers & Sisters (optional)</div>
+        <div id="siblingList">
+          {% for sib in my_siblings %}
+          <div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #D1FAE5">
+            <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Name</label>
+                <input type="text" name="sibling_name" class="fi" value="{{ sib.name }}" placeholder="Name">
+              </div>
+              <div class="fg">
+                <label class="fl">Gender</label>
+                <select name="sibling_gender" class="fi">
+                  <option value="male" {% if sib.member_type == 'brother' %}selected{% endif %}>Male (Brother)</option>
+                  <option value="female" {% if sib.member_type == 'sister' %}selected{% endif %}>Female (Sister)</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg" style="margin-bottom:0">
+              <label class="fl">Date of Birth</label>
+              <input type="date" name="sibling_dob" class="fi" value="{% if sib.dob %}{{ sib.dob|date:'Y-m-d' }}{% endif %}">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="fbtn" style="background:#DCFCE7;color:#15803D;font-size:13px;padding:8px 14px;margin-bottom:0" onclick="addSibling()">+ Add Sibling</button>
+      </div>
+
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
 </div>
+
+<script>
+function addSibling(){
+  var html='<div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #D1FAE5"><button type="button" class="frep-remove" onclick="removeItem(this)">✕</button><div class="fg2"><div class="fg"><label class="fl">Name</label><input type="text" name="sibling_name" class="fi" placeholder="Name"></div><div class="fg"><label class="fl">Gender</label><select name="sibling_gender" class="fi"><option value="male">Male (Brother)</option><option value="female">Female (Sister)</option></select></div></div><div class="fg" style="margin-bottom:0"><label class="fl">Date of Birth</label><input type="date" name="sibling_dob" class="fi"></div></div>';
+  document.getElementById('siblingList').insertAdjacentHTML('beforeend',html);
+}
+</script>
 
 <!-- ══ STEP 5: Partner ══ -->
 {% elif step == "5" %}
@@ -313,15 +397,99 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
         <label class="fl">Occupation</label>
         <input type="text" name="partner_occupation" class="fi" placeholder="e.g. Teacher…" value="{{ setup.partner_occupation }}">
       </div>
-      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="font-size:11px;font-weight:800;color:#16A34A;margin-bottom:10px">🔑 Partner Login (optional)</div>
         <div class="fg"><label class="fl">Partner Email</label><input type="email" name="partner_email" class="fi" placeholder="partner@example.com" value="{{ setup.partner_email }}"></div>
         <div class="fg" style="margin-bottom:0"><label class="fl">Password</label><input type="password" name="partner_password" class="fi" placeholder="Min 6 characters" minlength="6"></div>
       </div>
+
+      <!-- Partner's Father -->
+      <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#C2410C;margin-bottom:10px">👨 Partner's Father (optional)</div>
+        <div class="fg">
+          <label class="fl">Father's Name</label>
+          <input type="text" name="p_father_name" class="fi" placeholder="Father's full name" value="{{ p_father.name|default:'' }}">
+        </div>
+        <div class="fg2">
+          <div class="fg">
+            <label class="fl">Date of Birth</label>
+            <input type="date" name="p_father_dob" class="fi" value="{% if p_father and p_father.dob %}{{ p_father.dob|date:'Y-m-d' }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label class="fl">Born Village / Area</label>
+            <input type="text" name="p_father_village" class="fi" placeholder="Village" value="{{ p_father.village|default:'' }}">
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Occupation</label>
+          <input type="text" name="p_father_occupation" class="fi" placeholder="e.g. Farmer" value="{{ p_father.occupation|default:'' }}">
+        </div>
+      </div>
+
+      <!-- Partner's Mother -->
+      <div style="background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#BE123C;margin-bottom:10px">👩 Partner's Mother (optional)</div>
+        <div class="fg">
+          <label class="fl">Mother's Name</label>
+          <input type="text" name="p_mother_name" class="fi" placeholder="Mother's full name" value="{{ p_mother.name|default:'' }}">
+        </div>
+        <div class="fg2">
+          <div class="fg">
+            <label class="fl">Date of Birth</label>
+            <input type="date" name="p_mother_dob" class="fi" value="{% if p_mother and p_mother.dob %}{{ p_mother.dob|date:'Y-m-d' }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label class="fl">Born Village / Area</label>
+            <input type="text" name="p_mother_village" class="fi" placeholder="Village" value="{{ p_mother.village|default:'' }}">
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Occupation</label>
+          <input type="text" name="p_mother_occupation" class="fi" placeholder="e.g. Homemaker" value="{{ p_mother.occupation|default:'' }}">
+        </div>
+      </div>
+
+      <!-- Partner's Siblings -->
+      <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:12px;padding:14px;margin-bottom:24px">
+        <div style="font-size:12px;font-weight:800;color:#6D28D9;margin-bottom:10px">👫 Partner's Brothers & Sisters (optional)</div>
+        <div id="pSiblingList">
+          {% for sib in p_siblings %}
+          <div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #DDD6FE">
+            <button type="button" class="frep-remove" onclick="removeItem(this)">✕</button>
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Name</label>
+                <input type="text" name="p_sibling_name" class="fi" value="{{ sib.name }}" placeholder="Name">
+              </div>
+              <div class="fg">
+                <label class="fl">Gender</label>
+                <select name="p_sibling_gender" class="fi">
+                  <option value="male" {% if sib.member_type == 'brother' %}selected{% endif %}>Male (Brother)</option>
+                  <option value="female" {% if sib.member_type == 'sister' %}selected{% endif %}>Female (Sister)</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg" style="margin-bottom:0">
+              <label class="fl">Date of Birth</label>
+              <input type="date" name="p_sibling_dob" class="fi" value="{% if sib.dob %}{{ sib.dob|date:'Y-m-d' }}{% endif %}">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button type="button" class="fbtn" style="background:#EDE9FE;color:#6D28D9;font-size:13px;padding:8px 14px;margin-bottom:0" onclick="addPSibling()">+ Add Sibling</button>
+      </div>
+
       <button type="submit" class="fbtn fbtn-primary">Continue →</button>
     </form>
   </div>
 </div>
+
+<script>
+function addPSibling(){
+  var html='<div class="frep" style="margin-bottom:10px;padding:10px;background:#fff;border-radius:8px;border:1px solid #DDD6FE"><button type="button" class="frep-remove" onclick="removeItem(this)">✕</button><div class="fg2"><div class="fg"><label class="fl">Name</label><input type="text" name="p_sibling_name" class="fi" placeholder="Name"></div><div class="fg"><label class="fl">Gender</label><select name="p_sibling_gender" class="fi"><option value="male">Male (Brother)</option><option value="female">Female (Sister)</option></select></div></div><div class="fg" style="margin-bottom:0"><label class="fl">Date of Birth</label><input type="date" name="p_sibling_dob" class="fi"></div></div>';
+  document.getElementById('pSiblingList').insertAdjacentHTML('beforeend',html);
+}
+</script>
 
 <!-- ══ STEP 6: Children ══ -->
 {% elif step == "6" %}
