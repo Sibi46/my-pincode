@@ -487,24 +487,21 @@ def family_hub(request):
                 w_map.setdefault(m.member_type, []).append(m)
             else:
                 h_map.setdefault(m.member_type, []).append(m)
-        # Build one row per type that exists on either side
+        # Build one row per type — use actual member records (not count fields)
         seen = []
-        type_meta = {t: (l, i) for t, l, i, _ in HUSBAND_TYPES}
-        type_meta.update({t: (l, i) for t, l, i, _ in WIFE_TYPES})
         for mtype, label, icon, field in HUSBAND_TYPES:
-            h_cnt = getattr(setup, field, 0)
-            w_field = 'w_' + field
-            w_cnt = getattr(setup, w_field, 0) if is_married else 0
-            if h_cnt > 0 or w_cnt > 0:
-                combined_rows.append((mtype, label, icon, h_cnt, h_map.get(mtype, []), w_cnt, w_map.get(mtype, [])))
+            h_members = h_map.get(mtype, [])
+            w_members = w_map.get(mtype, []) if is_married else []
+            if h_members or w_members:
+                combined_rows.append((mtype, label, icon, len(h_members), h_members, len(w_members), w_members))
                 seen.append(mtype)
-        # Wife-only types (no husband equivalent, e.g. if types differ)
+        # Wife-only types not covered above
         if is_married:
             for mtype, label, icon, field in WIFE_TYPES:
                 if mtype not in seen:
-                    w_cnt = getattr(setup, field, 0)
-                    if w_cnt > 0:
-                        combined_rows.append((mtype, label, icon, 0, [], w_cnt, w_map.get(mtype, [])))
+                    w_members = w_map.get(mtype, [])
+                    if w_members:
+                        combined_rows.append((mtype, label, icon, 0, [], len(w_members), w_members))
 
     # Family count
     core_count = 0
