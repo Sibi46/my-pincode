@@ -18,15 +18,13 @@ body{background:#F8FAFC;font-family:'Inter',sans-serif;color:#0F172A}
 .fm-card{background:#fff;border-radius:20px;border:1px solid #E2E8F0;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;margin-bottom:16px}
 .fm-card-title{font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:6px}
 
-/* TYPE GRID */
-.fm-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.fm-type-btn{background:#F8FAFC;border:2px solid #E2E8F0;border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s}
-.fm-type-btn:hover{border-color:#6366F1;background:#EEF2FF;transform:translateY(-2px)}
-.fm-type-btn.selected{border-color:#4F46E5;background:#EEF2FF;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
-.fm-type-btn input{display:none}
-.fm-type-icon{font-size:1.8rem;display:block;margin-bottom:6px}
-.fm-type-label{font-size:11px;font-weight:600;color:#374151}
-.fm-type-btn.selected .fm-type-label{color:#4F46E5}
+/* TYPE NAV */
+.fm-type-nav{display:flex;gap:8px;overflow-x:auto;padding:0 0 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.fm-type-nav::-webkit-scrollbar{display:none}
+.fm-type-chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:9px 15px;border-radius:50px;border:2px solid #E2E8F0;background:#F8FAFC;font-size:13px;font-weight:700;color:#475569;cursor:pointer;transition:all .2s;flex-shrink:0}
+.fm-type-chip input{display:none}
+.fm-type-chip:hover{border-color:#6366F1;background:#EEF2FF;color:#4F46E5}
+.fm-type-chip.selected{border-color:#4F46E5;background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;box-shadow:0 3px 10px rgba(79,70,229,.3)}
 
 /* FIELDS */
 .fm-field{margin-bottom:16px}
@@ -75,29 +73,14 @@ textarea.fm-input{min-height:100px;resize:vertical}
 {% csrf_token %}
 <input type="hidden" name="side" value="{{ request.GET.side|default:'husband' }}">
 
-<!-- Type Selector -->
-<div class="fm-card">
-  <div class="fm-card-title">👤 Who is this page for?</div>
-  <div class="fm-type-grid">
+<!-- Type Selector — horizontal nav bar -->
+<div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 20px;position:sticky;top:57px;z-index:150">
+  <div class="fm-type-nav" id="typeNav">
     {% for val, label in type_choices %}
-    <label class="fm-type-btn" onclick="selectType('{{ val }}', this)">
+    <label class="fm-type-chip {% if request.GET.type == val or not request.GET.type and forloop.first %}selected{% endif %}" onclick="selectType('{{ val }}', this)">
       <input type="radio" name="member_type" value="{{ val }}" {% if request.GET.type == val %}checked{% elif not request.GET.type and forloop.first %}checked{% endif %}>
-      <span class="fm-type-icon">
-        {% if val == 'grandfather' %}👴
-        {% elif val == 'grandmother' %}👵
-        {% elif val == 'father' %}👨
-        {% elif val == 'mother' %}👩
-        {% elif val == 'son' %}👦
-        {% elif val == 'daughter' %}👧
-        {% elif val == 'uncle' %}🧔
-        {% elif val == 'aunt' %}👩‍🦳
-        {% elif val == 'cousin' %}🧑
-        {% elif val == 'brother' %}👱
-        {% elif val == 'sister' %}👱‍♀️
-        {% elif val == 'pet' %}🐾
-        {% else %}👤{% endif %}
-      </span>
-      <span class="fm-type-label">{{ label }}</span>
+      {% if val == 'grandfather' %}👴{% elif val == 'grandmother' %}👵{% elif val == 'father' %}👨{% elif val == 'mother' %}👩{% elif val == 'son' %}👦{% elif val == 'daughter' %}👧{% elif val == 'uncle' %}🧔{% elif val == 'aunt' %}👩‍🦳{% elif val == 'cousin' %}🧑{% elif val == 'brother' %}👱{% elif val == 'sister' %}👱‍♀️{% elif val == 'pet' %}🐾{% else %}👤{% endif %}
+      {{ label }}
     </label>
     {% endfor %}
   </div>
@@ -249,8 +232,9 @@ const PET_TYPES = ['pet'];
 const PERSON_TYPES = ['grandfather','grandmother','father','mother','son','daughter','uncle','aunt','cousin','brother','sister','other'];
 
 function selectType(val, el) {
-  document.querySelectorAll('.fm-type-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.fm-type-chip').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
+  el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
   var pf = document.getElementById('personFields');
   var ptf = document.getElementById('petFields');
   if (PET_TYPES.includes(val)) {
@@ -285,8 +269,8 @@ function previewPhoto(input) {
 document.addEventListener('DOMContentLoaded', function(){
   var checked = document.querySelector('input[name=member_type]:checked');
   if (checked) {
-    checked.closest('.fm-type-btn').classList.add('selected');
-    selectType(checked.value, checked.closest('.fm-type-btn'));
+    checked.closest('.fm-type-chip').classList.add('selected');
+    selectType(checked.value, checked.closest('.fm-type-chip'));
   }
 });
 </script>
