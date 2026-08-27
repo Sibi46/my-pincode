@@ -311,10 +311,13 @@ function shareFamily(){
           <div style="margin-bottom:8px">
             <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:4px">{{ icon }} {{ label }}</div>
             {% for m in h_members %}
-            <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:4px;text-decoration:none;border:1px solid #E2E8F0">
-              <div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
-              <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
-            </a>
+            <div style="display:flex;align-items:center;gap:6px;background:#fff;border-radius:10px;padding:6px 8px;margin-bottom:4px;border:1px solid #E2E8F0">
+              <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:7px;text-decoration:none;flex:1;min-width:0">
+                <div style="width:30px;height:30px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
+                <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
+              </a>
+              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" title="Share" style="flex-shrink:0;background:#EEF2FF;border:none;border-radius:7px;padding:5px 7px;cursor:pointer;font-size:13px">🔗</button>
+            </div>
             {% endfor %}
           </div>
           {% endif %}
@@ -347,10 +350,13 @@ function shareFamily(){
           <div style="margin-bottom:8px">
             <div style="font-size:10px;font-weight:700;color:#BE185D;margin-bottom:4px">{{ icon }} {{ label }}</div>
             {% for m in w_members %}
-            <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:4px;text-decoration:none;border:1px solid #FBCFE8">
-              <div style="width:32px;height:32px;border-radius:8px;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
-              <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
-            </a>
+            <div style="display:flex;align-items:center;gap:6px;background:#fff;border-radius:10px;padding:6px 8px;margin-bottom:4px;border:1px solid #FBCFE8">
+              <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:7px;text-decoration:none;flex:1;min-width:0">
+                <div style="width:30px;height:30px;border-radius:8px;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
+                <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
+              </a>
+              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" title="Share" style="flex-shrink:0;background:#FCE7F3;border:none;border-radius:7px;padding:5px 7px;cursor:pointer;font-size:13px">🔗</button>
+            </div>
             {% endfor %}
           </div>
           {% endif %}
@@ -375,6 +381,19 @@ function shareFamily(){
     <script>
     function goAdd(type, side){
       window.location='/community/family/create/?type='+type+'&side='+side;
+    }
+    function shareVerify(pk, name){
+      var url = window.location.origin + '/community/family/member/' + pk + '/verify/';
+      var text = 'Are you ' + name + '? Confirm your family connection on OUR PINCODE.';
+      if(navigator.share){
+        navigator.share({title: text, url: url}).catch(function(){});
+      } else {
+        navigator.clipboard.writeText(url).then(function(){
+          var t = document.getElementById('shareToast');
+          t.style.display = 'block';
+          setTimeout(function(){ t.style.display='none'; }, 2500);
+        });
+      }
     }
     </script>
     {% else %}

@@ -11,6 +11,7 @@ urlpatterns = [
     path('family/setup/',                  views.family_setup_wizard,   name='family_setup_wizard'),
     path('family/create/',                 views.family_member_create,  name='family_member_create'),
     path('family/member/<int:pk>/',        views.family_member_detail,  name='family_member_detail'),
+    path('family/member/<int:pk>/verify/', views.family_member_verify,  name='family_member_verify'),
     path('school-kids/',                   views.school_kids_hub,       name='school_kids_hub'),
 
     # Family Stories

@@ -612,6 +612,17 @@ def family_member_detail(request, pk):
     return render(request, 'community/family_member_detail.html', {'member': member})
 
 
+def family_member_verify(request, pk):
+    """Public page — no login needed. Shows 'Are you X's Uncle?' confirmation."""
+    member = get_object_or_404(FamilyMember, pk=pk)
+    setup  = getattr(member.creator, 'familysetup', None)
+    creator_name = setup.self_full_name if setup and setup.self_full_name else member.creator.get_full_name() or member.creator.username
+    return render(request, 'community/family_member_verify.html', {
+        'member': member,
+        'creator_name': creator_name,
+    })
+
+
 # ── SCHOOL & KIDS HUB ──────────────────────────────────────────────────────────
 def school_kids_hub(request):
     tab = request.GET.get('tab', 'school')
