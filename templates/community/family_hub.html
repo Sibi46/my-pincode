@@ -307,20 +307,31 @@ function shareFamily(){
 
           {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
           {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
-          {% if h_members %}
-          <div style="margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:#6366F1;margin-bottom:4px">{{ icon }} {{ label }}</div>
-            {% for m in h_members %}
-            <div style="display:flex;align-items:center;gap:6px;background:#fff;border-radius:10px;padding:6px 8px;margin-bottom:4px;border:1px solid #E2E8F0">
-              <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:7px;text-decoration:none;flex:1;min-width:0">
-                <div style="width:30px;height:30px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
-                <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
-              </a>
-              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" title="Share" style="flex-shrink:0;background:#EEF2FF;border:none;border-radius:7px;padding:5px 7px;cursor:pointer;font-size:13px">🔗</button>
+          {% for m in h_members %}
+          <div style="background:#fff;border-radius:14px;border:1px solid #E0E7FF;margin-bottom:10px;overflow:hidden">
+            <a href="/community/family/member/{{ m.pk }}/" style="display:block;text-decoration:none">
+              <!-- Photo banner -->
+              <div style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);height:70px;display:flex;align-items:center;justify-content:center;position:relative">
+                {% if m.photo %}
+                <img src="{{ m.photo.url }}" style="width:60px;height:60px;border-radius:14px;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,70,229,.2)" alt="">
+                {% else %}
+                <div style="width:60px;height:60px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,70,229,.2)">{{ icon }}</div>
+                {% endif %}
+                <div style="position:absolute;top:6px;left:8px;background:#4F46E5;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.04em">{{ label }}</div>
+              </div>
+              <!-- Details -->
+              <div style="padding:10px 12px">
+                <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ m.name }}</div>
+                {% if m.occupation %}<div style="font-size:10px;color:#6366F1;font-weight:700;margin-bottom:2px">💼 {{ m.occupation }}</div>{% endif %}
+                {% if m.village %}<div style="font-size:10px;color:#64748B">📍 {{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">🎂 Age {{ m.age }}</div>{% endif %}
+              </div>
+            </a>
+            <div style="padding:0 12px 10px;display:flex;gap:6px">
+              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#EEF2FF;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#4F46E5;cursor:pointer">🔗 Share</button>
+              <a href="/community/family/member/{{ m.pk }}/" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#374151;text-decoration:none">👁 View</a>
             </div>
-            {% endfor %}
           </div>
-          {% endif %}
+          {% endfor %}
           {% endif %}
           {% endfor %}
 
@@ -346,20 +357,29 @@ function shareFamily(){
 
           {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
           {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
-          {% if w_members %}
-          <div style="margin-bottom:8px">
-            <div style="font-size:10px;font-weight:700;color:#BE185D;margin-bottom:4px">{{ icon }} {{ label }}</div>
-            {% for m in w_members %}
-            <div style="display:flex;align-items:center;gap:6px;background:#fff;border-radius:10px;padding:6px 8px;margin-bottom:4px;border:1px solid #FBCFE8">
-              <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:7px;text-decoration:none;flex:1;min-width:0">
-                <div style="width:30px;height:30px;border-radius:8px;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}</div>
-                <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</div><div style="font-size:10px;color:#64748B">{% if m.village %}{{ m.village }}{% else %}{{ label }}{% endif %}</div></div>
-              </a>
-              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" title="Share" style="flex-shrink:0;background:#FCE7F3;border:none;border-radius:7px;padding:5px 7px;cursor:pointer;font-size:13px">🔗</button>
+          {% for m in w_members %}
+          <div style="background:#fff;border-radius:14px;border:1px solid #FBCFE8;margin-bottom:10px;overflow:hidden">
+            <a href="/community/family/member/{{ m.pk }}/" style="display:block;text-decoration:none">
+              <div style="background:linear-gradient(135deg,#FCE7F3,#FBCFE8);height:70px;display:flex;align-items:center;justify-content:center;position:relative">
+                {% if m.photo %}
+                <img src="{{ m.photo.url }}" style="width:60px;height:60px;border-radius:14px;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(190,24,93,.2)" alt="">
+                {% else %}
+                <div style="width:60px;height:60px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(190,24,93,.2)">{{ icon }}</div>
+                {% endif %}
+                <div style="position:absolute;top:6px;left:8px;background:#BE185D;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.04em">{{ label }}</div>
+              </div>
+              <div style="padding:10px 12px">
+                <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ m.name }}</div>
+                {% if m.occupation %}<div style="font-size:10px;color:#BE185D;font-weight:700;margin-bottom:2px">💼 {{ m.occupation }}</div>{% endif %}
+                {% if m.village %}<div style="font-size:10px;color:#64748B">📍 {{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">🎂 Age {{ m.age }}</div>{% endif %}
+              </div>
+            </a>
+            <div style="padding:0 12px 10px;display:flex;gap:6px">
+              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#FCE7F3;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#BE185D;cursor:pointer">🔗 Share</button>
+              <a href="/community/family/member/{{ m.pk }}/" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#F8FAFC;border:1px solid #FBCFE8;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#374151;text-decoration:none">👁 View</a>
             </div>
-            {% endfor %}
           </div>
-          {% endif %}
+          {% endfor %}
           {% endif %}
           {% endfor %}
 
