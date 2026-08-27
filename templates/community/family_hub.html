@@ -332,17 +332,49 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
       {% endif %}
     {% endfor %}
 
-    <!-- Add buttons for each type -->
+    <!-- Add Relatives -->
     <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;padding:16px;margin-bottom:12px">
       <div style="font-size:12px;font-weight:800;color:#1E293B;margin-bottom:12px">Add Relatives</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
-        <a href="/community/family/create/?type=brother&side=husband" style="display:inline-flex;align-items:center;gap:5px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#4F46E5;text-decoration:none">👱 Brother</a>
-        <a href="/community/family/create/?type=sister&side=husband" style="display:inline-flex;align-items:center;gap:5px;background:#FCE7F3;border:1px solid #FBCFE8;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#BE185D;text-decoration:none">👱‍♀️ Sister</a>
-        <a href="/community/family/create/?type=uncle&side=husband" style="display:inline-flex;align-items:center;gap:5px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#C2410C;text-decoration:none">🧔 Uncle</a>
-        <a href="/community/family/create/?type=aunt&side=husband" style="display:inline-flex;align-items:center;gap:5px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#166534;text-decoration:none">👩‍🦳 Aunt</a>
-        <a href="/community/family/create/?type=cousin&side=husband" style="display:inline-flex;align-items:center;gap:5px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#6D28D9;text-decoration:none">🧑 Cousin</a>
+        <button onclick="openSidePicker('brother','👱 Brother')" style="display:inline-flex;align-items:center;gap:5px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#4F46E5;cursor:pointer;border:1.5px solid #C7D2FE">👱 Brother</button>
+        <button onclick="openSidePicker('sister','👱‍♀️ Sister')" style="display:inline-flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px solid #FBCFE8;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#BE185D;cursor:pointer">👱‍♀️ Sister</button>
+        <button onclick="openSidePicker('uncle','🧔 Uncle')" style="display:inline-flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#C2410C;cursor:pointer">🧔 Uncle</button>
+        <button onclick="openSidePicker('aunt','👩‍🦳 Aunt')" style="display:inline-flex;align-items:center;gap:5px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#166534;cursor:pointer">👩‍🦳 Aunt</button>
+        <button onclick="openSidePicker('cousin','🧑 Cousin')" style="display:inline-flex;align-items:center;gap:5px;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;color:#6D28D9;cursor:pointer">🧑 Cousin</button>
       </div>
     </div>
+
+    <!-- Side Picker Modal -->
+    <div id="sidePickerOverlay" onclick="closeSidePicker()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:flex-end;justify-content:center"></div>
+    <div id="sidePickerSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border-radius:22px 22px 0 0;padding:24px 20px 32px;z-index:1000;box-shadow:0 -8px 32px rgba(0,0,0,.18)">
+      <div style="width:36px;height:4px;background:#E2E8F0;border-radius:4px;margin:0 auto 20px"></div>
+      <div id="sidePickerTitle" style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:6px;text-align:center"></div>
+      <div style="font-size:12px;color:#64748B;text-align:center;margin-bottom:20px">Whose side is this relative on?</div>
+      <div style="display:flex;gap:12px">
+        <button onclick="goAdd('husband')" style="flex:1;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;padding:16px 10px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.4">
+          👤 My Side<br><span style="font-size:10px;font-weight:500;opacity:.85">Your relatives</span>
+        </button>
+        <button onclick="goAdd('wife')" style="flex:1;background:linear-gradient(135deg,#BE185D,#7C3AED);color:#fff;border:none;border-radius:14px;padding:16px 10px;font-size:13px;font-weight:800;cursor:pointer;line-height:1.4">
+          💑 Partner's Side<br><span style="font-size:10px;font-weight:500;opacity:.85">Partner's relatives</span>
+        </button>
+      </div>
+    </div>
+    <script>
+    var _spType='';
+    function openSidePicker(type,label){
+      _spType=type;
+      document.getElementById('sidePickerTitle').textContent='Add '+label;
+      document.getElementById('sidePickerOverlay').style.display='flex';
+      document.getElementById('sidePickerSheet').style.display='block';
+    }
+    function closeSidePicker(){
+      document.getElementById('sidePickerOverlay').style.display='none';
+      document.getElementById('sidePickerSheet').style.display='none';
+    }
+    function goAdd(side){
+      window.location='/community/family/create/?type='+_spType+'&side='+side;
+    }
+    </script>
     {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">👨‍👩‍👧</span>
