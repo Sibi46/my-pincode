@@ -3,6 +3,9 @@
 {% block content %}
 <style>
 nav.navbar{display:none!important}
+.dditem{padding:11px 16px;font-size:13px;font-weight:600;color:#0F172A;cursor:pointer;border-bottom:1px solid #F1F5F9}
+.dditem:last-child{border-bottom:none}
+.dditem:hover{background:#F0F9FF;color:#1D4ED8}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;min-height:100vh}
 
@@ -371,15 +374,18 @@ function shareFamily(){
           {% endif %}
           {% endfor %}
 
-          <!-- My side add buttons -->
-          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
-            <button onclick="goAdd('grandfather','husband')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#92400E;cursor:pointer;width:100%">＋ 👴 Grandfather</button>
-            <button onclick="goAdd('grandmother','husband')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#9D174D;cursor:pointer;width:100%">＋ 👵 Grandmother</button>
-            <button onclick="goAdd('brother','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 👱 Brother</button>
-            <button onclick="goAdd('sister','husband')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 👱‍♀️ Sister</button>
-            <button onclick="goAdd('uncle','husband')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#C2410C;cursor:pointer;width:100%">＋ 🧔 Uncle</button>
-            <button onclick="goAdd('aunt','husband')" style="display:flex;align-items:center;gap:5px;background:#F0FDF4;border:1.5px dashed #BBF7D0;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#166534;cursor:pointer;width:100%">＋ 👩‍🦳 Aunt</button>
-            <button onclick="goAdd('cousin','husband')" style="display:flex;align-items:center;gap:5px;background:#F5F3FF;border:1.5px dashed #DDD6FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#6D28D9;cursor:pointer;width:100%">＋ 🧑 Cousin</button>
+          <!-- My side add dropdown -->
+          <div style="position:relative;margin-top:8px">
+            <button onclick="toggleDrop('drop-h')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer">＋ Add Relative ▾</button>
+            <div id="drop-h" style="display:none;position:absolute;z-index:200;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);overflow:hidden">
+              <div onclick="goAdd('grandfather','husband')" class="dditem">👴 Grandfather</div>
+              <div onclick="goAdd('grandmother','husband')" class="dditem">👵 Grandmother</div>
+              <div onclick="goAdd('brother','husband')" class="dditem">👱 Brother</div>
+              <div onclick="goAdd('sister','husband')" class="dditem">👱‍♀️ Sister</div>
+              <div onclick="goAdd('uncle','husband')" class="dditem">🧔 Uncle</div>
+              <div onclick="goAdd('aunt','husband')" class="dditem">👩‍🦳 Aunt</div>
+              <div onclick="goAdd('cousin','husband')" class="dditem">🧑 Cousin</div>
+            </div>
           </div>
         </div>
       </div>
@@ -419,15 +425,18 @@ function shareFamily(){
           {% endif %}
           {% endfor %}
 
-          <!-- Partner side add buttons -->
-          <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
-            <button onclick="goAdd('grandfather','wife')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#92400E;cursor:pointer;width:100%">＋ 👴 Grandfather</button>
-            <button onclick="goAdd('grandmother','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#9D174D;cursor:pointer;width:100%">＋ 👵 Grandmother</button>
-            <button onclick="goAdd('brother','wife')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 👱 Brother</button>
-            <button onclick="goAdd('sister','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 👱‍♀️ Sister</button>
-            <button onclick="goAdd('uncle','wife')" style="display:flex;align-items:center;gap:5px;background:#FFF7ED;border:1.5px dashed #FED7AA;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#C2410C;cursor:pointer;width:100%">＋ 🧔 Uncle</button>
-            <button onclick="goAdd('aunt','wife')" style="display:flex;align-items:center;gap:5px;background:#F0FDF4;border:1.5px dashed #BBF7D0;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#166534;cursor:pointer;width:100%">＋ 👩‍🦳 Aunt</button>
-            <button onclick="goAdd('cousin','wife')" style="display:flex;align-items:center;gap:5px;background:#F5F3FF;border:1.5px dashed #DDD6FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#6D28D9;cursor:pointer;width:100%">＋ 🧑 Cousin</button>
+          <!-- Partner side add dropdown -->
+          <div style="position:relative;margin-top:8px">
+            <button onclick="toggleDrop('drop-w')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer">＋ Add Relative ▾</button>
+            <div id="drop-w" style="display:none;position:absolute;z-index:200;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);overflow:hidden">
+              <div onclick="goAdd('grandfather','wife')" class="dditem">👴 Grandfather</div>
+              <div onclick="goAdd('grandmother','wife')" class="dditem">👵 Grandmother</div>
+              <div onclick="goAdd('brother','wife')" class="dditem">👱 Brother</div>
+              <div onclick="goAdd('sister','wife')" class="dditem">👱‍♀️ Sister</div>
+              <div onclick="goAdd('uncle','wife')" class="dditem">🧔 Uncle</div>
+              <div onclick="goAdd('aunt','wife')" class="dditem">👩‍🦳 Aunt</div>
+              <div onclick="goAdd('cousin','wife')" class="dditem">🧑 Cousin</div>
+            </div>
           </div>
         </div>
       </div>
@@ -435,6 +444,17 @@ function shareFamily(){
     </div><!-- /grid -->
 
     <script>
+    function toggleDrop(id){
+      const el = document.getElementById(id);
+      const isOpen = el.style.display === 'block';
+      document.querySelectorAll('[id^="drop-"]').forEach(d => d.style.display='none');
+      el.style.display = isOpen ? 'none' : 'block';
+    }
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('[id^="drop-"]') && !e.target.closest('button[onclick^="toggleDrop"]')) {
+        document.querySelectorAll('[id^="drop-"]').forEach(d => d.style.display='none');
+      }
+    });
     function goAdd(type, side){
       window.location='/community/family/create/?type='+type+'&side='+side;
     }
