@@ -105,7 +105,7 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 
 <!-- TOP BAR -->
 <div class="fh-topbar">
-  <a href="/community/" class="fh-back">&#8592;</a>
+  <a href="/" style="flex-shrink:0;display:flex;align-items:center"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:34px;width:auto;max-width:110px;object-fit:contain;border-radius:6px"></a>
   <div class="fh-topbar-title">Family <span>Circle</span></div>
   {% if request.user.is_authenticated and setup and setup.setup_done %}
   <button onclick="shareFamily()" class="fh-topbar-btn" style="background:#F0FDF4;color:#16A34A;border:1.5px solid #BBF7D0">🔗 Share</button>

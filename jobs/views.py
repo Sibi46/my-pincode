@@ -148,6 +148,8 @@ def register_process(request):
         return redirect('register')
 
     user_type  = request.POST.get('user_type', '').strip()
+    if user_type not in User.EMPLOYER_TYPES and user_type not in ('employee', 'freelancer'):
+        user_type = 'individual'
     password   = request.POST.get('password', '')
     phone      = request.POST.get('phone', '').strip()
     email      = request.POST.get('email', '').strip()
@@ -166,24 +168,35 @@ def register_process(request):
     if not password:
         return err('Password is required.')
 
-    if User.objects.filter(username=username).exists():
-        return err('An account already exists with this phone/email. Please login instead.')
-
-    from .utils import generate_referral_code
-    user = User.objects.create_user(
-        username=username,
-        password=password,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        phone=phone,
-        whatsapp=whatsapp,
-        user_type=user_type,
-        address=address,
-        city=city,
-        pincode=pincode,
-        referral_code=generate_referral_code(),
-    )
+    existing_user = User.objects.filter(username=username).first()
+    if existing_user:
+        # If registering a business on an existing account, upgrade and continue
+        if user_type in User.EMPLOYER_TYPES:
+            user = existing_user
+            if not user.check_password(password):
+                user.set_password(password)
+            user.user_type = user_type
+            if first_name: user.first_name = first_name
+            if pincode: user.pincode = pincode
+            user.save()
+        else:
+            return err('An account already exists with this phone. Please login instead.')
+    else:
+        from .utils import generate_referral_code
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            whatsapp=whatsapp,
+            user_type=user_type,
+            address=address,
+            city=city,
+            pincode=pincode,
+            referral_code=generate_referral_code(),
+        )
 
     # Track referral and award signup bonus
     if ref_code:
@@ -203,20 +216,24 @@ def register_process(request):
     )
 
     if user_type in User.EMPLOYER_TYPES:
-        CompanyProfile.objects.create(
+        CompanyProfile.objects.update_or_create(
             user=user,
-            company_name=org_name,
-            industry=request.POST.get('industry', '').strip(),
-            website=request.POST.get('website', '').strip(),
-            company_size=request.POST.get('company_size', '').strip(),
+            defaults=dict(
+                company_name=org_name,
+                industry=request.POST.get('industry', '').strip(),
+                website=request.POST.get('website', '').strip(),
+                company_size=request.POST.get('company_size', '').strip(),
+            )
         )
         if user_type == 'shop':
-            ShopProfile.objects.create(
+            ShopProfile.objects.update_or_create(
                 user=user,
-                shop_name=org_name,
-                shop_type=request.POST.get('shop_type', '').strip(),
-                owner_name=first_name,
-                website=request.POST.get('website', '').strip(),
+                defaults=dict(
+                    shop_name=org_name,
+                    shop_type=request.POST.get('shop_type', '').strip(),
+                    owner_name=first_name,
+                    website=request.POST.get('website', '').strip(),
+                )
             )
     elif user_type in ('employee', 'individual', 'freelancer'):
         JobSeekerProfile.objects.create(
@@ -232,7 +249,7 @@ def register_process(request):
     if user_type in User.EMPLOYER_TYPES:
         redirect_url = '/employer/dashboard/'
     else:
-        redirect_url = '/jobseeker/dashboard/'
+        redirect_url = '/'
 
     if is_ajax:
         return JsonResponse({'success': True, 'redirect': redirect_url})
@@ -268,7 +285,10 @@ def reset_password(request):
     user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
-    redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
+    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
+        redirect_url = '/employer/dashboard/'
+    else:
+        redirect_url = '/'
     return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
@@ -304,7 +324,7 @@ def dashboard(request):
         return redirect('state_admin_dashboard')
     if role == 'district_admin':
         return redirect('district_admin_dashboard')
-    if request.user.user_type in User.EMPLOYER_TYPES:
+    if request.user.user_type in User.EMPLOYER_TYPES or CompanyProfile.objects.filter(user=request.user).exists():
         return redirect('employer_dashboard')
     if request.user.user_type == 'advertiser' or hasattr(request.user, 'advertiser'):
         return redirect('advertiser_dashboard')
@@ -1063,10 +1083,10 @@ def phone_login(request):
            User.objects.filter(business_phone=phone).first()
     if user and user.check_password(password):
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        if user.is_employer():
+        if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
             redirect_url = '/employer/dashboard/'
         else:
-            redirect_url = '/jobseeker/dashboard/'
+            redirect_url = '/'
         return JsonResponse({'success': True, 'redirect': redirect_url})
     return JsonResponse({'success': False, 'error': 'Wrong phone number or password. Try again.'})
 
@@ -1095,7 +1115,7 @@ def quick_register(request):
     if User.objects.filter(phone=phone).exists():
         return JsonResponse({'success': False, 'error': 'This phone number is already registered. Please sign in.'})
 
-    user_type = 'employee' if job_type == 'find' else 'individual_employer'
+    user_type = 'individual'
     username  = phone
     if User.objects.filter(username=username).exists():
         import random
