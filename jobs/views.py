@@ -749,6 +749,12 @@ def employer_profile_save(request):
     user.pincode = p.get('pincode', '').strip()
     user.email   = p.get('email', '').strip()
     user.whatsapp = p.get('whatsapp', '').strip()
+    biz_phone = p.get('business_phone', '').strip()
+    if biz_phone:
+        # Make sure no other user has this business phone
+        User = get_user_model()
+        if not User.objects.filter(business_phone=biz_phone).exclude(pk=user.pk).exists():
+            user.business_phone = biz_phone
     user.save()
     try:
         prof = user.company
@@ -1044,7 +1050,7 @@ def reset_password(request):
 
 
 def phone_login(request):
-    """Login with phone number + password (for returning users)."""
+    """Login with personal phone or business phone + password."""
     if request.method != 'POST':
         return JsonResponse({'success': False})
     import json
@@ -1052,11 +1058,17 @@ def phone_login(request):
     phone    = data.get('phone', '').strip()
     password = data.get('password', '')
     User     = get_user_model()
-    user     = User.objects.filter(phone=phone).first()
+    # Try personal phone first, then business phone
+    user = User.objects.filter(phone=phone).first() or \
+           User.objects.filter(business_phone=phone).first()
     if user and user.check_password(password):
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        return JsonResponse({'success': True, 'redirect': '/'})
-    return JsonResponse({'success': False, 'error': 'Wrong password. Try again.'})
+        if user.is_employer():
+            redirect_url = '/employer/dashboard/'
+        else:
+            redirect_url = '/jobseeker/dashboard/'
+        return JsonResponse({'success': True, 'redirect': redirect_url})
+    return JsonResponse({'success': False, 'error': 'Wrong phone number or password. Try again.'})
 
 
 def quick_register(request):
@@ -1073,8 +1085,6 @@ def quick_register(request):
     collar   = data.get('collar', '')
     password = data.get('password', '').strip()
 
-    if not request.session.get('otp_verified'):
-        return JsonResponse({'success': False, 'error': 'OTP not verified'})
     if not name or not phone or not pincode:
         return JsonResponse({'success': False, 'error': 'Missing required fields'})
     if not password or len(password) < 6:
@@ -1108,9 +1118,8 @@ def quick_register(request):
         profile.save()
 
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    request.session.pop('otp_verified', None)
-
-    return JsonResponse({'success': True, 'redirect': '/'})
+    redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
+    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 # ── SAVE JOB ──────────────────────────────────────────────────────────────────

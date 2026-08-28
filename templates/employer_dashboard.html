@@ -940,6 +940,11 @@
           <div>
             <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:6px"><i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp <span style="font-weight:400;color:#888">(optional)</span></label>
             <input type="tel" name="whatsapp" value="{{ request.user.whatsapp }}" placeholder="10-digit WhatsApp number" maxlength="10" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+            <div style="margin-top:14px">
+              <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:4px">📱 Business Phone <span style="font-weight:400;color:#888">(can use to login)</span></label>
+              <input type="tel" name="business_phone" value="{{ request.user.business_phone }}" placeholder="Shop / company phone number" maxlength="10" style="width:100%;padding:10px 14px;border:1.5px solid #dde1ea;border-radius:8px;font-size:13px;box-sizing:border-box">
+              <div style="font-size:11px;color:#64748B;margin-top:4px">🔐 You can login using this number OR your personal number</div>
+            </div>
           </div>
         </div>
         <button type="submit" style="margin-top:20px;background:#0a66c2;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Profile</button>
