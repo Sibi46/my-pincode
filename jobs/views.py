@@ -2378,6 +2378,9 @@ def super_admin_dashboard(request):
         is_verified=False, is_active=True
     ).select_related('created_by', 'category').order_by('created_at')[:10]
 
+    # Offers pending
+    pending_offers_count = LocalOffer.objects.filter(is_active=False).count()
+
     return render(request, 'super_admin_dashboard.html', {
         'total_users': total_users, 'total_jobs': total_jobs, 'active_jobs': active_jobs,
         'total_apps': total_apps, 'total_states': total_states, 'total_districts': total_districts,
@@ -2397,6 +2400,7 @@ def super_admin_dashboard(request):
         'pending_voucher_slots': pending_voucher_slots,
         'community_pending_count': community_pending_count,
         'community_pending': community_pending,
+        'pending_offers_count': pending_offers_count,
     })
 
 
