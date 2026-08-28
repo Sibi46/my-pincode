@@ -134,16 +134,14 @@ function sendOTP(prefix) {
         return;
     }
 
-    var btn    = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
-    var _errCandidate = document.getElementById(prefix + 'PhoneError');
-    // Only use the inline error div if it's inside a currently visible step
-    var errDiv = (_errCandidate && !_errCandidate.closest('.reg-step.hidden')) ? _errCandidate : null;
+    var btn = phoneInput.closest('.otp-input-row').querySelector('.otp-btn');
+    var errDiv = document.getElementById(prefix + 'PhoneError');
     if (errDiv) errDiv.style.display = 'none';
 
     btn.textContent = 'Checking…';
     btn.disabled = true;
 
-    // Check if phone already registered before sending OTP
+    // Check if phone already registered
     fetch('/api/check-phone/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
@@ -152,7 +150,8 @@ function sendOTP(prefix) {
     .then(function(r) { return r.json(); })
     .then(function(d) {
         if (d.exists) {
-            btn.textContent = 'Send OTP';
+            // Already registered — show inline password sign-in
+            btn.textContent = 'Continue';
             btn.disabled = false;
             if (errDiv) {
                 errDiv.style.display = 'flex';
@@ -162,48 +161,25 @@ function sendOTP(prefix) {
             }
             return;
         }
-        // Not registered — send OTP
-        btn.textContent = 'Sending…';
-        fetch('/api/send-otp/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': regGetCsrf() },
-            body: JSON.stringify({ phone: phone })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-            if (d.success) {
-                btn.textContent = 'Sent ✓';
-                btn.classList.add('sent');
-                var otpBox = document.getElementById(prefix + 'OtpBox');
-                if (otpBox) {
-                    otpBox.classList.remove('hidden');
-                    var first = otpBox.querySelector('.otp-digit');
-                    if (first) setTimeout(function(){ first.focus(); }, 100);
-                }
-                setTimeout(function() {
-                    btn.textContent = 'Resend';
-                    btn.classList.remove('sent');
-                    btn.disabled = false;
-                }, 30000);
-            } else if (d.already_registered) {
-                btn.textContent = 'Send OTP';
-                btn.disabled = true;
-                if (errDiv) { errDiv.style.display = 'flex'; }
-                else { alert(d.error); window.location.href = '/login/'; }
-            } else {
-                btn.textContent = 'Send OTP';
-                btn.disabled = false;
-                alert(d.error || 'Failed to send OTP. Please try again.');
-            }
-        })
-        .catch(function() {
-            btn.textContent = 'Send OTP';
-            btn.disabled = false;
-            alert('Network error. Please check your connection and try again.');
-        });
+        // New number — skip OTP, go directly to details/password step
+        btn.textContent = 'Continue ✓';
+        btn.classList.add('sent');
+        btn.disabled = true;
+        var sub1 = document.getElementById(prefix + '-substep1');
+        var sub2 = document.getElementById(prefix + '-substep2');
+        if (sub1 && sub2) {
+            sub1.classList.add('hidden');
+            sub2.classList.remove('hidden');
+        } else {
+            // Fallback: hide otp box, show verified badge
+            var otpBox = document.getElementById(prefix + 'OtpBox');
+            if (otpBox) otpBox.classList.add('hidden');
+            var badge = document.getElementById(prefix + 'Verified');
+            if (badge) badge.classList.remove('hidden');
+        }
     })
     .catch(function() {
-        btn.textContent = 'Send OTP';
+        btn.textContent = 'Continue';
         btn.disabled = false;
         alert('Network error. Please check your connection and try again.');
     });
