@@ -30,6 +30,8 @@ textarea.op-input{min-height:90px;resize:vertical}
 
 /* CATEGORY CHIPS */
 .op-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.valid-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#374151;background:#F8FAFC;transition:.2s;display:block}
+.valid-chip.selected{border-color:#FF5722;background:#FFF3F0;color:#FF5722}
 .op-cat-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.2s;background:#F8FAFC}
 .op-cat-chip input{display:none}
 .op-cat-chip.selected{border-color:#FF5722;background:#FFF3F0}
@@ -102,8 +104,28 @@ textarea.op-input{min-height:90px;resize:vertical}
   </div>
   <div class="op-row">
     <div class="op-field">
-      <label class="op-label">Valid Until</label>
-      <input class="op-input" type="date" name="valid_until">
+      <label class="op-label">📅 Offer Valid</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="validChips">
+          <label class="valid-chip" onclick="setValid(this,'week')">
+            <input type="radio" name="valid_type" value="week" style="display:none">
+            📅 This Week
+          </label>
+          <label class="valid-chip" onclick="setValid(this,'month')">
+            <input type="radio" name="valid_type" value="month" style="display:none">
+            🗓 This Month
+          </label>
+          <label class="valid-chip" onclick="setValid(this,'weekdays')">
+            <input type="radio" name="valid_type" value="weekdays" style="display:none">
+            💼 Mon – Fri Only
+          </label>
+          <label class="valid-chip" onclick="setValid(this,'specific')">
+            <input type="radio" name="valid_type" value="specific" style="display:none">
+            📌 Specific Date
+          </label>
+        </div>
+        <input class="op-input" type="date" name="valid_until" id="specificDate" style="display:none;margin-top:4px">
+      </div>
     </div>
     <div class="op-field">
       <label class="op-label">Description</label>
@@ -183,6 +205,35 @@ textarea.op-input{min-height:90px;resize:vertical}
 </div>
 
 <script>
+function setValid(el, val) {
+  document.querySelectorAll('.valid-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const sd = document.getElementById('specificDate');
+  if (val === 'specific') {
+    sd.style.display = 'block';
+    sd.required = true;
+  } else {
+    sd.style.display = 'none';
+    sd.required = false;
+    // compute date and store in hidden field
+    const today = new Date();
+    let d;
+    if (val === 'week') {
+      const day = today.getDay(); // 0=Sun
+      const daysToEnd = (7 - day) % 7 || 7; // days until next Saturday
+      d = new Date(today); d.setDate(today.getDate() + daysToEnd);
+    } else if (val === 'month') {
+      d = new Date(today.getFullYear(), today.getMonth() + 1, 0); // last day of month
+    } else if (val === 'weekdays') {
+      // valid until next Friday
+      const day = today.getDay();
+      const daysToFri = day <= 5 ? 5 - day : 6;
+      d = new Date(today); d.setDate(today.getDate() + daysToFri);
+    }
+    if (d) sd.value = d.toISOString().split('T')[0];
+    sd.style.display = 'none';
+  }
+}
 function selectCat(el, val) {
   document.querySelectorAll('.op-cat-chip').forEach(function(c){ c.classList.remove('selected'); });
   el.classList.add('selected');
