@@ -1174,7 +1174,7 @@ class LocalOffer(models.Model):
     business_name  = models.CharField(max_length=150)
     title          = models.CharField(max_length=200)
     discount_text  = models.CharField(max_length=60, help_text='e.g. 20% OFF, Buy 1 Get 1, Free Delivery')
-    category       = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    category       = models.CharField(max_length=50, default='other')
     image          = models.ImageField(upload_to='offers/', blank=True, null=True)
     description    = models.TextField(blank=True)
     valid_until    = models.DateField(null=True, blank=True)
