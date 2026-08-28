@@ -3346,3 +3346,62 @@ def toggle_spin_gift(request, pk):
     gift.is_active = not gift.is_active
     gift.save()
     return redirect('manage_spin_gifts')
+
+
+# ── SUPER ADMIN: OFFERS ────────────────────────────────────────────────────────
+@super_admin_required
+def manage_offers(request):
+    if request.method == 'POST':
+        action = request.POST.get('action', 'add')
+        if action == 'approve':
+            pk = request.POST.get('pk')
+            offer = get_object_or_404(LocalOffer, pk=pk)
+            offer.is_active = not offer.is_active
+            offer.save()
+            return redirect('manage_offers')
+        if action == 'delete':
+            pk = request.POST.get('pk')
+            LocalOffer.objects.filter(pk=pk).delete()
+            return redirect('manage_offers')
+        # action == 'add'
+        obj = LocalOffer(
+            business_name = request.POST.get('business_name', '').strip(),
+            title         = request.POST.get('title', '').strip(),
+            discount_text = request.POST.get('discount_text', '').strip(),
+            category      = request.POST.get('category', 'other'),
+            description   = request.POST.get('description', '').strip(),
+            is_flash      = 'is_flash' in request.POST,
+            is_active     = True,
+        )
+        phone = request.POST.get('contact_phone', '').strip()
+        if phone:
+            obj.contact_phone = phone
+            obj.link_url = f"https://wa.me/91{phone}"
+        if request.POST.get('valid_until'):
+            obj.valid_until = request.POST.get('valid_until')
+        if request.FILES.get('image'):
+            obj.image = request.FILES['image']
+        obj.save()
+        return redirect('manage_offers')
+
+    pending = LocalOffer.objects.filter(is_active=False).order_by('-created_at')
+    active  = LocalOffer.objects.filter(is_active=True).order_by('-created_at')
+    return render(request, 'super_admin_offers.html', {
+        'pending': pending,
+        'active':  active,
+        'categories': LocalOffer.CATEGORY_CHOICES,
+    })
+
+
+@super_admin_required
+def offer_approve(request, pk):
+    offer = get_object_or_404(LocalOffer, pk=pk)
+    offer.is_active = not offer.is_active
+    offer.save()
+    return redirect('manage_offers')
+
+
+@super_admin_required
+def offer_delete(request, pk):
+    LocalOffer.objects.filter(pk=pk).delete()
+    return redirect('manage_offers')
