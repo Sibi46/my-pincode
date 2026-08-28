@@ -1178,6 +1178,7 @@ class LocalOffer(models.Model):
     image          = models.ImageField(upload_to='offers/', blank=True, null=True)
     description    = models.TextField(blank=True)
     valid_until    = models.DateField(null=True, blank=True)
+    valid_days     = models.CharField(max_length=50, blank=True, help_text='Comma-separated days e.g. Mon,Tue for recurring weekly offers')
     contact_phone  = models.CharField(max_length=15, blank=True)
     link_url       = models.URLField(blank=True)
     is_flash       = models.BooleanField(default=False, help_text='Show in Flash Deals with countdown')

@@ -174,7 +174,7 @@
           <td><span class="badge badge-active">{{ o.discount_text }}</span></td>
           <td>{{ o.get_category_display }}</td>
           <td>{% if o.is_flash %}<span class="badge badge-flash">🔥</span>{% else %}—{% endif %}</td>
-          <td>{{ o.valid_until|date:"d M Y"|default:"—" }}</td>
+          <td>{% if o.valid_days %}🔁 {{ o.valid_days }}{% elif o.valid_until %}{{ o.valid_until|date:"d M Y" }}{% else %}—{% endif %}</td>
           <td style="white-space:nowrap;display:flex;gap:6px">
             <form method="post" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="approve"><input type="hidden" name="pk" value="{{ o.pk }}"><button type="submit" class="btn-toggle">⏸ Deactivate</button></form>
             <form method="post" style="display:inline" onsubmit="return confirm('Delete this offer?')">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="pk" value="{{ o.pk }}"><button type="submit" class="btn-del">🗑</button></form>

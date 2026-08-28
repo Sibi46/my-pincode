@@ -1363,6 +1363,9 @@ def offer_post(request):
         valid_until = request.POST.get('valid_until', '').strip()
         if valid_until:
             obj.valid_until = valid_until
+        valid_days = request.POST.get('valid_days', '').strip()
+        if valid_days:
+            obj.valid_days = valid_days
         if request.FILES.get('image'):
             obj.image = request.FILES['image']
         obj.save()

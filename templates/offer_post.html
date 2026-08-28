@@ -32,6 +32,8 @@ textarea.op-input{min-height:90px;resize:vertical}
 .op-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .valid-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#374151;background:#F8FAFC;transition:.2s;display:block}
 .valid-chip.selected{border-color:#FF5722;background:#FFF3F0;color:#FF5722}
+.day-chip{border:2px solid #E2E8F0;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:700;color:#374151;background:#F8FAFC;cursor:pointer;transition:.2s;user-select:none}
+.day-chip.on{border-color:#FF5722;background:#FF5722;color:#fff}
 .op-cat-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.2s;background:#F8FAFC}
 .op-cat-chip input{display:none}
 .op-cat-chip.selected{border-color:#FF5722;background:#FFF3F0}
@@ -123,8 +125,16 @@ textarea.op-input{min-height:90px;resize:vertical}
             <input type="radio" name="valid_type" value="specific" style="display:none">
             📌 Specific Date
           </label>
+          <label class="valid-chip" onclick="setValid(this,'repeat')" style="grid-column:1/-1">
+            <input type="radio" name="valid_type" value="repeat" style="display:none">
+            🔁 Repeat Weekly (choose days)
+          </label>
         </div>
         <input class="op-input" type="date" name="valid_until" id="specificDate" style="display:none;margin-top:4px">
+        <div id="dayPicker" style="display:none;margin-top:8px">
+          <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:6px">Select days this offer repeats every week:</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px" id="dayBtns"></div>
+        </div>
       </div>
     </div>
     <div class="op-field">
@@ -200,39 +210,56 @@ textarea.op-input{min-height:90px;resize:vertical}
   </div>
 </div>
 
-<button type="submit" class="op-submit">🔥 Submit Offer</button>
+<input type="hidden" name="valid_days" id="validDaysHidden">
+<button type="submit" class="op-submit" onclick="collectDays()">🔥 Submit Offer</button>
 </form>
 </div>
 
 <script>
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+(function buildDayBtns() {
+  const c = document.getElementById('dayBtns');
+  if (!c) return;
+  DAYS.forEach(d => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'day-chip';
+    btn.textContent = d;
+    btn.dataset.day = d;
+    btn.onclick = () => btn.classList.toggle('on');
+    c.appendChild(btn);
+  });
+})();
+
 function setValid(el, val) {
   document.querySelectorAll('.valid-chip').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   const sd = document.getElementById('specificDate');
+  const dp = document.getElementById('dayPicker');
+  sd.style.display = 'none'; sd.required = false;
+  dp.style.display = 'none';
   if (val === 'specific') {
-    sd.style.display = 'block';
-    sd.required = true;
+    sd.style.display = 'block'; sd.required = true;
+  } else if (val === 'repeat') {
+    dp.style.display = 'block';
   } else {
-    sd.style.display = 'none';
-    sd.required = false;
-    // compute date and store in hidden field
-    const today = new Date();
-    let d;
+    const today = new Date(); let d;
     if (val === 'week') {
-      const day = today.getDay(); // 0=Sun
-      const daysToEnd = (7 - day) % 7 || 7; // days until next Saturday
-      d = new Date(today); d.setDate(today.getDate() + daysToEnd);
+      const diff = (7 - today.getDay()) % 7 || 7;
+      d = new Date(today); d.setDate(today.getDate() + diff);
     } else if (val === 'month') {
-      d = new Date(today.getFullYear(), today.getMonth() + 1, 0); // last day of month
+      d = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     } else if (val === 'weekdays') {
-      // valid until next Friday
       const day = today.getDay();
       const daysToFri = day <= 5 ? 5 - day : 6;
       d = new Date(today); d.setDate(today.getDate() + daysToFri);
     }
-    if (d) sd.value = d.toISOString().split('T')[0];
-    sd.style.display = 'none';
+    if (d) { sd.value = d.toISOString().split('T')[0]; }
   }
+}
+function collectDays() {
+  const selected = [...document.querySelectorAll('#dayBtns .day-chip.on')].map(b => b.dataset.day);
+  document.getElementById('validDaysHidden').value = selected.join(',');
 }
 function selectCat(el, val) {
   document.querySelectorAll('.op-cat-chip').forEach(function(c){ c.classList.remove('selected'); });
