@@ -58,7 +58,7 @@
         {% endif %}
         <div class="comm-card-cover-overlay"></div>
         {% if c.logo %}<img src="{{ c.logo.url }}" alt="{{ c.name }}" class="comm-card-logo">
-        {% else %}<div class="comm-card-logo-wrap">{{ c.name|first|upper }}</div>{% endif %}
+        {% else %}<div class="comm-card-logo-wrap" style="background:{{ c.name|length|divisibleby:5|yesno:'linear-gradient(135deg,#6366f1,#8b5cf6),linear-gradient(135deg,#0ea5e9,#6366f1)' }}"><span class="logo-initials">{{ c.name|slice:":2"|upper }}</span><span class="logo-dot"></span></div>{% endif %}
         {% if c.category %}<span class="comm-card-cat-badge">{{ c.category.icon }} {{ c.category.name }}</span>{% endif %}
       </div>
       <div class="comm-card-body">
