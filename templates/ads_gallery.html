@@ -126,6 +126,106 @@
 </script>
 {% endif %}
 
+<!-- ═══════════════════════════════════════
+     SWIGGY-STYLE OFFERS SECTION
+═══════════════════════════════════════ -->
+{% if flash_offers or normal_offers %}
+<div style="background:#fff;padding:0 0 4px">
+
+  <!-- Section header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px">
+    <div style="font-size:17px;font-weight:900;color:#0F172A">🔥 Best Offers Near You</div>
+    <div style="font-size:11px;color:#64748B;font-weight:600">{{ flash_offers.count|add:normal_offers.count }} offers</div>
+  </div>
+
+  <!-- Category filter chips -->
+  <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px 12px;-webkit-overflow-scrolling:touch">
+    <a href="/advertise/" style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;border:2px solid {% if not active_cat %}#FF5722{% else %}#E2E8F0{% endif %};background:{% if not active_cat %}#FF5722{% else %}#F8FAFC{% endif %};color:{% if not active_cat %}#fff{% else %}#64748B{% endif %}">🏷️ All</a>
+    {% for val,label in offer_categories %}
+    <a href="/advertise/?cat={{ val }}" style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;border:2px solid {% if active_cat == val %}#FF5722{% else %}#E2E8F0{% endif %};background:{% if active_cat == val %}#FF5722{% else %}#F8FAFC{% endif %};color:{% if active_cat == val %}#fff{% else %}#64748B{% endif %}">
+      {% if val == 'food' %}🍕{% elif val == 'salon' %}💈{% elif val == 'health' %}🏥{% elif val == 'shop' %}🛒{% elif val == 'services' %}🔧{% else %}🎁{% endif %} {{ label }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Flash Deals -->
+  {% if flash_offers %}
+  <div style="background:linear-gradient(135deg,#FF5722,#FF9800);padding:12px 16px 6px;margin-bottom:2px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <span style="font-size:14px;font-weight:900;color:#fff">⚡ Flash Deals</span>
+      <span id="flashTimer" style="background:rgba(0,0,0,.25);color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px;font-variant-numeric:tabular-nums">Loading…</span>
+    </div>
+    <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;-webkit-overflow-scrolling:touch">
+      {% for o in flash_offers %}
+      <div style="flex-shrink:0;width:180px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.15)">
+        <div style="position:relative;height:90px;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);display:flex;align-items:center;justify-content:center;font-size:2.5rem">
+          {% if o.image %}<img src="{{ o.image.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}
+          {% if o.category == 'food' %}🍕{% elif o.category == 'salon' %}💈{% elif o.category == 'health' %}🏥{% elif o.category == 'shop' %}🛒{% elif o.category == 'services' %}🔧{% else %}🎁{% endif %}
+          {% endif %}
+          <div style="position:absolute;top:8px;right:8px;background:#FF5722;color:#fff;font-size:10px;font-weight:900;padding:3px 8px;border-radius:8px;white-space:nowrap">{{ o.discount_text }}</div>
+        </div>
+        <div style="padding:10px 12px 12px">
+          <div style="font-size:12px;font-weight:800;color:#0F172A;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.business_name }}</div>
+          <div style="font-size:11px;color:#64748B;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.title }}</div>
+          {% if o.valid_until %}<div style="font-size:9px;color:#EF4444;font-weight:700;margin-bottom:8px">Valid till {{ o.valid_until|date:"d M" }}</div>{% endif %}
+          <a href="{% if o.link_url %}{{ o.link_url }}{% else %}#{% endif %}" style="display:block;text-align:center;background:#FF5722;color:#fff;border-radius:8px;padding:6px;font-size:11px;font-weight:800;text-decoration:none">⚡ Grab Deal</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Regular Offers grid -->
+  {% if normal_offers %}
+  <div style="padding:14px 16px 8px">
+    <div style="font-size:14px;font-weight:800;color:#0F172A;margin-bottom:12px">🏷️ All Offers</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      {% for o in normal_offers %}
+      <a href="{% if o.link_url %}{{ o.link_url }}{% else %}#{% endif %}" style="background:#fff;border-radius:16px;overflow:hidden;border:1.5px solid #F1F5F9;box-shadow:0 2px 10px rgba(0,0,0,.06);text-decoration:none;display:block;transition:.2s">
+        <!-- Image / emoji top -->
+        <div style="position:relative;height:80px;background:{% if o.category == 'food' %}linear-gradient(135deg,#FFF3E0,#FFE0B2){% elif o.category == 'salon' %}linear-gradient(135deg,#FCE4EC,#F8BBD9){% elif o.category == 'health' %}linear-gradient(135deg,#E3F2FD,#BBDEFB){% elif o.category == 'shop' %}linear-gradient(135deg,#E8F5E9,#C8E6C9){% elif o.category == 'services' %}linear-gradient(135deg,#EDE7F6,#D1C4E9){% else %}linear-gradient(135deg,#F3E5F5,#E1BEE7){% endif %};display:flex;align-items:center;justify-content:center;font-size:2rem">
+          {% if o.image %}<img src="{{ o.image.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}
+          {% if o.category == 'food' %}🍕{% elif o.category == 'salon' %}💈{% elif o.category == 'health' %}🏥{% elif o.category == 'shop' %}🛒{% elif o.category == 'services' %}🔧{% else %}🎁{% endif %}
+          {% endif %}
+          <!-- Discount badge -->
+          <div style="position:absolute;top:7px;left:7px;background:#FF5722;color:#fff;font-size:9px;font-weight:900;padding:3px 8px;border-radius:8px;white-space:nowrap">{{ o.discount_text }}</div>
+          <!-- Category label -->
+          <div style="position:absolute;top:7px;right:7px;background:rgba(0,0,0,.35);color:#fff;font-size:8px;font-weight:700;padding:2px 6px;border-radius:6px">{{ o.get_category_display }}</div>
+        </div>
+        <div style="padding:10px 11px 12px">
+          <div style="font-size:12px;font-weight:800;color:#0F172A;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.business_name }}</div>
+          <div style="font-size:10px;color:#64748B;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ o.title }}</div>
+          {% if o.valid_until %}<div style="font-size:9px;color:#EF4444;font-weight:700;margin-bottom:8px">⏰ Valid till {{ o.valid_until|date:"d M Y" }}</div>{% endif %}
+          <div style="background:#FF5722;color:#fff;border-radius:8px;padding:6px;font-size:11px;font-weight:800;text-align:center">Grab Deal →</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+<script>
+(function(){
+  function tick(){
+    var now = new Date();
+    var end = new Date(now);
+    end.setHours(23,59,59,0);
+    var diff = Math.max(0, Math.floor((end - now)/1000));
+    var h = String(Math.floor(diff/3600)).padStart(2,'0');
+    var m = String(Math.floor((diff%3600)/60)).padStart(2,'0');
+    var s = String(diff%60).padStart(2,'0');
+    var el = document.getElementById('flashTimer');
+    if(el) el.textContent = '⏰ Ends in ' + h + ':' + m + ':' + s;
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+
 <!-- Advertisement Cards -->
 <div class="gal-section">
   {% if ads %}

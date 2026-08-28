@@ -14,7 +14,7 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      UserNotification, SavedCandidate, Wallet, WalletTransaction,
                      EmployerSubscription, BillingRecord,
                      PointsWallet, PointsTransaction, Referral,
-                     SpinGift, UserSpin)
+                     SpinGift, UserSpin, LocalOffer)
 
 User = get_user_model()
 
@@ -1327,9 +1327,19 @@ def ads_gallery(request):
     advertiser_banners = Advertiser.objects.filter(
         status='approved', banner_image__isnull=False
     ).exclude(banner_image='')
+    cat = request.GET.get('cat', '')
+    offers_qs = LocalOffer.objects.filter(is_active=True)
+    if cat:
+        offers_qs = offers_qs.filter(category=cat)
+    flash_offers  = offers_qs.filter(is_flash=True)
+    normal_offers = offers_qs.filter(is_flash=False)
     return render(request, 'ads_gallery.html', {
-        'ads': ads,
+        'ads':               ads,
         'advertiser_banners': advertiser_banners,
+        'flash_offers':      flash_offers,
+        'normal_offers':     normal_offers,
+        'active_cat':        cat,
+        'offer_categories':  LocalOffer.CATEGORY_CHOICES,
     })
 
 

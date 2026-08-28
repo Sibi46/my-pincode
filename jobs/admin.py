@@ -5,7 +5,7 @@ from .models import (User, CompanyProfile, ShopProfile, JobSeekerProfile,
                      Message, OfferLetter, Advertiser, AdPackage, Advertisement, AdPayment,
                      State, District, PinCode, AdminProfile, Industry, JobRole,
                      PaymentPlan, Discount, Complaint, SystemNotification,
-                     SpinGift, UserSpin)
+                     SpinGift, UserSpin, LocalOffer)
 
 
 @admin.register(User)
@@ -246,3 +246,11 @@ class UserSpinAdmin(admin.ModelAdmin):
     list_display  = ('user', 'date', 'won', 'gift', 'code_shown', 'spun_at')
     list_filter   = ('won', 'date')
     search_fields = ('user__username',)
+
+
+@admin.register(LocalOffer)
+class LocalOfferAdmin(admin.ModelAdmin):
+    list_display   = ('business_name', 'title', 'discount_text', 'category', 'is_flash', 'is_active', 'valid_until')
+    list_filter    = ('category', 'is_flash', 'is_active')
+    search_fields  = ('business_name', 'title')
+    list_editable  = ('is_active', 'is_flash')

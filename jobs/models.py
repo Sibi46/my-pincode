@@ -1160,3 +1160,31 @@ class UserSpin(models.Model):
 
     def __str__(self):
         return f"{self.user} {self.date} {'WIN' if self.won else 'LOSE'}"
+
+
+class LocalOffer(models.Model):
+    CATEGORY_CHOICES = [
+        ('food',     'Food & Drinks'),
+        ('salon',    'Salon & Beauty'),
+        ('health',   'Health & Pharmacy'),
+        ('shop',     'Shopping'),
+        ('services', 'Services'),
+        ('other',    'Other'),
+    ]
+    business_name  = models.CharField(max_length=150)
+    title          = models.CharField(max_length=200)
+    discount_text  = models.CharField(max_length=60, help_text='e.g. 20% OFF, Buy 1 Get 1, Free Delivery')
+    category       = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    image          = models.ImageField(upload_to='offers/', blank=True, null=True)
+    description    = models.TextField(blank=True)
+    valid_until    = models.DateField(null=True, blank=True)
+    link_url       = models.URLField(blank=True)
+    is_flash       = models.BooleanField(default=False, help_text='Show in Flash Deals with countdown')
+    is_active      = models.BooleanField(default=True)
+    created_at     = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.business_name} – {self.discount_text}"
