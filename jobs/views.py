@@ -1343,8 +1343,14 @@ def ads_gallery(request):
     })
 
 
+@login_required
 def offer_post(request):
-    """Public form — anyone can submit an offer (saved as inactive, admin approves)."""
+    """Only registered employers/companies can post offers."""
+    user = request.user
+    if not user.is_employer():
+        from django.contrib import messages
+        messages.error(request, 'Only registered companies can post offers. Please register as an employer.')
+        return redirect('/register/')
     if request.method == 'POST':
         phone = request.POST.get('contact_phone', '').strip().replace(' ', '')
         # Build WhatsApp link from phone number

@@ -20,7 +20,7 @@ PUBLIC_PREFIXES = [
     '/vouchers/v/',               # voucher card share link
     '/jobs/',                     # browse jobs
     '/advertise/',
-    '/offers/',                # browse ads gallery
+    '/offers/post/success/',
     '/community/',                # community hub (read-only browsing)
     '/community/school-corner/',  # school pages
     '/community/school-kids/',
