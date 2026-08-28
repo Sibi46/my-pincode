@@ -1118,8 +1118,7 @@ def quick_register(request):
         profile.save()
 
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
-    return JsonResponse({'success': True, 'redirect': redirect_url})
+    return JsonResponse({'success': True, 'redirect': '/'})
 
 
 # ── SAVE JOB ──────────────────────────────────────────────────────────────────
