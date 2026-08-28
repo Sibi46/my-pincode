@@ -82,9 +82,9 @@ textarea.op-input{min-height:90px;resize:vertical}
     <input class="op-input" type="text" name="business_name" placeholder="e.g. Sri Murugan Hotel" required>
   </div>
   <div class="op-field">
-    <label class="op-label">Contact / WhatsApp Link <span style="color:#94A3B8;font-weight:400">(optional)</span></label>
-    <input class="op-input" type="url" name="link_url" placeholder="https://wa.me/91XXXXXXXXXX or website URL">
-    <div class="op-hint">Customers will be taken here when they tap "Grab Deal"</div>
+    <label class="op-label">WhatsApp / Contact Number <span style="color:#94A3B8;font-weight:400">(optional)</span></label>
+    <input class="op-input" type="tel" name="contact_phone" placeholder="e.g. 9876543210" maxlength="15" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+    <div class="op-hint">Customers will be connected via WhatsApp when they tap "Grab Deal"</div>
   </div>
 </div>
 

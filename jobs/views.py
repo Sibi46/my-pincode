@@ -1346,13 +1346,17 @@ def ads_gallery(request):
 def offer_post(request):
     """Public form — anyone can submit an offer (saved as inactive, admin approves)."""
     if request.method == 'POST':
+        phone = request.POST.get('contact_phone', '').strip().replace(' ', '')
+        # Build WhatsApp link from phone number
+        wa_url = f"https://wa.me/91{phone}" if phone else ''
         obj = LocalOffer(
             business_name = request.POST.get('business_name', '').strip(),
             title         = request.POST.get('title', '').strip(),
             discount_text = request.POST.get('discount_text', '').strip(),
             category      = request.POST.get('category', 'other'),
             description   = request.POST.get('description', '').strip(),
-            link_url      = request.POST.get('link_url', '').strip(),
+            contact_phone = phone,
+            link_url      = wa_url,
             is_flash      = request.POST.get('is_flash') == '1',
             is_active     = False,  # pending admin approval
         )
