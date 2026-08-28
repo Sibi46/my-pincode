@@ -69,6 +69,8 @@ urlpatterns = [
     path('advertise/',                        views.ads_gallery,              name='ads_gallery'),
     path('advertise/register/',               views.advertiser_register,      name='advertiser_register'),
     path('advertise/success/',                views.advertiser_register_success, name='advertiser_register_success'),
+    path('offers/post/',                      views.offer_post,               name='offer_post'),
+    path('offers/post/success/',              views.offer_post_success,       name='offer_post_success'),
 
     # Advertiser — Logged-in
     path('advertiser/dashboard/',             views.advertiser_dashboard,     name='advertiser_dashboard'),

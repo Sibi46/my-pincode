@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}Post an Offer – OUR PINCODE{% endblock %}
+{% block content %}
+<style>
+nav.navbar{display:none!important}
+*{box-sizing:border-box}
+body{background:#F8FAFC;font-family:'Inter',system-ui,sans-serif;color:#0F172A}
+
+/* TOP BAR */
+.op-topbar{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #E2E8F0;padding:14px 20px;display:flex;align-items:center;gap:12px}
+.op-topbar a.back{width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:16px;flex-shrink:0}
+.op-topbar h2{font-size:16px;font-weight:800;color:#0F172A;margin:0;flex:1}
+
+.op-wrap{padding:20px 20px 40px;max-width:600px;margin:0 auto}
+
+/* CARD */
+.op-card{background:#fff;border-radius:20px;border:1px solid #E2E8F0;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.op-card-title{font-size:11px;font-weight:700;color:#FF5722;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+
+/* FIELDS */
+.op-field{margin-bottom:16px}
+.op-field:last-child{margin-bottom:0}
+.op-label{display:block;font-size:12px;font-weight:600;color:#374151;margin-bottom:6px}
+.op-input{width:100%;padding:12px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:#F8FAFC;color:#0F172A;transition:border-color .2s}
+.op-input:focus{border-color:#FF5722;background:#fff;box-shadow:0 0 0 3px rgba(255,87,34,.08)}
+select.op-input{cursor:pointer}
+textarea.op-input{min-height:90px;resize:vertical}
+.op-hint{font-size:10px;color:#94A3B8;margin-top:4px}
+.op-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* CATEGORY CHIPS */
+.op-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.op-cat-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.2s;background:#F8FAFC}
+.op-cat-chip input{display:none}
+.op-cat-chip.selected{border-color:#FF5722;background:#FFF3F0}
+.op-cat-chip-icon{font-size:1.4rem;display:block;margin-bottom:4px}
+.op-cat-chip-label{font-size:11px;font-weight:700;color:#374151}
+
+/* FLASH TOGGLE */
+.op-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px;background:#FFF3F0;border-radius:14px;border:1.5px solid #FFCCBC}
+.op-toggle-label{font-size:13px;font-weight:700;color:#BF360C}
+.op-toggle-sub{font-size:11px;color:#EF6C00;margin-top:2px}
+.op-toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.op-toggle input{opacity:0;width:0;height:0}
+.op-toggle-slider{position:absolute;inset:0;background:#E2E8F0;border-radius:24px;cursor:pointer;transition:.3s}
+.op-toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.op-toggle input:checked+.op-toggle-slider{background:#FF5722}
+.op-toggle input:checked+.op-toggle-slider:before{transform:translateX(20px)}
+
+/* PHOTO */
+.op-photo-area{border:2px dashed #FFCCBC;border-radius:16px;padding:24px;text-align:center;cursor:pointer;transition:.2s;position:relative;background:#FFF8F6}
+.op-photo-area:hover{border-color:#FF5722;background:#FFF3F0}
+.op-photo-area input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* SUBMIT */
+.op-submit{width:100%;padding:15px;background:linear-gradient(135deg,#FF5722,#FF9800);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(255,87,34,.35)}
+.op-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,87,34,.45)}
+
+/* NOTICE */
+.op-notice{background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:14px;padding:14px;font-size:12px;color:#92400E;line-height:1.6;margin-bottom:16px}
+</style>
+
+<div class="op-topbar">
+  <a href="/advertise/" class="back">&#8592;</a>
+  <h2>🔥 Post an Offer</h2>
+</div>
+
+<div class="op-wrap">
+
+<div class="op-notice">
+  ⏳ Your offer will be reviewed by our team before it goes live. Usually approved within a few hours.
+</div>
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+
+<!-- Business Info -->
+<div class="op-card">
+  <div class="op-card-title">🏪 Business Details</div>
+  <div class="op-field">
+    <label class="op-label">Business Name *</label>
+    <input class="op-input" type="text" name="business_name" placeholder="e.g. Sri Murugan Hotel" required>
+  </div>
+  <div class="op-field">
+    <label class="op-label">Contact / WhatsApp Link <span style="color:#94A3B8;font-weight:400">(optional)</span></label>
+    <input class="op-input" type="url" name="link_url" placeholder="https://wa.me/91XXXXXXXXXX or website URL">
+    <div class="op-hint">Customers will be taken here when they tap "Grab Deal"</div>
+  </div>
+</div>
+
+<!-- Offer Details -->
+<div class="op-card">
+  <div class="op-card-title">🏷️ Offer Details</div>
+  <div class="op-field">
+    <label class="op-label">Offer Title *</label>
+    <input class="op-input" type="text" name="title" placeholder="e.g. Special Lunch Combo, Weekend Sale" required>
+  </div>
+  <div class="op-field">
+    <label class="op-label">Discount Text * <span style="color:#94A3B8;font-weight:400">(shown as badge)</span></label>
+    <input class="op-input" type="text" name="discount_text" placeholder="e.g. 20% OFF, Buy 1 Get 1, Free Delivery" maxlength="60" required>
+    <div class="op-hint">Keep it short — max 60 characters</div>
+  </div>
+  <div class="op-row">
+    <div class="op-field">
+      <label class="op-label">Valid Until</label>
+      <input class="op-input" type="date" name="valid_until">
+    </div>
+    <div class="op-field">
+      <label class="op-label">Description</label>
+      <input class="op-input" type="text" name="description" placeholder="Extra details (optional)">
+    </div>
+  </div>
+</div>
+
+<!-- Category -->
+<div class="op-card">
+  <div class="op-card-title">📂 Category</div>
+  <div class="op-cat-grid" id="catGrid">
+    <label class="op-cat-chip selected" onclick="selectCat(this,'food')">
+      <input type="radio" name="category" value="food" checked>
+      <span class="op-cat-chip-icon">🍕</span>
+      <span class="op-cat-chip-label">Food & Drinks</span>
+    </label>
+    <label class="op-cat-chip" onclick="selectCat(this,'salon')">
+      <input type="radio" name="category" value="salon">
+      <span class="op-cat-chip-icon">💈</span>
+      <span class="op-cat-chip-label">Salon & Beauty</span>
+    </label>
+    <label class="op-cat-chip" onclick="selectCat(this,'health')">
+      <input type="radio" name="category" value="health">
+      <span class="op-cat-chip-icon">🏥</span>
+      <span class="op-cat-chip-label">Health</span>
+    </label>
+    <label class="op-cat-chip" onclick="selectCat(this,'shop')">
+      <input type="radio" name="category" value="shop">
+      <span class="op-cat-chip-icon">🛒</span>
+      <span class="op-cat-chip-label">Shopping</span>
+    </label>
+    <label class="op-cat-chip" onclick="selectCat(this,'services')">
+      <input type="radio" name="category" value="services">
+      <span class="op-cat-chip-icon">🔧</span>
+      <span class="op-cat-chip-label">Services</span>
+    </label>
+    <label class="op-cat-chip" onclick="selectCat(this,'other')">
+      <input type="radio" name="category" value="other">
+      <span class="op-cat-chip-icon">🎁</span>
+      <span class="op-cat-chip-label">Other</span>
+    </label>
+  </div>
+</div>
+
+<!-- Photo -->
+<div class="op-card">
+  <div class="op-card-title">📸 Offer Photo <span style="color:#94A3B8;font-weight:400;text-transform:none">(optional)</span></div>
+  <div class="op-photo-area" id="photoArea">
+    <input type="file" name="image" accept="image/*" onchange="previewPhoto(this)">
+    <div id="photoPlaceholder">
+      <div style="font-size:2rem;margin-bottom:8px">🖼️</div>
+      <div style="font-size:13px;font-weight:700;color:#FF7043">Upload offer image</div>
+      <div style="font-size:11px;color:#94A3B8;margin-top:4px">JPG, PNG up to 10MB</div>
+    </div>
+    <img id="photoPreview" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:10px" alt="">
+  </div>
+</div>
+
+<!-- Flash Deal toggle -->
+<div class="op-card">
+  <div class="op-card-title">⚡ Flash Deal</div>
+  <div class="op-toggle-row">
+    <div>
+      <div class="op-toggle-label">⚡ Mark as Flash Deal</div>
+      <div class="op-toggle-sub">Shows in the Flash Deals section with countdown timer</div>
+    </div>
+    <label class="op-toggle">
+      <input type="checkbox" name="is_flash" value="1">
+      <span class="op-toggle-slider"></span>
+    </label>
+  </div>
+</div>
+
+<button type="submit" class="op-submit">🔥 Submit Offer</button>
+</form>
+</div>
+
+<script>
+function selectCat(el, val) {
+  document.querySelectorAll('.op-cat-chip').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('photoPreview').src = e.target.result;
+      document.getElementById('photoPreview').style.display = 'block';
+      document.getElementById('photoPlaceholder').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

@@ -75,11 +75,14 @@
 {% block content %}
 
 <div class="gal-hero">
-  <h1><i class="fas fa-bullhorn"></i> Advertisements</h1>
+  <h1><i class="fas fa-bullhorn"></i> Advertisements & Offers</h1>
   <p>Discover local businesses and services near you</p>
-  {% if not request.user.is_authenticated or request.user.is_employer %}
-  <a href="/advertise/register/"><i class="fas fa-plus"></i> Place Your Ad Here</a>
-  {% endif %}
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    {% if not request.user.is_authenticated or request.user.is_employer %}
+    <a href="/advertise/register/"><i class="fas fa-plus"></i> Place Your Ad</a>
+    {% endif %}
+    <a href="/offers/post/" style="background:#FF5722;color:#fff;font-weight:700;padding:10px 24px;border-radius:8px;font-size:13px;text-decoration:none">🔥 Post an Offer</a>
+  </div>
 </div>
 
 <!-- OLX-style Advertiser Banner Slider -->

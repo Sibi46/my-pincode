@@ -19,7 +19,8 @@ PUBLIC_PREFIXES = [
     '/vouchers/marketplace/',     # browse vouchers
     '/vouchers/v/',               # voucher card share link
     '/jobs/',                     # browse jobs
-    '/advertise/',                # browse ads gallery
+    '/advertise/',
+    '/offers/',                # browse ads gallery
     '/community/',                # community hub (read-only browsing)
     '/community/school-corner/',  # school pages
     '/community/school-kids/',
