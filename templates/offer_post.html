@@ -32,8 +32,11 @@ textarea.op-input{min-height:90px;resize:vertical}
 .op-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .valid-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#374151;background:#F8FAFC;transition:.2s;display:block}
 .valid-chip.selected{border-color:#FF5722;background:#FFF3F0;color:#FF5722}
-.day-chip{border:2px solid #E2E8F0;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:700;color:#374151;background:#F8FAFC;cursor:pointer;transition:.2s;user-select:none}
+.day-chip{border:2px solid #E2E8F0;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:700;color:#94A3B8;background:#F8FAFC;cursor:pointer;transition:.2s;user-select:none;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:46px}
+.day-chip .day-label{font-size:13px;font-weight:800;color:inherit}
+.day-chip .day-state{font-size:9px;font-weight:800;letter-spacing:.05em;color:#CBD5E1}
 .day-chip.on{border-color:#FF5722;background:#FF5722;color:#fff}
+.day-chip.on .day-state{color:rgba(255,255,255,.8)}
 .op-cat-chip{border:2px solid #E2E8F0;border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;transition:.2s;background:#F8FAFC}
 .op-cat-chip input{display:none}
 .op-cat-chip.selected{border-color:#FF5722;background:#FFF3F0}
@@ -133,7 +136,7 @@ textarea.op-input{min-height:90px;resize:vertical}
         <input class="op-input" type="date" name="valid_until" id="specificDate" style="display:none;margin-top:4px">
         <div id="dayPicker" style="display:none;margin-top:8px">
           <div style="font-size:12px;font-weight:700;color:#64748B;margin-bottom:6px">Select days this offer repeats every week:</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px" id="dayBtns"></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px" id="dayBtns"></div>
         </div>
       </div>
     </div>
@@ -217,19 +220,22 @@ textarea.op-input{min-height:90px;resize:vertical}
 
 <script>
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-(function buildDayBtns() {
+document.addEventListener('DOMContentLoaded', function() {
   const c = document.getElementById('dayBtns');
   if (!c) return;
   DAYS.forEach(d => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'day-chip';
-    btn.textContent = d;
+    btn.innerHTML = '<span class="day-label">' + d + '</span><span class="day-state">OFF</span>';
     btn.dataset.day = d;
-    btn.onclick = () => btn.classList.toggle('on');
+    btn.onclick = function() {
+      this.classList.toggle('on');
+      this.querySelector('.day-state').textContent = this.classList.contains('on') ? 'ON' : 'OFF';
+    };
     c.appendChild(btn);
   });
-})();
+});
 
 function setValid(el, val) {
   document.querySelectorAll('.valid-chip').forEach(c => c.classList.remove('selected'));
