@@ -44,7 +44,10 @@ urlpatterns = [
     # Job Seeker Actions
     path('jobs/<int:pk>/save/',              views.save_job,              name='save_job'),
     path('jobs/saved/',                      views.saved_jobs,            name='saved_jobs'),
-    path('jobs/<int:pk>/withdraw/',          views.withdraw_application,  name='withdraw_application'),
+    path('jobs/<int:pk>/withdraw/',          views.withdraw_application,    name='withdraw_application'),
+    path('jobs/<int:pk>/close/',             views.close_job,               name='close_job'),
+    path('applications/<int:pk>/shortlist/', views.shortlist_application,   name='shortlist_application'),
+    path('applications/<int:pk>/reject/',    views.reject_application,      name='reject_application'),
 
     # Messaging
     path('messages/',                            views.chat_list,          name='chat_list'),

@@ -84,7 +84,7 @@ def home(request):
     from .models import AdPost
     live_ads = AdPost.objects.filter(status='approved').filter(
         Q(expires_at__isnull=True) | Q(expires_at__gte=today)
-    ).order_by('-approved_at')[:12]
+    ).order_by('?')[:12]
     # Track views for AdPost ads shown on home page
     live_ad_pks = [a.pk for a in live_ads]
     if live_ad_pks:
@@ -1209,6 +1209,37 @@ def save_job(request, pk):
 def saved_jobs(request):
     saves = SavedJob.objects.filter(user=request.user).select_related('job')
     return render(request, 'saved_jobs.html', {'saves': saves})
+
+
+# ── CLOSE JOB ─────────────────────────────────────────────────────────────────
+@login_required
+def close_job(request, pk):
+    from .models import Job
+    job = get_object_or_404(Job, pk=pk, posted_by=request.user)
+    job.status = 'closed'
+    job.save(update_fields=['status'])
+    messages.success(request, f'"{job.title}" has been closed.')
+    return redirect('employer_dashboard')
+
+
+# ── SHORTLIST APPLICATION ──────────────────────────────────────────────────────
+@login_required
+def shortlist_application(request, pk):
+    app = get_object_or_404(JobApplication, pk=pk, job__posted_by=request.user)
+    app.status = 'shortlisted'
+    app.save(update_fields=['status'])
+    messages.success(request, f'{app.applicant.get_full_name() or app.applicant.username} shortlisted.')
+    return redirect('employer_dashboard')
+
+
+# ── REJECT APPLICATION ─────────────────────────────────────────────────────────
+@login_required
+def reject_application(request, pk):
+    app = get_object_or_404(JobApplication, pk=pk, job__posted_by=request.user)
+    app.status = 'rejected'
+    app.save(update_fields=['status'])
+    messages.success(request, 'Application rejected.')
+    return redirect('employer_dashboard')
 
 
 # ── WITHDRAW APPLICATION ───────────────────────────────────────────────────────

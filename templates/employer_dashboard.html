@@ -312,7 +312,7 @@
           <div class="jl-actions">
             <a href="/jobs/{{ job.pk }}/" class="jl-btn view" title="View"><i class="fas fa-eye"></i></a>
             <a href="/jobs/{{ job.pk }}/edit/" class="jl-btn edit" title="Edit"><i class="fas fa-pen"></i></a>
-            <a href="/jobs/{{ job.pk }}/close/" class="jl-btn close" title="Close" onclick="return confirm('Close this job?')"><i class="fas fa-times-circle"></i></a>
+            <button class="jl-btn close" title="Close" onclick="if(confirm('Are you sure you want to close this job? It will no longer accept applications.')){var f=document.createElement('form');f.method='POST';f.action='/jobs/{{ job.pk }}/close/';var c=document.createElement('input');c.type='hidden';c.name='csrfmiddlewaretoken';c.value='{{ csrf_token }}';f.appendChild(c);document.body.appendChild(f);f.submit();}"><i class="fas fa-times-circle"></i></button>
           </div>
         </div>
         {% endfor %}
@@ -557,8 +557,8 @@
                 <div class="jl-actions">
                   <a href="/applications/{{ app.pk }}/" class="jl-btn view" title="View Profile"><i class="fas fa-eye"></i></a>
                   <a href="/messages/start/{{ app.applicant.pk }}/{{ app.job.pk }}/" class="jl-btn msg" title="Message"><i class="fas fa-comment"></i></a>
-                  <a href="/applications/{{ app.pk }}/shortlist/" class="jl-btn edit" title="Shortlist"><i class="fas fa-star"></i></a>
-                  <a href="/applications/{{ app.pk }}/reject/" class="jl-btn close" title="Reject"><i class="fas fa-times"></i></a>
+                  <button class="jl-btn edit" title="Shortlist" onclick="postAction('/applications/{{ app.pk }}/shortlist/')"><i class="fas fa-star"></i></button>
+                  <button class="jl-btn close" title="Reject" onclick="postAction('/applications/{{ app.pk }}/reject/')"><i class="fas fa-times"></i></button>
                 </div>
               </td>
             </tr>
@@ -1260,6 +1260,27 @@ document.addEventListener('DOMContentLoaded', function(){
 {% endif %}
 
 <script src="/static/js/pincode_lookup.js?v=1"></script>
+<script>
+// Pincode → location auto-fill for profile pincode field
+(function(){
+  var pin = document.getElementById('profilePincode');
+  if(!pin) return;
+  pin.addEventListener('blur', function(){
+    var p = this.value.trim();
+    if(p.length !== 6) return;
+    fetch('/api/pincode/' + p + '/')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.city){
+          var city = document.getElementById('profileCity');
+          if(city && !city.dataset.manualEdit) city.value = d.city;
+        }
+      }).catch(function(){});
+  });
+  var city = document.getElementById('profileCity');
+  if(city) city.addEventListener('input', function(){ this.dataset.manualEdit = '1'; });
+})();
+</script>
 
 {% if job_posted_title %}
 <!-- Job Posted Success Popup -->
@@ -1383,6 +1404,13 @@ function setInterviewType(jobId, itype) {
 </script>
 
 
+<script>
+function postAction(url){
+  var f=document.createElement('form');f.method='POST';f.action=url;
+  var c=document.createElement('input');c.type='hidden';c.name='csrfmiddlewaretoken';c.value='{{ csrf_token }}';
+  f.appendChild(c);document.body.appendChild(f);f.submit();
+}
+</script>
 <!-- Referral Banner -->
 <div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
   <a href="/referral/" style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:14px;padding:18px 22px;text-decoration:none;color:#fff">

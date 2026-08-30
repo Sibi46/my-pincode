@@ -154,14 +154,20 @@
 
 /* ── DESKTOP FACEBOOK-STYLE LAYOUT ── */
 @media(min-width:768px){
-  .pcontent { padding: 0 !important; max-width: 100% !important; background:#18191a; min-height:100vh; }
-  .flick-cats { max-width:900px; margin:0 auto; background:transparent; }
-  .flick-feed { height:auto; overflow:visible; scroll-snap-type:none; display:flex; flex-direction:column; align-items:center; gap:20px; padding:20px 16px 60px; background:#18191a; }
-  .flick-item { height:auto; scroll-snap-align:unset; width:100%; max-width:520px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:9/16; }
+  .pcontent { padding:0 !important; max-width:100% !important; background:#f0f2f5; min-height:100vh; }
+  .flick-cats { max-width:680px; margin:0 auto; background:#fff; border-radius:0 0 12px 12px; border-bottom:1px solid #e4e6eb; padding:10px 16px; }
+  .flick-cats .flick-cat { color:#444; border-color:#ddd; background:#f0f2f5; }
+  .flick-cats .flick-cat.on { background:#4f46e5; color:#fff; border-color:#4f46e5; }
+  .flick-feed { height:auto; overflow:visible; scroll-snap-type:none; display:flex; flex-direction:column; align-items:center; gap:16px; padding:16px 16px 60px; background:#f0f2f5; }
+  .flick-item { height:auto; scroll-snap-align:unset; width:100%; max-width:500px; border-radius:12px; overflow:hidden; position:relative; aspect-ratio:9/16; background:#000; box-shadow:0 2px 12px rgba(0,0,0,.15); }
+  /* Facebook-style card header above each flick */
+  .flick-item::before { display:none; }
   .flick-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .flick-thumb { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(2px) brightness(.6); }
-  .flick-empty { background:#18191a !important; height:60vh; }
-  .flick-fab { bottom:32px; right:32px; width:60px; height:60px; font-size:26px; }
+  .flick-grad-bot { height:160px; }
+  .flick-actions { gap:14px; }
+  .flick-empty { background:#f0f2f5 !important; height:60vh; }
+  .flick-fab { bottom:32px; right:32px; width:56px; height:56px; font-size:22px; background:#4f46e5; }
 }
 </style>
 

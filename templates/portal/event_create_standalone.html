@@ -52,12 +52,6 @@
       <div class="ec-card-body">
         {% if user_communities %}
         <div class="ec-group-select" id="groupSelect">
-          <label class="ec-group-opt {% if not selected_community %}selected{% endif %}" onclick="selectGroup('', this)">
-            <input type="radio" name="community_page_id" value="" {% if not selected_community %}checked{% endif %}>
-            <div class="ec-group-check">✓</div>
-            <div class="ec-group-icon">🙋</div>
-            <div class="ec-group-name">No community (Personal)</div>
-          </label>
           {% for c in user_communities %}
           <label class="ec-group-opt {% if selected_community.pk == c.pk %}selected{% endif %}" onclick="selectGroup('{{ c.page_id }}', this)">
             <input type="radio" name="community_page_id" value="{{ c.page_id }}" {% if selected_community.pk == c.pk %}checked{% endif %}>

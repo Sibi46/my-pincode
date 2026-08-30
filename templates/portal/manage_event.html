@@ -99,6 +99,7 @@
                 {% if p.status == 'approved' %}
                 <button name="action" value="attend" class="pbtn {% if p.attended %}pbtn-outline{% else %}pbtn-primary{% endif %} pbtn-sm">{% if p.attended %}Undo{% else %}Mark Attended{% endif %}</button>
                 {% endif %}
+                <button name="action" value="block" class="pbtn pbtn-sm" style="background:#dc2626;color:#fff" onclick="return confirm('Block this user from the event and community?')">🚫 Block</button>
               </form>
             </td>
           </tr>

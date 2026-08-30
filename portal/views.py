@@ -1095,6 +1095,13 @@ def manage_event(request, pk):
             part.status = 'rejected'
             part.save()
             _notify(part.user, 'event_approved', f'Your payment for {event.name} was rejected. Please contact the organiser.', f'/portal/event/{pk}/')
+        elif action == 'block':
+            part.status = 'rejected'
+            part.save()
+            # Block from community if community admin
+            from .models import CommunityMembership
+            CommunityMembership.objects.filter(community=community, user=part.user).update(status='blocked')
+            _notify(part.user, 'event_approved', f'You have been blocked from the event "{event.name}".', f'/portal/event/{pk}/')
         return redirect('portal_manage_event', pk=pk)
 
     status_filter = request.GET.get('status', 'pending' if event.is_paid else 'approved')
