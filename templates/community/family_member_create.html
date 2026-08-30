@@ -65,20 +65,20 @@ textarea.fm-input{min-height:100px;resize:vertical}
 
 <div id="fhTop">
   <a href="/community/family/" class="back">&#8592;</a>
-  <h2>Add Family Member</h2>
+  <h2>{% if editing %}Edit{% else %}Add{% endif %} Family Member</h2>
 </div>
 
 <div class="fm-wrap">
 <form method="post" enctype="multipart/form-data" id="fmForm">
 {% csrf_token %}
-<input type="hidden" name="side" value="{{ request.GET.side|default:'husband' }}">
+<input type="hidden" name="side" value="{% if editing %}{{ member.side }}{% else %}{{ request.GET.side|default:'husband' }}{% endif %}">
 
 <!-- Type Selector — horizontal nav bar -->
 <div style="background:#fff;border-bottom:1px solid #E2E8F0;padding:12px 20px;position:sticky;top:57px;z-index:150">
   <div class="fm-type-nav" id="typeNav">
     {% for val, label in type_choices %}
-    <label class="fm-type-chip {% if request.GET.type == val or not request.GET.type and forloop.first %}selected{% endif %}" onclick="selectType('{{ val }}', this)">
-      <input type="radio" name="member_type" value="{{ val }}" {% if request.GET.type == val %}checked{% elif not request.GET.type and forloop.first %}checked{% endif %}>
+    <label class="fm-type-chip {% if editing and member.member_type == val %}selected{% elif not editing and request.GET.type == val %}selected{% elif not editing and not request.GET.type and forloop.first %}selected{% endif %}" onclick="selectType('{{ val }}', this)">
+      <input type="radio" name="member_type" value="{{ val }}" {% if editing and member.member_type == val %}checked{% elif not editing and request.GET.type == val %}checked{% elif not editing and not request.GET.type and forloop.first %}checked{% endif %}>
       {% if val == 'grandfather' %}👴{% elif val == 'grandmother' %}👵{% elif val == 'father' %}👨{% elif val == 'mother' %}👩{% elif val == 'son' %}👦{% elif val == 'daughter' %}👧{% elif val == 'uncle' %}🧔{% elif val == 'aunt' %}👩‍🦳{% elif val == 'cousin' %}🧑{% elif val == 'brother' %}👱{% elif val == 'sister' %}👱‍♀️{% elif val == 'pet' %}🐾{% else %}👤{% endif %}
       {{ label }}
     </label>
@@ -91,7 +91,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
   <div class="fm-card-title">✍️ Basic Information</div>
   <div class="fm-field">
     <label class="fm-label">Full Name *</label>
-    <input class="fm-input" type="text" name="name" placeholder="Enter full name" required>
+    <input class="fm-input" type="text" name="name" placeholder="Enter full name" required value="{% if editing %}{{ member.name }}{% else %}{{ request.GET.name }}{% endif %}">
   </div>
   <div class="fm-field">
     <label class="fm-label">Photo</label>
@@ -105,7 +105,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
   </div>
   <div class="fm-field">
     <label class="fm-label">About</label>
-    <textarea class="fm-input" name="about" placeholder="Write about their life, memories, personality…"></textarea>
+    <textarea class="fm-input" name="about" placeholder="Write about their life, memories, personality…">{% if editing %}{{ member.about }}{% endif %}</textarea>
   </div>
 </div>
 
@@ -115,47 +115,47 @@ textarea.fm-input{min-height:100px;resize:vertical}
   <div class="fm-row">
     <div class="fm-field">
       <label class="fm-label">Date of Birth</label>
-      <input class="fm-input" type="date" name="dob">
+      <input class="fm-input" type="date" name="dob" value="{% if editing and member.dob %}{{ member.dob|date:'Y-m-d' }}{% endif %}">
     </div>
     <div class="fm-field">
       <label class="fm-label">Age</label>
-      <input class="fm-input" type="number" name="age" min="0" max="150" placeholder="Years">
+      <input class="fm-input" type="number" name="age" min="0" max="150" placeholder="Years" value="{% if editing and member.age %}{{ member.age }}{% endif %}">
     </div>
   </div>
   <div class="fm-row">
     <div class="fm-field">
       <label class="fm-label">Village / Town</label>
-      <input class="fm-input" type="text" name="village" placeholder="Native village">
+      <input class="fm-input" type="text" name="village" placeholder="Native village" value="{% if editing %}{{ member.village }}{% endif %}">
     </div>
     <div class="fm-field">
       <label class="fm-label">House Name</label>
-      <input class="fm-input" type="text" name="house_name" placeholder="Family house name">
+      <input class="fm-input" type="text" name="house_name" placeholder="Family house name" value="{% if editing %}{{ member.house_name }}{% endif %}">
     </div>
   </div>
   <div class="fm-row">
     <div class="fm-field">
       <label class="fm-label">Occupation</label>
-      <input class="fm-input" type="text" name="occupation" placeholder="e.g. Farmer, Teacher">
+      <input class="fm-input" type="text" name="occupation" placeholder="e.g. Farmer, Teacher" value="{% if editing %}{{ member.occupation }}{% endif %}">
     </div>
     <div class="fm-field">
       <label class="fm-label">Education</label>
-      <input class="fm-input" type="text" name="education" placeholder="e.g. B.Sc, 10th">
+      <input class="fm-input" type="text" name="education" placeholder="e.g. B.Sc, 10th" value="{% if editing %}{{ member.education }}{% endif %}">
     </div>
   </div>
   <div class="fm-field">
     <label class="fm-label">Phone</label>
-    <input class="fm-input" type="tel" name="phone" placeholder="Contact number">
+    <input class="fm-input" type="tel" name="phone" placeholder="Contact number" value="{% if editing %}{{ member.phone }}{% endif %}">
   </div>
   <div class="fm-field">
     <label class="fm-label">Status</label>
     <div class="fm-status-row">
       <label class="fm-status-opt living-opt">
-        <input type="radio" name="status" value="living" checked onchange="toggleDeath(this.value)">
+        <input type="radio" name="status" value="living" {% if not editing or member.status != 'passed' %}checked{% endif %} onchange="toggleDeath(this.value)">
         <span class="fm-status-icon">❤️</span>
         <span class="fm-status-label">Living</span>
       </label>
       <label class="fm-status-opt passed-opt">
-        <input type="radio" name="status" value="passed" onchange="toggleDeath(this.value)">
+        <input type="radio" name="status" value="passed" {% if editing and member.status == 'passed' %}checked{% endif %} onchange="toggleDeath(this.value)">
         <span class="fm-status-icon">🕊️</span>
         <span class="fm-status-label">Passed Away</span>
       </label>
@@ -163,7 +163,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
   </div>
   <div class="fm-field death-row" id="deathRow">
     <label class="fm-label">Date of Passing</label>
-    <input class="fm-input" type="date" name="death_date">
+    <input class="fm-input" type="date" name="death_date" value="{% if editing and member.death_date %}{{ member.death_date|date:'Y-m-d' }}{% endif %}">
   </div>
 </div>
 
@@ -214,7 +214,7 @@ textarea.fm-input{min-height:100px;resize:vertical}
 <!-- Save buttons inside form -->
 <div style="display:flex;gap:10px;margin-top:4px;margin-bottom:40px">
   <a href="/community/family/" class="fm-cancel-btn" style="flex:1;padding:14px;background:#F1F5F9;color:#64748B;border-radius:14px;font-size:14px;font-weight:600;text-decoration:none;text-align:center">Cancel</a>
-  <button type="submit" class="fm-submit" style="flex:2">✨ Save Family Member</button>
+  <button type="submit" class="fm-submit" style="flex:2">{% if editing %}✨ Save Changes{% else %}✨ Save Family Member{% endif %}</button>
 </div>
 </form>
 </div>
@@ -264,6 +264,9 @@ document.addEventListener('DOMContentLoaded', function(){
     checked.closest('.fm-type-chip').classList.add('selected');
     selectType(checked.value, checked.closest('.fm-type-chip'));
   }
+  {% if editing and member.status == 'passed' %}
+  toggleDeath('passed');
+  {% endif %}
 });
 </script>
 {% endblock %}

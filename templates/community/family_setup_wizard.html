@@ -256,9 +256,38 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
       <!-- Father -->
       <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="font-size:12px;font-weight:800;color:#C2410C;margin-bottom:10px">👨 Your Father (optional)</div>
+        <!-- Father photo with cropper -->
+        <div class="fphoto-row" style="margin-bottom:12px">
+          <div class="fphoto-box" onclick="openCropper('father')" id="fatherPhotoBox" style="width:72px;height:72px;border-radius:50%;flex-shrink:0">
+            {% if my_father and my_father.photo %}<img src="{{ my_father.photo.url }}" id="fatherPhotoPreview" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}<span style="font-size:26px">📷</span>{% endif %}
+          </div>
+          <div><div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:2px">Father's Photo</div><div class="fphoto-hint">Tap to upload</div></div>
+          <input type="file" id="fatherPhotoFile" accept="image/*" style="display:none" onchange="onMemberPhoto(this,'father')">
+          <input type="hidden" name="father_photo_data" id="fatherPhotoData">
+        </div>
         <div class="fg">
           <label class="fl">Father's Name</label>
           <input type="text" name="father_name" class="fi" placeholder="Father's full name" value="{{ my_father.name|default:'' }}">
+        </div>
+        <!-- Living / Passed Away toggle -->
+        <div class="fg">
+          <label class="fl">Status</label>
+          <div style="display:flex;gap:10px">
+            <label style="flex:1;border:2px solid #E2E8F0;border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#F8FAFC;transition:.2s" id="fatherLivingBtn" onclick="setStatus('father','living')">
+              <input type="radio" name="father_status" value="living" style="display:none" {% if not my_father or my_father.status == 'living' %}checked{% endif %}>
+              <span style="font-size:20px;display:block">💚</span>
+              <span style="font-size:12px;font-weight:700;color:#374151">Living</span>
+            </label>
+            <label style="flex:1;border:2px solid #E2E8F0;border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#F8FAFC;transition:.2s" id="fatherPassedBtn" onclick="setStatus('father','passed')">
+              <input type="radio" name="father_status" value="passed" style="display:none" {% if my_father and my_father.status == 'passed' %}checked{% endif %}>
+              <span style="font-size:20px;display:block">🕊️</span>
+              <span style="font-size:12px;font-weight:700;color:#374151">Passed Away</span>
+            </label>
+          </div>
+        </div>
+        <div class="fg" id="fatherDeathRow" style="display:{% if my_father and my_father.status == 'passed' %}block{% else %}none{% endif %}">
+          <label class="fl">Date of Passing</label>
+          <input type="date" name="father_death_date" class="fi" value="{% if my_father and my_father.death_date %}{{ my_father.death_date|date:'Y-m-d' }}{% endif %}">
         </div>
         <div class="fg2">
           <div class="fg">
@@ -279,9 +308,38 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;min-height:100v
       <!-- Mother -->
       <div style="background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;padding:14px;margin-bottom:14px">
         <div style="font-size:12px;font-weight:800;color:#BE123C;margin-bottom:10px">👩 Your Mother (optional)</div>
+        <!-- Mother photo with cropper -->
+        <div class="fphoto-row" style="margin-bottom:12px">
+          <div class="fphoto-box" onclick="openCropper('mother')" id="motherPhotoBox" style="width:72px;height:72px;border-radius:50%;flex-shrink:0">
+            {% if my_mother and my_mother.photo %}<img src="{{ my_mother.photo.url }}" id="motherPhotoPreview" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}<span style="font-size:26px">📷</span>{% endif %}
+          </div>
+          <div><div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:2px">Mother's Photo</div><div class="fphoto-hint">Tap to upload</div></div>
+          <input type="file" id="motherPhotoFile" accept="image/*" style="display:none" onchange="onMemberPhoto(this,'mother')">
+          <input type="hidden" name="mother_photo_data" id="motherPhotoData">
+        </div>
         <div class="fg">
           <label class="fl">Mother's Name</label>
           <input type="text" name="mother_name" class="fi" placeholder="Mother's full name" value="{{ my_mother.name|default:'' }}">
+        </div>
+        <!-- Living / Passed Away toggle -->
+        <div class="fg">
+          <label class="fl">Status</label>
+          <div style="display:flex;gap:10px">
+            <label style="flex:1;border:2px solid #E2E8F0;border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#F8FAFC;transition:.2s" id="motherLivingBtn" onclick="setStatus('mother','living')">
+              <input type="radio" name="mother_status" value="living" style="display:none" {% if not my_mother or my_mother.status == 'living' %}checked{% endif %}>
+              <span style="font-size:20px;display:block">💚</span>
+              <span style="font-size:12px;font-weight:700;color:#374151">Living</span>
+            </label>
+            <label style="flex:1;border:2px solid #E2E8F0;border-radius:12px;padding:10px;text-align:center;cursor:pointer;background:#F8FAFC;transition:.2s" id="motherPassedBtn" onclick="setStatus('mother','passed')">
+              <input type="radio" name="mother_status" value="passed" style="display:none" {% if my_mother and my_mother.status == 'passed' %}checked{% endif %}>
+              <span style="font-size:20px;display:block">🕊️</span>
+              <span style="font-size:12px;font-weight:700;color:#374151">Passed Away</span>
+            </label>
+          </div>
+        </div>
+        <div class="fg" id="motherDeathRow" style="display:{% if my_mother and my_mother.status == 'passed' %}block{% else %}none{% endif %}">
+          <label class="fl">Date of Passing</label>
+          <input type="date" name="mother_death_date" class="fi" value="{% if my_mother and my_mother.death_date %}{{ my_mother.death_date|date:'Y-m-d' }}{% endif %}">
         </div>
         <div class="fg2">
           <div class="fg">
@@ -652,6 +710,85 @@ function removeItem(btn){btn.closest('.frep').remove();}
 document.addEventListener('DOMContentLoaded',function(){
   var active=document.querySelector('.fw-step-circle.active');
   if(active)active.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+  // Init toggle highlight on load
+  ['father','mother'].forEach(function(who){
+    var living=document.getElementById(who+'LivingBtn');
+    var passed=document.getElementById(who+'PassedBtn');
+    if(!living)return;
+    var chk=living.querySelector('input');
+    setStatus(who, chk && chk.checked ? 'living' : 'passed');
+  });
 });
+
+// Living / Passed Away toggle
+function setStatus(who, val){
+  var lBtn=document.getElementById(who+'LivingBtn');
+  var pBtn=document.getElementById(who+'PassedBtn');
+  var deathRow=document.getElementById(who+'DeathRow');
+  if(!lBtn)return;
+  if(val==='living'){
+    lBtn.style.borderColor='#16A34A'; lBtn.style.background='#F0FDF4';
+    pBtn.style.borderColor='#E2E8F0'; pBtn.style.background='#F8FAFC';
+    lBtn.querySelector('input').checked=true;
+    if(deathRow) deathRow.style.display='none';
+  } else {
+    pBtn.style.borderColor='#9333EA'; pBtn.style.background='#FAF5FF';
+    lBtn.style.borderColor='#E2E8F0'; lBtn.style.background='#F8FAFC';
+    pBtn.querySelector('input').checked=true;
+    if(deathRow) deathRow.style.display='block';
+  }
+}
+
+// Cropper modal for member photos (father / mother)
+var _cropTarget=null;
+var _cropperInst=null;
+function openCropper(who){
+  document.getElementById(who+'PhotoFile').click();
+}
+function onMemberPhoto(input, who){
+  if(!input.files||!input.files[0])return;
+  _cropTarget=who;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var modal=document.getElementById('memberCropModal');
+    var img=document.getElementById('memberCropImg');
+    if(_cropperInst){_cropperInst.destroy();_cropperInst=null;}
+    img.src=e.target.result;
+    modal.style.display='flex';
+    _cropperInst=new Cropper(img,{aspectRatio:1,viewMode:1,movable:true,zoomable:true,rotatable:true,scalable:true,autoCropArea:0.85});
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+function memberCropDone(){
+  if(!_cropperInst||!_cropTarget)return;
+  var canvas=_cropperInst.getCroppedCanvas({width:300,height:300});
+  var data=canvas.toDataURL('image/jpeg',0.88);
+  document.getElementById(_cropTarget+'PhotoData').value=data;
+  var box=document.getElementById(_cropTarget+'PhotoBox');
+  var prev=document.getElementById(_cropTarget+'PhotoPreview');
+  if(!prev){prev=document.createElement('img');prev.id=_cropTarget+'PhotoPreview';prev.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';box.innerHTML='';box.appendChild(prev);}
+  prev.src=data;
+  closeMemberCrop();
+}
+function closeMemberCrop(){
+  document.getElementById('memberCropModal').style.display='none';
+  if(_cropperInst){_cropperInst.destroy();_cropperInst=null;}
+}
 </script>
+
+<!-- Cropper.js CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
+<!-- Member photo crop modal -->
+<div id="memberCropModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;padding:16px;width:100%;max-width:380px">
+    <div style="font-weight:800;font-size:15px;margin-bottom:12px;color:#0F172A">Adjust Photo</div>
+    <div style="width:100%;max-height:300px;overflow:hidden;border-radius:10px"><img id="memberCropImg" style="max-width:100%"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button type="button" onclick="closeMemberCrop()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid #E2E8F0;background:#fff;font-weight:700;color:#374151;cursor:pointer">Cancel</button>
+      <button type="button" onclick="memberCropDone()" style="flex:2;padding:11px;border-radius:10px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff;border:none;font-weight:800;cursor:pointer">Use Photo</button>
+    </div>
+  </div>
+</div>
 {% endblock %}

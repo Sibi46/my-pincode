@@ -288,12 +288,8 @@ a{text-decoration:none;color:inherit}
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="tb-logo">
-    <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+    <a href="/" style="display:flex;align-items:center;text-decoration:none">
       <img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE">
-      <div>
-        <div class="tb-logo-text"><span class="ou">OUR</span><span class="pc">PINCODE</span><span class="tb-logo-com">.com</span></div>
-        <div style="font-size:10px;color:#6b7280;font-weight:500;margin-top:-1px">World's first human media</div>
-      </div>
     </a>
   </div>
 
@@ -337,6 +333,7 @@ a{text-decoration:none;color:inherit}
   <div class="hero-inner">
     <!-- LEFT -->
     <div class="hero-left">
+      <div style="font-size:13px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">ourpincode</div>
       <h1 class="hero-h1">
         Worlds First<br>
         <span class="hero-h1-orange">Human Media</span>
@@ -548,7 +545,7 @@ a{text-decoration:none;color:inherit}
     {% endfor %}
     {% for ad in live_ads %}
     <a class="olx-ad-slide {% if forloop.first and not advertiser_banners %}active{% endif %}"
-       href="{% if ad.website %}{{ ad.website }}{% else %}#{% endif %}"
+       href="/ads/adpost-click/{{ ad.pk }}/"
        target="_blank" rel="noopener">
       <img src="{{ ad.image.url }}" alt="{{ ad.company_name }}">
       <div class="olx-ad-info">
@@ -833,7 +830,11 @@ var olxAdCur = 0;
     <h2 style="font-size:clamp(24px,5vw,40px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:12px">Don't just post.<br><span style="color:#34d399">Participate.</span></h2>
     <p style="font-size:15px;color:rgba(255,255,255,.75);margin-bottom:28px;line-height:1.7">Create communities around your Pincode. Support causes. Attend events. Volunteer. Create real-world impact together.</p>
     <div class="comm-cta-btns" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:32px">
+      {% if user.is_authenticated %}
       <a href="/portal/create/" style="background:#f97316;color:#fff;font-size:14px;font-weight:800;padding:13px 28px;border-radius:10px;text-decoration:none;transition:.2s">+ Create Community</a>
+      {% else %}
+      <button onclick="window._regNextUrl='/portal/create/';document.getElementById('regPop').classList.add('show')" style="background:#f97316;color:#fff;font-size:14px;font-weight:800;padding:13px 28px;border-radius:10px;border:none;cursor:pointer;transition:.2s">+ Create Community</button>
+      {% endif %}
       <a href="/portal/" style="background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.3);color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;text-decoration:none;transition:.2s">Browse Communities →</a>
     </div>
     <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;font-size:13px;color:rgba(255,255,255,.6)">
@@ -1137,7 +1138,7 @@ document.addEventListener('DOMContentLoaded',function(){
       <div class="rp-err" id="rpErr"></div>
       <div class="rp-field">
         <label class="rp-label">Full Name *</label>
-        <input class="rp-input" type="text" id="rpName" placeholder="Enter your name" autocomplete="name">
+        <input class="rp-input" type="text" id="rpName" placeholder="Enter your name" autocomplete="name" oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,'')">
       </div>
       <div class="rp-field">
         <label class="rp-label">Pincode *</label>
@@ -1198,7 +1199,7 @@ document.addEventListener('DOMContentLoaded',function(){
         if(!d.success){showErr(d.error||'Wrong OTP.');return;}
         fetch('/api/quick-register/',{method:'POST',headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},body:JSON.stringify({name:name,phone:phone,pincode:pin,password:pwd})})
           .then(function(r){return r.json();}).then(function(d){
-            if(d.success){document.getElementById('regPop').classList.remove('show');window.location.href=d.redirect||'/dashboard/';}
+            if(d.success){document.getElementById('regPop').classList.remove('show');window.location.href=window._regNextUrl||d.redirect||'/dashboard/';window._regNextUrl=null;}
             else{showErr(d.error||'Registration failed.');}
           }).catch(function(){showErr('Network error.');});
       }).catch(function(){showErr('Network error.');});
@@ -1272,5 +1273,118 @@ function googleTranslateElementInit(){
 .goog-te-banner-frame{display:none!important}
 body{top:0!important}
 </style>
+
+{% if False %}
+<!-- Auth popup removed -->
+<div id="authPopup" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.75);z-index:9999;align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:24px;padding:28px 24px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative;margin:auto">
+    <button onclick="document.getElementById('authPopup').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;color:#94A3B8;cursor:pointer;line-height:1">✕</button>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:2.2rem;margin-bottom:6px">🏘️</div>
+      <div style="font-size:18px;font-weight:900;color:#0F172A;margin-bottom:4px">Join OUR PINCODE</div>
+      <div style="font-size:12px;color:#64748B">Create your account to start a community</div>
+    </div>
+    <!-- Tabs -->
+    <div style="display:flex;background:#F1F5F9;border-radius:12px;padding:4px;margin-bottom:20px">
+      <button id="tabRegBtn" onclick="switchTab('reg')" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-family:inherit">Sign Up</button>
+      <button id="tabLoginBtn" onclick="switchTab('login')" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748B;font-family:inherit">Login</button>
+    </div>
+    <!-- Sign Up Form -->
+    <div id="tabReg">
+      <div id="regErr" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:#DC2626;margin-bottom:12px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">First Name *</label>
+          <input id="regFirst" type="text" placeholder="First name" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+        </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Last Name</label>
+          <input id="regLast" type="text" placeholder="Last name" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Mobile Number *</label>
+        <input id="regPhone" type="tel" placeholder="+91 99999 99999" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Email</label>
+        <input id="regEmail" type="email" placeholder="you@email.com" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Pincode *</label>
+        <input id="regPincode" type="text" placeholder="6-digit pincode" maxlength="6" inputmode="numeric" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div style="margin-bottom:18px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Password *</label>
+        <input id="regPass" type="password" placeholder="Create a password" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <button onclick="doRegister()" id="regBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Create Account & Continue →</button>
+    </div>
+    <!-- Login Form -->
+    <div id="tabLogin" style="display:none">
+      <div id="loginErr" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:#DC2626;margin-bottom:12px"></div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Phone or Email *</label>
+        <input id="loginUser" type="text" placeholder="Phone or email" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <div style="margin-bottom:18px">
+        <label style="font-size:11px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Password *</label>
+        <input id="loginPass" type="password" placeholder="Your password" style="width:100%;padding:10px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none">
+      </div>
+      <button onclick="doLogin()" id="loginBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">Login & Continue →</button>
+      <div style="text-align:center;margin-top:12px"><a href="/forgot-password/" style="font-size:12px;color:#4F46E5;font-weight:600">Forgot password?</a></div>
+    </div>
+  </div>
+</div>
+<script>
+function switchTab(t){
+  document.getElementById('tabReg').style.display = t==='reg'?'block':'none';
+  document.getElementById('tabLogin').style.display = t==='login'?'block':'none';
+  document.getElementById('tabRegBtn').style.background = t==='reg'?'linear-gradient(135deg,#4F46E5,#7C3AED)':'transparent';
+  document.getElementById('tabRegBtn').style.color = t==='reg'?'#fff':'#64748B';
+  document.getElementById('tabLoginBtn').style.background = t==='login'?'linear-gradient(135deg,#4F46E5,#7C3AED)':'transparent';
+  document.getElementById('tabLoginBtn').style.color = t==='login'?'#fff':'#64748B';
+}
+function doRegister(){
+  var btn=document.getElementById('regBtn');
+  var err=document.getElementById('regErr');
+  err.style.display='none';
+  btn.textContent='Creating account…'; btn.disabled=true;
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('first_name', document.getElementById('regFirst').value.trim());
+  fd.append('last_name', document.getElementById('regLast').value.trim());
+  fd.append('phone', document.getElementById('regPhone').value.trim());
+  fd.append('email', document.getElementById('regEmail').value.trim());
+  fd.append('pincode', document.getElementById('regPincode').value.trim());
+  fd.append('password', document.getElementById('regPass').value);
+  fd.append('user_type', 'individual');
+  fetch('/register/process/', {method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'}, body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){ window.location.href='/portal/create/'; }
+      else{ err.textContent=d.error||'Error. Try again.'; err.style.display='block'; btn.textContent='Create Account & Continue →'; btn.disabled=false; }
+    }).catch(function(){ err.textContent='Network error. Try again.'; err.style.display='block'; btn.textContent='Create Account & Continue →'; btn.disabled=false; });
+}
+function doLogin(){
+  var btn=document.getElementById('loginBtn');
+  var err=document.getElementById('loginErr');
+  err.style.display='none';
+  btn.textContent='Logging in…'; btn.disabled=true;
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('username', document.getElementById('loginUser').value.trim());
+  fd.append('password', document.getElementById('loginPass').value);
+  fd.append('next', '/portal/create/');
+  fetch('/login/', {method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'}, body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){ window.location.href='/portal/create/'; }
+      else{ err.textContent=d.error||'Invalid credentials.'; err.style.display='block'; btn.textContent='Login & Continue →'; btn.disabled=false; }
+    }).catch(function(){ err.textContent='Network error.'; err.style.display='block'; btn.textContent='Login & Continue →'; btn.disabled=false; });
+}
+</script>
+{% endif %}
+
 </body>
 </html>

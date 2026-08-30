@@ -173,6 +173,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ── Email (Gmail SMTP) ───────────────────────────────────────────────────────
+EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST         = 'smtp.gmail.com'
+EMAIL_PORT         = 465
+EMAIL_USE_TLS      = False
+EMAIL_USE_SSL      = True
+EMAIL_HOST_USER    = 'evoxusoft@gmail.com'
+EMAIL_HOST_PASSWORD = 'pisnlnplumembcaw'
+DEFAULT_FROM_EMAIL = 'OUR PINCODE <evoxusoft@gmail.com>'
+
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 

@@ -151,6 +151,18 @@
   font-size: 22px; box-shadow: 0 4px 16px rgba(79,70,229,.5);
   text-decoration: none; color: #fff;
 }
+
+/* ── DESKTOP FACEBOOK-STYLE LAYOUT ── */
+@media(min-width:768px){
+  .pcontent { padding: 0 !important; max-width: 100% !important; background:#18191a; min-height:100vh; }
+  .flick-cats { max-width:900px; margin:0 auto; background:transparent; }
+  .flick-feed { height:auto; overflow:visible; scroll-snap-type:none; display:flex; flex-direction:column; align-items:center; gap:20px; padding:20px 16px 60px; background:#18191a; }
+  .flick-item { height:auto; scroll-snap-align:unset; width:100%; max-width:520px; border-radius:16px; overflow:hidden; position:relative; aspect-ratio:9/16; }
+  .flick-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .flick-thumb { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(2px) brightness(.6); }
+  .flick-empty { background:#18191a !important; height:60vh; }
+  .flick-fab { bottom:32px; right:32px; width:60px; height:60px; font-size:26px; }
+}
 </style>
 
 <!-- Category bar -->

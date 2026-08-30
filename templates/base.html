@@ -48,11 +48,11 @@
                 {% endif %}
                 {% endwith %}
 
-                {% if request.user.ad_posts.exists %}
-                    <a href="/ads/my-ads/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
-                {% else %}
-                    <a href="/ads/post/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+                {% with adv=request.user.advertiser %}
+                {% if adv and adv.status == 'approved' %}
+                    <a href="/advertise/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
                 {% endif %}
+                {% endwith %}
 
                 <!-- Profile dropdown -->
                 <div class="nav-avatar-wrap">
@@ -103,11 +103,11 @@
                 {% endif %}
                 {% endwith %}
 
-                {% if request.user.ad_posts.exists %}
-                    <a href="/ads/my-ads/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
-                {% else %}
-                    <a href="/ads/post/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
+                {% with adv=request.user.advertiser %}
+                {% if adv and adv.status == 'approved' %}
+                    <a href="/advertise/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
                 {% endif %}
+                {% endwith %}
 
                 {% if request.user.is_staff %}
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
@@ -134,7 +134,6 @@
 
             {% else %}
                 <a href="/jobs/"><i class="fas fa-th"></i> Jobs</a>
-                <a href="/login/?next=/advertise/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> Advertise</a>
                 <a href="/login/" class="btn-signin">Sign In</a>
             {% endif %}
             {% endif %}
@@ -156,11 +155,11 @@
                 <a href="/jobseeker/dashboard/">Dashboard</a>
                 <a href="/profile/edit/">Profile</a>
             {% endif %}
-            {% if request.user.ad_posts.exists %}
-                <a href="/ads/my-ads/">My Ads</a>
-            {% else %}
-                <a href="/ads/post/">Advertise</a>
+            {% with adv=request.user.advertiser %}
+            {% if adv and adv.status == 'approved' %}
+                <a href="/advertise/dashboard/">My Ads</a>
             {% endif %}
+            {% endwith %}
             <a href="/messages/">Messages</a>
             {% with biz=request.user.businesses.first %}
             {% if biz %}
@@ -177,7 +176,6 @@
             <a href="/logout/">Logout</a>
         {% else %}
             <a href="/login/">Sign In</a>
-            <a href="/advertise/">Advertise</a>
         {% endif %}
     </div>
 </nav>

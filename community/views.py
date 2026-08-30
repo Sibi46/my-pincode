@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
+import base64
+from django.core.files.base import ContentFile
 from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      StudentSuccess, StudentSuccessLike, StudentSuccessComment,
                      KidsPost, KidsPostLike, KidsPostComment,
@@ -15,7 +17,8 @@ from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      HallOfFameEntry, HallOfFameVote, HallOfFameComment,
                      MarketplaceListing, ListingInterest, ListingComment,
                      WatchReport, WatchConfirm, WatchComment,
-                     Notification, FamilyMember, FamilySetup)
+                     Notification, FamilyMember, FamilySetup,
+                     FamilyFlick, FamilyPost)
 
 MODULES = [
     {'slug': 'family',       'icon': '👨‍👩‍👧', 'name': 'Family Hub',     'desc': 'Family Stories · Parenting · Grandparents Archive',  'color': '#e11d48', 'soon': False},
@@ -158,25 +161,45 @@ def family_setup_wizard(request):
             FamilyMember.objects.filter(creator=request.user, member_type='father', side='husband').delete()
             father_name = request.POST.get('father_name', '').strip()
             if father_name:
-                FamilyMember.objects.create(
+                f_status = request.POST.get('father_status', 'living')
+                f_death  = request.POST.get('father_death_date') or None
+                fm = FamilyMember(
                     creator=request.user, member_type='father', side='husband',
                     name=father_name,
                     dob=request.POST.get('father_dob') or None,
                     village=request.POST.get('father_village', '').strip(),
                     occupation=request.POST.get('father_occupation', '').strip(),
+                    status=f_status if f_status in ('living','passed') else 'living',
+                    death_date=f_death if f_status == 'passed' else None,
                 )
+                fp_data = request.POST.get('father_photo_data', '').strip()
+                if fp_data and fp_data.startswith('data:image'):
+                    fmt, b64 = fp_data.split(';base64,', 1)
+                    ext = fmt.split('/')[-1].replace('jpeg','jpg')
+                    fm.photo = ContentFile(base64.b64decode(b64), name=f'father_{request.user.pk}.{ext}')
+                fm.save()
 
             # Mother (your side)
             FamilyMember.objects.filter(creator=request.user, member_type='mother', side='husband').delete()
             mother_name = request.POST.get('mother_name', '').strip()
             if mother_name:
-                FamilyMember.objects.create(
+                m_status = request.POST.get('mother_status', 'living')
+                m_death  = request.POST.get('mother_death_date') or None
+                mm = FamilyMember(
                     creator=request.user, member_type='mother', side='husband',
                     name=mother_name,
                     dob=request.POST.get('mother_dob') or None,
                     village=request.POST.get('mother_village', '').strip(),
                     occupation=request.POST.get('mother_occupation', '').strip(),
+                    status=m_status if m_status in ('living','passed') else 'living',
+                    death_date=m_death if m_status == 'passed' else None,
                 )
+                mp_data = request.POST.get('mother_photo_data', '').strip()
+                if mp_data and mp_data.startswith('data:image'):
+                    fmt, b64 = mp_data.split(';base64,', 1)
+                    ext = fmt.split('/')[-1].replace('jpeg','jpg')
+                    mm.photo = ContentFile(base64.b64decode(b64), name=f'mother_{request.user.pk}.{ext}')
+                mm.save()
 
             if setup.marital_status == 'married':
                 return redirect('/community/family/setup/?step=5')
@@ -254,7 +277,7 @@ def family_setup_wizard(request):
                     try:
                         from datetime import datetime
                         dob_val = datetime.strptime(dob_str, '%Y-%m-%d').date()
-                        age_val = (today - dob_val).days // 365
+                        age_val = max(0, min(150, (today - dob_val).days // 365))
                     except Exception:
                         pass
 
@@ -516,6 +539,14 @@ def family_hub(request):
         relatives_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['brother','sister','uncle','aunt','cousin','friend']).count()
         total_count = core_count + children_count + pets_count + grands_count + relatives_count
 
+    my_father = FamilyMember.objects.filter(creator=request.user, member_type='father', side='husband').first() if request.user.is_authenticated else None
+    my_mother = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='husband').first() if request.user.is_authenticated else None
+    p_father  = FamilyMember.objects.filter(creator=request.user, member_type='father', side='wife').first()  if request.user.is_authenticated else None
+    p_mother  = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='wife').first()  if request.user.is_authenticated else None
+    friends   = []
+    flicks    = FamilyFlick.objects.filter(creator=request.user) if request.user.is_authenticated else []
+    posts     = FamilyPost.objects.filter(creator=request.user) if request.user.is_authenticated else []
+
     return render(request, 'community/family_hub.html', {
         'setup':          setup,
         'setup_rows':     setup_rows,
@@ -524,6 +555,13 @@ def family_hub(request):
         'is_married':     is_married,
         'core_count':     core_count,
         'total_count':    total_count,
+        'my_father':      my_father,
+        'my_mother':      my_mother,
+        'p_father':       p_father,
+        'p_mother':       p_mother,
+        'friends':        friends,
+        'flicks':         flicks,
+        'posts':          posts,
     })
 
 
@@ -604,9 +642,89 @@ def family_member_create(request):
     })
 
 
+@login_required
+@require_POST
+def family_quick_add(request):
+    name = request.POST.get('name', '').strip()
+    member_type = request.POST.get('member_type', 'other')
+    side = request.POST.get('side', 'husband')
+    VALID_TYPES = ['grandfather', 'grandmother', 'uncle', 'aunt', 'brother', 'sister', 'cousin', 'friend', 'colleague', 'other']
+    if not name:
+        return JsonResponse({'ok': False, 'error': 'Name required'})
+    if member_type not in VALID_TYPES:
+        member_type = 'other'
+    status = request.POST.get('status', 'living')
+    if status not in ('living', 'passed'):
+        status = 'living'
+    occupation = request.POST.get('occupation', '').strip()
+    village = request.POST.get('village', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    m = FamilyMember(
+        creator=request.user, member_type=member_type, side=side, name=name,
+        status=status, occupation=occupation, village=village, phone=phone,
+    )
+    if request.POST.get('dob'):
+        from datetime import date
+        try:
+            parts = request.POST['dob'].split('-')
+            m.dob = date(int(parts[0]), int(parts[1]), int(parts[2]))
+        except Exception: pass
+    if status == 'passed' and request.POST.get('death_date'):
+        from datetime import date
+        try:
+            parts = request.POST['death_date'].split('-')
+            m.death_date = date(int(parts[0]), int(parts[1]), int(parts[2]))
+        except Exception: pass
+    if request.FILES.get('photo'):
+        m.photo = request.FILES['photo']
+    m.save()
+    return JsonResponse({'ok': True, 'pk': m.pk, 'name': name, 'member_type': member_type, 'side': side, 'occupation': occupation, 'village': village})
+
+
 def family_member_detail(request, pk):
     member = get_object_or_404(FamilyMember, pk=pk)
     return render(request, 'community/family_member_detail.html', {'member': member})
+
+
+@login_required
+def family_member_edit(request, pk):
+    member = get_object_or_404(FamilyMember, pk=pk, creator=request.user)
+    if request.method == 'POST':
+        member.member_type = request.POST.get('member_type', member.member_type)
+        member.name        = request.POST.get('name', '').strip() or member.name
+        member.about       = request.POST.get('about', '').strip()
+        member.village     = request.POST.get('village', '').strip()
+        member.house_name  = request.POST.get('house_name', '').strip()
+        member.occupation  = request.POST.get('occupation', '').strip()
+        member.education   = request.POST.get('education', '').strip()
+        member.phone       = request.POST.get('phone', '').strip()
+        member.status      = request.POST.get('status', 'living')
+        member.species     = request.POST.get('species', '').strip()
+        member.breed       = request.POST.get('breed', '').strip()
+        if request.POST.get('age'):
+            try: member.age = int(request.POST['age'])
+            except ValueError: pass
+        if request.POST.get('dob'):
+            from datetime import date
+            try:
+                parts = request.POST['dob'].split('-')
+                member.dob = date(int(parts[0]), int(parts[1]), int(parts[2]))
+            except Exception: pass
+        if request.POST.get('death_date') and member.status == 'passed':
+            from datetime import date
+            try:
+                parts = request.POST['death_date'].split('-')
+                member.death_date = date(int(parts[0]), int(parts[1]), int(parts[2]))
+            except Exception: pass
+        if request.FILES.get('photo'):
+            member.photo = request.FILES['photo']
+        member.save()
+        return redirect(f'/community/family/member/{member.pk}/')
+    return render(request, 'community/family_member_create.html', {
+        'type_choices': FamilyMember.TYPE_CHOICES,
+        'member': member,
+        'editing': True,
+    })
 
 
 def family_member_verify(request, pk):
@@ -623,6 +741,32 @@ def family_member_verify(request, pk):
         'self_name':    self_name,
         'partner_name': partner_name,
     })
+
+
+@login_required
+@require_POST
+def family_flick_add(request):
+    photo = request.FILES.get('photo')
+    if not photo:
+        return JsonResponse({'ok': False, 'error': 'Photo required'})
+    caption = request.POST.get('caption', '').strip()
+    flick = FamilyFlick(creator=request.user, caption=caption, photo=photo)
+    flick.save()
+    return JsonResponse({'ok': True, 'pk': flick.pk, 'url': flick.photo.url, 'caption': caption})
+
+
+@login_required
+@require_POST
+def family_post_add(request):
+    text = request.POST.get('text', '').strip()
+    if not text:
+        return JsonResponse({'ok': False, 'error': 'Text required'})
+    post = FamilyPost(creator=request.user, text=text)
+    if request.FILES.get('photo'):
+        post.photo = request.FILES['photo']
+    post.save()
+    return JsonResponse({'ok': True, 'pk': post.pk, 'text': text,
+                         'photo_url': post.photo.url if post.photo else ''})
 
 
 # ── SCHOOL & KIDS HUB ──────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@
     <div class="mm-name">{{ m.user.get_full_name|default:m.user.username }}</div>
     {% if m.current_role %}<div class="mm-role-badge">⭐ {{ m.current_role }}</div>{% endif %}
     {% if m.user.pincode %}<div class="mm-pincode">📍 {% if m.user.city %}{{ m.user.city }} — {% endif %}{{ m.user.pincode }}</div>{% endif %}
+    <div class="mm-pincode" style="color:#94a3b8;font-size:10px">🗓️ Joined {{ m.approved_at|default:m.joined_at|date:"d M Y" }}</div>
 
     {% if is_admin %}
     <div class="mm-pincode" style="word-break:break-all">{{ m.user.email }}</div>

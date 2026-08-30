@@ -1085,6 +1085,7 @@ class AdPost(models.Model):
     status       = models.CharField(max_length=20, choices=STATUS, default='pending')
     reject_note  = models.TextField(blank=True)
     views        = models.PositiveIntegerField(default=0)
+    clicks       = models.PositiveIntegerField(default=0)
     created_at   = models.DateTimeField(auto_now_add=True)
     approved_at  = models.DateTimeField(null=True, blank=True)
     expires_at   = models.DateField(null=True, blank=True)

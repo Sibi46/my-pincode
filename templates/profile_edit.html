@@ -40,11 +40,14 @@
 </style>
 
 <div class="pe-wrap">
-  {% if request.user.is_employer %}
-    <a href="/employer/dashboard/" class="pe-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-  {% else %}
-    <a href="/jobseeker/dashboard/" class="pe-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-  {% endif %}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    {% if request.user.is_employer %}
+      <a href="/employer/dashboard/" class="pe-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    {% else %}
+      <a href="/jobseeker/dashboard/" class="pe-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    {% endif %}
+    <a href="/my-accounts/" class="pe-back" style="color:#0a66c2;font-weight:700"><i class="fas fa-layer-group"></i> My Accounts</a>
+  </div>
 
   {% if messages %}
     {% for msg in messages %}

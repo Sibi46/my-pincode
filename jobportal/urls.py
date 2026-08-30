@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/',                  admin.site.urls),
     path('',                        views.home,               name='home'),
     path('favicon.ico',             views.favicon,            name='favicon'),
+    path('api/pincode/<str:pin>/',  views.api_pincode_lookup, name='api_pincode_lookup'),
 
     # Auth
     path('register/',               views.register,           name='register'),
@@ -80,6 +81,7 @@ urlpatterns = [
     path('advertiser/performance/<int:ad_id>/', views.ad_performance,         name='ad_performance'),
     path('advertiser/renew/<int:ad_id>/',     views.renew_ad,                 name='renew_ad'),
     path('ads/click/<int:ad_id>/',            views.ad_click_track,           name='ad_click_track'),
+    path('ads/adpost-click/<int:ad_id>/',     views.adpost_click_track,       name='adpost_click_track'),
 
     # Advertiser — Ad Panel (old admin)
     path('admin-panel/advertisers/',          views.admin_advertisers,          name='admin_advertisers'),

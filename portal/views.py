@@ -58,7 +58,7 @@ def portal_home(request):
 
 
 def community_list(request):
-    communities = Community.objects.filter(is_active=True, is_verified=True)
+    communities = Community.objects.filter(is_active=True)
     q       = request.GET.get('q', '').strip()
     pincode = request.GET.get('pincode', '').strip()
     cat     = request.GET.get('category', '').strip()
@@ -237,6 +237,7 @@ def portal_search(request):
 # COMMUNITY CREATE / EDIT
 # ──────────────────────────────────────────────
 
+@login_required
 def create_community(request):
     categories = Category.objects.all()
     if request.method == 'POST':

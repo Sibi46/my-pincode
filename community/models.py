@@ -913,6 +913,8 @@ class FamilyMember(models.Model):
         ('cousin',      'Cousin'),
         ('brother',     'Brother'),
         ('sister',      'Sister'),
+        ('friend',      'Friend'),
+        ('colleague',   'Colleague'),
         ('pet',         'Pet / Animal'),
         ('other',       'Other'),
     ]
@@ -958,3 +960,23 @@ class FamilyMember(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_member_type_display()})"
+
+
+class FamilyFlick(models.Model):
+    creator   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_flicks')
+    photo     = models.ImageField(upload_to='family_flicks/')
+    caption   = models.CharField(max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class FamilyPost(models.Model):
+    creator   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_posts')
+    text      = models.TextField()
+    photo     = models.ImageField(upload_to='family_post_photos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

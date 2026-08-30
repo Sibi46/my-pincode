@@ -19,6 +19,37 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
 User = get_user_model()
 
 
+# ── PINCODE LOOKUP API ────────────────────────────────────────────────────────
+def api_pincode_lookup(request, pin):
+    """Return area/district/state for a 6-digit PIN code."""
+    try:
+        pc = PinCode.objects.select_related('district', 'district__state').get(code=pin, is_active=True)
+        return JsonResponse({
+            'success': True,
+            'area':     pc.area_name or pc.district.name,
+            'district': pc.district.name,
+            'state':    pc.district.state.name,
+        })
+    except PinCode.DoesNotExist:
+        pass
+    # Fallback: India Post public API
+    try:
+        import urllib.request as ur, json as _json
+        with ur.urlopen(f'https://api.postalpincode.in/pincode/{pin}', timeout=4) as resp:
+            data = _json.loads(resp.read())[0]
+        if data.get('Status') == 'Success' and data.get('PostOffice'):
+            po = data['PostOffice'][0]
+            return JsonResponse({
+                'success': True,
+                'area':     po.get('Name', ''),
+                'district': po.get('District', ''),
+                'state':    po.get('State', ''),
+            })
+    except Exception:
+        pass
+    return JsonResponse({'success': False})
+
+
 # ── HOME ──────────────────────────────────────────────────────────────────────
 def home(request):
     from django.utils import timezone as tz
@@ -54,6 +85,10 @@ def home(request):
     live_ads = AdPost.objects.filter(status='approved').filter(
         Q(expires_at__isnull=True) | Q(expires_at__gte=today)
     ).order_by('-approved_at')[:12]
+    # Track views for AdPost ads shown on home page
+    live_ad_pks = [a.pk for a in live_ads]
+    if live_ad_pks:
+        AdPost.objects.filter(pk__in=live_ad_pks).update(views=F('views') + 1)
 
 
     # ── Jobs & employers ────────────────────────────────
@@ -161,42 +196,54 @@ def register_process(request):
     whatsapp   = request.POST.get('whatsapp', '').strip()
     ref_code   = request.POST.get('ref_code', '').strip().upper()
 
-    username = phone if phone else email
-    if not username:
-        return err('Phone or email is required.')
-
-    if not password:
-        return err('Password is required.')
-
-    existing_user = User.objects.filter(username=username).first()
-    if existing_user:
-        # If registering a business on an existing account, upgrade and continue
-        if user_type in User.EMPLOYER_TYPES:
-            user = existing_user
-            if not user.check_password(password):
-                user.set_password(password)
-            user.user_type = user_type
-            if first_name: user.first_name = first_name
-            if pincode: user.pincode = pincode
-            user.save()
-        else:
-            return err('An account already exists with this phone. Please login instead.')
+    # If already logged in and registering a business — link to existing account
+    if request.user.is_authenticated and user_type in User.EMPLOYER_TYPES:
+        user = request.user
+        user.user_type = user_type
+        if pincode: user.pincode = pincode
+        # Save business phone if provided and not already taken
+        if phone and phone != user.phone:
+            if not User.objects.filter(business_phone=phone).exclude(pk=user.pk).exists():
+                user.business_phone = phone
+        if password:
+            user.set_password(password)
+        user.save()
     else:
-        from .utils import generate_referral_code
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            phone=phone,
-            whatsapp=whatsapp,
-            user_type=user_type,
-            address=address,
-            city=city,
-            pincode=pincode,
-            referral_code=generate_referral_code(),
-        )
+        username = phone if phone else email
+        if not username:
+            return err('Phone or email is required.')
+
+        if not password:
+            return err('Password is required.')
+
+        existing_user = User.objects.filter(username=username).first() or \
+                        User.objects.filter(phone=phone).first() if phone else None
+        if existing_user:
+            if user_type in User.EMPLOYER_TYPES:
+                user = existing_user
+                if password: user.set_password(password)
+                user.user_type = user_type
+                if first_name: user.first_name = first_name
+                if pincode: user.pincode = pincode
+                user.save()
+            else:
+                return err('An account already exists with this phone. Please login instead.')
+        else:
+            from .utils import generate_referral_code
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone,
+                whatsapp=whatsapp,
+                user_type=user_type,
+                address=address,
+                city=city,
+                pincode=pincode,
+                referral_code=generate_referral_code(),
+            )
 
     # Track referral and award signup bonus
     if ref_code:
@@ -304,7 +351,13 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse as _JR
+                return _JR({'success': True, 'redirect': next_url or '/'})
             return redirect(next_url or 'dashboard')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse as _JR
+            return _JR({'success': False, 'error': 'Invalid phone/email or password.'})
         messages.error(request, 'Invalid phone/email or password.')
 
     return render(request, 'login.html', {'next': next_url})
@@ -1443,10 +1496,6 @@ def advertiser_register(request):
             status         = 'pending',
             user           = user,
         )
-        if 'banner_image' in request.FILES:
-            adv.banner_image = request.FILES['banner_image']
-            adv.save()
-
         return redirect('advertiser_register_success')
 
     from .models import Flick, FlickLike
@@ -1472,11 +1521,12 @@ def advertiser_dashboard(request):
     simple_ads   = AdPost.objects.filter(user=request.user).prefetch_related('renewals').order_by('-created_at')
     ad_settings  = AdSettings.get()
     total_views  = sum(a.views or 0 for a in simple_ads)
+    total_clicks = sum(getattr(a, 'clicks', 0) or 0 for a in simple_ads)
     active_count = sum(1 for a in simple_ads if a.is_live)
     packages     = AdPackage.objects.filter(is_active=True)
     return render(request, 'advertiser_dashboard.html', {
         'adv': adv, 'ads': simple_ads,
-        'total_views': total_views, 'total_clicks': 0,
+        'total_views': total_views, 'total_clicks': total_clicks,
         'active_count': active_count, 'expiring': [],
         'packages': packages, 'settings': ad_settings,
     })
@@ -1611,6 +1661,19 @@ def ad_click_track(request, ad_id):
         if ad.link_url:
             return redirect(ad.link_url)
     except Advertisement.DoesNotExist:
+        pass
+    return redirect('home')
+
+
+def adpost_click_track(request, ad_id):
+    """Tracks click on an AdPost and redirects to its website."""
+    from .models import AdPost
+    try:
+        ad = AdPost.objects.get(pk=ad_id, status='approved')
+        AdPost.objects.filter(pk=ad_id).update(clicks=F('clicks') + 1)
+        if ad.website:
+            return redirect(ad.website)
+    except AdPost.DoesNotExist:
         pass
     return redirect('home')
 
@@ -2058,11 +2121,19 @@ def district_admin_required(view_func):
 def post_simple_ad(request):
     from .models import AdPost, AdSettings
     if request.method == 'POST':
+        import base64, io
+        from django.core.files.base import ContentFile
         company_name = request.POST.get('company_name', '').strip()
         pincode      = request.POST.get('pincode', '').strip()
-        description  = request.POST.get('description', '').strip()
+        description  = request.POST.get('description', '').strip()[:160]
         website      = request.POST.get('website', '').strip()
+        image_data   = request.POST.get('image_data', '').strip()
         image        = request.FILES.get('image')
+        # Prefer cropped base64 data over raw file
+        if image_data and image_data.startswith('data:image'):
+            fmt, b64 = image_data.split(';base64,', 1)
+            ext = fmt.split('/')[-1].replace('jpeg', 'jpg')
+            image = ContentFile(base64.b64decode(b64), name=f'ad_{request.user.pk}.{ext}')
         if not company_name or not description or not image:
             messages.error(request, 'Company name, description and image are required.')
             return redirect('post_simple_ad')

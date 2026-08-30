@@ -10,7 +10,11 @@ urlpatterns = [
     path('family/delete/',                 views.family_delete,         name='family_delete'),
     path('family/setup/',                  views.family_setup_wizard,   name='family_setup_wizard'),
     path('family/create/',                 views.family_member_create,  name='family_member_create'),
+    path('family/quick-add/',              views.family_quick_add,      name='family_quick_add'),
+    path('family/flick/add/',              views.family_flick_add,      name='family_flick_add'),
+    path('family/post/add/',               views.family_post_add,       name='family_post_add'),
     path('family/member/<int:pk>/',        views.family_member_detail,  name='family_member_detail'),
+    path('family/member/<int:pk>/edit/',   views.family_member_edit,    name='family_member_edit'),
     path('family/member/<int:pk>/verify/', views.family_member_verify,  name='family_member_verify'),
     path('school-kids/',                   views.school_kids_hub,       name='school_kids_hub'),
 

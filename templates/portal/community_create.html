@@ -42,7 +42,11 @@
           </div>
           <div class="pform-group">
             <label class="pform-label">Full Name</label>
-            <input type="text" name="full_name" class="pform-input" value="{{ request.user.get_full_name|default:request.user.username }}" placeholder="Your full name">
+            <div style="padding:10px 14px;background:#f1f5f9;border-radius:10px;border:1.5px solid #e2e8f0;font-size:14px;font-weight:600;color:#374151;display:flex;align-items:center;justify-content:space-between">
+              <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+              <a href="/profile/edit/" style="font-size:11px;font-weight:700;color:#4f46e5;text-decoration:none">✏️ Edit</a>
+            </div>
+            <input type="hidden" name="full_name" value="{{ request.user.get_full_name|default:request.user.username }}">
           </div>
           <div class="p2col">
             <div class="pform-group" style="margin-bottom:0">
@@ -118,9 +122,11 @@
           </div>
           <div class="pform-group">
             <label class="pform-label">Join Mode *</label>
-            <select name="join_mode" class="pform-input">
+            <select name="join_mode" class="pform-input" required>
+              <option value="" disabled selected>Select type…</option>
               <option value="open">Open — Anyone can join</option>
               <option value="approval">Admin Approval Required</option>
+              <option value="private">Private — Invite Only</option>
             </select>
           </div>
         </div>
@@ -175,7 +181,7 @@
       </div>
     </div>
 
-    <button type="submit" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px">
+    <button type="submit" id="submitBtn" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px">
       {% if request.user.is_authenticated %}Create Community →{% else %}Create Account & Community →{% endif %}
     </button>
     <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:10px">
@@ -183,6 +189,48 @@
     </p>
   </form>
 </div>
+
+<!-- Progress overlay -->
+<div id="progressOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9999;align-items:center;justify-content:center;flex-direction:column">
+  <div style="background:#fff;border-radius:24px;padding:36px 40px;width:300px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:2.4rem;margin-bottom:12px">🏘️</div>
+    <div style="font-size:16px;font-weight:800;color:#0F172A;margin-bottom:6px">Creating your community…</div>
+    <div id="progressLabel" style="font-size:13px;color:#64748B;margin-bottom:18px">Uploading files…</div>
+    <div style="background:#E0E7FF;border-radius:20px;height:10px;overflow:hidden;margin-bottom:10px">
+      <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#4F46E5,#7C3AED);border-radius:20px;transition:width .4s ease"></div>
+    </div>
+    <div id="progressPct" style="font-size:22px;font-weight:900;color:#4F46E5">0%</div>
+  </div>
+</div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating…';
+  var overlay = document.getElementById('progressOverlay');
+  overlay.style.display = 'flex';
+  var bar = document.getElementById('progressBar');
+  var pct = document.getElementById('progressPct');
+  var lbl = document.getElementById('progressLabel');
+  var steps = [
+    {p:15, t:300,  l:'Validating details…'},
+    {p:35, t:800,  l:'Uploading photos…'},
+    {p:55, t:1400, l:'Setting up community…'},
+    {p:75, t:2000, l:'Generating Page ID…'},
+    {p:90, t:2800, l:'Almost done…'},
+    {p:98, t:3600, l:'Finalising…'},
+  ];
+  steps.forEach(function(s){
+    setTimeout(function(){
+      bar.style.width = s.p + '%';
+      pct.textContent = s.p + '%';
+      lbl.textContent = s.l;
+    }, s.t);
+  });
+});
+</script>
+
 <script>
 function previewCreatorPhoto(input) {
   if (input.files && input.files[0]) {
