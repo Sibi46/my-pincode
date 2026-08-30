@@ -300,11 +300,25 @@ class JobApplication(models.Model):
         ('rejected',             'Rejected'),
         ('withdrawn',            'Withdrawn'),
     ]
+    EMPLOYMENT_TYPE = [('full_time','Full-time'),('part_time','Part-time'),('contract','Contract'),('internship','Internship')]
+
     job        = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     applicant  = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
     cover_note = models.TextField(blank=True)
     status     = models.CharField(max_length=30, choices=STATUS, default='pending')
     applied_at = models.DateTimeField(auto_now_add=True)
+
+    # ── Application-specific fields ───────────────
+    expected_salary   = models.CharField(max_length=100, blank=True)
+    notice_period     = models.CharField(max_length=50, blank=True)
+    employment_type   = models.CharField(max_length=20, choices=EMPLOYMENT_TYPE, blank=True)
+    why_join          = models.TextField(blank=True)
+    why_suitable      = models.TextField(blank=True)
+    currently_employed = models.BooleanField(default=False)
+    how_heard         = models.CharField(max_length=100, blank=True)
+    application_resume = models.FileField(upload_to='application_resumes/', blank=True, null=True)
+    cover_letter_file  = models.FileField(upload_to='cover_letters/', blank=True, null=True)
+    declared          = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ['job', 'applicant']

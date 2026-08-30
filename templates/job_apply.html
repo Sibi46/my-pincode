@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% block title %}Apply — {{ job.title }}{% endblock %}
+{% block extra_css %}
+<style>
+.ja-wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+.ja-hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:16px;padding:24px;margin-bottom:24px}
+.ja-hero h1{margin:0 0 6px;font-size:1.4rem;font-weight:900}
+.ja-hero p{margin:0;opacity:.85;font-size:13px}
+.ja-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.07);overflow:hidden;margin-bottom:18px}
+.ja-card-head{background:#f8f7ff;border-bottom:1px solid #ede9fe;padding:12px 20px;display:flex;align-items:center;gap:8px}
+.ja-card-head h3{margin:0;font-size:.88rem;font-weight:800;color:#4f46e5}
+.ja-card-head .ja-step{background:#4f46e5;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+.ja-body{padding:18px 20px}
+.ja-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:580px){.ja-grid{grid-template-columns:1fr}}
+.ja-full{grid-column:1/-1}
+.fg{margin-bottom:0}
+.fg label{display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:5px}
+.fg label .req{color:#ef4444}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;box-sizing:border-box;transition:border-color .15s;color:#111}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.fg textarea{resize:vertical;min-height:90px}
+.fg .hint{font-size:11px;color:#94a3b8;margin-top:4px}
+.radio-row{display:flex;gap:10px;flex-wrap:wrap}
+.radio-row label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;padding:8px 14px;border:1.5px solid #e2e8f0;border-radius:10px;transition:.15s}
+.radio-row input[type=radio]{accent-color:#7c3aed;width:16px;height:16px}
+.radio-row label:has(input:checked){border-color:#7c3aed;background:#f5f3ff}
+.ja-submit{width:100%;padding:15px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:4px;transition:.2s}
+.ja-submit:hover{opacity:.92}
+.ja-submit:disabled{opacity:.6;cursor:not-allowed}
+.decl-box{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:16px;display:flex;gap:12px;align-items:flex-start}
+.decl-box input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:#059669;flex-shrink:0}
+.autofill-note{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:10px 14px;font-size:12px;color:#1e40af;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ja-wrap">
+
+  <!-- Hero -->
+  <div class="ja-hero">
+    <h1>{{ job.title }}</h1>
+    <p>{{ job.company_name|default:job.posted_by.company.company_name|default:"" }} {% if job.location %}· {{ job.location }}{% endif %}</p>
+  </div>
+
+  {% if messages %}{% for msg in messages %}
+  <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:10px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:16px">{{ msg }}</div>
+  {% endfor %}{% endif %}
+
+  {% if seeker %}
+  <div class="autofill-note">ℹ️ Fields are pre-filled from your profile. Review and update before submitting.</div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" id="applyForm" action="/jobs/{{ job.pk }}/apply/">
+    {% csrf_token %}
+
+    <!-- 1. Personal Details -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">1</div><h3>Personal Details</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" name="full_name" value="{{ request.user.get_full_name|default:request.user.username }}" required>
+          </div>
+          <div class="fg">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" name="email" value="{{ request.user.email }}" required>
+          </div>
+          <div class="fg">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" name="phone" value="{{ request.user.phone }}" required>
+          </div>
+          <div class="fg">
+            <label>Date of Birth</label>
+            <input type="date" name="dob" value="{% if seeker.dob %}{{ seeker.dob|date:'Y-m-d' }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label>Gender</label>
+            <select name="gender">
+              <option value="">Select gender</option>
+              <option value="male" {% if seeker.gender == 'male' %}selected{% endif %}>Male</option>
+              <option value="female" {% if seeker.gender == 'female' %}selected{% endif %}>Female</option>
+              <option value="other" {% if seeker.gender == 'other' %}selected{% endif %}>Other</option>
+              <option value="prefer_not" {% if seeker.gender == 'prefer_not' %}selected{% endif %}>Prefer not to say</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Profile Photo</label>
+            {% if seeker.photo %}
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <img src="{{ seeker.photo.url }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
+              <span style="font-size:12px;color:#059669;font-weight:600">✓ Photo on file</span>
+            </div>
+            {% endif %}
+            <input type="file" name="profile_photo" accept="image/*">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Location -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">2</div><h3>Location</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg ja-full">
+            <label>Current Address</label>
+            <input type="text" name="address" value="{{ request.user.address }}">
+          </div>
+          <div class="fg">
+            <label>City <span class="req">*</span></label>
+            <input type="text" name="city" id="applyCity" value="{{ request.user.city }}" required>
+          </div>
+          <div class="fg">
+            <label>State</label>
+            <input type="text" name="state" id="applyState" value="{{ request.user.state_name|default:'' }}">
+          </div>
+          <div class="fg">
+            <label>Pincode <span class="req">*</span></label>
+            <input type="text" name="pincode" id="applyPincode" value="{{ request.user.pincode }}" maxlength="6" inputmode="numeric" required>
+          </div>
+          <div class="fg">
+            <label>Preferred Work Location</label>
+            <input type="text" name="preferred_location" value="{% if seeker %}{{ seeker.preferred_location }}{% endif %}">
+          </div>
+          <div class="fg ja-full">
+            <label>Willing to Relocate?</label>
+            <div class="radio-row">
+              <label><input type="radio" name="willing_to_relocate" value="yes" {% if seeker.open_to_relocate %}checked{% endif %}> Yes</label>
+              <label><input type="radio" name="willing_to_relocate" value="no" {% if not seeker.open_to_relocate %}checked{% endif %}> No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Professional Details -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">3</div><h3>Professional Details</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg">
+            <label>Position Applied For <span class="req">*</span></label>
+            <input type="text" name="position_applied" value="{{ job.title }}" required>
+          </div>
+          <div class="fg">
+            <label>Current Job Title</label>
+            <input type="text" name="current_title" value="{% if seeker %}{{ seeker.preferred_roles }}{% endif %}">
+          </div>
+          <div class="fg">
+            <label>Total Experience <span class="req">*</span></label>
+            <input type="text" name="total_experience" value="{% if seeker %}{{ seeker.experience }}{% endif %}" placeholder="e.g. 3 years" required>
+          </div>
+          <div class="fg">
+            <label>Relevant Experience</label>
+            <input type="text" name="relevant_experience" placeholder="e.g. 2 years in this domain">
+          </div>
+          <div class="fg">
+            <label>Current Company</label>
+            <input type="text" name="current_company" placeholder="Company name or N/A">
+          </div>
+          <div class="fg">
+            <label>Current Salary / CTC</label>
+            <input type="text" name="current_salary" placeholder="e.g. ₹4.5 LPA or N/A">
+          </div>
+          <div class="fg">
+            <label>Expected Salary / CTC <span class="req">*</span></label>
+            <input type="text" name="expected_salary" value="{% if seeker and seeker.salary_min %}₹{{ seeker.salary_min }}{% endif %}" placeholder="e.g. ₹6 LPA" required>
+          </div>
+          <div class="fg">
+            <label>Notice Period</label>
+            <select name="notice_period">
+              <option value="">Select notice period</option>
+              <option>Immediate</option>
+              <option>15 days</option>
+              <option>1 month</option>
+              <option>2 months</option>
+              <option>3 months</option>
+            </select>
+          </div>
+          <div class="fg ja-full">
+            <label>Employment Type</label>
+            <div class="radio-row">
+              <label><input type="radio" name="employment_type" value="full_time" checked> Full-time</label>
+              <label><input type="radio" name="employment_type" value="part_time"> Part-time</label>
+              <label><input type="radio" name="employment_type" value="contract"> Contract</label>
+              <label><input type="radio" name="employment_type" value="internship"> Internship</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Education -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">4</div><h3>Education</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg">
+            <label>Highest Qualification <span class="req">*</span></label>
+            <select name="qualification" required>
+              <option value="">Select qualification</option>
+              {% for val in "10th Pass,12th Pass,Diploma,ITI,Graduate (B.A/B.Sc/B.Com),B.E/B.Tech,MBA/PGDM,Post Graduate,PhD,Other"|split:"," %}
+              <option value="{{ val }}" {% if seeker.education == val %}selected{% endif %}>{{ val }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="fg">
+            <label>Degree / Course</label>
+            <input type="text" name="degree" placeholder="e.g. B.Tech Computer Science">
+          </div>
+          <div class="fg">
+            <label>College / University</label>
+            <input type="text" name="college" placeholder="Institution name">
+          </div>
+          <div class="fg">
+            <label>Graduation Year</label>
+            <input type="number" name="grad_year" min="1980" max="2030" placeholder="e.g. 2022">
+          </div>
+          <div class="fg">
+            <label>Percentage / CGPA</label>
+            <input type="text" name="percentage" placeholder="e.g. 78% or 8.2 CGPA">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Skills -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">5</div><h3>Skills</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg">
+            <label>Primary Skills <span class="req">*</span></label>
+            <input type="text" name="primary_skills" value="{% if seeker %}{{ seeker.primary_skill }}{% endif %}" placeholder="e.g. Sales, Marketing" required>
+          </div>
+          <div class="fg">
+            <label>Technical Skills</label>
+            <input type="text" name="technical_skills" value="{% if seeker %}{{ seeker.skills }}{% endif %}" placeholder="e.g. Python, Excel, Tally">
+          </div>
+          <div class="fg">
+            <label>Soft Skills</label>
+            <input type="text" name="soft_skills" placeholder="e.g. Communication, Leadership">
+          </div>
+          <div class="fg">
+            <label>Languages Known</label>
+            <input type="text" name="languages" value="{% if seeker %}{{ seeker.languages }}{% endif %}" placeholder="e.g. Tamil, English, Hindi">
+          </div>
+          <div class="fg ja-full">
+            <label>Certifications</label>
+            <input type="text" name="certifications" placeholder="e.g. Google Analytics, AWS Cloud Practitioner">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Resume & Portfolio -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">6</div><h3>Resume &amp; Portfolio</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg">
+            <label>Upload Resume / CV <span class="req">*</span></label>
+            {% if seeker.resume %}
+            <div style="font-size:12px;color:#059669;font-weight:600;margin-bottom:6px">✓ Resume on file — upload new to replace</div>
+            {% endif %}
+            <input type="file" name="application_resume" accept=".pdf,.doc,.docx" {% if not seeker.resume %}required{% endif %}>
+            <div class="hint">PDF, DOC, DOCX — max 5MB</div>
+          </div>
+          <div class="fg">
+            <label>Cover Letter (optional)</label>
+            <input type="file" name="cover_letter_file" accept=".pdf,.doc,.docx">
+          </div>
+          <div class="fg">
+            <label>Portfolio URL</label>
+            <input type="url" name="portfolio_url" value="{% if seeker %}{{ seeker.portfolio_url }}{% endif %}" placeholder="https://yourportfolio.com">
+          </div>
+          <div class="fg">
+            <label>LinkedIn Profile</label>
+            <input type="url" name="linkedin" placeholder="https://linkedin.com/in/yourname">
+          </div>
+          <div class="fg">
+            <label>GitHub Profile</label>
+            <input type="url" name="github" placeholder="https://github.com/yourname">
+          </div>
+          <div class="fg">
+            <label>Other Work Samples</label>
+            <input type="url" name="other_samples" placeholder="Any other link">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Additional Questions -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">7</div><h3>Additional Questions</h3></div>
+      <div class="ja-body">
+        <div class="ja-grid">
+          <div class="fg ja-full">
+            <label>Why do you want to join us? <span class="req">*</span></label>
+            <textarea name="why_join" rows="4" placeholder="Tell us what excites you about this role and company…" required></textarea>
+          </div>
+          <div class="fg ja-full">
+            <label>Why are you suitable for this role? <span class="req">*</span></label>
+            <textarea name="why_suitable" rows="4" placeholder="Highlight your key strengths and relevant experience…" required></textarea>
+          </div>
+          <div class="fg ja-full">
+            <label>Previous Work Experience / Projects</label>
+            <textarea name="cover_note" rows="4" placeholder="Briefly describe your most relevant work or projects…"></textarea>
+          </div>
+          <div class="fg">
+            <label>Are you currently employed?</label>
+            <div class="radio-row">
+              <label><input type="radio" name="currently_employed" value="yes"> Yes</label>
+              <label><input type="radio" name="currently_employed" value="no" checked> No</label>
+            </div>
+          </div>
+          <div class="fg">
+            <label>How did you hear about this job?</label>
+            <select name="how_heard">
+              <option value="">Select source</option>
+              <option>OUR PINCODE</option>
+              <option>LinkedIn</option>
+              <option>Naukri / Indeed</option>
+              <option>Friend / Referral</option>
+              <option>Social Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Declaration -->
+    <div class="ja-card">
+      <div class="ja-card-head"><div class="ja-step">8</div><h3>Declaration</h3></div>
+      <div class="ja-body">
+        <div class="decl-box">
+          <input type="checkbox" name="declared" id="declCheck" value="1" required>
+          <label for="declCheck" style="font-size:13px;color:#166534;font-weight:600;cursor:pointer">
+            I confirm that all the information provided in this application is accurate and complete to the best of my knowledge. I understand that any false information may result in disqualification or termination.
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="ja-submit" id="submitBtn">
+      🚀 Submit Application
+    </button>
+    <p style="text-align:center;font-size:12px;color:#94a3b8;margin-top:12px">
+      <a href="/jobs/{{ job.pk }}/" style="color:#7c3aed;font-weight:600">← Back to Job</a>
+    </p>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Pincode → auto-fill city
+document.getElementById('applyPincode').addEventListener('blur', function(){
+  var p = this.value.trim();
+  if(p.length !== 6) return;
+  fetch('/api/pincode/' + p + '/')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.city){ document.getElementById('applyCity').value = d.city; }
+      if(d.state){ document.getElementById('applyState').value = d.state; }
+    }).catch(function(){});
+});
+
+// Submit button loading
+document.getElementById('applyForm').addEventListener('submit', function(){
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+});
+</script>
+{% endblock %}

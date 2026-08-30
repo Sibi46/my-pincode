@@ -468,31 +468,55 @@ def job_detail(request, pk):
 @login_required
 def apply_job(request, pk):
     job = get_object_or_404(Job, pk=pk, status='active', is_approved=True, job_plan__in=['free', 'paid'])
+
+    # Already applied — redirect back
+    existing = JobApplication.objects.filter(job=job, applicant=request.user).first()
+    if existing:
+        messages.warning(request, 'You have already applied for this job.')
+        return redirect('job_detail', pk=pk)
+
+    # Load seeker profile for pre-fill
+    try:
+        seeker = request.user.seeker
+    except Exception:
+        seeker = None
+
+    if request.method == 'GET':
+        return render(request, 'job_apply.html', {'job': job, 'seeker': seeker, 'user': request.user})
+
     if request.method == 'POST':
-        if not JobApplication.objects.filter(job=job, applicant=request.user).exists():
-            JobApplication.objects.create(
-                job=job,
-                applicant=request.user,
-                cover_note=request.POST.get('cover_note', ''),
-            )
-            messages.success(request, 'Application submitted successfully!')
-            # Referral bonus: first application by a referred seeker
-            try:
-                ref = Referral.objects.get(referred=request.user, bonus_action=False)
-                first_app = JobApplication.objects.filter(applicant=request.user).count() == 1
-                if first_app:
-                    from .utils import award_referral_points
-                    award_referral_points(
-                        ref.referrer, 25, 'referral_apply',
-                        f'{request.user.get_full_name() or request.user.username} applied for their first job!'
-                    )
-                    ref.bonus_action = True
-                    ref.save(update_fields=['bonus_action'])
-            except Referral.DoesNotExist:
-                pass
-        else:
-            messages.warning(request, 'You have already applied for this job.')
-    return redirect('job_detail', pk=pk)
+        p = request.POST
+        app = JobApplication(
+            job=job,
+            applicant=request.user,
+            cover_note=p.get('cover_note', '').strip(),
+            expected_salary=p.get('expected_salary', '').strip(),
+            notice_period=p.get('notice_period', '').strip(),
+            employment_type=p.get('employment_type', '').strip(),
+            why_join=p.get('why_join', '').strip(),
+            why_suitable=p.get('why_suitable', '').strip(),
+            currently_employed=p.get('currently_employed') == 'yes',
+            how_heard=p.get('how_heard', '').strip(),
+            declared=bool(p.get('declared')),
+        )
+        if 'application_resume' in request.FILES:
+            app.application_resume = request.FILES['application_resume']
+        if 'cover_letter_file' in request.FILES:
+            app.cover_letter_file = request.FILES['cover_letter_file']
+        app.save()
+        messages.success(request, 'Application submitted successfully!')
+        # Referral bonus
+        try:
+            ref = Referral.objects.get(referred=request.user, bonus_action=False)
+            if JobApplication.objects.filter(applicant=request.user).count() == 1:
+                from .utils import award_referral_points
+                award_referral_points(ref.referrer, 25, 'referral_apply',
+                    f'{request.user.get_full_name() or request.user.username} applied for their first job!')
+                ref.bonus_action = True
+                ref.save(update_fields=['bonus_action'])
+        except Referral.DoesNotExist:
+            pass
+        return redirect('job_detail', pk=pk)
 
 
 # ── POST JOB ──────────────────────────────────────────────────────────────────

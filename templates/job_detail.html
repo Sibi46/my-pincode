@@ -54,9 +54,9 @@
             {% if already_applied %}
               <button class="apply-done-btn" disabled><i class="fas fa-check-circle"></i> Applied</button>
             {% else %}
-              <button onclick="document.getElementById('applyModal').style.display='flex'" class="apply-now-btn">
+              <a href="/jobs/{{ job.pk }}/apply/" class="apply-now-btn" style="text-decoration:none">
                 <i class="fas fa-paper-plane"></i> Apply Now
-              </button>
+              </a>
             {% endif %}
 
             <!-- Save Job -->
