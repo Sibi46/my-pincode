@@ -182,6 +182,7 @@ def event_detail(request, pk):
         pres = event.community.president()
         if pres:
             community_president = pres.user
+    join_required = request.session.pop('join_required_community', None)
     return render(request, 'portal/event_detail.html', {
         'event': event, 'is_admin': is_admin, 'is_super_admin': is_super_admin,
         'registration': registration, 'user_rating': user_rating,
@@ -192,6 +193,7 @@ def event_detail(request, pk):
         'going_count': event.participants.filter(status='approved').count(),
         'waitlist_count': waitlist.count(),
         'community_president': community_president,
+        'join_required': join_required,
     })
 
 
@@ -923,6 +925,12 @@ def create_event(request, page_id):
 def event_register(request, pk):
     event = get_object_or_404(Event, pk=pk, is_active=True)
     existing = EventParticipant.objects.filter(event=event, user=request.user).first()
+
+    # Check community membership first
+    community = event.community
+    if not (_is_member(community, request.user) or community.is_admin(request.user)):
+        request.session['join_required_community'] = {'name': community.name, 'page_id': community.page_id}
+        return redirect('portal_event_detail', pk=pk)
 
     needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact or event.require_profile_photo
 

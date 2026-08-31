@@ -482,28 +482,52 @@ def apply_job(request, pk):
         seeker = None
 
     if request.method == 'GET':
-        return render(request, 'job_apply.html', {'job': job, 'seeker': seeker, 'user': request.user})
+        # If profile already filled, show quick-confirm page instead of full form
+        profile_complete = bool(
+            seeker and
+            seeker.experience and
+            seeker.education and
+            (seeker.primary_skill or seeker.skills)
+        )
+        if profile_complete and not request.GET.get('full'):
+            return render(request, 'job_apply_confirm.html', {'job': job, 'seeker': seeker, 'user': request.user})
+        # Profile incomplete — send to profile edit, come back after saving
+        messages.info(request, 'Please complete your profile first, then apply for the job.')
+        return redirect(f'/profile/edit/?next=/jobs/{pk}/apply/')
 
     if request.method == 'POST':
         p = request.POST
-        app = JobApplication(
-            job=job,
-            applicant=request.user,
-            cover_note=p.get('cover_note', '').strip(),
-            expected_salary=p.get('expected_salary', '').strip(),
-            notice_period=p.get('notice_period', '').strip(),
-            employment_type=p.get('employment_type', '').strip(),
-            why_join=p.get('why_join', '').strip(),
-            why_suitable=p.get('why_suitable', '').strip(),
-            currently_employed=p.get('currently_employed') == 'yes',
-            how_heard=p.get('how_heard', '').strip(),
-            declared=bool(p.get('declared')),
-        )
-        if 'application_resume' in request.FILES:
-            app.application_resume = request.FILES['application_resume']
-        if 'cover_letter_file' in request.FILES:
-            app.cover_letter_file = request.FILES['cover_letter_file']
-        app.save()
+        if p.get('quick_apply') == '1' and seeker:
+            # Quick apply: use saved profile data
+            app = JobApplication(
+                job=job,
+                applicant=request.user,
+                cover_note=p.get('cover_note', '').strip(),
+                expected_salary=str(seeker.salary_min) if seeker.salary_min else '',
+                declared=True,
+            )
+            if seeker.resume:
+                app.application_resume = seeker.resume
+            app.save()
+        else:
+            app = JobApplication(
+                job=job,
+                applicant=request.user,
+                cover_note=p.get('cover_note', '').strip(),
+                expected_salary=p.get('expected_salary', '').strip(),
+                notice_period=p.get('notice_period', '').strip(),
+                employment_type=p.get('employment_type', '').strip(),
+                why_join=p.get('why_join', '').strip(),
+                why_suitable=p.get('why_suitable', '').strip(),
+                currently_employed=p.get('currently_employed') == 'yes',
+                how_heard=p.get('how_heard', '').strip(),
+                declared=bool(p.get('declared')),
+            )
+            if 'application_resume' in request.FILES:
+                app.application_resume = request.FILES['application_resume']
+            if 'cover_letter_file' in request.FILES:
+                app.cover_letter_file = request.FILES['cover_letter_file']
+            app.save()
         messages.success(request, 'Application submitted successfully!')
         # Referral bonus
         try:
@@ -804,6 +828,24 @@ def employer_dashboard(request):
     recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
     liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
 
+    # ── Gift Voucher stats ──
+    try:
+        from vouchers.models import Business as VoucherBusiness, GiftVoucher, VoucherPurchase
+        from django.db.models import Sum as VSum
+        voucher_business = VoucherBusiness.objects.filter(owner=request.user).first()
+        if voucher_business:
+            recent_vouchers  = GiftVoucher.objects.filter(business=voucher_business).order_by('-created_at')[:5]
+            voucher_count    = GiftVoucher.objects.filter(business=voucher_business).count()
+            voucher_purchases = VoucherPurchase.objects.filter(
+                gift_voucher__business=voucher_business, status__in=['paid','sent','redeemed']).count()
+            voucher_revenue  = VoucherPurchase.objects.filter(
+                gift_voucher__business=voucher_business, status__in=['paid','sent','redeemed']
+            ).aggregate(t=VSum('amount_paid'))['t'] or 0
+        else:
+            recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
+    except Exception:
+        voucher_business = recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
         'expired_jobs':       expired_jobs,
@@ -832,6 +874,11 @@ def employer_dashboard(request):
         'job_posted_title':   job_posted_title,
         'recent_flicks':      recent_flicks,
         'liked_ids':          liked_ids,
+        'voucher_business':   voucher_business,
+        'recent_vouchers':    recent_vouchers,
+        'voucher_count':      voucher_count,
+        'voucher_purchases':  voucher_purchases,
+        'voucher_revenue':    voucher_revenue,
     })
 
 
@@ -895,6 +942,19 @@ def jobseeker_dashboard(request):
         'recent_flicks':      recent_flicks,
         'liked_ids':          liked_ids,
     })
+
+
+@login_required
+def view_applicant_profile(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    applicant = get_object_or_404(User, pk=pk)
+    seeker = getattr(applicant, 'seeker', None)
+    # Only employers who have received an application from this person can view
+    if not request.user.is_employer():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+    return render(request, 'applicant_profile.html', {'applicant': applicant, 'seeker': seeker})
 
 
 @login_required
@@ -3366,28 +3426,66 @@ def my_accounts(request):
 @login_required
 def profile_edit(request):
     user = request.user
-    # get sub-profile if exists
-    seeker = getattr(user, 'seeker', None)
     company = getattr(user, 'company', None)
+
+    # Auto-create seeker profile for individual/employee/freelancer
+    if user.user_type in ('individual', 'employee', 'freelancer'):
+        seeker, _ = JobSeekerProfile.objects.get_or_create(user=user)
+    else:
+        seeker = getattr(user, 'seeker', None)
 
     if request.method == 'POST':
         p = request.POST
         f = request.FILES
+        # User fields
         user.first_name = p.get('first_name', '').strip()
         user.last_name  = p.get('last_name', '').strip()
         user.email      = p.get('email', '').strip()
-        user.phone      = p.get('phone', '').strip()
         user.whatsapp   = p.get('whatsapp', '').strip()
         user.city       = p.get('city', '').strip()
         user.pincode    = p.get('pincode', '').strip()
         user.address    = p.get('address', '').strip()
         user.save()
 
-        if seeker and 'photo' in f:
-            seeker.photo = f['photo']
+        # Seeker profile fields
+        if seeker:
+            if 'photo' in f:
+                seeker.photo = f['photo']
+            dob_str = p.get('dob', '').strip()
+            if dob_str:
+                from datetime import datetime
+                try:
+                    seeker.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            seeker.gender           = p.get('gender', '').strip()
+            seeker.experience       = p.get('experience', '').strip()
+            seeker.education        = p.get('qualification', '').strip()
+            seeker.education_details = p.get('education_details', '').strip()
+            seeker.primary_skill    = p.get('primary_skill', '').strip()
+            seeker.skills           = p.get('technical_skills', '').strip()
+            seeker.languages        = p.get('languages', '').strip()
+            seeker.preferred_roles  = p.get('current_title', '').strip()
+            seeker.preferred_location = p.get('preferred_location', '').strip()
+            seeker.open_to_relocate = p.get('willing_to_relocate') == 'yes'
+            job_cat = p.get('job_category', '').strip()
+            if job_cat in ('blue', 'white', 'any'):
+                seeker.job_category = job_cat
+            salary_min = p.get('salary_min', '').strip()
+            if salary_min:
+                try:
+                    seeker.salary_min = int(salary_min.replace(',', '').replace('₹', '').replace(' ', ''))
+                except ValueError:
+                    pass
+            seeker.portfolio_url    = p.get('portfolio_url', '').strip()
+            if 'resume' in f:
+                seeker.resume = f['resume']
             seeker.save()
 
         messages.success(request, 'Profile updated successfully.')
+        next_url = request.POST.get('next') or request.GET.get('next') or ''
+        if next_url.startswith('/'):
+            return redirect(next_url)
         return redirect('profile_edit')
 
     return render(request, 'profile_edit.html', {

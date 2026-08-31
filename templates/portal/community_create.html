@@ -162,24 +162,6 @@
       </div>
     </div>
 
-    <!-- ── Logo & Cover ── -->
-    <div class="pcard" style="margin-bottom:16px">
-      <div class="pcard-head"><div class="pcard-title">Logo & Cover</div></div>
-      <div class="pcard-body">
-        <div class="p2col">
-          <div class="pform-group">
-            <label class="pform-label">Community Logo</label>
-            <input type="file" name="logo" accept="image/*" class="pform-input" style="padding:6px">
-            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Square image recommended (min 200×200)</div>
-          </div>
-          <div class="pform-group">
-            <label class="pform-label">Cover Image</label>
-            <input type="file" name="cover" accept="image/*" class="pform-input" style="padding:6px">
-            <div style="font-size:11px;color:#94a3b8;margin-top:3px">Wide banner image (1200×400 recommended)</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <button type="submit" id="submitBtn" class="pbtn pbtn-primary pbtn-full" style="font-size:15px;padding:13px">
       {% if request.user.is_authenticated %}Create Community →{% else %}Create Account & Community →{% endif %}

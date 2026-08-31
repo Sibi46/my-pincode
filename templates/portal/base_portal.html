@@ -260,7 +260,6 @@ select.pform-input{background:#fff}
     <a href="/logout/" class="pbtn pnav-login" style="border:1.5px solid #e5e7eb">Logout</a>
   {% else %}
     <a href="/login/" class="pbtn pnav-login">Login</a>
-    <a href="/register/" class="pbtn pnav-create">Join Free</a>
   {% endif %}
   <div class="pnav-ham" onclick="document.getElementById('pmob').classList.toggle('open')">
     <i class="fas fa-bars"></i>
@@ -278,7 +277,6 @@ select.pform-input{background:#fff}
   <a href="/logout/"><i class="fas fa-sign-out-alt" style="color:#64748b;width:18px"></i> Logout</a>
   {% else %}
   <a href="/login/"><i class="fas fa-sign-in-alt" style="color:#1d4ed8;width:18px"></i> Login</a>
-  <a href="/register/"><i class="fas fa-user-plus" style="color:#059669;width:18px"></i> Join Free</a>
   {% endif %}
 </div>
 
@@ -455,15 +453,7 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
 </nav>
 {% endblock %}
 
-<div class="pfooter">
-  <p>
-    <a href="/">OUR PINCODE</a>
-    <a href="/portal/">Communities</a>
-    <a href="/portal/events/">Events</a>
-    <a href="/about/">About</a>
-  </p>
-  <p style="margin-top:6px">© EVOXU Pvt Ltd — Don't just post. Participate.</p>
-</div>
+{% block portal_footer %}{% endblock %}
 
 {% block extra_js %}{% endblock %}
 <script>

@@ -78,6 +78,21 @@
 {% block content %}
 <div class="cpage-wrap">
 
+  {% if is_admin and not community.logo or is_admin and not community.cover %}
+  <div style="background:#fef9c3;border:1.5px solid #fbbf24;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:13px;font-weight:800;color:#92400e;margin-bottom:4px">📸 Complete your community profile</div>
+      <div style="font-size:12px;color:#92400e">
+        {% if not community.logo %}🖼️ Upload a <strong>Logo</strong>{% endif %}
+        {% if not community.logo and not community.cover %} &amp; {% endif %}
+        {% if not community.cover %}🌄 Upload a <strong>Cover Banner</strong>{% endif %}
+        to make your community stand out.
+      </div>
+    </div>
+    <a href="/portal/c/{{ community.page_id }}/edit/" class="pbtn pbtn-primary" style="font-size:12px;white-space:nowrap"><i class="fas fa-upload"></i> Upload Images</a>
+  </div>
+  {% endif %}
+
   <!-- ── HEADER ── -->
   <div class="cpage-header">
     <div class="cpage-cover">

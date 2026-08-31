@@ -329,6 +329,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
 </style>
 {% endif %}
 
+{% if '/advertise' not in request.path and '/vouchers' not in request.path %}
 <footer class="footer">
     <div class="footer-grid">
         <div class="footer-brand">
@@ -368,12 +369,10 @@ document.querySelectorAll('.toast').forEach(function(t, i){
           <a href="/vouchers/marketplace/" class="admin-footer-btn" title="Gift Vouchers" style="text-decoration:none">
             <i class="fas fa-gift"></i>
           </a>
-          <button class="admin-footer-btn" onclick="openAdminPanel()">
-            <i class="fas fa-shield-alt"></i> Admin Panel
-          </button>
         </div>
     </div>
 </footer>
+{% endif %}
 
 <!-- ══ ADMIN PANEL MODAL ══════════════════════════════════════ -->
 <div class="admin-modal-overlay" id="adminModal" onclick="if(event.target===this)closeAdminPanel()">

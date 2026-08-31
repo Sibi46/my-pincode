@@ -91,6 +91,15 @@
 
 <div class="ev-body">
 
+{% if join_required %}
+<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:14px;padding:14px 18px;margin-bottom:16px;font-size:14px;color:#92400e;font-weight:600">
+  <i class="fas fa-exclamation-circle"></i>
+  Please join
+  <a href="/portal/c/{{ join_required.page_id }}/" style="color:#4f46e5;font-weight:800;text-decoration:underline">{{ join_required.name }}</a>
+  community first to register for this event.
+</div>
+{% endif %}
+
 <!-- Meta chips -->
 <div class="ev-meta-row">
   <div class="ev-meta-chip"><i class="fas fa-calendar-alt"></i> {{ event.date|date:"D, d M Y" }}{% if event.end_date %} – {{ event.end_date|date:"d M" }}{% endif %}</div>
