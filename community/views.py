@@ -547,21 +547,27 @@ def family_hub(request):
     flicks    = FamilyFlick.objects.filter(creator=request.user) if request.user.is_authenticated else []
     posts     = FamilyPost.objects.filter(creator=request.user) if request.user.is_authenticated else []
 
+    relatives_exist = FamilyMember.objects.filter(
+        creator=request.user,
+        member_type__in=['uncle','aunt','cousin','brother','sister','friend','colleague']
+    ).exists() if request.user.is_authenticated else False
+
     return render(request, 'community/family_hub.html', {
-        'setup':          setup,
-        'setup_rows':     setup_rows,
-        'active_tabs':    active_tabs,
-        'combined_rows':  combined_rows,
-        'is_married':     is_married,
-        'core_count':     core_count,
-        'total_count':    total_count,
-        'my_father':      my_father,
-        'my_mother':      my_mother,
-        'p_father':       p_father,
-        'p_mother':       p_mother,
-        'friends':        friends,
-        'flicks':         flicks,
-        'posts':          posts,
+        'setup':           setup,
+        'setup_rows':      setup_rows,
+        'active_tabs':     active_tabs,
+        'combined_rows':   combined_rows,
+        'is_married':      is_married,
+        'core_count':      core_count,
+        'total_count':     total_count,
+        'my_father':       my_father,
+        'my_mother':       my_mother,
+        'p_father':        p_father,
+        'p_mother':        p_mother,
+        'friends':         friends,
+        'flicks':          flicks,
+        'posts':           posts,
+        'relatives_exist': relatives_exist,
     })
 
 
@@ -747,12 +753,19 @@ def family_member_verify(request, pk):
 @require_POST
 def family_flick_add(request):
     photo = request.FILES.get('photo')
-    if not photo:
-        return JsonResponse({'ok': False, 'error': 'Photo required'})
+    video = request.FILES.get('video')
+    if not photo and not video:
+        return JsonResponse({'ok': False, 'error': 'Choose a photo or video'})
     caption = request.POST.get('caption', '').strip()
-    flick = FamilyFlick(creator=request.user, caption=caption, photo=photo)
+    flick = FamilyFlick(creator=request.user, caption=caption)
+    if photo:
+        flick.photo = photo
+    if video:
+        flick.video = video
     flick.save()
-    return JsonResponse({'ok': True, 'pk': flick.pk, 'url': flick.photo.url, 'caption': caption})
+    media_url = flick.photo.url if flick.photo else flick.video.url
+    return JsonResponse({'ok': True, 'pk': flick.pk, 'url': media_url,
+                         'is_video': bool(video), 'caption': caption})
 
 
 @login_required

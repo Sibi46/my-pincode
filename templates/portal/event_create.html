@@ -26,11 +26,46 @@
       <div class="pcard-body">
         <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:14px">📅 Date &amp; Time</div>
         <div class="p2col">
-          <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" class="pform-input" required></div>
-          <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" class="pform-input" required></div>
-          <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" class="pform-input"></div>
-          <div class="pform-group"><label class="pform-label">End Time</label><input type="time" name="end_time" class="pform-input"></div>
+          <div class="pform-group"><label class="pform-label">Start Date *</label><input type="date" name="date" id="ev-start-date" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">Start Time *</label><input type="time" name="time" id="ev-start-time" class="pform-input" required></div>
+          <div class="pform-group"><label class="pform-label">End Date</label><input type="date" name="end_date" id="ev-end-date" class="pform-input"></div>
+          <div class="pform-group"><label class="pform-label">End Time</label><input type="time" name="end_time" id="ev-end-time" class="pform-input"></div>
         </div>
+        <script>
+        (function(){
+          var sd=document.getElementById('ev-start-date'),
+              st=document.getElementById('ev-start-time'),
+              ed=document.getElementById('ev-end-date'),
+              et=document.getElementById('ev-end-time');
+
+          function validateDates(){
+            if(!sd.value || !ed.value) return true;
+            if(ed.value < sd.value){
+              ed.setCustomValidity('End date cannot be before start date');
+              ed.reportValidity(); return false;
+            }
+            ed.setCustomValidity('');
+            if(ed.value === sd.value && et.value && st.value && et.value <= st.value){
+              et.setCustomValidity('End time must be after start time on the same day');
+              et.reportValidity(); return false;
+            }
+            et.setCustomValidity('');
+            return true;
+          }
+
+          sd.addEventListener('change', function(){
+            if(ed.value) validateDates();
+            ed.min = sd.value;
+          });
+          ed.addEventListener('change', validateDates);
+          st.addEventListener('change', function(){ if(et.value) validateDates(); });
+          et.addEventListener('change', validateDates);
+
+          ed.closest('form').addEventListener('submit', function(e){
+            if(!validateDates()) e.preventDefault();
+          });
+        })();
+        </script>
       </div>
     </div>
 

@@ -37,7 +37,8 @@ urlpatterns = [
     path('employer/dashboard/',        views.employer_dashboard,       name='employer_dashboard'),
     path('employer/profile/save/',     views.employer_profile_save,    name='employer_profile_save'),
     path('jobseeker/dashboard/',       views.jobseeker_dashboard, name='jobseeker_dashboard'),
-    path('jobseeker/profile/',         views.seeker_profile,      name='seeker_profile'),
+    path('jobseeker/profile/',                views.seeker_profile,        name='seeker_profile'),
+    path('jobseeker/profile/<int:pk>/',       views.view_applicant_profile, name='view_applicant_profile'),
     path('jobseeker/certificate/<int:cert_id>/delete/', views.seeker_cert_delete, name='seeker_cert_delete'),
 
 

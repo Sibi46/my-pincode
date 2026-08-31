@@ -57,11 +57,11 @@ def home(request):
 
     # ── Ads ─────────────────────────────────────────────
     ads_active         = Advertisement.objects.filter(status='active', start_date__lte=today, end_date__gte=today)
-    homepage_banners   = ads_active.filter(package__ad_type='homepage_banner')[:3]
-    featured_employers = ads_active.filter(package__ad_type='featured_employer')[:6]
-    featured_job_ads   = ads_active.filter(package__ad_type='featured_job')[:6]
-    sidebar_ad         = ads_active.filter(package__ad_type='sidebar').first()
-    popup_ad           = ads_active.filter(package__ad_type='popup').first()
+    homepage_banners   = ads_active.filter(package__ad_type='homepage_banner').order_by('?')[:3]
+    featured_employers = ads_active.filter(package__ad_type='featured_employer').order_by('?')[:6]
+    featured_job_ads   = ads_active.filter(package__ad_type='featured_job').order_by('?')[:6]
+    sidebar_ad         = ads_active.filter(package__ad_type='sidebar').order_by('?').first()
+    popup_ad           = ads_active.filter(package__ad_type='popup').order_by('?').first()
     # track views for all active ads shown on home page
     all_shown_pks = []
     if homepage_banners:
@@ -78,7 +78,7 @@ def home(request):
         Advertisement.objects.filter(pk__in=all_shown_pks).update(views=F('views') + 1)
 
     # ── Approved advertiser banners ──────────────────────
-    advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='')[:6]
+    advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='').order_by('?')[:6]
 
     # ── Live simple ads (AdPost) ─────────────────────────
     from .models import AdPost

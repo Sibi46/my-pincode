@@ -75,7 +75,7 @@
   {% elif adv.status == 'approved' %}
   <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">
     <i class="fas fa-image" style="font-size:18px;flex-shrink:0;margin-top:1px"></i>
-    <div><strong>Admin Approved successfully</strong> — Post your first ads!</div>
+    <div><strong>Admin Approved successfully</strong> — {% if ads %}Post more ads to reach more customers!{% else %}Post your first ads!{% endif %}</div>
   </div>
   {% elif adv.status == 'pending' %}
   <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">

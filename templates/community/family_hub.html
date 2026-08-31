@@ -188,14 +188,8 @@ function shareFamily(){
   <button class="fh-maintab active" onclick="showFlow('family', this)">
     <span class="fh-mainicon">👨‍👩‍👧‍👦</span> My Family
   </button>
-  <button class="fh-maintab" onclick="showFlow('relatives', this)">
-    <span class="fh-mainicon">👨‍👩‍👧</span> Relatives
-  </button>
-  <button class="fh-maintab" onclick="showFlow('friends', this)">
-    <span class="fh-mainicon">🤝</span> Friends
-  </button>
-  <button class="fh-maintab" onclick="showFlow('colleagues', this)">
-    <span class="fh-mainicon">💼</span> Colleagues
+  <button class="fh-maintab" onclick="showRelativesFlow()">
+    <span class="fh-mainicon">👨‍👩‍👧</span> Add Relative
   </button>
   <button class="fh-maintab" onclick="showFlow('flick', this)">
     <span class="fh-mainicon">📸</span> Flick
@@ -384,17 +378,6 @@ function shareFamily(){
   {% endif %}{% endif %}
   {% endfor %}
 
-  {% if request.GET.setup_done %}
-  <div style="background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:16px;padding:16px;margin-bottom:12px;text-align:center">
-    <div style="font-size:1.8rem;margin-bottom:6px">🎉</div>
-    <div style="font-size:15px;font-weight:800;color:#059669;margin-bottom:4px">Family Circle set up!</div>
-    <div style="font-size:12px;color:#374151;margin-bottom:14px">Now complete your circle by adding more members.</div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-      <a href="/community/family/setup/?step=8" style="background:#4F46E5;color:#fff;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none">👴 Add Grands</a>
-      <button onclick="showFlow('relatives',document.querySelectorAll('.fh-maintab')[0])" style="background:#7C3AED;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">🤝 Add Relatives & Friends</button>
-    </div>
-  </div>
-  {% endif %}
 
   </div><!-- /main padding -->
 
@@ -576,12 +559,20 @@ function shareFamily(){
       <div style="padding:14px 16px">
         <div id="flickPreviewWrap" style="display:none;margin-bottom:10px">
           <img id="flickPreviewImg" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px" alt="">
+          <video id="flickPreviewVid" style="width:100%;max-height:220px;border-radius:12px;display:none" controls></video>
         </div>
-        <label style="display:block;border:2px dashed #C7D2FE;border-radius:14px;padding:22px;text-align:center;cursor:pointer;background:#FAFBFF;margin-bottom:10px">
-          <span style="font-size:2rem;display:block;margin-bottom:4px">📷</span>
-          <span style="font-size:13px;font-weight:700;color:#4F46E5">Choose Photo</span>
-          <input type="file" id="flickPhotoInput" accept="image/*" style="display:none" onchange="flickPreview(this)">
-        </label>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+            <span style="font-size:1.8rem;margin-bottom:4px">📷</span>
+            <span style="font-size:12px;font-weight:700;color:#4F46E5">Photo</span>
+            <input type="file" id="flickPhotoInput" accept="image/*" style="display:none" onchange="flickPickPhoto(this)">
+          </label>
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+            <span style="font-size:1.8rem;margin-bottom:4px">🎥</span>
+            <span style="font-size:12px;font-weight:700;color:#7C3AED">Video</span>
+            <input type="file" id="flickVideoInput" accept="video/*" style="display:none" onchange="flickPickVideo(this)">
+          </label>
+        </div>
         <input id="flickCaption" type="text" placeholder="Add a caption…" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px">
         <button onclick="flickSave()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Share Flick</button>
       </div>
@@ -590,7 +581,12 @@ function shareFamily(){
     <div id="flickGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
       {% for f in flicks %}
       <div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF">
-        <img src="{{ f.photo.url }}" style="width:100%;height:100%;object-fit:cover" onclick="openImg('{{ f.photo.url }}','📸')" alt="">
+        {% if f.video %}
+          <video src="{{ f.video.url }}" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>
+          <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>
+        {% else %}
+          <img src="{{ f.photo.url }}" style="width:100%;height:100%;object-fit:cover" onclick="openImg('{{ f.photo.url }}','📸')" alt="">
+        {% endif %}
         {% if f.caption %}<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">{{ f.caption }}</div>{% endif %}
       </div>
       {% empty %}
@@ -736,8 +732,9 @@ function relAddForm(side, type, label){
       '<div id="rerr-'+id+'" style="display:none;color:#DC2626;font-size:12px;font-weight:600;margin-bottom:8px">Please enter a name</div>' +
       '<button onclick="relSaveForm('+id+',\''+side+'\',\''+type+'\')" id="rsavebtn-'+id+'" style="width:100%;padding:12px;background:linear-gradient(135deg,'+accentColor+',#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Save</button>' +
     '</div>';
+  var isFirst = document.getElementById('relFormsWrap').children.length === 0;
   document.getElementById('relFormsWrap').insertAdjacentHTML('beforeend', html);
-  setTimeout(function(){ var n=document.getElementById('rname-'+id); if(n) n.focus(); }, 80);
+  if(isFirst) setTimeout(function(){ var n=document.getElementById('rname-'+id); if(n){ n.focus(); n.scrollIntoView({behavior:'smooth',block:'start'}); } }, 80);
 }
 
 function relRemoveForm(id){ var el=document.getElementById('rfc-'+id); if(el) el.remove(); }
@@ -864,7 +861,12 @@ function showFlow(name, btn) {
   document.querySelectorAll('.fh-flow').forEach(function(f){ f.classList.remove('active'); });
   document.querySelectorAll('.fh-maintab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('flow-' + name).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+function showRelativesFlow() {
+  document.querySelectorAll('.fh-flow').forEach(function(f){ f.classList.remove('active'); });
+  document.querySelectorAll('.fh-maintab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('flow-relatives').classList.add('active');
 }
 
 function showTab(name, flow, btn) {
@@ -888,22 +890,48 @@ window.addEventListener('DOMContentLoaded', function(){
 });
 
 /* ── FLICK ── */
-function flickPreview(input){
+function flickPickPhoto(input){
   if(input.files&&input.files[0]){
+    document.getElementById('flickVideoInput').value='';
     var r=new FileReader();
     r.onload=function(e){
-      document.getElementById('flickPreviewImg').src=e.target.result;
+      var img=document.getElementById('flickPreviewImg');
+      var vid=document.getElementById('flickPreviewVid');
+      img.src=e.target.result; img.style.display='block';
+      vid.style.display='none';
       document.getElementById('flickPreviewWrap').style.display='block';
     };
     r.readAsDataURL(input.files[0]);
   }
 }
+function flickPickVideo(input){
+  if(input.files&&input.files[0]){
+    var file=input.files[0];
+    var tmp=document.createElement('video');
+    tmp.preload='metadata';
+    tmp.onloadedmetadata=function(){
+      URL.revokeObjectURL(tmp.src);
+      if(tmp.duration>60){alert('Video must be 60 seconds or less.');input.value='';return;}
+      document.getElementById('flickPhotoInput').value='';
+      var vid=document.getElementById('flickPreviewVid');
+      var img=document.getElementById('flickPreviewImg');
+      vid.src=URL.createObjectURL(file); vid.style.display='block';
+      img.style.display='none';
+      document.getElementById('flickPreviewWrap').style.display='block';
+    };
+    tmp.src=URL.createObjectURL(file);
+  }
+}
 function flickSave(){
-  var input=document.getElementById('flickPhotoInput');
-  if(!input.files||!input.files[0]){alert('Choose a photo first');return;}
+  var photoInput=document.getElementById('flickPhotoInput');
+  var videoInput=document.getElementById('flickVideoInput');
+  var hasPhoto=photoInput.files&&photoInput.files[0];
+  var hasVideo=videoInput.files&&videoInput.files[0];
+  if(!hasPhoto&&!hasVideo){alert('Choose a photo or video first');return;}
   var fd=new FormData();
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
-  fd.append('photo',input.files[0]);
+  if(hasPhoto) fd.append('photo',photoInput.files[0]);
+  if(hasVideo) fd.append('video',videoInput.files[0]);
   fd.append('caption',document.getElementById('flickCaption').value);
   fetch('/community/family/flick/add/',{method:'POST',body:fd})
     .then(function(r){return r.json();})
@@ -914,10 +942,15 @@ function flickSave(){
       if(empty) empty.remove();
       var div=document.createElement('div');
       div.style.cssText='position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF';
-      div.innerHTML='<img src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" onclick="openImg(\''+d.url+'\',\'📸\')" alt="">'
-        +(d.caption?'<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">'+d.caption+'</div>':'');
+      if(d.is_video){
+        div.innerHTML='<video src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>'
+          +'<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>';
+      } else {
+        div.innerHTML='<img src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" onclick="openImg(\''+d.url+'\',\'📸\')" alt="">';
+      }
+      if(d.caption) div.innerHTML+='<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">'+d.caption+'</div>';
       grid.insertAdjacentElement('afterbegin',div);
-      input.value='';
+      photoInput.value=''; videoInput.value='';
       document.getElementById('flickCaption').value='';
       document.getElementById('flickPreviewWrap').style.display='none';
     });

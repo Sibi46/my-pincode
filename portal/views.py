@@ -58,7 +58,7 @@ def portal_home(request):
 
 
 def community_list(request):
-    communities = Community.objects.filter(is_active=True)
+    communities = Community.objects.filter(is_active=True, is_verified=True)
     q       = request.GET.get('q', '').strip()
     pincode = request.GET.get('pincode', '').strip()
     cat     = request.GET.get('category', '').strip()
@@ -331,6 +331,8 @@ def create_community(request):
             community.logo = request.FILES['logo']
         if 'cover' in request.FILES:
             community.cover = request.FILES['cover']
+        if getattr(request.user, 'admin_role', '') == 'super_admin':
+            community.is_verified = True
         community.save()
 
         CommunityMember.objects.create(community=community, user=creator, status='approved', approved_at=timezone.now())

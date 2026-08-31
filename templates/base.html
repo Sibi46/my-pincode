@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="OUR PINCODE — Business, Opportunity, Job at Near You. Find Jobs Near You. Hire People Near You. India's PIN-code based hyperlocal job portal.">
     <title>{% block title %}OUR PINCODE{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
     <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
     {% block extra_css %}{% endblock %}
 
@@ -84,12 +84,29 @@
             <a href="/vouchers/marketplace/" style="color:#7c3aed;display:none!important"><i class="fas fa-gift"></i> Gift Vouchers</a>
 
             {% if request.user.is_authenticated %}
+                {% if '/advertise' in request.path %}
+                {# ── ADVERTISER PAGES: minimal nav ── #}
+                {% if request.user.is_employer %}
+                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
+                {% else %}
+                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                {% endif %}
+                {% with adv=request.user.advertiser %}
+                {% if adv and adv.status == 'approved' %}
+                    {% if adv.ads.exists %}
+                        <a href="/advertise/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
+                    {% else %}
+                        <a href="/advertise/ads/create/" style="color:#f3a000"><i class="fas fa-plus"></i> Create Your First Ad</a>
+                    {% endif %}
+                {% endif %}
+                {% endwith %}
+                {% else %}
                 {% if request.user.is_employer %}
                     <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
                     <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 {% else %}
-                    <a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>
+                    {% if '/profile/edit' not in request.path %}<a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>{% endif %}
                     <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 {% endif %}
 
@@ -108,6 +125,7 @@
                     <a href="/advertise/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
                 {% endif %}
                 {% endwith %}
+                {% endif %}
 
                 {% if request.user.is_staff %}
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
@@ -141,6 +159,43 @@
         <div class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     </div>
     <div class="mobile-menu" id="mobileMenu">
+        {% if '/advertise' in request.path %}
+        {# ── ADVERTISER PAGES: minimal menu ── #}
+        {% if request.user.is_authenticated %}
+            {% if request.user.is_employer %}
+                <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
+            {% else %}
+                <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            {% endif %}
+            {% with adv=request.user.advertiser %}
+            {% if adv and adv.status == 'approved' %}
+                {% if adv.ads.exists %}
+                    <a href="/advertise/dashboard/" style="color:#f3a000"><i class="fas fa-bullhorn"></i> My Ads</a>
+                {% else %}
+                    <a href="/advertise/ads/create/" style="color:#f3a000"><i class="fas fa-plus"></i> Create Your First Ad</a>
+                {% endif %}
+            {% endif %}
+            {% endwith %}
+            <a href="/logout/" style="color:#dc2626"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+            <a href="/login/">Sign In</a>
+        {% endif %}
+        {% elif '/vouchers' in request.path %}
+        {# ── VOUCHER PAGES: minimal menu ── #}
+        {% if request.user.is_authenticated %}
+            {% if request.user.is_employer %}
+                <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            {% else %}
+                <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            {% endif %}
+            <a href="/messages/"><i class="fas fa-comment-dots"></i> Messages</a>
+            <a href="/vouchers/my-vouchers/" style="color:#7c3aed"><i class="fas fa-ticket-alt"></i> My Vouchers</a>
+            <a href="/logout/" style="color:#dc2626"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+            <a href="/login/">Sign In</a>
+        {% endif %}
+        {% else %}
+        {# ── DEFAULT PAGES ── #}
         <a href="/jobs/">Browse Jobs</a>
         <a href="/health/" style="color:#059669;display:none!important">🏥 Health</a>
         <a href="/vouchers/marketplace/" style="color:#7c3aed;display:none!important">🎁 Gift Vouchers</a>
@@ -176,6 +231,7 @@
             <a href="/logout/">Logout</a>
         {% else %}
             <a href="/login/">Sign In</a>
+        {% endif %}
         {% endif %}
     </div>
 </nav>
@@ -329,7 +385,7 @@ document.querySelectorAll('.toast').forEach(function(t, i){
 </style>
 {% endif %}
 
-{% if '/advertise' not in request.path and '/vouchers' not in request.path %}
+{% if request.path == '/' %}
 <footer class="footer">
     <div class="footer-grid">
         <div class="footer-brand">

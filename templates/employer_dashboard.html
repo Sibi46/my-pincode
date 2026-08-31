@@ -191,6 +191,9 @@
       <a class="snav-item" onclick="showSection('flicks',this)" data-sec="flicks">
         <i class="fas fa-bolt"></i> Flicks
       </a>
+      <a class="snav-item" onclick="showSection('gift-vouchers',this)" data-sec="gift-vouchers">
+        <i class="fas fa-gift" style="color:#7c3aed"></i> Gift Vouchers
+      </a>
       <a class="snav-item" onclick="showSection('feedback',this)" data-sec="feedback">
         <i class="fas fa-comment-dots"></i> Feedback
       </a>
@@ -207,48 +210,6 @@
   <!-- ══ MAIN CONTENT ════════════════════════════════════════════════ -->
   <main class="dash-main">
 
-    <!-- STATS STRIP -->
-    <div class="stats-strip">
-      <div class="stat-chip blue"   onclick="showSection('active-jobs')">
-        <i class="fas fa-briefcase"></i><span>{{ active_jobs.count }}</span><label>Active</label>
-      </div>
-      {% if expired_jobs.count %}
-      <div class="stat-chip" style="background:#fce4ec;border:1px solid #ef9a9a;cursor:pointer;animation:pulse 2s infinite" onclick="showSection('expired-jobs')">
-        <i class="fas fa-exclamation-circle" style="color:#c62828"></i><span style="color:#c62828">{{ expired_jobs.count }}</span><label style="color:#c62828">Expired</label>
-      </div>
-      {% endif %}
-      {% if plan_pending.count %}
-      <div class="stat-chip" style="background:#e8f0fe;border:1px solid #0a66c2;cursor:pointer" onclick="showSection('plan-pending')">
-        <i class="fas fa-rocket" style="color:#0a66c2"></i><span style="color:#0a66c2">{{ plan_pending.count }}</span><label style="color:#0a66c2">Choose Plan</label>
-      </div>
-      {% endif %}
-      {% if approval_pending.count %}
-      <div class="stat-chip" style="background:#fff3cd;border:1px solid #ffc107;cursor:pointer" onclick="showSection('approval-pending')">
-        <i class="fas fa-hourglass-half" style="color:#e65100"></i><span style="color:#e65100">{{ approval_pending.count }}</span><label style="color:#856404">Under Review</label>
-      </div>
-      {% endif %}
-      <div class="stat-chip yellow" onclick="showSection('pending-jobs')">
-        <i class="fas fa-clock"></i><span>{{ pending_jobs.count }}</span><label>Pending</label>
-      </div>
-      <div class="stat-chip grey"   onclick="showSection('closed-jobs')">
-        <i class="fas fa-archive"></i><span>{{ closed_jobs.count }}</span><label>Closed</label>
-      </div>
-      <div class="stat-chip green"  onclick="showSection('applications')">
-        <i class="fas fa-file-alt"></i><span>{{ all_apps.count }}</span><label>Applications</label>
-      </div>
-      <div class="stat-chip orange" onclick="showSection('shortlisted')">
-        <i class="fas fa-star"></i><span>{{ shortlisted.count }}</span><label>Shortlisted</label>
-      </div>
-      <div class="stat-chip purple" onclick="showSection('saved-candidates')">
-        <i class="fas fa-bookmark"></i><span>{{ saved_candidates.count }}</span><label>Saved</label>
-      </div>
-      <div class="stat-chip teal"   onclick="showSection('messages')">
-        <i class="fas fa-comment-dots"></i><span>{{ unread_msg_count }}</span><label>Messages</label>
-      </div>
-      <div class="stat-chip red"    onclick="showSection('wallet')">
-        <i class="fas fa-wallet"></i><span>₹{{ wallet.balance|floatformat:0 }}</span><label>Wallet</label>
-      </div>
-    </div>
 
 
     {% if ads_by_type.dashboard_banner %}
@@ -318,12 +279,7 @@
         {% endfor %}
       </div>
       {% else %}
-      <div class="empty-state">
-        <i class="fas fa-briefcase"></i>
-        <h3>No active jobs</h3>
-        <p>Post your first job to start receiving applications</p>
-        <a href="/post-job/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-plus"></i> Post a Job</a>
-      </div>
+      <div style="height:40px"></div>
       {% endif %}
     </section>
 
@@ -555,10 +511,18 @@
               <td><span class="status-pill {{ app.status }}">{{ app.get_status_display }}</span></td>
               <td>
                 <div class="jl-actions">
-                  <a href="/applications/{{ app.pk }}/" class="jl-btn view" title="View Profile"><i class="fas fa-eye"></i></a>
+                  <a href="/jobseeker/profile/{{ app.applicant.pk }}/" class="jl-btn view" title="View Profile"><i class="fas fa-eye"></i></a>
                   <a href="/messages/start/{{ app.applicant.pk }}/{{ app.job.pk }}/" class="jl-btn msg" title="Message"><i class="fas fa-comment"></i></a>
+                  {% if app.status == 'shortlisted' %}
+                  <button class="jl-btn edit" title="Shortlisted" disabled style="opacity:.5;cursor:not-allowed"><i class="fas fa-star"></i></button>
+                  {% else %}
                   <button class="jl-btn edit" title="Shortlist" onclick="postAction('/applications/{{ app.pk }}/shortlist/')"><i class="fas fa-star"></i></button>
-                  <button class="jl-btn close" title="Reject" onclick="postAction('/applications/{{ app.pk }}/reject/')"><i class="fas fa-times"></i></button>
+                  {% endif %}
+                  {% if app.status == 'rejected' %}
+                  <button class="jl-btn close" title="Rejected" disabled style="opacity:.5;cursor:not-allowed"><i class="fas fa-times"></i></button>
+                  {% else %}
+                  <button class="jl-btn close" title="Reject" onclick="if(confirm('Reject this applicant?'))postAction('/applications/{{ app.pk }}/reject/')"><i class="fas fa-times"></i></button>
+                  {% endif %}
                 </div>
               </td>
             </tr>
@@ -629,45 +593,68 @@
 
     <!-- ═══ MESSAGES ═══ -->
     <section class="dsec hidden" id="sec-messages">
-      <div class="dsec-header">
-        <div><h2><i class="fas fa-comment-dots"></i> Messages</h2><p>Conversations with candidates &amp; admins</p></div>
-        <a href="/messages/" class="dsec-btn"><i class="fas fa-external-link-alt"></i> Open Inbox</a>
-      </div>
-      {% if recent_messages %}
-      <div class="msg-list">
-        {% for row in recent_messages %}
-        {% with conv=row.conv other=row.other last=row.last unread=row.unread %}
-        <div class="msg-row {% if unread %}unread{% endif %}">
-          <div class="msg-avatar">
-            {% if other.seeker.photo %}<img src="{{ other.seeker.photo.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" alt="">
-            {% else %}{{ other.get_full_name|first|upper|default:"?" }}{% endif %}
-          </div>
-          <div class="msg-body">
-            <div class="msg-top">
-              <strong>{{ other.get_full_name|default:other.username }}</strong>
-              {% if last %}<span class="msg-time">{{ last.sent_at|timesince }} ago</span>{% endif %}
-              {% if unread %}<span class="unread-dot"></span>{% endif %}
-            </div>
-            {% if conv.job %}<div class="msg-job-tag"><i class="fas fa-briefcase"></i> {{ conv.job.title }}</div>{% endif %}
-            {% if last %}
-            <p class="msg-preview">
-              {% if last.msg_type == 'image' %}<i class="fas fa-image"></i> Photo
-              {% elif last.msg_type == 'interview_invite' %}<i class="fas fa-calendar-check"></i> Interview Invitation
-              {% elif last.msg_type in 'file,resume' %}<i class="fas fa-paperclip"></i> File
-              {% else %}{{ last.content|truncatechars:80 }}
-              {% endif %}
-            </p>
-            {% endif %}
-          </div>
-          <a href="/messages/{{ conv.pk }}/" class="jl-btn view"><i class="fas fa-reply"></i> Reply</a>
+      <!-- Conversation list -->
+      <div id="msg-list-view">
+        <div class="dsec-header">
+          <div><h2><i class="fas fa-comment-dots"></i> Messages</h2><p>Conversations with candidates &amp; admins</p></div>
         </div>
-        {% endwith %}
-        {% endfor %}
+        {% if recent_messages %}
+        <div class="msg-list">
+          {% for row in recent_messages %}
+          {% with conv=row.conv other=row.other last=row.last unread=row.unread %}
+          <div class="msg-row {% if unread %}unread{% endif %}" onclick="openChat('/messages/{{ conv.pk }}/', '{{ other.get_full_name|default:other.username|escapejs }}')" style="cursor:pointer">
+            <div class="msg-avatar">
+              {% if other.seeker.photo %}<img src="{{ other.seeker.photo.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" alt="">
+              {% else %}{{ other.get_full_name|first|upper|default:"?" }}{% endif %}
+            </div>
+            <div class="msg-body">
+              <div class="msg-top">
+                <strong>{{ other.get_full_name|default:other.username }}</strong>
+                {% if last %}<span class="msg-time">{{ last.sent_at|timesince }} ago</span>{% endif %}
+                {% if unread %}<span class="unread-dot"></span>{% endif %}
+              </div>
+              {% if conv.job %}<div class="msg-job-tag"><i class="fas fa-briefcase"></i> {{ conv.job.title }}</div>{% endif %}
+              {% if last %}
+              <p class="msg-preview">
+                {% if last.msg_type == 'image' %}<i class="fas fa-image"></i> Photo
+                {% elif last.msg_type == 'interview_invite' %}<i class="fas fa-calendar-check"></i> Interview Invitation
+                {% elif last.msg_type in 'file,resume' %}<i class="fas fa-paperclip"></i> File
+                {% else %}{{ last.content|truncatechars:80 }}
+                {% endif %}
+              </p>
+              {% endif %}
+            </div>
+            <i class="fas fa-chevron-right" style="color:#bbb;font-size:13px;flex-shrink:0"></i>
+          </div>
+          {% endwith %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-comment-dots"></i><h3>No messages yet</h3><p>Your conversations with candidates will appear here</p></div>
+        {% endif %}
       </div>
-      {% else %}
-      <div class="empty-state"><i class="fas fa-comment-dots"></i><h3>No messages yet</h3><p>Your conversations with candidates will appear here</p></div>
-      {% endif %}
+      <!-- Inline chat panel -->
+      <div id="msg-chat-view" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <button onclick="closeChat()" style="background:#f1f5f9;border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center"><i class="fas fa-arrow-left"></i></button>
+          <span id="msg-chat-title" style="font-size:15px;font-weight:800;color:#111"></span>
+        </div>
+        <iframe id="msg-chat-frame" src="" style="width:100%;height:calc(100vh - 180px);border:none;border-radius:14px;background:#f8fafc"></iframe>
+      </div>
     </section>
+    <script>
+    function openChat(url, name) {
+      document.getElementById('msg-list-view').style.display = 'none';
+      document.getElementById('msg-chat-view').style.display = 'block';
+      document.getElementById('msg-chat-title').textContent = name;
+      document.getElementById('msg-chat-frame').src = url;
+    }
+    function closeChat() {
+      document.getElementById('msg-chat-view').style.display = 'none';
+      document.getElementById('msg-list-view').style.display = 'block';
+      document.getElementById('msg-chat-frame').src = '';
+    }
+    </script>
 
     <!-- ═══ NOTIFICATIONS ═══ -->
     <section class="dsec hidden" id="sec-notifications">
@@ -953,30 +940,34 @@
 
     <!-- ══ FLICKS ══ -->
     <section class="dash-section" data-sec="flicks">
-      <div class="sec-hdr" style="display:flex;align-items:center;justify-content:space-between">
-        <h2><i class="fas fa-bolt"></i> Flicks</h2>
-        <div style="display:flex;gap:10px">
-          <a href="/flicks/post/" style="background:#0a66c2;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none"><i class="fas fa-plus"></i> Post Flick</a>
-          <a href="/flicks/" style="background:#f0f4ff;color:#0a66c2;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">See All</a>
+      <!-- Flicks header -->
+      <div style="background:linear-gradient(135deg,#7c3aed,#0a66c2);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="color:#fff;font-size:17px;font-weight:900;display:flex;align-items:center;gap:8px"><i class="fas fa-bolt"></i> Flicks</div>
+          <div style="color:rgba(255,255,255,.75);font-size:12px;margin-top:2px">Short videos from your network</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="/flicks/post/" style="background:rgba(255,255,255,.15);backdrop-filter:blur(6px);color:#fff;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;gap:6px"><i class="fas fa-plus"></i> Post</a>
+          <a href="/flicks/" style="background:#fff;color:#7c3aed;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px">See All</a>
         </div>
       </div>
 
       {% if recent_flicks %}
       <!-- Thumbnail strip -->
-      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch;margin-bottom:24px">
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:8px">
         {% for flick in recent_flicks %}
-        <div data-efi="{{ forloop.counter0 }}" style="flex-shrink:0;width:140px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="efsOpen({{ forloop.counter0 }})">
+        <div style="flex-shrink:0;width:120px;border-radius:16px;overflow:hidden;background:#111;position:relative;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25)" onclick="efsOpen({{ forloop.counter0 }})">
           {% if flick.video %}
-          <video src="{{ flick.video.url }}" style="width:140px;height:248px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:14px;margin-left:2px"></i></div>
+          <video src="{{ flick.video.url }}" style="width:120px;height:210px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.25);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:13px;margin-left:2px"></i></div>
           {% elif flick.image %}
-          <img src="{{ flick.image.url }}" style="width:140px;height:248px;object-fit:cover;display:block">
+          <img src="{{ flick.image.url }}" style="width:120px;height:210px;object-fit:cover;display:block">
           {% else %}
-          <div style="width:140px;height:248px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:36px;color:rgba(255,255,255,.4)"></i></div>
+          <div style="width:120px;height:210px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:32px;color:rgba(255,255,255,.4)"></i></div>
           {% endif %}
-          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.88));padding:18px 8px 8px">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.9));padding:24px 8px 9px">
             <div style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.user.get_full_name|default:flick.user.username }}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:9px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.7);margin-top:2px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:8px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
           </div>
         </div>
         {% endfor %}
@@ -1411,6 +1402,122 @@ function postAction(url){
   f.appendChild(c);document.body.appendChild(f);f.submit();
 }
 </script>
+<!-- ═══ GIFT VOUCHERS ═══ -->
+<section class="dsec hidden" id="sec-gift-vouchers" style="max-width:900px;margin:0 auto 18px;padding:0 16px">
+
+  <!-- Inline iframe view -->
+  <div id="gv-frame-view" style="display:none">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <button onclick="closeGvFrame()" style="background:#f1f5f9;border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center"><i class="fas fa-arrow-left"></i></button>
+      <span id="gv-frame-title" style="font-size:15px;font-weight:800;color:#111"></span>
+    </div>
+    <iframe id="gv-frame" src="" style="width:100%;height:calc(100vh - 180px);border:none;border-radius:14px;background:#f8fafc"></iframe>
+  </div>
+  <script>
+  function openGvFrame(url, title) {
+    document.getElementById('gv-list-view').style.display = 'none';
+    document.getElementById('gv-frame-view').style.display = 'block';
+    document.getElementById('gv-frame-title').textContent = title;
+    document.getElementById('gv-frame').src = url;
+  }
+  function closeGvFrame() {
+    document.getElementById('gv-frame-view').style.display = 'none';
+    document.getElementById('gv-list-view').style.display = 'block';
+    document.getElementById('gv-frame').src = '';
+  }
+  </script>
+
+  <!-- Main content view -->
+  <div id="gv-list-view">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(124,58,237,.10);overflow:hidden">
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:20px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#fff"><i class="fas fa-gift"></i> Gift Vouchers</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.8);margin-top:3px">Create & manage gift vouchers for your business</div>
+      </div>
+      {% if voucher_business %}
+        {% if voucher_business.status == 'approved' %}
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="openGvFrame('/vouchers/vouchers/create/','Create Voucher')" style="background:#fff;color:#7c3aed;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:800;border:none;cursor:pointer"><i class="fas fa-plus"></i> New Voucher</button>
+          <button onclick="openGvFrame('/vouchers/redeem/','Redeem Voucher')" style="background:rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:800;border:none;cursor:pointer"><i class="fas fa-qrcode"></i> Redeem</button>
+        </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div style="padding:18px 20px">
+      {% if not voucher_business %}
+      <!-- No business registered — load register form in iframe -->
+      <div style="text-align:center;padding:24px 0">
+        <div style="font-size:2.5rem;margin-bottom:10px">🎁</div>
+        <div style="font-size:15px;font-weight:800;color:#1a1a1a;margin-bottom:6px">Start Selling Gift Vouchers</div>
+        <div style="font-size:13px;color:#666;margin-bottom:18px">Register your business to create and sell gift vouchers to customers.</div>
+        <button onclick="openGvFrame('/vouchers/business/register/','Register Business')" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:11px 28px;border-radius:12px;font-size:14px;font-weight:800;border:none;cursor:pointer"><i class="fas fa-store"></i> Register Business</button>
+      </div>
+
+      {% elif voucher_business.status == 'pending' %}
+      <div style="background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:13px;color:#92400e;margin-bottom:14px">
+        <i class="fas fa-hourglass-half"></i> Your business <strong>{{ voucher_business.business_name }}</strong> is under review. You'll be able to create vouchers once approved.
+      </div>
+
+      {% elif voucher_business.status == 'rejected' %}
+      <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;padding:14px 16px;font-size:13px;color:#991b1b;margin-bottom:14px">
+        <i class="fas fa-times-circle"></i> Registration rejected. {{ voucher_business.rejection_reason }}
+        <button onclick="openGvFrame('/vouchers/business/register/','Register Business')" style="color:#991b1b;font-weight:700;margin-left:8px;background:none;border:none;cursor:pointer;font-size:13px">Re-register →</button>
+      </div>
+
+      {% else %}
+      <!-- Approved — show stats + vouchers -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px">
+        <div style="background:#f5f3ff;border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:#7c3aed">{{ voucher_business.available_slots }}</div>
+          <div style="font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;margin-top:2px">Slots Left</div>
+        </div>
+        <div style="background:#d1fae5;border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:#059669">{{ voucher_count|default:0 }}</div>
+          <div style="font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;margin-top:2px">Vouchers</div>
+        </div>
+        <div style="background:#dbeafe;border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:#2563eb">{{ voucher_purchases|default:0 }}</div>
+          <div style="font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;margin-top:2px">Sold</div>
+        </div>
+        <div style="background:#fef3c7;border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:1.4rem;font-weight:900;color:#d97706">₹{{ voucher_revenue|default:0|floatformat:0 }}</div>
+          <div style="font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase;margin-top:2px">Revenue</div>
+        </div>
+      </div>
+
+      <!-- Recent vouchers -->
+      {% if recent_vouchers %}
+      <div style="font-size:12px;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Recent Vouchers</div>
+      {% for v in recent_vouchers %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f3f4f6">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a">{{ v.voucher_name }}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px">₹{{ v.voucher_value }} · {{ v.sold_quantity }}/{{ v.total_quantity }} sold · Exp {{ v.expiry_date|date:"d M Y" }}</div>
+        </div>
+        <span class="badge badge-{{ v.status }}">{{ v.get_status_display }}</span>
+      </div>
+      {% endfor %}
+      {% else %}
+      <div style="text-align:center;padding:16px;color:#9ca3af;font-size:13px">
+        No vouchers yet — <button onclick="openGvFrame('/vouchers/vouchers/create/','Create Voucher')" style="color:#7c3aed;font-weight:700;background:none;border:none;cursor:pointer;font-size:13px">create your first</button>
+      </div>
+      {% endif %}
+
+      <!-- Quick links -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button onclick="openGvFrame('/vouchers/dashboard/','Voucher Dashboard')" style="flex:1;min-width:120px;text-align:center;background:#f5f3ff;color:#7c3aed;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer"><i class="fas fa-tachometer-alt"></i> Full Dashboard</button>
+        <button onclick="openGvFrame('/vouchers/slots/buy/','Buy Slots')" style="flex:1;min-width:120px;text-align:center;background:#eff6ff;color:#2563eb;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer"><i class="fas fa-shopping-bag"></i> Buy Slots</button>
+        <button onclick="openGvFrame('/vouchers/marketplace/','Marketplace')" style="flex:1;min-width:120px;text-align:center;background:#f0fdf4;color:#059669;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700;border:none;cursor:pointer"><i class="fas fa-store"></i> Marketplace</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  </div><!-- end gv-list-view -->
+</section>
+
 <!-- Referral Banner -->
 <div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
   <a href="/referral/" style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:14px;padding:18px 22px;text-decoration:none;color:#fff">

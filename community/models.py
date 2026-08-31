@@ -964,7 +964,8 @@ class FamilyMember(models.Model):
 
 class FamilyFlick(models.Model):
     creator   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_flicks')
-    photo     = models.ImageField(upload_to='family_flicks/')
+    photo     = models.ImageField(upload_to='family_flicks/', blank=True, null=True)
+    video     = models.FileField(upload_to='family_flick_videos/', blank=True, null=True)
     caption   = models.CharField(max_length=300, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

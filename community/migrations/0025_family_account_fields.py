@@ -6,7 +6,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('community', '0024_merge_20260821_1145'),
+        ('community', '0023_family_wife_side'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

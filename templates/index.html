@@ -118,10 +118,11 @@ a{text-decoration:none;color:inherit}
 .cat-section{background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.08)}
 .cat-inner{max-width:1200px;margin:0 auto;padding:0 8px;display:flex;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .cat-inner::-webkit-scrollbar{display:none}
-.cat-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 14px 14px;min-width:105px;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;text-decoration:none;color:#111}
+.cat-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 14px 14px;min-width:105px;cursor:pointer;border-bottom:3px solid transparent;transition:.2s;text-decoration:none;color:#111;opacity:0;transform:scale(.6) translateY(20px)}
+.cat-item.cat-popped{opacity:1;transform:scale(1) translateY(0);transition:opacity .35s ease,transform .35s cubic-bezier(.34,1.56,.64,1)}
 .cat-item:hover{border-bottom-color:#1d4ed8}
 .cat-icon{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:2px;transition:.2s}
-.cat-item:hover .cat-icon{transform:scale(1.1)}
+.cat-item:hover .cat-icon{transform:scale(1.15) rotate(-5deg)}
 .cat-label{font-size:11px;font-weight:800;color:#111;text-align:center;line-height:1.3}
 .cat-sub{font-size:10px;color:#6b7280;text-align:center;line-height:1.4;max-width:88px}
 .ci-pur{background:#f3e8ff;color:#7c3aed}
@@ -299,7 +300,6 @@ a{text-decoration:none;color:inherit}
       <span style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#059669);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff">{{ request.user.get_full_name|default:request.user.username|slice:":1"|upper }}</span>
       {{ request.user.get_full_name|default:request.user.username }}
     </a>
-    <a href="/logout/" class="tb-btn tb-register">Logout</a>
   {% else %}
     <a href="/login/" class="tb-btn tb-login">Login</a>
     <a href="#" class="tb-btn tb-register" onclick="document.getElementById('regPop').classList.add('show');return false;">Register</a>
@@ -416,7 +416,7 @@ a{text-decoration:none;color:inherit}
       <div class="cat-label">MY SCHOOL</div>
       <div class="cat-sub">School search, reviews, admissions &amp; more</div>
     </a>
-    <a href="/advertise/register/" class="cat-item">
+    <a href="{% if request.user.is_authenticated and request.user.is_employer %}/employer/dashboard/{% else %}/advertise/register/{% endif %}" class="cat-item">
       <div class="cat-icon ci-blu">📣</div>
       <div class="cat-label">BUSINESS PROMOTION</div>
       <div class="cat-sub">Promote your business to local customers</div>
@@ -1385,6 +1385,28 @@ function doLogin(){
 }
 </script>
 {% endif %}
+
+<script>
+/* pop-in animation for category items */
+(function(){
+  var items = document.querySelectorAll('.cat-item');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var el = e.target;
+          var idx = Array.from(items).indexOf(el);
+          setTimeout(function(){ el.classList.add('cat-popped'); }, idx * 60);
+          io.unobserve(el);
+        }
+      });
+    },{threshold:0.1});
+    items.forEach(function(el){ io.observe(el); });
+  } else {
+    items.forEach(function(el){ el.classList.add('cat-popped'); });
+  }
+})();
+</script>
 
 </body>
 </html>

@@ -1,220 +1,319 @@
-﻿{% extends 'base.html' %}
-{% load static %}
-{% block title %}Browse Jobs - OUR PINCODE{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/jobs.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Jobs – OUR PINCODE</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="/static/css/employer_dashboard.css?v=3">
 <style>
-.sp-job-strip{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none;border-bottom:1px solid #eef0f6;margin-bottom:14px}
-.sp-job-strip::-webkit-scrollbar{display:none}
-.sp-job-label{font-size:11px;font-weight:700;color:#f3a000;white-space:nowrap;flex-shrink:0;background:#fff8e1;padding:4px 10px;border-radius:10px;border:1px solid #ffe082}
-.sp-job-item{display:flex;align-items:center;gap:8px;text-decoration:none;color:#111;border:1.5px solid #e5e7eb;border-radius:10px;padding:8px 12px;flex-shrink:0;transition:.2s;font-size:12px}
-.sp-job-item:hover{border-color:#0a66c2;background:#f0f6ff}
-.sp-job-item img{width:32px;height:32px;border-radius:6px;object-fit:cover}
-.sp-job-item div{display:flex;flex-direction:column;gap:1px}
-.sp-job-item strong{font-weight:700;font-size:12px;color:#111}
-.sp-job-item span{font-size:11px;color:#888}
-.job-list-inline-ad{display:flex;align-items:center;gap:12px;text-decoration:none;color:#111;background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:.2s}
-.job-list-inline-ad:hover{border-color:#f3a000;box-shadow:0 4px 14px rgba(243,160,0,.15)}
-.job-list-inline-ad img{width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0}
-.jlia-body{display:flex;flex-direction:column;gap:3px}
-.jlia-spon{font-size:10px;font-weight:700;color:#f3a000;text-transform:uppercase;letter-spacing:.4px}
-.jlia-body strong{font-size:14px;font-weight:800;color:#111}
-.jlia-body span{font-size:12px;color:#666}
+/* ── topbar ── */
+.dash-topbar{position:fixed;top:0;left:0;right:0;height:56px;background:#fff;border-bottom:1.5px solid #e5e7eb;display:flex;align-items:center;gap:12px;padding:0 16px;z-index:600}
+.dash-logo img{height:36px;width:auto;object-fit:contain;border-radius:8px}
+.dash-search-wrap{flex:1;max-width:420px;margin:0 auto}
+.dash-search-wrap form{display:flex;gap:6px}
+.dash-search-wrap input{flex:1;border:1.5px solid #e5e7eb;border-radius:10px;padding:7px 12px;font-size:13px;outline:none}
+.dash-search-wrap input:focus{border-color:#4f46e5}
+.dash-search-wrap button{background:#4f46e5;color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:13px;cursor:pointer}
+.dash-topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.dash-hamburger{display:none;background:none;border:none;font-size:20px;cursor:pointer;color:#374151;padding:4px 8px}
+@media(max-width:768px){.dash-hamburger{display:flex;align-items:center;margin-left:auto}.dash-search-wrap{display:none}}
+
+/* ── layout ── */
+.dash-body{display:flex;margin-top:56px;min-height:calc(100vh - 56px)}
+
+/* ── sidebar ── */
+.jb-sidebar{width:240px;flex-shrink:0;background:#fff;border-right:1.5px solid #e5e7eb;padding:16px 0;overflow-y:auto;position:sticky;top:56px;height:calc(100vh - 56px)}
+@media(max-width:768px){
+  .jb-sidebar{position:fixed!important;left:-260px!important;top:56px!important;width:250px!important;height:calc(100vh - 56px)!important;z-index:500!important;transition:left .25s!important;box-shadow:4px 0 20px rgba(0,0,0,.15)!important;overflow-y:auto!important;display:block!important}
+  .jb-sidebar.open{left:0!important}
+}
+.sb-section{padding:10px 16px 4px;font-size:10px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:.8px}
+.sb-filter-group{padding:8px 16px}
+.sb-filter-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px}
+.sb-radio{display:flex;align-items:center;gap:8px;font-size:13px;color:#374151;padding:6px 0;cursor:pointer}
+.sb-radio input{accent-color:#4f46e5}
+.sb-cat-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:13px;color:#374151;cursor:pointer;border-radius:0;text-decoration:none;transition:.15s}
+.sb-cat-item:hover{background:#f5f3ff;color:#4f46e5}
+.sb-cat-item.active{background:#ede9fe;color:#4f46e5;font-weight:700}
+.sb-pincode-wrap{padding:0 16px 12px}
+.sb-pincode-wrap input,.sb-pincode-wrap select{width:100%;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:12px;margin-bottom:6px;outline:none;box-sizing:border-box}
+.sb-pincode-wrap input:focus,.sb-pincode-wrap select:focus{border-color:#4f46e5}
+.sb-apply-btn{display:block;width:100%;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:8px;font-size:13px;font-weight:700;cursor:pointer;text-align:center}
+.sb-clear{display:block;text-align:center;font-size:12px;color:#6b7280;margin-top:6px;text-decoration:none}
+.sb-clear:hover{color:#4f46e5}
+
+/* ── main ── */
+.jb-main{flex:1;padding:20px;max-width:900px}
+.jb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.jb-header h2{font-size:16px;font-weight:800;color:#111;margin:0}
+.collar-tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;margin-left:6px}
+.white-tag{background:#dbeafe;color:#1d4ed8}
+.blue-tag{background:#fef3c7;color:#d97706}
+.sort-bar{display:flex;gap:6px;align-items:center;font-size:12px;color:#6b7280}
+.sort-bar a{color:#4f46e5;text-decoration:none;font-weight:600;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;font-size:11px}
+.sort-bar a:hover{background:#f5f3ff}
+
+/* ── sponsored strip ── */
+.sp-strip{display:flex;align-items:center;gap:10px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none;border-bottom:1px solid #eef0f6;margin-bottom:14px}
+.sp-strip::-webkit-scrollbar{display:none}
+.sp-label{font-size:11px;font-weight:700;color:#f3a000;white-space:nowrap;flex-shrink:0;background:#fff8e1;padding:4px 10px;border-radius:10px;border:1px solid #ffe082}
+.sp-item{display:flex;align-items:center;gap:8px;text-decoration:none;color:#111;border:1.5px solid #e5e7eb;border-radius:10px;padding:8px 12px;flex-shrink:0;transition:.2s;font-size:12px}
+.sp-item:hover{border-color:#4f46e5;background:#f5f3ff}
+.sp-item img{width:32px;height:32px;border-radius:6px;object-fit:cover}
+.sp-item strong{font-weight:700;font-size:12px;color:#111;display:block}
+.sp-item span{font-size:11px;color:#888}
+
+/* ── job card ── */
+.job-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:.2s;position:relative}
+.job-card:hover{border-color:#4f46e5;box-shadow:0 4px 18px rgba(79,70,229,.1)}
+.job-card.urgent-card{border-color:#ef4444}
+.urgent-tag{position:absolute;top:12px;right:12px;background:#fef2f2;color:#ef4444;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;border:1px solid #fecaca}
+.jc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.jc-logo{width:40px;height:40px;border-radius:10px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:18px;color:#4f46e5;flex-shrink:0}
+.jc-logo.blue-logo{background:#fef3c7;color:#d97706}
+.jc-info{flex:1}
+.jc-title{font-size:14px;font-weight:800;color:#111;text-decoration:none;display:block;margin-bottom:2px}
+.jc-title:hover{color:#4f46e5}
+.jc-company{font-size:12px;color:#6b7280;margin:0}
+.jc-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;flex-shrink:0;margin-top:2px}
+.white-badge{background:#dbeafe;color:#1d4ed8}
+.blue-badge{background:#fef3c7;color:#d97706}
+.jc-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.jc-meta span{font-size:11px;color:#6b7280;display:flex;align-items:center;gap:4px}
+.jc-meta i{color:#9ca3af;width:12px}
+.jc-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.jc-tags{display:flex;gap:6px;flex-wrap:wrap}
+.jc-tags span{font-size:10px;font-weight:600;color:#4f46e5;background:#ede9fe;padding:3px 8px;border-radius:8px}
+.jc-actions{display:flex;align-items:center;gap:8px}
+.jc-date{font-size:11px;color:#9ca3af}
+.jc-apply-btn{background:#4f46e5;color:#fff;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:.15s}
+.jc-apply-btn:hover{background:#3730a3}
+
+/* ── inline ad ── */
+.jc-inline-ad{display:flex;align-items:center;gap:12px;text-decoration:none;color:#111;background:linear-gradient(135deg,#fff8e1,#fff3cd);border:1.5px solid #ffe082;border-radius:12px;padding:12px 14px;margin-bottom:10px;transition:.2s}
+.jc-inline-ad:hover{border-color:#f3a000;box-shadow:0 4px 14px rgba(243,160,0,.15)}
+.jc-inline-ad img{width:60px;height:60px;border-radius:8px;object-fit:cover;flex-shrink:0}
+.jia-body{display:flex;flex-direction:column;gap:3px}
+.jia-spon{font-size:10px;font-weight:700;color:#f3a000;text-transform:uppercase;letter-spacing:.4px}
+.jia-body strong{font-size:14px;font-weight:800;color:#111}
+.jia-body span{font-size:12px;color:#666}
+
+/* ── no jobs ── */
+.no-jobs{text-align:center;padding:48px 24px;background:#fff;border-radius:14px;border:1.5px solid #e5e7eb}
+.no-jobs i{font-size:2.5rem;color:#d1d5db;margin-bottom:12px;display:block}
+.no-jobs h3{font-size:16px;color:#374151;margin:0 0 6px}
+.no-jobs p{font-size:13px;color:#9ca3af;margin:0 0 16px}
+
+/* ── overlay ── */
+#jb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:499}
 </style>
-{% endblock %}
+</head>
+<body>
 
-{% block content %}
-
-
-<div class="jobs-page">
-
-  <!-- Search Bar -->
-  <div class="jobs-search-bar">
-    <form action="/jobs/" method="get" class="jobs-search-form">
+<!-- TOPBAR -->
+<header class="dash-topbar">
+  <a href="/" class="dash-logo"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE"></a>
+  <div class="dash-search-wrap">
+    <form action="/jobs/" method="get">
       <input type="text" name="q" value="{{ q }}" placeholder="Job title, skill, keyword...">
-      <input type="text" name="pincode" value="{{ pincode }}" placeholder="OUR PINCODE" maxlength="6" style="max-width:130px">
-      <button type="submit"><i class="fas fa-search"></i> Search</button>
+      {% if pincode %}<input type="hidden" name="pincode" value="{{ pincode }}">{% endif %}
+      {% if collar %}<input type="hidden" name="collar" value="{{ collar }}">{% endif %}
+      <button type="submit"><i class="fas fa-search"></i></button>
     </form>
   </div>
+  <div class="dash-topbar-right">
+    {% if user.is_authenticated %}
+    <a href="/jobseeker/dashboard/" style="font-size:13px;color:#4f46e5;text-decoration:none;font-weight:600">My Jobs</a>
+    {% else %}
+    <a href="/login/" style="font-size:13px;color:#4f46e5;text-decoration:none;font-weight:600">Login</a>
+    {% endif %}
+  </div>
+  <button class="dash-hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+</header>
 
-  <div class="jobs-layout">
+<div id="jb-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR FILTERS -->
-    <aside class="filter-sidebar">
-      <h3><i class="fas fa-filter"></i> Filter Jobs</h3>
+<div class="dash-body">
 
-      <form action="/jobs/" method="get" id="filterForm">
-        <input type="hidden" name="q" value="{{ q }}">
+  <!-- SIDEBAR -->
+  <aside class="jb-sidebar" id="jb-sidebar">
+    <form action="/jobs/" method="get" id="filterForm">
+      <input type="hidden" name="q" value="{{ q }}">
 
-        <div class="filter-group">
-          <h4>Collar Type</h4>
-          <label class="filter-radio">
-            <input type="radio" name="collar" value="" {% if not collar %}checked{% endif %}> All Jobs
-          </label>
-          <label class="filter-radio white-radio">
-            <input type="radio" name="collar" value="white" {% if collar == 'white' %}checked{% endif %}>
-            <i class="fas fa-user-tie"></i> White Collar
-          </label>
-          <label class="filter-radio blue-radio">
-            <input type="radio" name="collar" value="blue" {% if collar == 'blue' %}checked{% endif %}>
-            <i class="fas fa-wrench"></i> Blue Collar / Local Workers
-          </label>
-        </div>
+      <div class="sb-section">Collar Type</div>
+      <div class="sb-filter-group">
+        <label class="sb-radio">
+          <input type="radio" name="collar" value="" {% if not collar %}checked{% endif %} onchange="this.form.submit()"> All Jobs
+        </label>
+        <label class="sb-radio">
+          <input type="radio" name="collar" value="white" {% if collar == 'white' %}checked{% endif %} onchange="this.form.submit()">
+          <i class="fas fa-user-tie" style="color:#1d4ed8"></i> White Collar
+        </label>
+        <label class="sb-radio">
+          <input type="radio" name="collar" value="blue" {% if collar == 'blue' %}checked{% endif %} onchange="this.form.submit()">
+          <i class="fas fa-wrench" style="color:#d97706"></i> Blue Collar
+        </label>
+      </div>
 
-        <div class="filter-group">
-          <h4>Category</h4>
-          <div class="filter-cats" id="whiteCats" {% if collar == 'blue' %}style="display:none"{% endif %}>
-            {% for cat in white_cats %}
-            <label class="filter-check">
-              <input type="radio" name="category" value="{{ cat }}" {% if request.GET.category == cat %}checked{% endif %}> {{ cat }}
-            </label>
-            {% endfor %}
-          </div>
-          <div class="filter-cats" id="blueCats" {% if collar == 'white' %}style="display:none"{% endif %}>
-            {% for cat in blue_cats %}
-            <label class="filter-check">
-              <input type="radio" name="category" value="{{ cat }}" {% if request.GET.category == cat %}checked{% endif %}> {{ cat }}
-            </label>
-            {% endfor %}
-          </div>
-        </div>
+      <div class="sb-section">Category</div>
+      <div id="whiteCats" {% if collar == 'blue' %}style="display:none"{% endif %}>
+        {% for cat in white_cats %}
+        <label class="sb-radio" style="padding:6px 16px;margin:0">
+          <input type="radio" name="category" value="{{ cat }}" {% if request.GET.category == cat %}checked{% endif %} onchange="this.form.submit()"> {{ cat }}
+        </label>
+        {% endfor %}
+      </div>
+      <div id="blueCats" {% if collar == 'white' %}style="display:none"{% endif %}>
+        {% for cat in blue_cats %}
+        <label class="sb-radio" style="padding:6px 16px;margin:0">
+          <input type="radio" name="category" value="{{ cat }}" {% if request.GET.category == cat %}checked{% endif %} onchange="this.form.submit()"> {{ cat }}
+        </label>
+        {% endfor %}
+      </div>
 
-        <div class="filter-group">
-          <h4><i class="fas fa-map-pin"></i> Location</h4>
-          <input type="text" name="pincode" value="{{ pincode }}" placeholder="Enter pincode" maxlength="6" class="filter-input">
-          <label style="font-size:12px;color:#666;margin-top:8px;display:block">Search radius</label>
-          <select name="radius" class="filter-input" style="margin-top:4px">
-            <option value="">Exact pincode only</option>
-            <option value="2"  {% if radius == '2'  or radius == 2.0 %}selected{% endif %}>Within 2 km</option>
-            <option value="5"  {% if radius == '5'  or radius == 5.0 %}selected{% endif %}>Within 5 km</option>
-            <option value="10" {% if radius == '10' or radius == 10.0 %}selected{% endif %}>Within 10 km</option>
-            <option value="20" {% if radius == '20' or radius == 20.0 %}selected{% endif %}>Within 20 km</option>
-            <option value="50" {% if radius == '50' or radius == 50.0 %}selected{% endif %}>Within 50 km</option>
-          </select>
-        </div>
-
+      <div class="sb-section" style="margin-top:8px">Location</div>
+      <div class="sb-pincode-wrap">
+        <input type="text" name="pincode" value="{{ pincode }}" placeholder="Enter pincode" maxlength="6">
+        <select name="radius">
+          <option value="">Exact pincode only</option>
+          <option value="2"  {% if radius == '2'  or radius == 2.0 %}selected{% endif %}>Within 2 km</option>
+          <option value="5"  {% if radius == '5'  or radius == 5.0 %}selected{% endif %}>Within 5 km</option>
+          <option value="10" {% if radius == '10' or radius == 10.0 %}selected{% endif %}>Within 10 km</option>
+          <option value="20" {% if radius == '20' or radius == 20.0 %}selected{% endif %}>Within 20 km</option>
+          <option value="50" {% if radius == '50' or radius == 50.0 %}selected{% endif %}>Within 50 km</option>
+        </select>
         {% if radius_error %}
-        <p style="color:#dc2626;font-size:12px;background:#fef2f2;padding:8px;border-radius:6px">
+        <p style="color:#dc2626;font-size:11px;background:#fef2f2;padding:7px;border-radius:6px;margin-bottom:6px">
           <i class="fas fa-exclamation-circle"></i> {{ radius_error }}
         </p>
         {% endif %}
-
-        <button type="submit" class="filter-btn"><i class="fas fa-check"></i> Apply Filters</button>
-        <a href="/jobs/" class="clear-filter">Clear all</a>
-      </form>
-    </aside>
-
-    <!-- JOB RESULTS -->
-    <div class="jobs-results">
-      <div class="results-header">
-        <h2>{{ total }} Job{{ total|pluralize }} Found
-          {% if collar == 'white' %}<span class="collar-tag white-tag">White Collar</span>{% endif %}
-          {% if collar == 'blue' %}<span class="collar-tag blue-tag">Blue Collar</span>{% endif %}
-        </h2>
-        <div class="sort-bar">
-          <span>Sort by:</span>
-          <a href="?{{ request.GET.urlencode }}&sort=new">Newest</a>
-          <a href="?{{ request.GET.urlencode }}&sort=urgent">Urgent</a>
-        </div>
+        <button type="submit" class="sb-apply-btn"><i class="fas fa-check"></i> Apply Filters</button>
+        <a href="/jobs/" class="sb-clear">Clear all filters</a>
       </div>
 
-      {% if ads_by_type.sponsored_job %}
-      <div class="sp-job-strip">
-        <span class="sp-job-label"><i class="fas fa-star"></i> Sponsored Jobs</span>
-        {% for ad in ads_by_type.sponsored_job %}
-        <a class="sp-job-item" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
-          <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
-          <div><strong>{{ ad.title }}</strong><span>{{ ad.advertiser.business_name }}</span></div>
-        </a>
-        {% endfor %}
+    </form>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="jb-main">
+
+    <div class="jb-header">
+      <h2>
+        {{ total }} Job{{ total|pluralize }} Found
+        {% if collar == 'white' %}<span class="collar-tag white-tag">White Collar</span>{% endif %}
+        {% if collar == 'blue' %}<span class="collar-tag blue-tag">Blue Collar</span>{% endif %}
+      </h2>
+      <div class="sort-bar">
+        Sort:
+        <a href="?{{ request.GET.urlencode }}&sort=new">Newest</a>
+        <a href="?{{ request.GET.urlencode }}&sort=urgent">Urgent</a>
       </div>
-      {% endif %}
-
-      {% if jobs %}
-      <div class="job-cards-list">
-        {% for job in jobs %}
-        {% if forloop.counter == 4 and ads_by_type.district_banner %}
-        {% with ad=ads_by_type.district_banner|first %}
-        <a class="job-list-inline-ad" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
-          <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
-          <div class="jlia-body">
-            <span class="jlia-spon">Sponsored</span>
-            <strong>{{ ad.title }}</strong>
-            <span>{{ ad.advertiser.business_name }}</span>
-          </div>
-        </a>
-        {% endwith %}
-        {% endif %}
-        <div class="job-list-card {% if job.is_urgent %}urgent-card{% endif %}">
-          {% if job.is_urgent %}<div class="urgent-tag"><i class="fas fa-fire"></i> Urgent Hiring</div>{% endif %}
-
-          <div class="jlc-top">
-            <div class="jlc-logo {% if job.collar_type == 'blue' %}blue-logo{% endif %}">
-              {% if job.collar_type == 'white' %}<i class="fas fa-user-tie"></i>
-              {% else %}<i class="fas fa-wrench"></i>{% endif %}
-            </div>
-            <div class="jlc-info">
-              <a href="/jobs/{{ job.pk }}/" class="jlc-title">{{ job.title }}</a>
-              <p class="jlc-company">
-                {% if job.posted_by.user_type == 'company' and job.posted_by.company %}
-                  {{ job.posted_by.company.company_name }}
-                {% elif job.posted_by.user_type == 'shop' and job.posted_by.shop %}
-                  {{ job.posted_by.shop.shop_name }}
-                {% else %}
-                  {{ job.posted_by.get_full_name|default:job.posted_by.username }}
-                {% endif %}
-              </p>
-            </div>
-            <div class="jlc-badge {% if job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %}">
-              {{ job.get_collar_type_display }}
-            </div>
-          </div>
-
-          <div class="jlc-meta">
-            <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
-            <span><i class="fas fa-map-pin"></i> {{ job.pincode }}</span>
-            {% if nearby_pairs %}
-              {% for pair_job, dist in nearby_pairs %}{% if pair_job.pk == job.pk %}<span style="color:#0a66c2;font-weight:600"><i class="fas fa-location-arrow"></i> {{ dist }} km away</span>{% endif %}{% endfor %}
-            {% endif %}
-            <span><i class="fas fa-clock"></i> {{ job.get_job_type_display }}</span>
-            <span><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</span>
-            {% if job.experience %}<span><i class="fas fa-graduation-cap"></i> {{ job.experience }}</span>{% endif %}
-          </div>
-
-          <div class="jlc-footer">
-            <div class="jlc-tags">
-              <span>{{ job.category }}</span>
-              <span>{{ job.vacancies }} vacanc{{ job.vacancies|pluralize:"y,ies" }}</span>
-            </div>
-            <div class="jlc-actions">
-              <span class="jlc-date"><i class="fas fa-calendar"></i> {{ job.created_at|date:"d M Y" }}</span>
-              <a href="/jobs/{{ job.pk }}/" class="jlc-apply-btn">View & Apply</a>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      {% else %}
-      <div class="no-jobs">
-        <i class="fas fa-search"></i>
-        <h3>No jobs found</h3>
-        <p>Try changing your filters or search keywords</p>
-        <a href="/jobs/" class="filter-btn" style="display:inline-flex;width:auto;padding:10px 24px">Clear Filters</a>
-      </div>
-      {% endif %}
     </div>
-  </div>
+
+    <!-- Mobile search bar -->
+    <form action="/jobs/" method="get" style="display:none;margin-bottom:14px" id="mobile-search">
+      <div style="display:flex;gap:6px">
+        <input type="text" name="q" value="{{ q }}" placeholder="Search jobs..." style="flex:1;border:1.5px solid #e5e7eb;border-radius:10px;padding:8px 12px;font-size:13px;outline:none">
+        {% if pincode %}<input type="hidden" name="pincode" value="{{ pincode }}">{% endif %}
+        {% if collar %}<input type="hidden" name="collar" value="{{ collar }}">{% endif %}
+        <button type="submit" style="background:#4f46e5;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer"><i class="fas fa-search"></i></button>
+      </div>
+    </form>
+
+    {% if ads_by_type.sponsored_job %}
+    <div class="sp-strip">
+      <span class="sp-label"><i class="fas fa-star"></i> Sponsored</span>
+      {% for ad in ads_by_type.sponsored_job %}
+      <a class="sp-item" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
+        <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+        <div><strong>{{ ad.title }}</strong><span>{{ ad.advertiser.business_name }}</span></div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if jobs %}
+    {% for job in jobs %}
+    {% if forloop.counter == 4 and ads_by_type.district_banner %}
+    {% with ad=ads_by_type.district_banner|first %}
+    <a class="jc-inline-ad" href="{{ ad.link_url|default:'#' }}" target="_blank" onclick="fetch('/ads/click/{{ ad.pk }}/')">
+      <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+      <div class="jia-body">
+        <span class="jia-spon">Sponsored</span>
+        <strong>{{ ad.title }}</strong>
+        <span>{{ ad.advertiser.business_name }}</span>
+      </div>
+    </a>
+    {% endwith %}
+    {% endif %}
+
+    <div class="job-card {% if job.is_urgent %}urgent-card{% endif %}">
+      {% if job.is_urgent %}<div class="urgent-tag"><i class="fas fa-fire"></i> Urgent Hiring</div>{% endif %}
+      <div class="jc-top">
+        <div class="jc-logo {% if job.collar_type == 'blue' %}blue-logo{% endif %}">
+          {% if job.collar_type == 'white' %}<i class="fas fa-user-tie"></i>{% else %}<i class="fas fa-wrench"></i>{% endif %}
+        </div>
+        <div class="jc-info">
+          <a href="/jobs/{{ job.pk }}/" class="jc-title">{{ job.title }}</a>
+          <p class="jc-company">
+            {% if job.posted_by.user_type == 'company' and job.posted_by.company %}{{ job.posted_by.company.company_name }}
+            {% elif job.posted_by.user_type == 'shop' and job.posted_by.shop %}{{ job.posted_by.shop.shop_name }}
+            {% else %}{{ job.posted_by.get_full_name|default:job.posted_by.username }}{% endif %}
+          </p>
+        </div>
+        <div class="jc-badge {% if job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %}">{{ job.get_collar_type_display }}</div>
+      </div>
+      <div class="jc-meta">
+        <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+        <span><i class="fas fa-map-pin"></i> {{ job.pincode }}</span>
+        {% if nearby_pairs %}{% for pair_job,dist in nearby_pairs %}{% if pair_job.pk == job.pk %}<span style="color:#4f46e5;font-weight:600"><i class="fas fa-location-arrow"></i> {{ dist }} km away</span>{% endif %}{% endfor %}{% endif %}
+        <span><i class="fas fa-clock"></i> {{ job.get_job_type_display }}</span>
+        <span><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</span>
+        {% if job.experience %}<span><i class="fas fa-graduation-cap"></i> {{ job.experience }}</span>{% endif %}
+      </div>
+      <div class="jc-footer">
+        <div class="jc-tags">
+          <span>{{ job.category }}</span>
+          <span>{{ job.vacancies }} vacanc{{ job.vacancies|pluralize:"y,ies" }}</span>
+        </div>
+        <div class="jc-actions">
+          <span class="jc-date"><i class="fas fa-calendar"></i> {{ job.created_at|date:"d M Y" }}</span>
+          <a href="/jobs/{{ job.pk }}/" class="jc-apply-btn">View &amp; Apply</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="no-jobs">
+      <i class="fas fa-search"></i>
+      <h3>No jobs found</h3>
+      <p>Try changing your filters or search keywords</p>
+      <a href="/jobs/" style="background:#4f46e5;color:#fff;padding:9px 24px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block">Clear Filters</a>
+    </div>
+    {% endif %}
+
+  </main>
 </div>
 
 <script>
-// Show/hide category lists based on collar selection
-document.querySelectorAll('input[name="collar"]').forEach(r => {
-  r.addEventListener('change', function () {
-    document.getElementById('whiteCats').style.display = this.value === 'blue'  ? 'none' : 'block';
-    document.getElementById('blueCats').style.display  = this.value === 'white' ? 'none' : 'block';
+function toggleSidebar(){
+  var s=document.getElementById('jb-sidebar');
+  var o=document.getElementById('jb-overlay');
+  var ms=document.getElementById('mobile-search');
+  var open=s.classList.toggle('open');
+  o.style.display=open?'block':'none';
+  document.body.style.overflow=open?'hidden':'';
+}
+document.querySelectorAll('input[name="collar"]').forEach(r=>{
+  r.addEventListener('change',function(){
+    document.getElementById('whiteCats').style.display=this.value==='blue'?'none':'block';
+    document.getElementById('blueCats').style.display=this.value==='white'?'none':'block';
   });
 });
+// show mobile search bar on small screens
+if(window.innerWidth<=768){document.getElementById('mobile-search').style.display='block';}
 </script>
-{% endblock %}
-
+</body>
+</html>

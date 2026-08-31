@@ -201,9 +201,18 @@
             <label>Highest Qualification <span class="req">*</span></label>
             <select name="qualification" required>
               <option value="">Select qualification</option>
-              {% for val in "10th Pass,12th Pass,Diploma,ITI,Graduate (B.A/B.Sc/B.Com),B.E/B.Tech,MBA/PGDM,Post Graduate,PhD,Other"|split:"," %}
-              <option value="{{ val }}" {% if seeker.education == val %}selected{% endif %}>{{ val }}</option>
-              {% endfor %}
+              {% with q=seeker.education %}
+              <option value="10th Pass" {% if q == "10th Pass" %}selected{% endif %}>10th Pass</option>
+              <option value="12th Pass" {% if q == "12th Pass" %}selected{% endif %}>12th Pass</option>
+              <option value="Diploma" {% if q == "Diploma" %}selected{% endif %}>Diploma</option>
+              <option value="ITI" {% if q == "ITI" %}selected{% endif %}>ITI</option>
+              <option value="Graduate (B.A/B.Sc/B.Com)" {% if q == "Graduate (B.A/B.Sc/B.Com)" %}selected{% endif %}>Graduate (B.A/B.Sc/B.Com)</option>
+              <option value="B.E/B.Tech" {% if q == "B.E/B.Tech" %}selected{% endif %}>B.E/B.Tech</option>
+              <option value="MBA/PGDM" {% if q == "MBA/PGDM" %}selected{% endif %}>MBA/PGDM</option>
+              <option value="Post Graduate" {% if q == "Post Graduate" %}selected{% endif %}>Post Graduate</option>
+              <option value="PhD" {% if q == "PhD" %}selected{% endif %}>PhD</option>
+              <option value="Other" {% if q == "Other" %}selected{% endif %}>Other</option>
+              {% endwith %}
             </select>
           </div>
           <div class="fg">

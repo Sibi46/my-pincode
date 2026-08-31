@@ -24,26 +24,74 @@
 
 .mp-wrap{max-width:960px;margin:1.5rem auto;padding:0 1rem 3rem}
 
-.cat-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
-.cat-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.35rem .9rem;border-radius:20px;font-size:.78rem;font-weight:700;text-decoration:none;background:#fff;color:#374151;border:1.5px solid #e5e7eb;transition:.15s}
+.cat-row{display:flex;gap:.45rem;overflow-x:auto;margin-bottom:1.2rem;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem 1rem;border-radius:24px;font-size:.8rem;font-weight:700;text-decoration:none;background:#fff;color:#374151;border:1.5px solid #e5e7eb;transition:.15s;white-space:nowrap;flex-shrink:0}
 .cat-chip:hover,.cat-chip.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
 
 .result-meta{font-size:.82rem;color:#6b7280;margin-bottom:1rem}
 .result-meta strong{color:#111}
 
-.vc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}
+/* ── ticket grid ── */
+.vc-grid{display:flex;flex-direction:column;gap:1rem}
 
-.vc-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:box-shadow .15s}
-.vc-card:hover{box-shadow:0 6px 24px rgba(124,58,237,.18)}
-.vc-card-img{width:100%;aspect-ratio:4/3;object-fit:cover;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#d8b4fe}
-.vc-card-img img{width:100%;height:100%;object-fit:cover}
-.vc-card-body{padding:.9rem;flex:1;display:flex;flex-direction:column}
-.vc-biz{font-size:.72rem;color:#6b7280;margin-bottom:.2rem;font-weight:600}
-.vc-name{font-weight:800;font-size:.9rem;color:#111;margin-bottom:.3rem;line-height:1.3}
-.vc-value{font-size:1.1rem;font-weight:900;color:#7c3aed;margin-bottom:.3rem}
-.vc-expiry{font-size:.72rem;color:#9ca3af;margin-top:auto;padding-top:.5rem}
-.vc-btn{display:block;text-align:center;background:#7c3aed;color:#fff;padding:.45rem;border-radius:8px;font-size:.78rem;font-weight:700;margin-top:.6rem;text-decoration:none}
-.vc-btn:hover{background:#6d28d9}
+/* ticket wrapper */
+.vc-ticket{display:flex;border-radius:14px;overflow:visible;text-decoration:none;color:inherit;filter:drop-shadow(0 4px 14px rgba(0,0,0,.12));transition:filter .2s}
+.vc-ticket:hover{filter:drop-shadow(0 6px 22px rgba(124,58,237,.28))}
+
+/* stub (left torn part) */
+.vc-stub{
+  width:72px;flex-shrink:0;
+  background:#e8e4f8;
+  border-radius:14px 0 0 14px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  clip-path:polygon(
+    0 0,100% 0,
+    100% calc(50% - 14px),
+    calc(100% + 10px) calc(50% - 14px),
+    calc(100% + 10px) calc(50% + 14px),
+    100% calc(50% + 14px),
+    100% 100%,0 100%,
+    0 calc(50% + 14px),
+    -10px calc(50% + 14px),
+    -10px calc(50% - 14px),
+    0 calc(50% - 14px)
+  );
+}
+.vc-stub-text{writing-mode:vertical-rl;transform:rotate(180deg);font-size:.65rem;font-weight:900;color:#7c3aed;letter-spacing:.08em;text-transform:uppercase;padding:8px 0;line-height:1.2;text-align:center}
+
+/* main body */
+.vc-body{
+  flex:1;
+  background:#f5f3ff;
+  border-radius:0 14px 14px 0;
+  display:flex;align-items:center;gap:0;
+  position:relative;
+  clip-path:polygon(
+    0 0,100% 0,100% 100%,0 100%,
+    0 calc(50% + 14px),
+    -10px calc(50% + 14px),
+    -10px calc(50% - 14px),
+    0 calc(50% - 14px)
+  );
+}
+
+/* dashed separator + notch row */
+.vc-sep{width:2px;align-self:stretch;border-left:2px dashed #c4b8f0;margin:0 12px;flex-shrink:0}
+
+/* icon panel */
+.vc-icon-wrap{width:72px;height:72px;flex-shrink:0;border-radius:12px;overflow:hidden;background:#ddd8f8;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#7c3aed;margin-left:16px}
+.vc-icon-wrap img{width:100%;height:100%;object-fit:cover}
+
+/* text panel */
+.vc-text{flex:1;padding:14px 16px 14px 0}
+.vc-biz{font-size:.65rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.vc-name{font-weight:900;font-size:.95rem;color:#1a1a2e;line-height:1.25;margin-bottom:4px}
+.vc-value{font-size:1.15rem;font-weight:900;color:#4f46e5;margin-bottom:4px}
+.vc-dots{display:flex;gap:2px;margin:4px 0}
+.vc-dots span{width:4px;height:2px;background:#c4b8f0;border-radius:2px}
+.vc-expiry{font-size:.65rem;color:#9ca3af}
 
 .mp-empty{text-align:center;padding:3rem 1rem;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
 .mp-empty i{font-size:2.5rem;color:#d8b4fe;margin-bottom:.75rem;display:block}
@@ -90,20 +138,29 @@
   {% if vouchers %}
   <div class="vc-grid">
     {% for v in vouchers %}
-    <a href="{% url 'vouchers:voucher_detail' v.pk %}" class="vc-card">
-      <div class="vc-card-img">
-        {% if v.product_image %}
-          <img src="{{ v.product_image.url }}" alt="{{ v.voucher_name }}">
-        {% else %}
-          <i class="fas fa-gift"></i>
-        {% endif %}
+    <a href="{% url 'vouchers:voucher_detail' v.pk %}" class="vc-ticket">
+      <!-- stub -->
+      <div class="vc-stub">
+        <div class="vc-stub-text">{{ v.voucher_name|truncatechars:18 }}</div>
       </div>
-      <div class="vc-card-body">
-        <div class="vc-biz">{{ v.business.business_name }}</div>
-        <div class="vc-name">{{ v.voucher_name }}</div>
-        <div class="vc-value">&#8377;{{ v.voucher_value }}</div>
-        <div class="vc-expiry"><i class="fas fa-calendar"></i> Valid till {{ v.expiry_date|date:"d M Y" }}</div>
-        <span class="vc-btn">View Details</span>
+      <!-- main body -->
+      <div class="vc-body">
+        <div class="vc-icon-wrap">
+          {% if v.product_image %}
+            <img src="{{ v.product_image.url }}" alt="{{ v.voucher_name }}">
+          {% else %}
+            <i class="fas fa-gift"></i>
+          {% endif %}
+        </div>
+        <div class="vc-sep"></div>
+        <div class="vc-text">
+          <div class="vc-biz">{{ v.business.business_name }}</div>
+          <div class="vc-dots"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="vc-name">{{ v.voucher_name }}</div>
+          <div class="vc-value">&#8377;{{ v.voucher_value }}</div>
+          <div class="vc-dots"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="vc-expiry"><i class="fas fa-calendar-alt"></i> Valid till {{ v.expiry_date|date:"d M Y" }}</div>
+        </div>
       </div>
     </a>
     {% endfor %}
@@ -132,9 +189,11 @@
 </style>
 <nav class="v-botnav">
   <a href="/"><i class="fas fa-home"></i>Home</a>
-  <a href="{% if request.user.is_authenticated %}{% url 'vouchers:voucher_create' %}{% else %}/login/?next=/vouchers/vouchers/create/{% endif %}"><i class="fas fa-plus-circle"></i>Create</a>
+  <a href="{% if not request.user.is_authenticated %}/login/?next=/vouchers/marketplace/{% elif request.user.businesses.exists %}/vouchers/vouchers/create/{% else %}/vouchers/business/register/{% endif %}"><i class="fas fa-plus-circle"></i>Create</a>
   <a href="/flicks/"><i class="fas fa-play-circle"></i>Flick</a>
   <a href="{% url 'vouchers:my_vouchers' %}" class="active"><i class="fas fa-gift"></i>My Vouchers</a>
   <a href="/profile/"><i class="fas fa-user-circle"></i>Profile</a>
 </nav>
 {% endblock %}
+
+{% block site_bottom_nav %}{% endblock %}
