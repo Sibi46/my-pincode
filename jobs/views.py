@@ -9,6 +9,7 @@ from django.db.models import Q, F, Count
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
 from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      JobSeekerProfile, SeekerCertificate, SavedJob, Interview,
                      Conversation, Message, OfferLetter,
@@ -200,8 +201,9 @@ def register_process(request):
     whatsapp   = request.POST.get('whatsapp', '').strip()
     ref_code   = request.POST.get('ref_code', '').strip().upper()
 
-    # If already logged in and registering a business — link to existing account
     from django.db import IntegrityError as _IntegrityError
+
+    # If already logged in and registering a business — link to existing account
     if request.user.is_authenticated and user_type in User.EMPLOYER_TYPES:
         user = request.user
         user.user_type = user_type
@@ -333,42 +335,6 @@ def register_process(request):
 def forgot_password(request):
     phone = request.GET.get('phone', '')
     return render(request, 'forgot_password.html', {'prefill_phone': phone})
-
-
-def reset_password(request):
-    """Reset password after OTP verification."""
-    if request.method != 'POST':
-        return JsonResponse({'success': False})
-    import json
-    data     = json.loads(request.body)
-    phone    = data.get('phone', '').strip()
-    password = data.get('password', '').strip()
-
-    if not request.session.get('otp_verified'):
-        return JsonResponse({'success': False, 'error': 'OTP not verified'})
-
-    # Ensure the OTP was verified for THIS phone number, not a different one
-    if request.session.get('otp_phone') != phone:
-        return JsonResponse({'success': False, 'error': 'OTP verification mismatch. Please restart.'})
-
-    if not password or len(password) < 6:
-        return JsonResponse({'success': False, 'error': 'Password must be at least 6 characters'})
-
-    User = get_user_model()
-    user = User.objects.filter(phone=phone).first()
-    if not user:
-        return JsonResponse({'success': False, 'error': 'No account found with this mobile number'})
-
-    user.set_password(password)
-    user.save()
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    request.session.pop('otp_verified', None)
-    request.session.pop('otp_phone', None)
-    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
-        redirect_url = '/employer/dashboard/'
-    else:
-        redirect_url = '/'
-    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 def login_view(request):
@@ -1135,10 +1101,7 @@ def seeker_cert_delete(request, cert_id):
 
 # ── Rate limiting helpers ─────────────────────────────────────────────────────
 def _rate_limit(cache_key, max_attempts, window_seconds):
-    """
-    Returns True if the action is allowed, False if rate limit exceeded.
-    Increments the counter on each call.
-    """
+    """Returns True if the action is allowed, False if rate limit exceeded."""
     from django.core.cache import cache
     count = cache.get(cache_key, 0)
     if count >= max_attempts:
@@ -1264,8 +1227,8 @@ def forgot_password(request):
     return render(request, 'forgot_password.html', {'prefill_phone': phone})
 
 
-def reset_password_otp(request):
-    """Reset password via OTP flow (called from register/login page JS)."""
+def reset_password(request):
+    """Reset password after OTP verification (forgot-password flow)."""
     if request.method != 'POST':
         return JsonResponse({'success': False})
     import json
@@ -1290,13 +1253,19 @@ def reset_password_otp(request):
     user = User.objects.filter(phone=phone).first()
     if not user:
         return JsonResponse({'success': False, 'error': 'No account found with this number'})
+
     user.set_password(password)
     user.save()
-    request.session.pop('otp_verified', None)
-    request.session.pop('otp_phone', None)
     from django.contrib.auth import login as auth_login
     auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return JsonResponse({'success': True, 'redirect': '/dashboard/'})
+    request.session.pop('otp_verified', None)
+    request.session.pop('otp_phone', None)
+
+    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
+        redirect_url = '/employer/dashboard/'
+    else:
+        redirect_url = '/'
+    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 def phone_login(request):
@@ -2136,7 +2105,7 @@ def nearby_jobs_api(request):
 
     lat, lng = geocode_pincode(pincode)
     if lat is None:
-        logger.warning('jobs_nearby_api: geocode failed for pincode=%s', pincode)
+        logger.warning('nearby_jobs_api: geocode failed for pincode=%s', pincode)
         return JsonResponse({'error': 'Location not found for the given pincode.'}, status=404)
 
     base_qs = Job.objects.filter(status='active')
