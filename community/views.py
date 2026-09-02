@@ -544,8 +544,14 @@ def family_hub(request):
     p_father  = FamilyMember.objects.filter(creator=request.user, member_type='father', side='wife').first()  if request.user.is_authenticated else None
     p_mother  = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='wife').first()  if request.user.is_authenticated else None
     friends   = []
-    flicks    = FamilyFlick.objects.filter(creator=request.user) if request.user.is_authenticated else []
-    posts     = FamilyPost.objects.filter(creator=request.user) if request.user.is_authenticated else []
+    # Determine the family owner (child accounts resolve to parent)
+    _family_owner = request.user
+    if request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'family_child':
+        _cm = FamilyMember.objects.filter(child_linked_user=request.user).first()
+        if _cm:
+            _family_owner = _cm.creator
+    flicks    = FamilyFlick.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
+    posts     = FamilyPost.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
 
     relatives_exist = FamilyMember.objects.filter(
         creator=request.user,

@@ -57,7 +57,7 @@
                 <!-- Profile dropdown -->
                 <div class="nav-avatar-wrap">
                     <button class="nav-avatar-btn" onclick="toggleProfileMenu(event)" aria-label="Profile menu">
-                        <i class="fas fa-user-circle"></i>
+                        {% with s=request.user.seeker %}{% if s and s.photo %}<img src="{{ s.photo.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0">{% else %}<i class="fas fa-user-circle"></i>{% endif %}{% endwith %}
                         <i class="fas fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-profile-drop" id="profileDrop">
@@ -131,10 +131,46 @@
                     <a href="/admin-panel/advertisers/" style="color:#c62828"><i class="fas fa-shield-alt"></i> Ad Panel</a>
                 {% endif %}
 
+                <!-- Notification Bell -->
+                {% if messages %}
+                <div class="nav-bell-wrap" style="position:relative">
+                  <button class="nav-bell-btn" onclick="toggleBellDrop(event)" aria-label="Notifications" style="background:none;border:none;cursor:pointer;position:relative;padding:6px 8px;display:flex;align-items:center">
+                    <i class="fas fa-bell" style="font-size:20px;color:#444"></i>
+                    <span class="nav-bell-badge">{% with c=messages|length %}{{ c }}{% endwith %}</span>
+                  </button>
+                  <div class="nav-bell-drop" id="bellDrop" style="display:none;position:absolute;top:42px;right:0;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.15);min-width:300px;max-width:360px;z-index:9999;overflow:hidden">
+                    <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:13px;font-weight:800;color:#0f172a">🔔 Notifications</div>
+                    <div style="max-height:340px;overflow-y:auto">
+                      {% for msg in messages %}
+                      <div style="display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #f8fafc;align-items:flex-start">
+                        <div style="width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+                          {% if 'success' in msg.tags %}background:#d1fae5{% elif 'error' in msg.tags %}background:#fee2e2{% elif 'warning' in msg.tags %}background:#fef3c7{% else %}background:#dbeafe{% endif %}">
+                          <i class="fas {% if 'success' in msg.tags %}fa-check-circle" style="color:#16a34a{% elif 'error' in msg.tags %}fa-times-circle" style="color:#dc2626{% elif 'warning' in msg.tags %}fa-exclamation-triangle" style="color:#d97706{% else %}fa-info-circle" style="color:#0a66c2{% endif %};font-size:14px"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                          <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:2px">{% if 'success' in msg.tags %}Success{% elif 'error' in msg.tags %}Alert{% elif 'warning' in msg.tags %}Warning{% else %}Info{% endif %}</div>
+                          <div style="font-size:12px;color:#475569;line-height:1.5">{{ msg }}</div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <!-- Notification Bell (voucher nav) -->
+                {% if messages %}
+                <div class="nav-bell-wrap" style="position:relative">
+                  <button class="nav-bell-btn" onclick="toggleBellDrop(event)" aria-label="Notifications" style="background:none;border:none;cursor:pointer;position:relative;padding:6px 8px;display:flex;align-items:center">
+                    <i class="fas fa-bell" style="font-size:20px;color:#444"></i>
+                    <span class="nav-bell-badge">{{ messages|length }}</span>
+                  </button>
+                </div>
+                {% endif %}
                 <!-- Profile dropdown -->
                 <div class="nav-avatar-wrap">
                     <button class="nav-avatar-btn" onclick="toggleProfileMenu(event)" aria-label="Profile menu">
-                        <i class="fas fa-user-circle"></i>
+                        {% with s=request.user.seeker %}{% if s and s.photo %}<img src="{{ s.photo.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0">{% else %}<i class="fas fa-user-circle"></i>{% endif %}{% endwith %}
                         <i class="fas fa-chevron-down nav-chevron"></i>
                     </button>
                     <div class="nav-profile-drop" id="profileDrop">
@@ -237,7 +273,7 @@
 </nav>
 
 {% if messages %}
-<div class="toast-container" id="toastContainer">
+<div class="toast-container" id="toastContainer" style="display:none!important">
   {% for msg in messages %}
   <div class="toast toast-{{ msg.tags }}" id="toast{{ forloop.counter }}">
     <div class="toast-icon">
@@ -287,13 +323,22 @@
 @keyframes toastBar{from{width:100%}to{width:0%}}
 @media(max-width:500px){.toast{min-width:0;max-width:calc(100vw - 32px)}}
 </style>
+<style>
+.nav-bell-badge{position:absolute;top:2px;right:2px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;line-height:1}
+.nav-bell-btn:hover i{color:#0a66c2}
+.bn-offer-burst{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#ef4444;color:#fff;font-size:6px;font-weight:900;clip-path:polygon(50% 0%,54% 7%,61% 2%,63% 10%,71% 6%,71% 14%,79% 12%,77% 20%,86% 20%,82% 27%,91% 29%,85% 35%,93% 39%,86% 44%,93% 50%,86% 56%,93% 61%,85% 65%,91% 71%,82% 73%,86% 80%,77% 80%,79% 88%,71% 86%,71% 94%,63% 90%,61% 98%,54% 93%,50% 100%,46% 93%,39% 98%,37% 90%,29% 94%,29% 86%,21% 88%,23% 80%,14% 80%,18% 73%,9% 71%,15% 65%,7% 61%,14% 56%,7% 50%,14% 44%,7% 39%,15% 35%,9% 29%,18% 27%,14% 20%,23% 20%,21% 12%,29% 14%,29% 6%,37% 10%,39% 2%,46% 7%);line-height:1}
+</style>
 <script>
-function dismissToast(el){
-  el.style.animation='toastOut .3s ease forwards';
-  setTimeout(function(){ el.remove(); },300);
+function dismissToast(el){}
+function toggleBellDrop(e){
+  e.stopPropagation();
+  var d=document.getElementById('bellDrop');
+  if(!d)return;
+  d.style.display=d.style.display==='none'?'block':'none';
 }
-document.querySelectorAll('.toast').forEach(function(t, i){
-  setTimeout(function(){ dismissToast(t); }, 5000 + i*500);
+document.addEventListener('click',function(){
+  var d=document.getElementById('bellDrop');
+  if(d)d.style.display='none';
 });
 </script>
 {% endif %}
@@ -664,45 +709,28 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 {% block site_bottom_nav %}
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    {% if request.user.is_authenticated %}
-      <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
-        <i class="fas fa-home"></i><span>Home</span>
-      </a>
-      <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
-        <i class="fas fa-heartbeat"></i><span>Health</span>
-      </a>
-      <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
-        <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flicks</span>
-      </a>
-      <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
-        <i class="fas fa-gift"></i><span>Vouchers</span>
-      </a>
-      <a href="/profile/" class="bn-item {% if '/profile' in request.path or '/employer/dashboard' in request.path or '/jobseeker/dashboard' in request.path %}active{% endif %}">
-        <i class="fas fa-user"></i><span>Profile</span>
-      </a>
-    {% else %}
-      <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
-        <i class="fas fa-home"></i><span>Home</span>
-      </a>
-      <a href="/health/guide/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
-        <i class="fas fa-heartbeat"></i><span>Health</span>
-      </a>
-      <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
-        <div class="bn-fab-icon bn-fab-flick"><i class="fas fa-bolt"></i></div><span>Flick</span>
-      </a>
-      <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
-        <i class="fas fa-gift"></i><span>Voucher</span>
-      </a>
-      <a href="/login/" class="bn-item {% if '/login' in request.path %}active{% endif %}">
-        <i class="fas fa-sign-in-alt"></i><span>Sign In</span>
-      </a>
-    {% endif %}
+    <a href="/flicks/" class="bn-item {% if request.path == '/' %}active{% endif %}">
+      <i class="fas fa-home"></i><span>Home</span>
+    </a>
+    <a href="/advertise/" class="bn-item {% if '/advertise' in request.path %}active{% endif %}">
+      <span class="bn-offer-burst">OFFER</span><span>Offers</span>
+    </a>
+    <a href="/flicks/" class="bn-item bn-fab {% if '/flicks' in request.path %}bn-fab-active{% endif %}">
+      <div class="bn-fab-icon" style="background:none;box-shadow:none;padding:0;overflow:hidden"><img src="/static/images/reel.png" style="width:48px;height:48px;object-fit:cover;border-radius:50%;display:block"></div><span>Flick</span>
+    </a>
+    <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
+      <span style="font-size:22px;line-height:1">🎁</span><span>Voucher</span>
+    </a>
+    <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
+      <span style="font-size:22px;line-height:1">🔍</span><span>Jobs</span>
+    </a>
   </div>
 </nav>
 {% endblock site_bottom_nav %}
 
 <style>
-.bottom-nav{display:block;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+@media(max-width:768px){.bottom-nav{display:block}}
 .bottom-nav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
 .bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
 .bn-item i{font-size:19px}

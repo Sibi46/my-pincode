@@ -860,3 +860,30 @@ document.getElementById('fk-report-overlay').addEventListener('click', function(
 });
 </script>
 {% endblock %}
+
+{% block site_bottom_nav %}
+<style>
+.fk-botnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.10);z-index:9999;padding:6px 0 4px}
+.fk-botnav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.fk-bn{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.fk-bn i{font-size:19px}
+.fk-bn.active{color:#1d4ed8}
+.fk-bn-burst{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#ef4444;color:#fff;font-size:6px;font-weight:900;letter-spacing:.3px;clip-path:polygon(50% 0%,54% 7%,61% 2%,63% 10%,71% 6%,71% 14%,79% 12%,77% 20%,86% 20%,82% 27%,91% 29%,85% 35%,93% 39%,86% 44%,93% 50%,86% 56%,93% 61%,85% 65%,91% 71%,82% 73%,86% 80%,77% 80%,79% 88%,71% 86%,71% 94%,63% 90%,61% 98%,54% 93%,50% 100%,46% 93%,39% 98%,37% 90%,29% 94%,29% 86%,21% 88%,23% 80%,14% 80%,18% 73%,9% 71%,15% 65%,7% 61%,14% 56%,7% 50%,14% 44%,7% 39%,15% 35%,9% 29%,18% 27%,14% 20%,23% 20%,21% 12%,29% 14%,29% 6%,37% 10%,39% 2%,46% 7%);line-height:1;text-align:center}
+.fk-bn-fab{margin-top:-22px}
+@media(max-width:768px){.fk-botnav{display:block}}
+</style>
+<nav class="fk-botnav">
+  <div class="fk-botnav-inner">
+    <a href="/community/family/" class="fk-bn"><span style="font-size:22px;line-height:1">👨‍👩‍👧‍👦</span><span>Family</span></a>
+    <a href="/advertise/" class="fk-bn"><span class="fk-bn-burst">OFFER</span><span>Offers</span></a>
+    <a href="/flicks/" class="fk-bn fk-bn-fab active">
+      <div style="width:48px;height:48px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(124,58,237,.35)">
+        <img src="/static/images/reel.png" style="width:100%;height:100%;object-fit:cover;display:block">
+      </div>
+      <span>Flick</span>
+    </a>
+    <a href="/vouchers/marketplace/" class="fk-bn"><span style="font-size:22px;line-height:1">🎁</span><span>Voucher</span></a>
+    <a href="/jobs/" class="fk-bn"><span style="font-size:22px;line-height:1">🔍</span><span>Jobs</span></a>
+  </div>
+</nav>
+{% endblock %}

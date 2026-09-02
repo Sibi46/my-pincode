@@ -71,6 +71,7 @@ urlpatterns = [
     path('offer/download/<int:app_id>/',     views.download_offer_letter, name='download_offer_letter'),
 
     # Advertiser — Public
+    path('smart-marketing/',                  views.smart_marketing_story,    name='smart_marketing_story'),
     path('advertise/',                        views.ads_gallery,              name='ads_gallery'),
     path('advertise/register/',               views.advertiser_register,      name='advertiser_register'),
     path('advertise/success/',                views.advertiser_register_success, name='advertiser_register_success'),

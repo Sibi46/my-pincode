@@ -387,3 +387,28 @@ function closeAdModal(e) {
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAd(); });
 </script>
 {% endblock %}
+
+{% block site_bottom_nav %}
+<style>
+.ag-botnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.ag-botnav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.ag-bn{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.ag-bn i{font-size:19px}
+.ag-bn.active{color:#0a66c2}
+.ag-bn.active::after{content:'';position:absolute;top:-6px;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px}
+.ag-bn-fab{margin-top:-22px}
+@media(max-width:768px){.ag-botnav{display:block}}
+</style>
+<nav class="ag-botnav">
+  <div class="ag-botnav-inner">
+    <a href="/vouchers/marketplace/" class="ag-bn"><span style="font-size:22px;line-height:1">🎁</span><span>Voucher</span></a>
+    <a href="/flicks/" class="ag-bn ag-bn-fab">
+      <div style="width:48px;height:48px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(244,63,142,.35)">
+        <img src="/static/images/reel.png" style="width:100%;height:100%;object-fit:cover;display:block">
+      </div>
+      <span>Flick</span>
+    </a>
+    <a href="/jobs/" class="ag-bn"><span style="font-size:22px;line-height:1">🔍</span><span>Jobs</span></a>
+  </div>
+</nav>
+{% endblock %}

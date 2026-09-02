@@ -1517,6 +1517,9 @@ def chat_messages_api(request, user_id, job_id=0):
 # ==============================================================
 
 @login_required
+def smart_marketing_story(request):
+    return render(request, 'smart_marketing_story.html')
+
 def ads_gallery(request):
     """Public page: show all ads same style as home page."""
     ads = Advertisement.objects.select_related('advertiser', 'package').order_by('-created_at')
@@ -2235,6 +2238,15 @@ def district_admin_required(view_func):
 @login_required
 def post_simple_ad(request):
     from .models import AdPost, AdSettings
+    if not request.user.is_authenticated:
+        return redirect(f'/login/?next=/ads/post/')
+    adv = getattr(request.user, 'advertiser', None)
+    if not adv:
+        messages.error(request, 'Please register as an advertiser first.')
+        return redirect('advertiser_register')
+    if adv.status != 'approved':
+        messages.error(request, 'Your advertiser account is pending admin approval. You can create ads once approved.')
+        return redirect('advertiser_dashboard')
     if request.method == 'POST':
         import base64, io
         from django.core.files.base import ContentFile
@@ -2919,8 +2931,9 @@ def api_pincode_lookup(request, pin):
 
     # Fall back to India Post API
     try:
-        resp   = _req.get(f'https://api.postalpincode.in/pincode/{pin}', timeout=8)
-        data   = resp.json()
+        import urllib.request as _ur, json as _json
+        with _ur.urlopen(f'https://api.postalpincode.in/pincode/{pin}', timeout=8) as _resp:
+            data = _json.loads(_resp.read())
         if data and data[0].get('Status') == 'Success' and data[0].get('PostOffice'):
             po       = data[0]['PostOffice'][0]
             area     = po.get('Name', '')
