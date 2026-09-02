@@ -1819,9 +1819,22 @@ def event_rsvp(request, pk):
 
 @login_required
 def event_delete(request, pk):
+    from django.utils import timezone
     event = get_object_or_404(CommunityEvent, pk=pk, posted_by=request.user)
-    event.delete()
+    event.is_active = False
+    event.deleted_at = timezone.now()
+    event.save()
     return redirect('/community/events/')
+
+def event_deleted_history(request):
+    if not request.user.is_authenticated:
+        return redirect('/login/')
+    deleted_events = CommunityEvent.objects.filter(
+        posted_by=request.user, is_active=False
+    ).order_by('-deleted_at')
+    return render(request, 'community/event_deleted_history.html', {
+        'deleted_events': deleted_events,
+    })
 
 
 # ── VOLUNTEER ACTIVITIES ───────────────────────────────────────────────────────

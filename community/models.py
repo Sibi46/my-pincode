@@ -458,6 +458,7 @@ class CommunityEvent(models.Model):
     pincode     = models.CharField(max_length=10, blank=True)
     image       = models.ImageField(upload_to='community_events/', blank=True, null=True)
     is_active   = models.BooleanField(default=True)
+    deleted_at  = models.DateTimeField(null=True, blank=True)
     created_at  = models.DateTimeField(auto_now_add=True)
 
     class Meta:

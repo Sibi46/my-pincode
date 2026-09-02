@@ -59,6 +59,9 @@
 
 {% if request.user.is_authenticated %}
 <a href="/community/events/post/" class="ev-fab">✏️</a>
+<div style="max-width:640px;margin:0 auto;padding:0 16px 4px;text-align:right">
+  <a href="/community/events/deleted-history/" style="font-size:12px;color:#9ca3af;font-weight:600;text-decoration:none">🗑️ Deleted Events History</a>
+</div>
 {% endif %}
 
 <div class="ev-feed">
