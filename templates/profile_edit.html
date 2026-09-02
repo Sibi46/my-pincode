@@ -31,8 +31,10 @@
   .collar-opt .collar-desc{font-size:11px;color:#888}
   .pe-save{width:100%;padding:13px;background:#0a66c2;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;transition:.2s;font-family:inherit}
   .pe-save:hover{background:#004182}
-  .pe-avatar-circle{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
-  .pe-avatar-circle img{width:72px;height:72px;object-fit:cover;border-radius:50%}
+  .pe-avatar-circle{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;border:3px solid #fff;box-shadow:0 4px 18px rgba(10,102,194,.25);position:relative;cursor:pointer}
+  .pe-avatar-circle img{width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:50%;display:block}
+  .pe-avatar-circle .cam-overlay{position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;color:#fff;font-size:22px}
+  .pe-avatar-circle:hover .cam-overlay{opacity:1}
   .pe-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
   /* sidebar profile card */
   .pe-sidebar-profile{background:#fff;border-radius:14px;border:1.5px solid #e8ecf2;padding:20px;margin-bottom:16px;text-align:center}
@@ -85,21 +87,22 @@
     <!-- Profile card -->
     <div class="pe-sidebar-profile">
       <div style="display:flex;justify-content:center;margin-bottom:12px">
+        <label for="photoInput" style="cursor:pointer;display:block">
         <div class="pe-avatar-circle" id="sidebarAvatar">
           {% if seeker and seeker.photo %}
           <img src="{{ seeker.photo.url }}" id="avatarPreview">
           {% else %}
-          {{ request.user.first_name|first|upper|default:request.user.username|first|upper }}
+          <span id="avatarInitial">{{ request.user.first_name|first|upper|default:request.user.username|first|upper }}</span>
           {% endif %}
+          <div class="cam-overlay"><i class="fas fa-camera"></i></div>
         </div>
+        </label>
       </div>
       <div style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">{{ request.user.get_full_name|default:request.user.username }}</div>
       <div style="margin-bottom:10px"><span class="pe-badge">{{ request.user.get_user_type_display }}</span></div>
       <div style="font-size:12px;color:#888">{{ request.user.phone }}</div>
       {% if seeker %}
-      <label for="photoInput" style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 16px;background:#f0f7ff;color:#0a66c2;border:1.5px solid #bfdbfe;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer">
-        <i class="fas fa-camera"></i> Change Photo
-      </label>
+      <div style="font-size:11px;color:#94a3b8;margin-top:6px">Tap photo to change</div>
       {% endif %}
     </div>
 
@@ -379,16 +382,111 @@ function pickCollar(type) {
   else if (currentCollar === 'white') pickCollar('white');
 })();
 
+/* ── photo crop ── */
+let _cropImg = new Image(), _cropX=0, _cropY=0, _cropScale=1, _cropDragging=false, _cropLx=0, _cropLy=0, _cropOrigFile=null;
+
 function previewPhoto(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const sidebar = document.getElementById('sidebarAvatar');
-      sidebar.innerHTML = '<img src="' + e.target.result + '" style="width:72px;height:72px;object-fit:cover;border-radius:50%">';
+  if (!input.files || !input.files[0]) return;
+  _cropOrigFile = input.files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    _cropImg = new Image();
+    _cropImg.onload = () => {
+      _cropX = 0; _cropY = 0; _cropScale = 1;
+      _fitCrop();
+      _drawCrop();
+      document.getElementById('crop-modal').style.display = 'flex';
     };
-    reader.readAsDataURL(input.files[0]);
-  }
+    _cropImg.src = e.target.result;
+  };
+  reader.readAsDataURL(_cropOrigFile);
 }
+
+function _fitCrop() {
+  const c = document.getElementById('crop-canvas');
+  const size = c.width; // 280
+  const s = Math.max(size / _cropImg.width, size / _cropImg.height);
+  _cropScale = s;
+  _cropX = (size - _cropImg.width * s) / 2;
+  _cropY = (size - _cropImg.height * s) / 2;
+}
+
+function _drawCrop() {
+  const c = document.getElementById('crop-canvas');
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.drawImage(_cropImg, _cropX, _cropY, _cropImg.width * _cropScale, _cropImg.height * _cropScale);
+  // dark overlay outside circle
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.arc(c.width/2, c.height/2, c.width/2 - 2, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+  // circle border
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(c.width/2, c.height/2, c.width/2 - 2, 0, Math.PI*2);
+  ctx.stroke();
+}
+
+function _cropApply() {
+  const c = document.getElementById('crop-canvas');
+  const size = c.width;
+  const out = document.createElement('canvas');
+  out.width = out.height = 300;
+  const ctx = out.getContext('2d');
+  ctx.beginPath();
+  ctx.arc(150, 150, 150, 0, Math.PI*2);
+  ctx.clip();
+  const ratio = 300 / size;
+  ctx.drawImage(_cropImg, _cropX*ratio, _cropY*ratio, _cropImg.width*_cropScale*ratio, _cropImg.height*_cropScale*ratio);
+  out.toBlob(blob => {
+    const file = new File([blob], _cropOrigFile.name, {type:'image/jpeg'});
+    // replace file in input
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('photoInput').files = dt.files;
+    // update avatar preview
+    const url = URL.createObjectURL(blob);
+    const sidebar = document.getElementById('sidebarAvatar');
+    sidebar.innerHTML = '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block"><div class="cam-overlay"><i class="fas fa-camera"></i></div>';
+    document.getElementById('crop-modal').style.display = 'none';
+  }, 'image/jpeg', 0.92);
+}
+
+// drag to reposition
+(function(){
+  document.addEventListener('DOMContentLoaded', () => {
+    const c = document.getElementById('crop-canvas');
+    if (!c) return;
+    c.addEventListener('mousedown', e => { _cropDragging=true; _cropLx=e.clientX; _cropLy=e.clientY; });
+    window.addEventListener('mousemove', e => {
+      if (!_cropDragging) return;
+      _cropX += e.clientX - _cropLx; _cropY += e.clientY - _cropLy;
+      _cropLx=e.clientX; _cropLy=e.clientY; _drawCrop();
+    });
+    window.addEventListener('mouseup', () => _cropDragging=false);
+    c.addEventListener('touchstart', e => { _cropDragging=true; _cropLx=e.touches[0].clientX; _cropLy=e.touches[0].clientY; }, {passive:true});
+    c.addEventListener('touchmove', e => {
+      if (!_cropDragging) return;
+      _cropX += e.touches[0].clientX - _cropLx; _cropY += e.touches[0].clientY - _cropLy;
+      _cropLx=e.touches[0].clientX; _cropLy=e.touches[0].clientY; _drawCrop(); e.preventDefault();
+    }, {passive:false});
+    c.addEventListener('touchend', () => _cropDragging=false);
+    document.getElementById('crop-zoom').addEventListener('input', e => {
+      const center = {x: c.width/2, y: c.height/2};
+      const oldScale = _cropScale;
+      _cropScale = parseFloat(e.target.value);
+      _cropX = center.x - (_cropImg.width/2)*_cropScale;
+      _cropY = center.y - (_cropImg.height/2)*_cropScale;
+      _drawCrop();
+    });
+  });
+})();
 
 function toggleSidebar() {
   var sidebar = document.getElementById('pe-sidebar');
@@ -419,5 +517,23 @@ function lookupPincode(pin) {
   <a href="/flicks/"><i class="fas fa-play-circle"></i>Flick</a>
   <a href="/my-accounts/" class="active"><i class="fas fa-user-circle"></i>My Account</a>
 </nav>
+<!-- Crop Modal -->
+<div id="crop-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#1a1a2e;border-radius:20px;padding:20px;max-width:340px;width:100%;text-align:center">
+    <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:14px">Adjust Photo</div>
+    <div style="position:relative;display:inline-block;margin-bottom:14px">
+      <canvas id="crop-canvas" width="280" height="280" style="border-radius:50%;display:block;cursor:grab;touch-action:none"></canvas>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:0 8px">
+      <i class="fas fa-search-minus" style="color:#aaa;font-size:13px"></i>
+      <input type="range" id="crop-zoom" min="0.5" max="3" step="0.01" value="1" style="flex:1;accent-color:#4f46e5">
+      <i class="fas fa-search-plus" style="color:#aaa;font-size:13px"></i>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('crop-modal').style.display='none'" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid #555;background:none;color:#ccc;font-weight:700;cursor:pointer;font-size:13px">Cancel</button>
+      <button onclick="_cropApply()" style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:800;cursor:pointer;font-size:13px">Use Photo</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

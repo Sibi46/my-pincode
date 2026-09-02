@@ -30,6 +30,20 @@
         {% endif %}
       </div>
 
+      <!-- Action buttons -->
+      {% if request.user != target %}
+      <div style="display:flex;gap:10px;width:100%;margin-top:4px;margin-bottom:4px">
+        <a href="/messages/start/{{ target.pk }}/" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:11px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 3px 12px rgba(79,70,229,.3)">
+          <i class="fas fa-comment-dots"></i> Message
+        </a>
+        {% if target.phone %}
+        <a href="https://wa.me/91{{ target.phone|cut:' '|cut:'-'|cut:'+'|cut:'91' }}" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;padding:11px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 3px 12px rgba(37,211,102,.3)">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
+
       <!-- Info cards -->
       <div style="width:100%;display:flex;flex-direction:column;gap:10px;margin-top:8px">
         {% if target.phone %}

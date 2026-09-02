@@ -315,5 +315,25 @@ document.querySelectorAll('input[name="collar"]').forEach(r=>{
 // show mobile search bar on small screens
 if(window.innerWidth<=768){document.getElementById('mobile-search').style.display='block';}
 </script>
+
+<!-- Bottom Nav -->
+<style>
+.jl-botnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.jl-botnav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.jl-bn{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px}
+.jl-bn i{font-size:19px}
+.jl-bn.active{color:#0a66c2}
+.jl-bn.active::after{content:'';display:block;width:18px;height:3px;background:#0a66c2;border-radius:0 0 3px 3px;position:absolute;top:-6px}
+.jl-bn{position:relative}
+@media(max-width:768px){.jl-botnav{display:block}}
+</style>
+<nav class="jl-botnav">
+  <div class="jl-botnav-inner">
+    <a href="/" class="jl-bn"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/advertise/" class="jl-bn"><span class="bn-offer-burst" style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#ef4444;color:#fff;font-size:6px;font-weight:900;clip-path:polygon(50% 0%,54% 7%,61% 2%,63% 10%,71% 6%,71% 14%,79% 12%,77% 20%,86% 20%,82% 27%,91% 29%,85% 35%,93% 39%,86% 44%,93% 50%,86% 56%,93% 61%,85% 65%,91% 71%,82% 73%,86% 80%,77% 80%,79% 88%,71% 86%,71% 94%,63% 90%,61% 98%,54% 93%,50% 100%,46% 93%,39% 98%,37% 90%,29% 94%,29% 86%,21% 88%,23% 80%,14% 80%,18% 73%,9% 71%,15% 65%,7% 61%,14% 56%,7% 50%,14% 44%,7% 39%,15% 35%,9% 29%,18% 27%,14% 20%,23% 20%,21% 12%,29% 14%,29% 6%,37% 10%,39% 2%,46% 7%)">OFFER</span><span>Offers</span></a>
+    <a href="/jobs/" class="jl-bn active"><span style="font-size:22px;line-height:1">🔍</span><span>My Jobs</span></a>
+    <a href="/profile/edit/" class="jl-bn"><span style="font-size:22px;line-height:1">👤</span><span>Profile</span></a>
+  </div>
+</nav>
 </body>
 </html>

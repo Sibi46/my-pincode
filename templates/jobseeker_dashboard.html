@@ -45,7 +45,9 @@
       {% if unread_notif_count %}<span class="dash-badge">{{ unread_notif_count }}</span>{% endif %}
     </div>
     <div class="dash-avatar-wrap">
-      <div class="dash-avatar">{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}</div>
+      <div class="dash-avatar" style="overflow:hidden;padding:0">
+        {% if profile and profile.photo %}<img src="{{ profile.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}{% endif %}
+      </div>
       <div class="dash-avatar-menu">
         <a href="/profile/"><i class="fas fa-user"></i> My Profile</a>
         <a href="/profile/edit/"><i class="fas fa-user-edit"></i> Edit Profile</a>

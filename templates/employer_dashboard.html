@@ -81,7 +81,9 @@
       {% if unread_msg_count %}<span class="dash-badge">{{ unread_msg_count }}</span>{% endif %}
     </div>
     <div class="dash-avatar-wrap">
-      <div class="dash-avatar">{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}</div>
+      <div class="dash-avatar" style="overflow:hidden;padding:0">
+        {% with s=request.user.seeker %}{% if s and s.photo %}<img src="{{ s.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}{% endif %}{% endwith %}
+      </div>
       <div class="dash-avatar-menu">
         <a href="/profile/"><i class="fas fa-user"></i> My Profile</a>
         <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
@@ -94,23 +96,18 @@
 
   <!-- ══ SIDEBAR ════════════════════════════════════════════════════ -->
   <aside class="dash-sidebar">
-    {% if profile %}
     <div class="sidebar-profile">
-      <div class="sp-avatar">{{ profile.company_name|first|upper }}</div>
+      <div class="sp-avatar" style="overflow:hidden;padding:0">
+        {% with s=request.user.seeker %}{% if s and s.photo %}<img src="{{ s.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+        {% elif profile %}<span style="display:flex;width:100%;height:100%;align-items:center;justify-content:center">{{ profile.company_name|first|upper }}</span>
+        {% else %}<span style="display:flex;width:100%;height:100%;align-items:center;justify-content:center">{{ request.user.get_full_name|first|upper|default:"E" }}</span>
+        {% endif %}{% endwith %}
+      </div>
       <div class="sp-info">
-        <strong>{{ profile.company_name|truncatechars:22 }}</strong>
-        <span>{{ request.user.user_type|title }}</span>
+        {% if profile %}<strong>{{ profile.company_name|truncatechars:22 }}</strong><span>{{ request.user.user_type|title }}</span>
+        {% else %}<strong>{{ request.user.get_full_name|default:request.user.username|truncatechars:22 }}</strong><span>Employer</span>{% endif %}
       </div>
     </div>
-    {% else %}
-    <div class="sidebar-profile">
-      <div class="sp-avatar">{{ request.user.get_full_name|first|upper|default:"E" }}</div>
-      <div class="sp-info">
-        <strong>{{ request.user.get_full_name|default:request.user.username|truncatechars:22 }}</strong>
-        <span>Employer</span>
-      </div>
-    </div>
-    {% endif %}
 
     <nav class="sidebar-nav">
       <a class="snav-item active" onclick="showSection('active-jobs',this)" data-sec="active-jobs">
