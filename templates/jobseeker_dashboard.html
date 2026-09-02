@@ -1,147 +1,137 @@
-﻿{% extends 'base.html' %}
 {% load static %}
-{% block title %}My Dashboard - OUR PINCODE{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<style>
-@media(max-width:600px){
-  .dash-topbar{flex-wrap:wrap;gap:8px;padding:12px}
-  .dash-topbar h1{font-size:18px}
-  .dash-topbar p{font-size:12px}
-  .dash-post-btn{font-size:12px;padding:7px 12px}
-  #notif-panel{right:8px;left:8px;width:auto}
-  .dash-wrapper{padding:12px 8px}
-}
-</style>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — OUR PINCODE</title>
+  <link rel="stylesheet" href="/static/css/style.css?v=2">
+  <link rel="stylesheet" href="/static/css/employer_dashboard.css?v=4">
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+  <style>
+  @media (max-width: 768px) {
+    .dash-post-btn   { display: none !important; }
+    .dash-hamburger  { display: flex !important; }
+    .stats-strip     { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 6px !important; overflow-x: unset !important; }
+    .stat-chip       { min-width: 0 !important; flex: unset !important; padding: 10px 6px !important; }
+    .stat-chip span  { font-size: 17px !important; }
+    .stat-chip label { font-size: 10px !important; }
+    .dash-main       { padding: 12px 10px 80px !important; }
+    .jl-salary       { display: none !important; }
+    .table-wrap      { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+    .dsec-header     { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+    .dash-layout     { grid-template-columns: 1fr !important; }
+    .dash-sidebar    { position: fixed !important; left: -270px !important; top: 56px !important; width: 260px !important; height: calc(100vh - 56px) !important; z-index: 500 !important; transition: left .25s !important; box-shadow: 4px 0 20px rgba(0,0,0,.15) !important; }
+    .dash-sidebar.open { left: 0 !important; }
+  }
+  @media (max-width: 480px) {
+    .dash-topbar  { gap: 6px !important; padding: 0 10px !important; }
+    .dash-icon-btn { width: 32px !important; height: 32px !important; font-size: 15px !important; }
+    .dsec-header h2 { font-size: 16px !important; }
+  }
+  </style>
+</head>
+<body class="dash-body">
 
-{% block content %}
-<div class="dash-wrapper">
-
-  <div class="dash-topbar">
-    <a href="/" style="flex-shrink:0;display:flex;align-items:center"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:36px;width:auto;max-width:120px;object-fit:contain;border-radius:6px"></a>
-    <div>
-      <h1>Hello, {{ request.user.get_full_name|default:request.user.username }}! 👋</h1>
-      <p>{{ request.user.city }} {% if request.user.pincode %}&nbsp;|&nbsp; {{ request.user.pincode }}{% endif %}</p>
+<!-- ══ TOPBAR ══════════════════════════════════════════════════════ -->
+<header class="dash-topbar">
+  <button class="dash-hamburger" onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;padding:6px;color:#0a66c2;font-size:22px;flex-shrink:0"><i class="fas fa-bars"></i></button>
+  <a href="/" class="dash-logo"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:38px;width:auto;max-width:130px;object-fit:contain;display:block"></a>
+  <div class="dash-topbar-right">
+    <a href="/jobs/" class="dash-post-btn"><i class="fas fa-search"></i> Browse Jobs</a>
+    <a href="/flicks/" class="dash-post-btn" style="background:linear-gradient(135deg,#0a66c2,#004182)"><i class="fas fa-bolt"></i> Flicks</a>
+    <div class="dash-icon-btn" onclick="showSection('notifications')">
+      <i class="fas fa-bell"></i>
+      {% if unread_notif_count %}<span class="dash-badge">{{ unread_notif_count }}</span>{% endif %}
     </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div style="position:relative;cursor:pointer" onclick="toggleNotifPanel()">
-        <div style="width:40px;height:40px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;font-size:16px;color:#444">
-          <i class="fas fa-bell"></i>
-        </div>
-        {% if unread_notif_count %}
-        <span style="position:absolute;top:-4px;right:-4px;background:#e65100;color:#fff;font-size:10px;font-weight:900;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center">{{ unread_notif_count }}</span>
-        {% endif %}
+    <div class="dash-avatar-wrap">
+      <div class="dash-avatar" style="overflow:hidden;padding:0">
+        {% if profile and profile.photo %}<img src="{{ profile.photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}{{ request.user.get_full_name|first|upper|default:request.user.username|first|upper }}{% endif %}
       </div>
-      <a href="/jobs/" class="dash-post-btn"><i class="fas fa-search"></i> Browse Jobs</a>
-    </div>
-  </div>
-
-  <!-- Notification panel -->
-  <div id="notif-panel" style="display:none;position:fixed;top:70px;right:20px;width:340px;max-height:480px;overflow-y:auto;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:9999;border:1px solid #e8e8e8">
-    <div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:800;font-size:14px;color:#191919">Notifications</span>
-      {% if notifs %}<a href="/notifications/mark-all-read/?next=/seeker/dashboard/" style="font-size:12px;color:#0a66c2;text-decoration:none">Mark all read</a>{% endif %}
-    </div>
-    {% if notifs %}
-    {% for n in notifs %}
-    <a href="{{ n.link|default:'#' }}" style="display:block;padding:12px 16px;border-bottom:1px solid #f7f7f7;text-decoration:none;background:{% if not n.is_read %}#f0f7ff{% else %}#fff{% endif %}">
-      <div style="display:flex;align-items:flex-start;gap:10px">
-        <div style="width:32px;height:32px;border-radius:50%;background:{% if n.notif_type == 'success' %}#e6f4ea{% elif n.notif_type == 'warning' %}#fff3cd{% elif n.notif_type == 'alert' %}#fce4ec{% else %}#e8f0fe{% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <i class="fas {% if n.notif_type == 'success' %}fa-check-circle{% elif n.notif_type == 'warning' %}fa-exclamation-triangle{% elif n.notif_type == 'alert' %}fa-bell{% else %}fa-briefcase{% endif %}" style="font-size:13px;color:{% if n.notif_type == 'success' %}#2e7d32{% elif n.notif_type == 'warning' %}#856404{% elif n.notif_type == 'alert' %}#c62828{% else %}#0a66c2{% endif %}"></i>
-        </div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;color:#191919">{{ n.title }}</div>
-          <div style="font-size:12px;color:#666;margin-top:2px">{{ n.message }}</div>
-          <div style="font-size:11px;color:#aaa;margin-top:4px">{{ n.created_at|timesince }} ago</div>
-        </div>
-        {% if not n.is_read %}<div style="width:8px;height:8px;border-radius:50%;background:#0a66c2;flex-shrink:0;margin-top:4px"></div>{% endif %}
-      </div>
-    </a>
-    {% endfor %}
-    {% else %}
-    <div style="padding:32px;text-align:center;color:#aaa"><i class="fas fa-bell-slash" style="font-size:28px;margin-bottom:8px"></i><p style="font-size:13px">No notifications yet</p></div>
-    {% endif %}
-  </div>
-  <script>
-    function toggleNotifPanel(){
-      var p=document.getElementById('notif-panel');
-      p.style.display=p.style.display==='none'?'block':'none';
-    }
-    document.addEventListener('click',function(e){
-      var panel=document.getElementById('notif-panel');
-      if(!panel.contains(e.target)&&!e.target.closest('[onclick="toggleNotifPanel()"]')){
-        panel.style.display='none';
-      }
-    });
-  </script>
-
-  <!-- Stats -->
-  <div class="dash-stats">
-    <div class="stat-card blue-stat">
-      <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
-      <div class="stat-info"><h3>{{ applications.count }}</h3><p>Applied</p></div>
-    </div>
-    <div class="stat-card green-stat">
-      <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-      <div class="stat-info">
-        <h3>{{ applications|length }}</h3>
-        <p>Shortlisted</p>
+      <div class="dash-avatar-menu">
+        <a href="/profile/"><i class="fas fa-user"></i> My Profile</a>
+        <a href="/profile/edit/"><i class="fas fa-user-edit"></i> Edit Profile</a>
+        <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
       </div>
     </div>
   </div>
+</header>
 
-  <!-- Flicks quick-action bar -->
-  <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
-    <a href="/flicks/" style="flex:1;min-width:200px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:14px;padding:16px 20px;text-decoration:none;color:#fff">
-      <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
-      <div>
-        <div style="font-weight:800;font-size:15px">Flicks</div>
-        <div style="font-size:12px;opacity:.8;margin-top:2px">View &amp; share posts</div>
-      </div>
-      <i class="fas fa-chevron-right" style="margin-left:auto;opacity:.7"></i>
-    </a>
-    <a href="/flicks/post/" style="flex:1;min-width:200px;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#f0f9ff,#dbeafe);border:1.5px solid #bfdbfe;border-radius:14px;padding:16px 20px;text-decoration:none;color:#1d4ed8">
-      <div style="width:40px;height:40px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎬</div>
-      <div>
-        <div style="font-weight:800;font-size:15px">Post a Flick</div>
-        <div style="font-size:12px;opacity:.7;margin-top:2px">Share video, photo or text</div>
-      </div>
-      <i class="fas fa-plus" style="margin-left:auto;opacity:.7"></i>
-    </a>
-  </div>
+<div class="dash-layout">
 
-  <div class="dash-grid">
-
-    <!-- Profile Card -->
-    <div class="dash-card">
-      <div class="dash-card-header"><h3><i class="fas fa-user"></i> My Profile</h3></div>
-      <div class="profile-card">
-        <div class="profile-avatar">
-          {{ request.user.get_full_name|default:request.user.username|first|upper }}
-        </div>
-        <h3>{{ request.user.get_full_name|default:request.user.username }}</h3>
-        <p class="profile-type">{{ request.user.get_user_type_display }}</p>
-        {% if profile %}
-          {% if profile.primary_skill %}<div class="profile-skill"><i class="fas fa-tools"></i> {{ profile.primary_skill }}</div>{% endif %}
-          {% if profile.job_category %}<div class="profile-collar {% if profile.job_category == 'white' %}white-collar-tag{% else %}blue-collar-tag{% endif %}">
-            {{ profile.job_category|capfirst }} Collar
-          </div>{% endif %}
-        {% endif %}
-        <div class="profile-info">
-          <p><i class="fas fa-phone"></i> {{ request.user.phone|default:"—" }}</p>
-          <p><i class="fas fa-map-marker-alt"></i> {{ request.user.address|default:"—" }}</p>
-          <p><i class="fas fa-city"></i> {{ request.user.city|default:"—" }} - {{ request.user.pincode|default:"—" }}</p>
-        </div>
-        <a href="{% url 'seeker_profile' %}" style="display:inline-flex;align-items:center;gap:7px;margin-top:14px;background:#0a66c2;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;width:100%;justify-content:center;box-sizing:border-box">
-          <i class="fas fa-user-edit"></i> Edit My Profile
-        </a>
+  <!-- ══ SIDEBAR ════════════════════════════════════════════════════ -->
+  <aside class="dash-sidebar">
+    <div class="sidebar-profile">
+      {% if profile and profile.photo %}
+      <img src="{{ profile.photo.url }}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0" alt="">
+      {% else %}
+      <div class="sp-avatar">{{ request.user.get_full_name|first|upper|default:"J" }}</div>
+      {% endif %}
+      <div class="sp-info">
+        <strong>{{ request.user.get_full_name|default:request.user.username|truncatechars:22 }}</strong>
+        <span>{% if profile and profile.job_category %}{{ profile.job_category|capfirst }} Collar{% else %}Job Seeker{% endif %}</span>
       </div>
     </div>
 
-    <!-- Applied Jobs -->
-    <div class="dash-card wide">
-      <div class="dash-card-header"><h3><i class="fas fa-file-alt"></i> My Applications</h3></div>
+    <nav class="sidebar-nav">
+      <a class="snav-item active" onclick="showSection('applications',this)" data-sec="applications">
+        <i class="fas fa-file-alt"></i> My Applications
+        <span class="snav-count">{{ applications.count }}</span>
+      </a>
+      <a class="snav-item" onclick="showSection('recommended',this)" data-sec="recommended">
+        <i class="fas fa-star"></i> Recommended Jobs
+      </a>
+      <a class="snav-item" onclick="showSection('notifications',this)" data-sec="notifications">
+        <i class="fas fa-bell"></i> Notifications
+        {% if unread_notif_count %}<span class="snav-count unread">{{ unread_notif_count }}</span>{% endif %}
+      </a>
+      <a class="snav-item" onclick="showSection('flicks',this)" data-sec="flicks">
+        <i class="fas fa-bolt"></i> Flicks
+      </a>
+      <a class="snav-item" onclick="showSection('referral',this)" data-sec="referral">
+        <i class="fas fa-gift"></i> Refer &amp; Earn
+      </a>
+      <a class="snav-item" onclick="showSection('feedback',this)" data-sec="feedback">
+        <i class="fas fa-comment-dots"></i> Feedback
+      </a>
+      <a class="snav-item" href="/profile/edit/">
+        <i class="fas fa-user-edit"></i> Edit Profile
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/jobs/"><i class="fas fa-search"></i> Browse Jobs</a>
+      <a href="/logout/"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </div>
+  </aside>
+  <div class="dash-sidebar-overlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:499"></div>
+
+  <!-- ══ MAIN ════════════════════════════════════════════════════════ -->
+  <main class="dash-main">
+
+    <!-- STATS STRIP -->
+    <div class="stats-strip">
+      <div class="stat-chip blue" onclick="showSection('applications')">
+        <i class="fas fa-paper-plane"></i><span>{{ applications.count }}</span><label>Applied</label>
+      </div>
+      <div class="stat-chip green" onclick="showSection('recommended')">
+        <i class="fas fa-briefcase"></i><span>{{ recommended|length }}</span><label>For You</label>
+      </div>
+      <div class="stat-chip orange" onclick="showSection('notifications')">
+        <i class="fas fa-bell"></i><span>{{ unread_notif_count }}</span><label>Alerts</label>
+      </div>
+      <div class="stat-chip purple" onclick="showSection('flicks')">
+        <i class="fas fa-bolt"></i><span>{{ recent_flicks|length }}</span><label>Flicks</label>
+      </div>
+    </div>
+
+    <!-- ═══ MY APPLICATIONS ═══ -->
+    <section class="dsec" id="sec-applications">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-file-alt"></i> My Applications</h2><p>Jobs you have applied to</p></div>
+        <a href="/jobs/" class="dsec-btn"><i class="fas fa-search"></i> Find More Jobs</a>
+      </div>
       {% if applications %}
       <div class="table-wrap">
         <table class="dash-table">
@@ -151,45 +141,46 @@
           <tbody>
             {% for app in applications %}
             <tr>
-              <td><a href="/jobs/{{ app.job.pk }}/" class="table-job-link">{{ app.job.title }}</a><br>
-                <small style="color:#888">{{ app.job.location }}</small></td>
-              <td><span class="{% if app.job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %} job-badge">
-                {{ app.job.get_collar_type_display }}
-              </span></td>
+              <td>
+                <a href="/jobs/{{ app.job.pk }}/" class="table-job-link">{{ app.job.title }}</a><br>
+                <small style="color:#888">{{ app.job.location }}</small>
+              </td>
+              <td>
+                <span class="{% if app.job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %} job-badge">
+                  {{ app.job.get_collar_type_display }}
+                </span>
+              </td>
               <td>{{ app.applied_at|date:"d M Y" }}</td>
-              <td><span class="status-badge status-{{ app.status }}">{{ app.get_status_display }}</span>
+              <td>
+                <span class="status-pill {{ app.status }}">{{ app.get_status_display }}</span>
                 {% if app.status == 'interview_scheduled' and app.interview %}
                 <div style="font-size:11px;color:#666;margin-top:4px">
-                  <i class="fas fa-calendar"></i> {{ app.interview.date }} {{ app.interview.time }}
-                  <br><i class="fas fa-map-marker-alt"></i> {{ app.interview.get_mode_display }}
+                  <i class="fas fa-calendar"></i> {{ app.interview.date }} {{ app.interview.time }}<br>
+                  <i class="fas fa-map-marker-alt"></i> {{ app.interview.get_mode_display }}
                   {% if app.interview.location %} — {{ app.interview.location }}{% endif %}
                 </div>
                 {% endif %}
               </td>
               <td>
                 <div style="display:flex;flex-direction:column;gap:6px">
-                  <!-- Chat with Employer -->
-                  <a href="/chat/{{ app.job.posted_by.id }}/{{ app.job.pk }}/" class="tbl-btn" style="background:#e6f4ea;color:#2e7d32">
+                  <a href="/chat/{{ app.job.posted_by.id }}/{{ app.job.pk }}/" class="jl-btn" style="background:#e6f4ea;color:#2e7d32">
                     <i class="fas fa-comment"></i> Chat
                   </a>
-                  <!-- Interview Actions -->
                   {% if app.status == 'interview_scheduled' %}
-                  <a href="/interview/accept/{{ app.pk }}/" class="tbl-btn" style="background:#e8f0fe;color:#0a66c2">
+                  <a href="/interview/accept/{{ app.pk }}/" class="jl-btn" style="background:#e8f0fe;color:#0a66c2">
                     <i class="fas fa-check"></i> Accept
                   </a>
-                  <a href="/interview/reject/{{ app.pk }}/" class="tbl-btn" style="background:#fce4ec;color:#c62828">
+                  <a href="/interview/reject/{{ app.pk }}/" class="jl-btn" style="background:#fce4ec;color:#c62828">
                     <i class="fas fa-times"></i> Decline
                   </a>
                   {% endif %}
-                  <!-- Download Offer -->
                   {% if app.status == 'offer_sent' %}
-                  <a href="/offer/download/{{ app.pk }}/" class="tbl-btn" style="background:#e6f4ea;color:#2e7d32" target="_blank">
+                  <a href="/offer/download/{{ app.pk }}/" class="jl-btn" style="background:#e6f4ea;color:#2e7d32" target="_blank">
                     <i class="fas fa-download"></i> Offer Letter
                   </a>
                   {% endif %}
-                  <!-- Withdraw -->
                   {% if app.status in 'pending,shortlisted' %}
-                  <a href="/jobs/{{ app.pk }}/withdraw/" class="tbl-btn" style="background:#fff3e0;color:#e65100"
+                  <a href="/jobs/{{ app.pk }}/withdraw/" class="jl-btn" style="background:#fff3e0;color:#e65100"
                      onclick="return confirm('Withdraw this application?')">
                     <i class="fas fa-undo"></i> Withdraw
                   </a>
@@ -204,267 +195,242 @@
       {% else %}
       <div class="empty-state">
         <i class="fas fa-search"></i>
-        <p>You haven't applied for any jobs yet.</p>
-        <a href="/jobs/" class="dash-post-btn">Find Jobs Now</a>
+        <h3>No applications yet</h3>
+        <p>Start applying to jobs near you</p>
+        <a href="/jobs/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-search"></i> Browse Jobs</a>
       </div>
       {% endif %}
-    </div>
+    </section>
 
-    <!-- Recommended Jobs -->
-    <div class="dash-card wide">
-      <div class="dash-card-header">
-        <h3><i class="fas fa-star"></i> Recommended Jobs</h3>
-        <a href="/jobs/" class="dash-add-btn">View All</a>
+    <!-- ═══ RECOMMENDED JOBS ═══ -->
+    <section class="dsec hidden" id="sec-recommended">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-star"></i> Recommended Jobs</h2><p>Jobs matched to your profile</p></div>
+        <a href="/jobs/" class="dsec-btn">View All Jobs</a>
       </div>
-      <div class="rec-jobs-grid">
+      {% if recommended %}
+      <div class="job-list">
         {% for job in recommended %}
-        <a href="/jobs/{{ job.pk }}/" class="rec-job-card">
-          <div class="rec-logo {% if job.collar_type == 'blue' %}blue-logo{% endif %}">
-            {% if job.collar_type == 'white' %}<i class="fas fa-user-tie"></i>{% else %}<i class="fas fa-wrench"></i>{% endif %}
+        <div class="jl-row">
+          <div class="jl-icon {% if job.collar_type == 'blue' %}blue{% endif %}">
+            <i class="fas {% if job.collar_type == 'blue' %}fa-hard-hat{% else %}fa-briefcase{% endif %}"></i>
           </div>
-          <div class="rec-info">
+          <div class="jl-info">
             <h4>{{ job.title }}</h4>
-            <p><i class="fas fa-map-marker-alt"></i> {{ job.location }}</p>
-            <p><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</p>
+            <div class="jl-meta">
+              <span><i class="fas fa-map-marker-alt"></i> {{ job.location }}</span>
+              <span><i class="fas fa-rupee-sign"></i> {{ job.salary_display }}</span>
+              <span><i class="fas fa-calendar-alt"></i> {{ job.created_at|date:"d M Y" }}</span>
+              {% if job.is_urgent %}<span class="urgent-tag"><i class="fas fa-bolt"></i> Urgent</span>{% endif %}
+            </div>
           </div>
-          <span class="{% if job.collar_type == 'white' %}white-badge{% else %}blue-badge{% endif %} job-badge">
-            {{ job.get_collar_type_display }}
-          </span>
-        </a>
+          <div class="jl-salary">{{ job.salary_display }}</div>
+          <div class="jl-actions">
+            <a href="/jobs/{{ job.pk }}/" class="jl-btn view" title="View"><i class="fas fa-eye"></i></a>
+          </div>
+        </div>
         {% endfor %}
       </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ⚡ FLICKS -->
-{% if recent_flicks %}
-<div style="max-width:900px;margin:0 auto 28px;padding:0 16px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <h2 style="font-size:18px;font-weight:900;color:#111;margin:0">⚡ Flicks</h2>
-    <div style="display:flex;gap:10px;align-items:center">
-      <a href="/flicks/post/" style="font-size:13px;font-weight:700;color:#fff;background:#0a66c2;padding:7px 16px;border-radius:8px;text-decoration:none"><i class="fas fa-plus"></i> Post</a>
-      <a href="/flicks/" style="font-size:13px;font-weight:700;color:#0a66c2;text-decoration:none">See all <i class="fas fa-chevron-right"></i></a>
-    </div>
-  </div>
-  <!-- Thumbnail strip -->
-  <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch">
-    {% for flick in recent_flicks %}
-    <div data-fi="{{ forloop.counter0 }}" style="flex-shrink:0;width:140px;cursor:pointer;border-radius:14px;overflow:hidden;background:#111;position:relative" onclick="fsOpen({{ forloop.counter0 }})">
-      {% if flick.video %}
-      <video src="{{ flick.video.url }}" style="width:140px;height:248px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
-      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:14px;margin-left:2px"></i></div>
-      {% elif flick.image %}
-      <img src="{{ flick.image.url }}" style="width:140px;height:248px;object-fit:cover;display:block">
       {% else %}
-      <div style="width:140px;height:248px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:36px;color:rgba(255,255,255,.4)"></i></div>
-      {% endif %}
-      <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.88));padding:18px 8px 8px">
-        <div style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.user.get_full_name|default:flick.user.username }}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:9px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
+      <div class="empty-state">
+        <i class="fas fa-star"></i>
+        <h3>No recommendations yet</h3>
+        <p>Complete your profile to get job matches</p>
+        <a href="/profile/edit/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-user-edit"></i> Complete Profile</a>
       </div>
-    </div>
-    {% endfor %}
-  </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ NOTIFICATIONS ═══ -->
+    <section class="dsec hidden" id="sec-notifications">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-bell"></i> Notifications</h2><p>Updates and alerts</p></div>
+        {% if notifs %}<a href="/notifications/mark-all-read/?next=/jobseeker/dashboard/" class="dsec-btn-ghost"><i class="fas fa-check-double"></i> Mark all read</a>{% endif %}
+      </div>
+      {% if notifs %}
+      <div class="notif-list">
+        {% for n in notifs %}
+        <div class="notif-row {{ n.notif_type }} {% if not n.is_read %}unread{% endif %}">
+          <div class="notif-icon {{ n.notif_type }}">
+            <i class="fas {% if n.notif_type == 'success' %}fa-check-circle{% elif n.notif_type == 'warning' %}fa-exclamation-triangle{% elif n.notif_type == 'alert' %}fa-bell{% else %}fa-info-circle{% endif %}"></i>
+          </div>
+          <div class="notif-body">
+            <strong>{{ n.title }}</strong>
+            <p>{{ n.message }}</p>
+            <span class="notif-time">{{ n.created_at|timesince }} ago</span>
+          </div>
+          {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state"><i class="fas fa-bell"></i><h3>No notifications</h3><p>You're all caught up!</p></div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ FLICKS ═══ -->
+    <section class="dsec hidden" id="sec-flicks">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-bolt"></i> Flicks</h2><p>Your posts and community content</p></div>
+        <div style="display:flex;gap:10px">
+          <a href="/flicks/post/" class="dsec-btn"><i class="fas fa-plus"></i> Post Flick</a>
+          <a href="/flicks/" class="dsec-btn" style="background:#f0f4ff;color:#0a66c2;border:1.5px solid #bfdbfe">See All</a>
+        </div>
+      </div>
+      {% if recent_flicks %}
+      <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:#ddd transparent;-webkit-overflow-scrolling:touch">
+        {% for flick in recent_flicks %}
+        <div style="flex-shrink:0;width:140px;border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer" onclick="jfsOpen({{ forloop.counter0 }})">
+          {% if flick.video %}
+          <video src="{{ flick.video.url }}" style="width:140px;height:248px;object-fit:cover;display:block" preload="metadata" muted playsinline></video>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;pointer-events:none"><i class="fas fa-play" style="color:#fff;font-size:14px;margin-left:2px"></i></div>
+          {% elif flick.image %}
+          <img src="{{ flick.image.url }}" style="width:140px;height:248px;object-fit:cover;display:block">
+          {% else %}
+          <div style="width:140px;height:248px;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center"><i class="fas fa-bolt" style="font-size:36px;color:rgba(255,255,255,.4)"></i></div>
+          {% endif %}
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.88));padding:18px 8px 8px">
+            <div style="font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flick.user.get_full_name|default:flick.user.username }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;display:flex;align-items:center;gap:3px"><i class="fas fa-heart" style="font-size:9px;color:#ff4d6d"></i> {{ flick.like_count }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Fullscreen viewer -->
+      <div id="jfs-viewer" style="display:none;position:fixed;inset:0;background:#000;z-index:10000;touch-action:none">
+        <div style="position:absolute;top:0;left:0;right:0;padding:env(safe-area-inset-top,12px) 16px 24px;background:linear-gradient(rgba(0,0,0,.7),transparent);z-index:2;display:flex;align-items:center;gap:10px">
+          <div id="jfs-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0"></div>
+          <div style="flex:1">
+            <div id="jfs-name" style="font-size:13px;font-weight:800;color:#fff"></div>
+            <div id="jfs-time" style="font-size:11px;color:rgba(255,255,255,.65)"></div>
+          </div>
+          <button onclick="jfsClose()" style="background:rgba(0,0,0,.4);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="jfs-media" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden"></div>
+        <div onclick="jfsNav(-1)" style="position:absolute;left:0;top:0;bottom:0;width:35%;z-index:3;cursor:pointer"></div>
+        <div onclick="jfsNav(1)" style="position:absolute;right:56px;top:0;bottom:0;width:calc(35% - 56px);z-index:3;cursor:pointer"></div>
+        <div style="position:absolute;right:12px;bottom:100px;display:flex;flex-direction:column;align-items:center;gap:22px;z-index:4">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <button id="jfs-like-btn" onclick="jfsLike()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:28px;padding:0;line-height:1"><i id="jfs-like-icon" class="far fa-heart"></i></button>
+            <span id="jfs-like-count" style="font-size:12px;font-weight:700;color:#fff">0</span>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:60px;padding:60px 16px 28px;background:linear-gradient(transparent,rgba(0,0,0,.8));z-index:3">
+          <div id="jfs-caption-name" style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px"></div>
+          <div id="jfs-caption" style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;max-height:64px;overflow:hidden"></div>
+        </div>
+        <div id="jfs-dots" style="position:absolute;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:5;padding-top:4px"></div>
+      </div>
+      <script>
+      const _jcsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
+      const _jflicks = [{% for flick in recent_flicks %}{ pk:{{ flick.pk }}, name:"{{ flick.user.get_full_name|default:flick.user.username|escapejs }}", initial:"{{ flick.user.first_name|first|upper }}", time:"{{ flick.created_at|timesince }} ago", video:"{% if flick.video %}{{ flick.video.url }}{% endif %}", image:"{% if flick.image %}{{ flick.image.url }}{% endif %}", title:"{{ flick.title|escapejs }}", caption:"{{ flick.caption|escapejs }}", likes:{{ flick.like_count }}, liked:{% if flick.pk in liked_ids %}true{% else %}false{% endif %} }{% if not forloop.last %},{% endif %}{% endfor %}];
+      let _jfsi = 0;
+      function jfsOpen(i){_jfsi=i;document.getElementById('jfs-viewer').style.display='block';document.body.style.overflow='hidden';jfsRender();jfsBuildDots();}
+      function jfsClose(){document.getElementById('jfs-viewer').style.display='none';document.body.style.overflow='';document.getElementById('jfs-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;});}
+      function jfsNav(dir){const n=_jfsi+dir;if(n<0||n>=_jflicks.length)return;document.getElementById('jfs-media').querySelectorAll('video').forEach(v=>{v.pause();v.currentTime=0;});_jfsi=n;jfsRender();jfsUpdateDots();}
+      function jfsRender(){const f=_jflicks[_jfsi];document.getElementById('jfs-avatar').textContent=f.initial;document.getElementById('jfs-name').textContent=f.name;document.getElementById('jfs-time').textContent=f.time;document.getElementById('jfs-caption-name').textContent=f.name;document.getElementById('jfs-caption').textContent=f.title?(f.title+(f.caption?' · '+f.caption:'')):f.caption;document.getElementById('jfs-like-count').textContent=f.likes;const icon=document.getElementById('jfs-like-icon');icon.className=f.liked?'fas fa-heart':'far fa-heart';icon.style.color=f.liked?'#ff4d6d':'#fff';const media=document.getElementById('jfs-media');media.innerHTML='';if(f.video){const v=document.createElement('video');v.src=f.video;v.controls=true;v.autoplay=true;v.playsInline=true;v.style.cssText='width:100%;height:100%;object-fit:contain;display:block;max-height:100vh';media.appendChild(v);}else if(f.image){const img=document.createElement('img');img.src=f.image;img.style.cssText='width:100%;height:100%;object-fit:contain;display:block;max-height:100vh';media.appendChild(img);}else{media.innerHTML='<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#0a66c2)"><i class="fas fa-bolt" style="font-size:80px;color:rgba(255,255,255,.3)"></i></div>';}}
+      function jfsBuildDots(){const dots=document.getElementById('jfs-dots');dots.innerHTML='';_jflicks.forEach((_,i)=>{const d=document.createElement('div');d.style.cssText='width:'+(i===_jfsi?'20px':'6px')+';height:3px;border-radius:2px;background:'+(i===_jfsi?'#fff':'rgba(255,255,255,.4)')+';transition:all .2s';dots.appendChild(d);});}
+      function jfsUpdateDots(){const dots=document.getElementById('jfs-dots').children;for(let i=0;i<dots.length;i++){dots[i].style.width=i===_jfsi?'20px':'6px';dots[i].style.background=i===_jfsi?'#fff':'rgba(255,255,255,.4)';}}
+      function jfsLike(){const f=_jflicks[_jfsi];fetch('/flicks/'+f.pk+'/like/',{method:'POST',headers:{'X-CSRFToken':_jcsrf}}).then(r=>r.json()).then(d=>{if(!d.success)return;f.liked=d.liked;f.likes=d.count;document.getElementById('jfs-like-count').textContent=d.count;const icon=document.getElementById('jfs-like-icon');icon.className=d.liked?'fas fa-heart':'far fa-heart';icon.style.color=d.liked?'#ff4d6d':'#fff';if(d.liked){icon.style.transform='scale(1.4)';setTimeout(()=>icon.style.transform='scale(1)',300);}});}
+      document.addEventListener('DOMContentLoaded',()=>{const v=document.getElementById('jfs-viewer');v.addEventListener('touchstart',e=>{_jtsX=e.touches[0].clientX;},{passive:true});v.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-_jtsX;if(Math.abs(dx)>50)jfsNav(dx<0?1:-1);},{passive:true});});
+      let _jtsX=0;
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')jfsClose();if(e.key==='ArrowRight')jfsNav(1);if(e.key==='ArrowLeft')jfsNav(-1);});
+      </script>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-bolt"></i>
+        <h3>No flicks yet</h3>
+        <p>Share videos, photos or text posts with the community</p>
+        <a href="/flicks/post/" class="dsec-btn" style="margin-top:16px"><i class="fas fa-plus"></i> Post a Flick</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ═══ REFER & EARN ═══ -->
+    <section class="dsec hidden" id="sec-referral">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-gift"></i> Refer &amp; Earn</h2><p>Invite friends and earn points</p></div>
+      </div>
+      <div style="background:linear-gradient(135deg,#0a66c2,#004182);border-radius:16px;padding:28px 24px;color:#fff;margin-bottom:20px">
+        <div style="font-size:32px;margin-bottom:10px">🎁</div>
+        <h3 style="font-size:18px;font-weight:900;margin:0 0 6px">Refer Friends &amp; Earn Points</h3>
+        <p style="opacity:.88;font-size:14px;margin:0 0 20px">Earn <strong>50 pts</strong> per signup + <strong>25 pts</strong> when they apply for a job!</p>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="flex:1;min-width:80px;background:rgba(255,255,255,.15);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900">+50</div>
+            <div style="font-size:11px;opacity:.85;margin-top:2px">pts per signup</div>
+          </div>
+          <div style="flex:1;min-width:80px;background:rgba(255,255,255,.15);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900">+25</div>
+            <div style="font-size:11px;opacity:.85;margin-top:2px">pts first apply</div>
+          </div>
+          <div style="flex:1;min-width:80px;background:rgba(255,255,255,.15);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:22px;font-weight:900">100</div>
+            <div style="font-size:11px;opacity:.85;margin-top:2px">pts = ₹100 off</div>
+          </div>
+        </div>
+        {% if referral_link %}
+        <div style="background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:14px">
+          <input id="refLink" type="text" value="{{ referral_link }}" readonly style="flex:1;border:none;background:none;font-size:12px;color:#fff;outline:none;min-width:0;font-weight:600">
+          <button onclick="copyRef()" style="background:#fff;color:#0a66c2;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <a href="https://wa.me/?text=Join%20OUR%20PINCODE%20-%20Find%20Local%20Jobs!%20Register%20here%3A%20{{ referral_link|urlencode }}" target="_blank"
+           style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:#25d366;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-decoration:none">
+          <i class="fab fa-whatsapp" style="font-size:18px"></i> Share on WhatsApp
+        </a>
+        {% endif %}
+      </div>
+      <script>
+      function copyRef(){var inp=document.getElementById('refLink');inp.select();inp.setSelectionRange(0,9999);try{navigator.clipboard.writeText(inp.value);}catch(e){document.execCommand('copy');}var btn=event.currentTarget;var orig=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Copied!';btn.style.background='#e6f4ea';btn.style.color='#2e7d32';setTimeout(function(){btn.innerHTML=orig;btn.style.background='#fff';btn.style.color='#0a66c2';},2000);}
+      </script>
+    </section>
+
+    <!-- ═══ FEEDBACK ═══ -->
+    <section class="dsec hidden" id="sec-feedback">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-comment-dots"></i> Feedback</h2><p>Help us improve OUR PINCODE</p></div>
+      </div>
+      <a href="/complaint/submit/" style="display:flex;align-items:center;gap:16px;background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px 24px;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='#e5e7eb'">
+        <div style="width:48px;height:48px;border-radius:12px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#0a66c2"><i class="fas fa-comment-dots"></i></div>
+        <div style="flex:1">
+          <div style="font-weight:800;font-size:15px;color:#111">Share Your Feedback</div>
+          <div style="font-size:13px;color:#888;margin-top:3px">Report a bug, suggest a feature, or share your experience</div>
+        </div>
+        <div style="color:#0a66c2;font-size:18px;flex-shrink:0"><i class="fas fa-chevron-right"></i></div>
+      </a>
+    </section>
+
+  </main>
 </div>
 
-<!-- ══ FULLSCREEN FLICK VIEWER (Instagram Reels style) ══ -->
-<div id="fs-viewer" style="display:none;position:fixed;inset:0;background:#000;z-index:10000;touch-action:none">
-
-  <!-- Top bar -->
-  <div style="position:absolute;top:0;left:0;right:0;padding:env(safe-area-inset-top,12px) 16px 24px;background:linear-gradient(rgba(0,0,0,.7),transparent);z-index:2;display:flex;align-items:center;gap:10px">
-    <div id="fs-avatar" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#0a66c2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0"></div>
-    <div style="flex:1">
-      <div id="fs-name" style="font-size:13px;font-weight:800;color:#fff"></div>
-      <div id="fs-time" style="font-size:11px;color:rgba(255,255,255,.65)"></div>
-    </div>
-    <button onclick="fsClose()" style="background:rgba(0,0,0,.4);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
-  </div>
-
-  <!-- Media -->
-  <div id="fs-media" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden"></div>
-
-  <!-- Left / right tap zones for navigation -->
-  <div onclick="fsNav(-1)" style="position:absolute;left:0;top:0;bottom:0;width:35%;z-index:3;cursor:pointer"></div>
-  <div onclick="fsNav(1)"  style="position:absolute;right:56px;top:0;bottom:0;width:calc(35% - 56px);z-index:3;cursor:pointer"></div>
-
-  <!-- Right actions (Instagram Reels style) -->
-  <div style="position:absolute;right:12px;bottom:100px;display:flex;flex-direction:column;align-items:center;gap:22px;z-index:4">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <button id="fs-like-btn" onclick="fsLike()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:28px;padding:0;line-height:1"><i id="fs-like-icon" class="far fa-heart"></i></button>
-      <span id="fs-like-count" style="font-size:12px;font-weight:700;color:#fff">0</span>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <button onclick="fsShare()" style="background:none;border:none;cursor:pointer;color:#fff;font-size:26px;padding:0;line-height:1"><i class="far fa-paper-plane"></i></button>
-      <span style="font-size:12px;font-weight:700;color:#fff">Share</span>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <a id="fs-view-all" href="/flicks/" style="color:#fff;font-size:22px;line-height:1"><i class="fas fa-th"></i></a>
-      <span style="font-size:12px;font-weight:700;color:#fff">All</span>
-    </div>
-  </div>
-
-  <!-- Bottom caption -->
-  <div style="position:absolute;bottom:0;left:0;right:60px;padding:60px 16px 28px;background:linear-gradient(transparent,rgba(0,0,0,.8));z-index:3">
-    <div id="fs-caption-name" style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px"></div>
-    <div id="fs-caption" style="font-size:13px;color:rgba(255,255,255,.9);line-height:1.5;max-height:64px;overflow:hidden"></div>
-  </div>
-
-  <!-- Dot indicators -->
-  <div id="fs-dots" style="position:absolute;top:env(safe-area-inset-top,12px);left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:5;padding-top:4px"></div>
-
-  <!-- Share toast -->
-  <div id="fs-toast" style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.18);backdrop-filter:blur(8px);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;white-space:nowrap">Link copied!</div>
-</div>
-
-<!-- Flick data for JS -->
+<!-- ══ JS ══════════════════════════════════════════════════════════ -->
 <script>
-const _dcsrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] || '';
-const _flicks = [
-  {% for flick in recent_flicks %}
-  { pk:{{ flick.pk }}, name:"{{ flick.user.get_full_name|default:flick.user.username|escapejs }}", initial:"{{ flick.user.first_name|first|upper }}", time:"{{ flick.created_at|timesince }} ago", video:"{% if flick.video %}{{ flick.video.url }}{% endif %}", image:"{% if flick.image %}{{ flick.image.url }}{% endif %}", title:"{{ flick.title|escapejs }}", caption:"{{ flick.caption|escapejs }}", likes:{{ flick.like_count }}, liked:{% if flick.pk in liked_ids %}true{% else %}false{% endif %} }{% if not forloop.last %},{% endif %}
-  {% endfor %}
-];
-let _fsi = 0; // current index
-
-function fsOpen(i) {
-  _fsi = i;
-  document.getElementById('fs-viewer').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  fsRender();
-  fsBuildDots();
-}
-
-function fsClose() {
-  document.getElementById('fs-viewer').style.display = 'none';
-  document.body.style.overflow = '';
-  const m = document.getElementById('fs-media');
-  m.querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
-}
-
-function fsNav(dir) {
-  const next = _fsi + dir;
-  if (next < 0 || next >= _flicks.length) return;
-  document.getElementById('fs-media').querySelectorAll('video').forEach(v => { v.pause(); v.currentTime = 0; });
-  _fsi = next;
-  fsRender();
-  fsUpdateDots();
-}
-
-function fsRender() {
-  const f = _flicks[_fsi];
-  document.getElementById('fs-avatar').textContent = f.initial;
-  document.getElementById('fs-name').textContent = f.name;
-  document.getElementById('fs-time').textContent = f.time;
-  document.getElementById('fs-caption-name').textContent = f.name;
-  document.getElementById('fs-caption').textContent = f.title ? (f.title + (f.caption ? ' · ' + f.caption : '')) : f.caption;
-  document.getElementById('fs-like-count').textContent = f.likes;
-  const icon = document.getElementById('fs-like-icon');
-  icon.className = f.liked ? 'fas fa-heart' : 'far fa-heart';
-  icon.style.color = f.liked ? '#ff4d6d' : '#fff';
-
-  const media = document.getElementById('fs-media');
-  media.innerHTML = '';
-  if (f.video) {
-    const v = document.createElement('video');
-    v.src = f.video; v.controls = true; v.autoplay = true; v.playsInline = true;
-    v.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;max-height:100vh';
-    media.appendChild(v);
-  } else if (f.image) {
-    const img = document.createElement('img');
-    img.src = f.image;
-    img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;max-height:100vh';
-    media.appendChild(img);
-  } else {
-    media.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#0a66c2)"><i class="fas fa-bolt" style="font-size:80px;color:rgba(255,255,255,.3)"></i></div>';
-  }
-}
-
-function fsBuildDots() {
-  const dots = document.getElementById('fs-dots');
-  dots.innerHTML = '';
-  _flicks.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.style.cssText = 'width:' + (i===_fsi?'20px':'6px') + ';height:3px;border-radius:2px;background:' + (i===_fsi?'#fff':'rgba(255,255,255,.4)') + ';transition:all .2s';
-    dots.appendChild(d);
-  });
-}
-function fsUpdateDots() {
-  const dots = document.getElementById('fs-dots').children;
-  for (let i = 0; i < dots.length; i++) {
-    dots[i].style.width = i === _fsi ? '20px' : '6px';
-    dots[i].style.background = i === _fsi ? '#fff' : 'rgba(255,255,255,.4)';
-  }
-}
-
-function fsLike() {
-  const f = _flicks[_fsi];
-  fetch('/flicks/' + f.pk + '/like/', {method:'POST', headers:{'X-CSRFToken':_dcsrf}})
-    .then(r=>r.json()).then(d=>{
-      if (!d.success) return;
-      f.liked = d.liked; f.likes = d.count;
-      document.getElementById('fs-like-count').textContent = d.count;
-      const icon = document.getElementById('fs-like-icon');
-      icon.className = d.liked ? 'fas fa-heart' : 'far fa-heart';
-      icon.style.color = d.liked ? '#ff4d6d' : '#fff';
-      if (d.liked) { icon.style.transform='scale(1.4)'; setTimeout(()=>icon.style.transform='scale(1)',300); }
-    });
-}
-
-function fsShare() {
-  const f = _flicks[_fsi];
-  const url = window.location.origin + '/flicks/#fk-' + f.pk;
-  if (navigator.share) { navigator.share({title: f.name + ' on OUR PINCODE', url}).catch(()=>{}); }
+function showSection(id, el) {
+  document.querySelectorAll('.dsec').forEach(s => s.classList.add('hidden'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) sec.classList.remove('hidden');
+  document.querySelectorAll('.snav-item').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
   else {
-    navigator.clipboard.writeText(url).then(() => {
-      const t = document.getElementById('fs-toast');
-      t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000);
-    });
+    const match = document.querySelector('.snav-item[data-sec="' + id + '"]');
+    if (match) match.classList.add('active');
   }
+  const overlay = document.querySelector('.dash-sidebar-overlay');
+  const sidebar = document.querySelector('.dash-sidebar');
+  if (overlay && overlay.style.display !== 'none') { overlay.style.display = 'none'; sidebar.classList.remove('open'); document.body.style.overflow = ''; }
 }
 
-/* Swipe support */
-let _tsX = 0;
-document.getElementById('fs-viewer').addEventListener('touchstart', e => { _tsX = e.touches[0].clientX; }, {passive:true});
-document.getElementById('fs-viewer').addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - _tsX;
-  if (Math.abs(dx) > 50) fsNav(dx < 0 ? 1 : -1);
-}, {passive:true});
-
-/* Close on Escape */
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fsClose(); if (e.key === 'ArrowRight') fsNav(1); if (e.key === 'ArrowLeft') fsNav(-1); });
+function toggleSidebar() {
+  const sidebar = document.querySelector('.dash-sidebar');
+  const overlay = document.querySelector('.dash-sidebar-overlay');
+  const open = sidebar.classList.toggle('open');
+  overlay.style.display = open ? 'block' : 'none';
+  document.body.style.overflow = open ? 'hidden' : '';
+}
 </script>
-{% endif %}
-
-<!-- Feedback Card -->
-<div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
-  <a href="/complaint/submit/" style="display:flex;align-items:center;gap:16px;background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px 24px;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='#e5e7eb'">
-    <div style="width:48px;height:48px;border-radius:12px;background:#e8f0fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:#0a66c2">
-      <i class="fas fa-comment-dots"></i>
-    </div>
-    <div style="flex:1">
-      <div style="font-weight:800;font-size:15px;color:#111">Share Your Feedback</div>
-      <div style="font-size:13px;color:#888;margin-top:3px">Report a bug, suggest a feature, or share your experience with OUR PINCODE</div>
-    </div>
-    <div style="color:#0a66c2;font-size:18px;flex-shrink:0"><i class="fas fa-chevron-right"></i></div>
-  </a>
-</div>
-
-<!-- Referral Banner -->
-<div style="max-width:900px;margin:0 auto 24px;padding:0 16px">
-  <a href="/referral/" style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:14px;padding:18px 22px;text-decoration:none;color:#fff">
-    <div style="font-size:32px;flex-shrink:0">🎁</div>
-    <div style="flex:1">
-      <div style="font-weight:800;font-size:15px">Refer Friends & Earn Points</div>
-      <div style="font-size:13px;opacity:.85;margin-top:2px">Share your link — earn <strong>50 pts</strong> per signup + <strong>25 pts</strong> when they apply for a job!</div>
-    </div>
-    <div style="background:rgba(255,255,255,.2);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;flex-shrink:0">View →</div>
-  </a>
-</div>
 
 {% if show_referral_popup %}
-<!-- Referral Welcome Popup -->
 <div id="refPopupOverlay" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center;padding:16px">
   <div style="background:#fff;border-radius:20px;max-width:400px;width:100%;text-align:center;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:refSlideUp .35s ease">
     <div style="background:linear-gradient(135deg,#0a66c2,#004182);padding:30px 24px 24px;color:#fff">
@@ -474,51 +440,27 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fsClose(); i
     </div>
     <div style="padding:22px 24px">
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <div style="flex:1;background:#f0f7ff;border-radius:10px;padding:12px 8px;text-align:center">
-          <div style="font-size:22px;font-weight:900;color:#0a66c2">+50</div>
-          <div style="font-size:11px;color:#555;margin-top:2px">pts per signup</div>
-        </div>
-        <div style="flex:1;background:#f0f7ff;border-radius:10px;padding:12px 8px;text-align:center">
-          <div style="font-size:22px;font-weight:900;color:#0a66c2">+25</div>
-          <div style="font-size:11px;color:#555;margin-top:2px">pts first apply</div>
-        </div>
-        <div style="flex:1;background:#e8f8ef;border-radius:10px;padding:12px 8px;text-align:center">
-          <div style="font-size:22px;font-weight:900;color:#2e7d32">100pts</div>
-          <div style="font-size:11px;color:#555;margin-top:2px">= ₹100 off</div>
-        </div>
+        <div style="flex:1;background:#f0f7ff;border-radius:10px;padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:900;color:#0a66c2">+50</div><div style="font-size:11px;color:#555;margin-top:2px">pts per signup</div></div>
+        <div style="flex:1;background:#f0f7ff;border-radius:10px;padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:900;color:#0a66c2">+25</div><div style="font-size:11px;color:#555;margin-top:2px">pts first apply</div></div>
+        <div style="flex:1;background:#e8f8ef;border-radius:10px;padding:12px 8px;text-align:center"><div style="font-size:22px;font-weight:900;color:#2e7d32">100pts</div><div style="font-size:11px;color:#555;margin-top:2px">= ₹100 off</div></div>
       </div>
       <div style="background:#f7f9fc;border:1.5px solid #d0e4f7;border-radius:10px;display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:16px">
-        <input id="refPopupLink" type="text" value="{{ referral_link }}" readonly
-               style="flex:1;border:none;background:none;font-size:12px;color:#333;outline:none;min-width:0;font-weight:600">
-        <button onclick="copyRefPopup()" style="background:#0a66c2;color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">
-          <i class="fas fa-copy"></i> Copy
-        </button>
+        <input id="refPopupLink" type="text" value="{{ referral_link }}" readonly style="flex:1;border:none;background:none;font-size:12px;color:#333;outline:none;min-width:0;font-weight:600">
+        <button onclick="copyRefPopup()" style="background:#0a66c2;color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap"><i class="fas fa-copy"></i> Copy</button>
       </div>
-      <a href="https://wa.me/?text=Join%20MY%20PINCOD%20-%20Find%20Local%20Jobs!%20Register%20here%3A%20{{ referral_link|urlencode }}"
-         target="_blank"
+      <a href="https://wa.me/?text=Join%20OUR%20PINCODE%20-%20Find%20Local%20Jobs!%20Register%20here%3A%20{{ referral_link|urlencode }}" target="_blank"
          style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#25d366;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-decoration:none;margin-bottom:12px">
         <i class="fab fa-whatsapp" style="font-size:18px"></i> Share on WhatsApp
       </a>
-      <button onclick="closeRefPopup()" style="width:100%;padding:11px;background:#f3f4f6;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">
-        Maybe Later
-      </button>
+      <button onclick="document.getElementById('refPopupOverlay').style.display='none'" style="width:100%;padding:11px;background:#f3f4f6;color:#555;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Maybe Later</button>
     </div>
   </div>
 </div>
-<style>
-@keyframes refSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-</style>
+<style>@keyframes refSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}</style>
 <script>
-function closeRefPopup(){document.getElementById('refPopupOverlay').style.display='none';}
-function copyRefPopup(){
-  var inp=document.getElementById('refPopupLink');
-  inp.select(); inp.setSelectionRange(0,9999);
-  try{navigator.clipboard.writeText(inp.value);}catch(e){document.execCommand('copy');}
-  var btn=event.currentTarget; var orig=btn.innerHTML;
-  btn.innerHTML='<i class="fas fa-check"></i> Copied!'; btn.style.background='#2e7d32';
-  setTimeout(function(){btn.innerHTML=orig;btn.style.background='#0a66c2';},2000);
-}
+function copyRefPopup(){var inp=document.getElementById('refPopupLink');inp.select();inp.setSelectionRange(0,9999);try{navigator.clipboard.writeText(inp.value);}catch(e){document.execCommand('copy');}var btn=event.currentTarget;var orig=btn.innerHTML;btn.innerHTML='<i class="fas fa-check"></i> Copied!';btn.style.background='#2e7d32';setTimeout(function(){btn.innerHTML=orig;btn.style.background='#0a66c2';},2000);}
 </script>
 {% endif %}
-{% endblock %}
 
+</body>
+</html>

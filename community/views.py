@@ -544,24 +544,36 @@ def family_hub(request):
     p_father  = FamilyMember.objects.filter(creator=request.user, member_type='father', side='wife').first()  if request.user.is_authenticated else None
     p_mother  = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='wife').first()  if request.user.is_authenticated else None
     friends   = []
-    flicks    = FamilyFlick.objects.filter(creator=request.user) if request.user.is_authenticated else []
-    posts     = FamilyPost.objects.filter(creator=request.user) if request.user.is_authenticated else []
+    # Determine the family owner (child accounts resolve to parent)
+    _family_owner = request.user
+    if request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'family_child':
+        _cm = FamilyMember.objects.filter(child_linked_user=request.user).first()
+        if _cm:
+            _family_owner = _cm.creator
+    flicks    = FamilyFlick.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
+    posts     = FamilyPost.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
+
+    relatives_exist = FamilyMember.objects.filter(
+        creator=request.user,
+        member_type__in=['uncle','aunt','cousin','brother','sister','friend','colleague']
+    ).exists() if request.user.is_authenticated else False
 
     return render(request, 'community/family_hub.html', {
-        'setup':          setup,
-        'setup_rows':     setup_rows,
-        'active_tabs':    active_tabs,
-        'combined_rows':  combined_rows,
-        'is_married':     is_married,
-        'core_count':     core_count,
-        'total_count':    total_count,
-        'my_father':      my_father,
-        'my_mother':      my_mother,
-        'p_father':       p_father,
-        'p_mother':       p_mother,
-        'friends':        friends,
-        'flicks':         flicks,
-        'posts':          posts,
+        'setup':           setup,
+        'setup_rows':      setup_rows,
+        'active_tabs':     active_tabs,
+        'combined_rows':   combined_rows,
+        'is_married':      is_married,
+        'core_count':      core_count,
+        'total_count':     total_count,
+        'my_father':       my_father,
+        'my_mother':       my_mother,
+        'p_father':        p_father,
+        'p_mother':        p_mother,
+        'friends':         friends,
+        'flicks':          flicks,
+        'posts':           posts,
+        'relatives_exist': relatives_exist,
     })
 
 
@@ -747,12 +759,19 @@ def family_member_verify(request, pk):
 @require_POST
 def family_flick_add(request):
     photo = request.FILES.get('photo')
-    if not photo:
-        return JsonResponse({'ok': False, 'error': 'Photo required'})
+    video = request.FILES.get('video')
+    if not photo and not video:
+        return JsonResponse({'ok': False, 'error': 'Choose a photo or video'})
     caption = request.POST.get('caption', '').strip()
-    flick = FamilyFlick(creator=request.user, caption=caption, photo=photo)
+    flick = FamilyFlick(creator=request.user, caption=caption)
+    if photo:
+        flick.photo = photo
+    if video:
+        flick.video = video
     flick.save()
-    return JsonResponse({'ok': True, 'pk': flick.pk, 'url': flick.photo.url, 'caption': caption})
+    media_url = flick.photo.url if flick.photo else flick.video.url
+    return JsonResponse({'ok': True, 'pk': flick.pk, 'url': media_url,
+                         'is_video': bool(video), 'caption': caption})
 
 
 @login_required
@@ -1800,9 +1819,22 @@ def event_rsvp(request, pk):
 
 @login_required
 def event_delete(request, pk):
+    from django.utils import timezone
     event = get_object_or_404(CommunityEvent, pk=pk, posted_by=request.user)
-    event.delete()
+    event.is_active = False
+    event.deleted_at = timezone.now()
+    event.save()
     return redirect('/community/events/')
+
+def event_deleted_history(request):
+    if not request.user.is_authenticated:
+        return redirect('/login/')
+    deleted_events = CommunityEvent.objects.filter(
+        posted_by=request.user, is_active=False
+    ).order_by('-deleted_at')
+    return render(request, 'community/event_deleted_history.html', {
+        'deleted_events': deleted_events,
+    })
 
 
 # ── VOLUNTEER ACTIVITIES ───────────────────────────────────────────────────────

@@ -200,6 +200,7 @@ input[type="number"], input[type="url"], input[type="date"], textarea, select {
     cursor: pointer;
     color: var(--text-dark);
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .mobile-menu {
@@ -1039,6 +1040,11 @@ input[type="number"], input[type="url"], input[type="date"], textarea, select {
 *, *::before, *::after { box-sizing: border-box; }
 img, video { max-width: 100%; }
 .overflow-x-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Hide nav-links on mobile so hamburger stays right */
+@media (max-width: 768px) {
+    .nav-links { display: none !important; }
+}
 
 /* post_job / edit_job form on mobile */
 @media (max-width: 600px) {
