@@ -320,6 +320,11 @@ def reset_password(request):
 
     if not request.session.get('otp_verified'):
         return JsonResponse({'success': False, 'error': 'OTP not verified'})
+
+    # Ensure the OTP was verified for THIS phone number, not a different one
+    if request.session.get('otp_phone') != phone:
+        return JsonResponse({'success': False, 'error': 'OTP verification mismatch. Please restart.'})
+
     if not password or len(password) < 6:
         return JsonResponse({'success': False, 'error': 'Password must be at least 6 characters'})
 
@@ -332,6 +337,7 @@ def reset_password(request):
     user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
+    request.session.pop('otp_phone', None)
     if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
         redirect_url = '/employer/dashboard/'
     else:
@@ -1090,6 +1096,27 @@ def seeker_cert_delete(request, cert_id):
 
 
 
+# ── Rate limiting helpers ─────────────────────────────────────────────────────
+def _rate_limit(cache_key, max_attempts, window_seconds):
+    """
+    Returns True if the action is allowed, False if rate limit exceeded.
+    Increments the counter on each call.
+    """
+    from django.core.cache import cache
+    count = cache.get(cache_key, 0)
+    if count >= max_attempts:
+        return False
+    cache.set(cache_key, count + 1, window_seconds)
+    return True
+
+
+def _get_client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '')
+
+
 # ── OTP via 2Factor.in ────────────────────────────────────────────────────────
 def send_otp(request):
     if request.method != 'POST':
@@ -1105,13 +1132,18 @@ def send_otp(request):
     if not phone or len(phone) != 10 or not phone.isdigit():
         return JsonResponse({'success': False, 'error': 'Enter a valid 10-digit mobile number.'})
 
+    # Rate limit: max 3 OTP sends per phone per 10 minutes
+    if not _rate_limit(f'otp_send_{phone}', max_attempts=3, window_seconds=600):
+        return JsonResponse({'success': False, 'error': 'Too many OTP requests. Please wait 10 minutes.'})
+
     User = get_user_model()
     allow_existing = data.get('allow_existing', False) if isinstance(data, dict) else False
     if User.objects.filter(phone=phone).exists() and not allow_existing:
         return JsonResponse({'success': False, 'already_registered': True,
                              'error': 'This phone number is already registered. Please sign in.'})
 
-    otp = str(random.randint(100000, 999999))
+    import secrets as _secrets
+    otp = str(_secrets.randbelow(900000) + 100000)
 
     from django.conf import settings as _s
     api_key  = _s.TWO_FACTOR_API_KEY
@@ -1152,13 +1184,23 @@ def verify_otp(request):
     data    = json.loads(request.body)
     entered = data.get('otp', '').strip()
     stored  = request.session.get('otp', '')
+    phone   = request.session.get('otp_phone', '')
 
     if not stored:
         return JsonResponse({'success': False, 'error': 'OTP expired. Please resend.'})
 
+    # Rate limit: max 5 wrong attempts per phone before requiring re-send
+    if phone and not _rate_limit(f'otp_verify_{phone}', max_attempts=5, window_seconds=600):
+        request.session.pop('otp', None)
+        request.session.pop('otp_verified', None)
+        return JsonResponse({'success': False, 'error': 'Too many wrong attempts. Please request a new OTP.'})
+
     if entered == stored:
         request.session['otp_verified'] = True
         request.session.pop('otp', None)
+        # Clear verify attempt counter on success
+        from django.core.cache import cache
+        cache.delete(f'otp_verify_{phone}')
         return JsonResponse({'success': True})
 
     return JsonResponse({'success': False, 'error': 'Wrong OTP. Please try again.'})
@@ -1183,7 +1225,8 @@ def forgot_password(request):
     return render(request, 'forgot_password.html', {'prefill_phone': phone})
 
 
-def reset_password(request):
+def reset_password_otp(request):
+    """Reset password via OTP flow (called from register/login page JS)."""
     if request.method != 'POST':
         return JsonResponse({'success': False})
     import json
@@ -1193,14 +1236,25 @@ def reset_password(request):
         return JsonResponse({'success': False, 'error': 'Invalid request'})
     phone    = data.get('phone', '').strip()
     password = data.get('password', '').strip()
+
+    if not request.session.get('otp_verified'):
+        return JsonResponse({'success': False, 'error': 'OTP not verified'})
+
+    # Ensure the OTP was verified for THIS phone number, not a different one
+    if request.session.get('otp_phone') != phone:
+        return JsonResponse({'success': False, 'error': 'OTP verification mismatch. Please restart.'})
+
     if not phone or not password or len(password) < 6:
         return JsonResponse({'success': False, 'error': 'Invalid data'})
+
     User = get_user_model()
     user = User.objects.filter(phone=phone).first()
     if not user:
         return JsonResponse({'success': False, 'error': 'No account found with this number'})
     user.set_password(password)
     user.save()
+    request.session.pop('otp_verified', None)
+    request.session.pop('otp_phone', None)
     from django.contrib.auth import login as auth_login
     auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     return JsonResponse({'success': True, 'redirect': '/dashboard/'})
@@ -1214,6 +1268,12 @@ def phone_login(request):
     data     = json.loads(request.body)
     phone    = data.get('phone', '').strip()
     password = data.get('password', '')
+
+    # Rate limit: max 5 login attempts per IP per 5 minutes
+    ip = _get_client_ip(request)
+    if not _rate_limit(f'login_ip_{ip}', max_attempts=5, window_seconds=300):
+        return JsonResponse({'success': False, 'error': 'Too many login attempts. Please wait 5 minutes.'})
+
     User     = get_user_model()
     # Try personal phone first, then business phone
     user = User.objects.filter(phone=phone).first() or \
@@ -1771,13 +1831,23 @@ def renew_ad(request, ad_id):
     return render(request, 'renew_ad.html', {'ad': ad})
 
 
+def _safe_ad_url(url):
+    """Return url only if it uses http/https scheme; otherwise return None."""
+    if url and isinstance(url, str):
+        stripped = url.strip()
+        if stripped.lower().startswith(('http://', 'https://')):
+            return stripped
+    return None
+
+
 def ad_click_track(request, ad_id):
     """Tracks click and redirects to destination."""
     try:
         ad = Advertisement.objects.get(pk=ad_id, status='active')
         Advertisement.objects.filter(pk=ad_id).update(clicks=ad.clicks + 1)
-        if ad.link_url:
-            return redirect(ad.link_url)
+        safe_url = _safe_ad_url(ad.link_url)
+        if safe_url:
+            return redirect(safe_url)
     except Advertisement.DoesNotExist:
         pass
     return redirect('home')
@@ -1789,8 +1859,9 @@ def adpost_click_track(request, ad_id):
     try:
         ad = AdPost.objects.get(pk=ad_id, status='approved')
         AdPost.objects.filter(pk=ad_id).update(clicks=F('clicks') + 1)
-        if ad.website:
-            return redirect(ad.website)
+        safe_url = _safe_ad_url(ad.website)
+        if safe_url:
+            return redirect(safe_url)
     except AdPost.DoesNotExist:
         pass
     return redirect('home')

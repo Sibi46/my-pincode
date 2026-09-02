@@ -10,10 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load .env file if present (development convenience)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
 SITE_NAME    = 'MY PINCOD'
 SITE_TAGLINE = 'Find Jobs Near You. Hire People Near You.'
@@ -23,12 +31,12 @@ SITE_TAGLINE = 'Find Jobs Near You. Hire People Near You.'
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'change-me-in-local-settings'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-local-settings')
 
-ANTHROPIC_API_KEY = ''
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
-# Move API key to local_settings.py — do NOT hardcode here
-TWO_FACTOR_API_KEY = ''
+# Load from environment — do NOT hardcode here
+TWO_FACTOR_API_KEY = os.environ.get('TWO_FACTOR_API_KEY', '')
 TWO_FACTOR_OTP_TEMPLATE = 'OTP1'
 
 DEBUG = False
@@ -115,14 +123,15 @@ WSGI_APPLICATION = 'jobportal.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME':   'localjobs_db',
-        'USER':   'root',
-        'PASSWORD': '',
-        'HOST':   'localhost',
-        'PORT':   '3306',
+        'ENGINE':   'django.db.backends.mysql',
+        'NAME':     os.environ.get('DB_NAME', 'localjobs_db'),
+        'USER':     os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST':     os.environ.get('DB_HOST', 'localhost'),
+        'PORT':     os.environ.get('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_ALL_TABLES'",
         },
     }
 }
@@ -179,9 +188,9 @@ EMAIL_HOST         = 'smtp.gmail.com'
 EMAIL_PORT         = 465
 EMAIL_USE_TLS      = False
 EMAIL_USE_SSL      = True
-EMAIL_HOST_USER    = 'evoxusoft@gmail.com'
-EMAIL_HOST_PASSWORD = 'pisnlnplumembcaw'
-DEFAULT_FROM_EMAIL = 'OUR PINCODE <evoxusoft@gmail.com>'
+EMAIL_HOST_USER    = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', f'OUR PINCODE <{EMAIL_HOST_USER}>')
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
