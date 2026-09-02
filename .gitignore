@@ -40,3 +40,20 @@ Thumbs.db
 
 # Claude Code session data
 .claude/
+
+# Stray root-level image dumps (images belong in static/images/)
+/Community.jpg
+/adds.jpg
+/adsnew.jpg
+/advertise.jpg
+/communityfooter.png
+/events.jpg
+/giftvoucher.jpg
+/reel.png
+
+# Misplaced static root image
+/static/communityfooter.png
+
+# Unreferenced orphan images in static/images/
+/static/images/adds.jpg
+/static/images/ads.jpg
