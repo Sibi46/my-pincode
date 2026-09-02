@@ -1,6 +1,9 @@
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+
+logger = logging.getLogger(__name__)
 User = get_user_model()
 from django.contrib import messages
 from django.http import JsonResponse
@@ -504,7 +507,7 @@ def join_community(request, page_id):
                 profile.photo = request.FILES['photo']
                 profile.save()
             except Exception:
-                pass
+                logger.exception('community_join: photo profile save failed for user %s', user.pk)
 
     # Do the join
     if community.join_mode == 'open':

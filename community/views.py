@@ -1,9 +1,13 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 import base64
+
+logger = logging.getLogger(__name__)
 from django.core.files.base import ContentFile
 from .models import (FamilyStory, FamilyStoryLike, FamilyStoryComment,
                      StudentSuccess, StudentSuccessLike, StudentSuccessComment,
@@ -1056,7 +1060,12 @@ def teacher_register(request):
                 )
                 generated = {'name': full_name, 'phone': phone, 'password': password, 'school': school}
             except Exception as e:
-                error = f'Registration failed: {e}'
+                from django.db import IntegrityError
+                if isinstance(e, IntegrityError):
+                    error = 'Registration failed. This phone may already be in use.'
+                else:
+                    error = 'Registration failed. Please try again.'
+                logger.exception('teacher_register: failed for phone=%s school_id=%s', phone, school_id)
     return render(request, 'community/teacher_register.html', {
         'schools':   schools,
         'error':     error,
@@ -1122,8 +1131,9 @@ def school_dashboard(request, pk):
                         error = f'This phone is already linked to this school.'
                     else:
                         messages.success(request, f'{full_name} added as teacher (existing account).')
-                except Exception as e:
-                    error = str(e)
+                except Exception:
+                    logger.exception('school_corner add_teacher link: failed for phone=%s school=%s', phone, school.pk)
+                    error = 'Registration failed. Please try again.'
             else:
                 try:
                     password = ''.join(random.choices(_str.digits, k=6))
@@ -1140,7 +1150,12 @@ def school_dashboard(request, pk):
                     )
                     messages.success(request, f'TEACHER_ADDED:{full_name}:{phone}:{password}')
                 except Exception as e:
-                    error = f'Failed: {e}'
+                    from django.db import IntegrityError
+                    if isinstance(e, IntegrityError):
+                        error = 'Registration failed. This phone may already be in use.'
+                    else:
+                        error = 'Registration failed. Please try again.'
+                    logger.exception('school_corner add_teacher create: failed for phone=%s school=%s', phone, school.pk)
 
         elif action == 'add_admin' and admin_rec.role in ('owner', 'admin'):
             username = request.POST.get('username', '').strip()
