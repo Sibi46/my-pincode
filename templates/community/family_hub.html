@@ -35,6 +35,45 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 .fh-section{display:none;padding:20px 16px 100px;max-width:600px;margin:0 auto}
 .fh-section.active{display:block}
 
+/* ── PORTRAIT CARD ── */
+.fpc-wrap{background:#fff;border-radius:20px;border:1px solid #E0E7FF;box-shadow:0 2px 12px rgba(79,70,229,.06);padding:20px 16px 16px;text-align:center;margin-bottom:14px;position:relative}
+.fpc-photo{width:90px;height:90px;border-radius:50%;margin:0 auto 10px;overflow:hidden;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:2.6rem;border:4px solid #fff;box-shadow:0 4px 16px rgba(79,70,229,.18);cursor:pointer;flex-shrink:0}
+.fpc-photo img{width:100%;height:100%;object-fit:cover}
+.fpc-name{font-size:18px;font-weight:900;color:#0F172A;margin-bottom:5px}
+.fpc-badges{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px}
+.fpc-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.fpc-chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:12px}
+.fpc-chip{display:flex;align-items:center;gap:5px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:12px;padding:5px 10px;font-size:12px;font-weight:600;color:#374151}
+.fpc-edit{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:12px;font-size:12px;font-weight:700;text-decoration:none;background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE}
+
+/* ── PARENT ROW (below each portrait) ── */
+.fpar-row{display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid #F1F5F9}
+.fpar-card{flex:1;background:#F8FAFC;border-radius:14px;border:1.5px solid #E2E8F0;padding:10px 8px;text-align:center;cursor:pointer;position:relative}
+.fpar-photo{width:54px;height:54px;border-radius:50%;margin:0 auto 6px;overflow:hidden;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.fpar-photo img{width:100%;height:100%;object-fit:cover}
+.fpar-name{font-size:12px;font-weight:800;color:#0F172A;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fpar-role{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;display:inline-block;margin-bottom:3px}
+.fpar-info{font-size:9px;color:#64748B;line-height:1.4}
+.fpar-status{font-size:9px;font-weight:700;padding:2px 6px;border-radius:7px;display:inline-flex;align-items:center;gap:2px;margin-top:3px}
+
+/* ── CHILD / PET STRIP ── */
+.fmem-strip{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.fmem-strip::-webkit-scrollbar{display:none}
+.fmem-item{flex-shrink:0;text-align:center;width:70px}
+.fmem-photo{width:62px;height:62px;border-radius:50%;margin:0 auto 6px;overflow:hidden;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,70,229,.12);cursor:pointer}
+.fmem-photo img{width:100%;height:100%;object-fit:cover}
+.fmem-name{font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmem-sub{font-size:9px;color:#94A3B8}
+
+/* ── SECTION LABEL ── */
+.fh-sec-lbl{font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:.06em;text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+.fh-sec-lbl::after{content:'';flex:1;height:1px;background:#E0E7FF}
+
+/* ── IMAGE LIGHTBOX ── */
+#imgLightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center;padding:20px}
+#imgLightbox.open{display:flex}
+#imgLightbox img{max-width:100%;max-height:90vh;border-radius:16px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.4)}
+
 /* ── CARDS ── */
 .fh-card{background:#fff;border-radius:20px;overflow:hidden;border:1px solid #E0E7FF;box-shadow:0 2px 12px rgba(79,70,229,.06);margin-bottom:16px}
 .fh-card-header{background:linear-gradient(135deg,#4F46E5,#7C3AED);padding:24px 20px;display:flex;align-items:center;gap:16px}
@@ -95,6 +134,15 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 .fh-rel-name{font-size:13px;font-weight:600;color:#0F172A}
 .fh-rel-sub{font-size:10px;color:#94A3B8;margin-top:1px}
 
+/* ── RELATION TYPE BUTTON ── */
+.rtype-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:2px solid #E2E8F0;border-radius:12px;background:#F8FAFC;cursor:pointer;font-family:inherit;font-size:9px;font-weight:700;color:#374151;transition:all .2s;text-align:center;line-height:1.2}
+.rtype-btn:hover,.rtype-btn.active{border-color:#4F46E5;background:#EEF2FF;color:#4F46E5}
+.rtype-btn.active{box-shadow:0 2px 8px rgba(79,70,229,.2)}
+/* ── DROPDOWN ITEM ── */
+.reldropitem{padding:11px 16px;font-size:13px;font-weight:700;color:#0F172A;cursor:pointer;border-bottom:1px solid #F8FAFC}
+.reldropitem:last-child{border-bottom:none}
+.reldropitem:hover{background:#EEF2FF;color:#4F46E5}
+
 /* ── GUEST ── */
 .fh-guest{background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:24px;padding:36px 24px;text-align:center;margin:20px 16px}
 .fh-guest-icon{font-size:3.5rem;display:block;margin-bottom:14px}
@@ -105,7 +153,7 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 
 <!-- TOP BAR -->
 <div class="fh-topbar">
-  <a href="/community/" class="fh-back">&#8592;</a>
+  <a href="/" style="flex-shrink:0;display:flex;align-items:center"><img src="/static/images/ourpincod.jpeg" alt="OUR PINCODE" style="height:34px;width:auto;max-width:110px;object-fit:contain;border-radius:6px"></a>
   <div class="fh-topbar-title">Family <span>Circle</span></div>
   {% if request.user.is_authenticated and setup and setup.setup_done %}
   <button onclick="shareFamily()" class="fh-topbar-btn" style="background:#F0FDF4;color:#16A34A;border:1.5px solid #BBF7D0">🔗 Share</button>
@@ -119,7 +167,7 @@ body{background:#F0F2FF;font-family:'Inter',system-ui,sans-serif;color:#0F172A;m
 <script>
 function shareFamily(){
   var url = window.location.origin + '/community/family/';
-  var name = '{{ setup.house_name|default:setup.self_full_name|default:"Our Family" }}';
+  var name = '{% if setup %}{{ setup.house_name|default:setup.self_full_name|default:"Our Family" }}{% else %}Our Family{% endif %}';
   var text = name + ' — Family Circle on OUR PINCODE';
   if(navigator.share){
     navigator.share({title: text, url: url}).catch(function(){});
@@ -140,14 +188,14 @@ function shareFamily(){
   <button class="fh-maintab active" onclick="showFlow('family', this)">
     <span class="fh-mainicon">👨‍👩‍👧‍👦</span> My Family
   </button>
-  <button class="fh-maintab" onclick="showFlow('relatives', this)">
-    <span class="fh-mainicon">👨‍👩‍👧</span> Relatives
+  <button class="fh-maintab" onclick="showRelativesFlow()">
+    <span class="fh-mainicon">👨‍👩‍👧</span> Add Relative
   </button>
-  <button class="fh-maintab" onclick="showFlow('friends', this)">
-    <span class="fh-mainicon">🤝</span> Friends
+  <button class="fh-maintab" onclick="showFlow('flick', this)">
+    <span class="fh-mainicon">📸</span> Flick
   </button>
-  <button class="fh-maintab" onclick="showFlow('colleagues', this)">
-    <span class="fh-mainicon">💼</span> Colleagues
+  <button class="fh-maintab" onclick="showFlow('post', this)">
+    <span class="fh-mainicon">📝</span> Post
   </button>
 </div>
 
@@ -170,149 +218,168 @@ function shareFamily(){
      FLOW 1 — MY FAMILY
 ════════════════════════════════ -->
 <div class="fh-flow active" id="flow-family">
-{% if setup.setup_done %}
+{% if setup and setup.setup_done %}
 
-  <!-- ── ME ── -->
-  <div class="fh-card">
-    <div class="fh-card-header">
-      <div class="fh-avatar">
-        {% if setup.self_photo %}<img src="{{ setup.self_photo.url }}" alt="">
-        {% elif setup.gender == 'male' %}👨{% elif setup.gender == 'female' %}👩{% else %}👤{% endif %}
-      </div>
-      <div style="flex:1">
-        <div class="fh-card-name">{{ setup.self_full_name|default:setup.house_name|default:"Me" }}</div>
-        <div class="fh-card-meta">
-          {% if setup.gender %}<span>{% if setup.gender == 'male' %}♂️ Male{% else %}♀️ Female{% endif %}</span>{% endif %}
-          {% if setup.marital_status %}<span>{% if setup.marital_status == 'married' %}💍 Married{% else %}🙂 Unmarried{% endif %}</span>{% endif %}
-        </div>
-      </div>
-      <a href="/community/family/setup/?step=4" style="flex-shrink:0;background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE;border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;text-decoration:none">✏️ Edit</a>
+  <div style="padding:16px 16px 80px">
+
+  <!-- ══ ME ══ -->
+  <div class="fpc-wrap">
+    <a href="/community/family/setup/?step=4" style="position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;color:#4F46E5;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:10px;padding:4px 10px;text-decoration:none">✏️ Edit</a>
+    <div class="fpc-photo" onclick="openImg('{% if setup.self_photo %}{{ setup.self_photo.url }}{% endif %}','{% if setup.gender == "male" %}👨{% else %}👩{% endif %}')">
+      {% if setup.self_photo %}<img src="{{ setup.self_photo.url }}" alt="">{% elif setup.gender == 'male' %}👨{% elif setup.gender == 'female' %}👩{% else %}👤{% endif %}
     </div>
-    <div class="fh-card-body">
-      {% if setup.self_dob %}<div class="fh-info-row"><div class="fh-info-icon">🎂</div><div><div class="fh-info-label">Date of Birth</div><div class="fh-info-value">{{ setup.self_dob|date:"d M Y" }}</div></div></div>{% endif %}
-      {% if setup.self_village %}<div class="fh-info-row"><div class="fh-info-icon">📍</div><div><div class="fh-info-label">Born Village / Area</div><div class="fh-info-value">{{ setup.self_village }}</div></div></div>{% endif %}
-      {% if setup.self_occupation %}<div class="fh-info-row"><div class="fh-info-icon">💼</div><div><div class="fh-info-label">Occupation</div><div class="fh-info-value">{{ setup.self_occupation }}</div></div></div>{% endif %}
-      <div class="fh-info-row"><div class="fh-info-icon">📱</div><div><div class="fh-info-label">Phone</div><div class="fh-info-value">{{ request.user.phone }}</div></div></div>
+    <div class="fpc-name">{{ setup.self_full_name|default:setup.house_name|default:"Me" }}</div>
+    <div class="fpc-badges">
+      {% if setup.gender %}<span class="fpc-badge" style="background:#EEF2FF;color:#4F46E5">{% if setup.gender == 'male' %}♂ Male{% else %}♀ Female{% endif %}</span>{% endif %}
+      {% if setup.marital_status == 'married' %}<span class="fpc-badge" style="background:#FDF2F8;color:#BE185D">💍 Married</span>{% else %}<span class="fpc-badge" style="background:#F0FDF4;color:#16A34A">🙂 Single</span>{% endif %}
     </div>
+    <div class="fpc-chips">
+      {% if setup.self_dob %}<div class="fpc-chip">🎂 {{ setup.self_dob|date:"d M Y" }}</div>{% endif %}
+      {% if setup.self_village %}<div class="fpc-chip">📍 {{ setup.self_village }}</div>{% endif %}
+      {% if setup.self_occupation %}<div class="fpc-chip">💼 {{ setup.self_occupation }}</div>{% endif %}
+      {% if request.user.phone %}<div class="fpc-chip">📱 {{ request.user.phone }}</div>{% endif %}
+    </div>
+    <!-- My Parents inline -->
+    {% if my_father or my_mother %}
+    <div class="fpar-row">
+      {% if my_father %}
+      <div class="fpar-card" style="border-color:#FED7AA;background:#FFFBF5" onclick="openImg('{% if my_father.photo %}{{ my_father.photo.url }}{% endif %}','👨')">
+        <div class="fpar-photo" style="border-color:#FED7AA">{% if my_father.photo %}<img src="{{ my_father.photo.url }}" alt="">{% else %}👨{% endif %}</div>
+        <div class="fpar-name">{{ my_father.name }}</div>
+        <div class="fpar-role" style="background:#FFF7ED;color:#C2410C">Father</div>
+        {% if my_father.occupation %}<div class="fpar-info">💼 {{ my_father.occupation }}</div>{% elif my_father.village %}<div class="fpar-info">📍 {{ my_father.village }}</div>{% endif %}
+        {% if my_father.status == 'passed' %}<div class="fpar-status" style="background:#F3F4F6;color:#6B7280">🕊️ Passed{% if my_father.death_date %} {{ my_father.death_date|date:"Y" }}{% endif %}</div>{% else %}<div class="fpar-status" style="background:#F0FDF4;color:#16A34A">💚 Living</div>{% endif %}
+      </div>
+      {% endif %}
+      {% if my_mother %}
+      <div class="fpar-card" style="border-color:#FECDD3;background:#FFF5F6" onclick="openImg('{% if my_mother.photo %}{{ my_mother.photo.url }}{% endif %}','👩')">
+        <div class="fpar-photo" style="border-color:#FECDD3">{% if my_mother.photo %}<img src="{{ my_mother.photo.url }}" alt="">{% else %}👩{% endif %}</div>
+        <div class="fpar-name">{{ my_mother.name }}</div>
+        <div class="fpar-role" style="background:#FFF1F2;color:#BE123C">Mother</div>
+        {% if my_mother.occupation %}<div class="fpar-info">💼 {{ my_mother.occupation }}</div>{% elif my_mother.village %}<div class="fpar-info">📍 {{ my_mother.village }}</div>{% endif %}
+        {% if my_mother.status == 'passed' %}<div class="fpar-status" style="background:#F3F4F6;color:#6B7280">🕊️ Passed{% if my_mother.death_date %} {{ my_mother.death_date|date:"Y" }}{% endif %}</div>{% else %}<div class="fpar-status" style="background:#F0FDF4;color:#16A34A">💚 Living</div>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
 
-  <!-- ── PARTNER ── -->
-  {% if setup.marital_status == 'married' %}
-  <div class="fh-card">
-    <div class="fh-card-header" style="background:linear-gradient(135deg,#BE185D,#7C3AED)">
-      <div class="fh-avatar">
-        {% if setup.partner_photo %}<img src="{{ setup.partner_photo.url }}" alt="">
-        {% elif setup.partner_gender == 'female' %}👩{% else %}👨{% endif %}
-      </div>
-      <div style="flex:1">
-        <div class="fh-card-name">{{ setup.partner_full_name|default:"Partner" }}</div>
-        <div class="fh-card-meta"><span>💑 Partner</span>{% if setup.partner_gender %}<span>{% if setup.partner_gender == 'male' %}♂️ Male{% else %}♀️ Female{% endif %}</span>{% endif %}</div>
-      </div>
-      <a href="/community/family/setup/?step=5" style="flex-shrink:0;background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.4);border-radius:10px;padding:6px 12px;font-size:11px;font-weight:700;text-decoration:none">✏️ Edit</a>
+  <!-- ══ PARTNER ══ -->
+  {% if setup and setup.marital_status == 'married' %}
+  <div class="fpc-wrap" style="border-color:#FBCFE8">
+    <a href="/community/family/setup/?step=5" style="position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;color:#BE185D;background:#FDF2F8;border:1.5px solid #FBCFE8;border-radius:10px;padding:4px 10px;text-decoration:none">✏️ Edit</a>
+    <div class="fpc-photo" style="box-shadow:0 4px 16px rgba(190,24,93,.18)" onclick="openImg('{% if setup.partner_photo %}{{ setup.partner_photo.url }}{% endif %}','{% if setup.partner_gender == "female" %}👩{% else %}👨{% endif %}')">
+      {% if setup.partner_photo %}<img src="{{ setup.partner_photo.url }}" alt="">{% elif setup.partner_gender == 'female' %}👩{% else %}👨{% endif %}
     </div>
-    <div class="fh-card-body">
-      {% if setup.partner_dob %}<div class="fh-info-row"><div class="fh-info-icon">🎂</div><div><div class="fh-info-label">Date of Birth</div><div class="fh-info-value">{{ setup.partner_dob|date:"d M Y" }}</div></div></div>{% endif %}
-      {% if setup.partner_village %}<div class="fh-info-row"><div class="fh-info-icon">📍</div><div><div class="fh-info-label">Born Village / Area</div><div class="fh-info-value">{{ setup.partner_village }}</div></div></div>{% endif %}
-      {% if setup.partner_occupation %}<div class="fh-info-row"><div class="fh-info-icon">💼</div><div><div class="fh-info-label">Occupation</div><div class="fh-info-value">{{ setup.partner_occupation }}</div></div></div>{% endif %}
+    <div class="fpc-name">{{ setup.partner_full_name|default:"Partner" }}</div>
+    <div class="fpc-badges">
+      <span class="fpc-badge" style="background:#FDF2F8;color:#BE185D">💑 Partner</span>
+      {% if setup.partner_gender %}<span class="fpc-badge" style="background:#EEF2FF;color:#4F46E5">{% if setup.partner_gender == 'male' %}♂ Male{% else %}♀ Female{% endif %}</span>{% endif %}
     </div>
+    <div class="fpc-chips">
+      {% if setup.partner_dob %}<div class="fpc-chip">🎂 {{ setup.partner_dob|date:"d M Y" }}</div>{% endif %}
+      {% if setup.partner_village %}<div class="fpc-chip">📍 {{ setup.partner_village }}</div>{% endif %}
+      {% if setup.partner_occupation %}<div class="fpc-chip">💼 {{ setup.partner_occupation }}</div>{% endif %}
+    </div>
+    <!-- Partner's Parents inline -->
+    {% if p_father or p_mother %}
+    <div class="fpar-row">
+      {% if p_father %}
+      <div class="fpar-card" style="border-color:#FED7AA;background:#FFFBF5" onclick="openImg('{% if p_father.photo %}{{ p_father.photo.url }}{% endif %}','👨')">
+        <div class="fpar-photo" style="border-color:#FED7AA">{% if p_father.photo %}<img src="{{ p_father.photo.url }}" alt="">{% else %}👨{% endif %}</div>
+        <div class="fpar-name">{{ p_father.name }}</div>
+        <div class="fpar-role" style="background:#FFF7ED;color:#C2410C">Father</div>
+        {% if p_father.occupation %}<div class="fpar-info">💼 {{ p_father.occupation }}</div>{% elif p_father.village %}<div class="fpar-info">📍 {{ p_father.village }}</div>{% endif %}
+        {% if p_father.status == 'passed' %}<div class="fpar-status" style="background:#F3F4F6;color:#6B7280">🕊️ Passed{% if p_father.death_date %} {{ p_father.death_date|date:"Y" }}{% endif %}</div>{% else %}<div class="fpar-status" style="background:#F0FDF4;color:#16A34A">💚 Living</div>{% endif %}
+      </div>
+      {% endif %}
+      {% if p_mother %}
+      <div class="fpar-card" style="border-color:#FECDD3;background:#FFF5F6" onclick="openImg('{% if p_mother.photo %}{{ p_mother.photo.url }}{% endif %}','👩')">
+        <div class="fpar-photo" style="border-color:#FECDD3">{% if p_mother.photo %}<img src="{{ p_mother.photo.url }}" alt="">{% else %}👩{% endif %}</div>
+        <div class="fpar-name">{{ p_mother.name }}</div>
+        <div class="fpar-role" style="background:#FFF1F2;color:#BE123C">Mother</div>
+        {% if p_mother.occupation %}<div class="fpar-info">💼 {{ p_mother.occupation }}</div>{% elif p_mother.village %}<div class="fpar-info">📍 {{ p_mother.village }}</div>{% endif %}
+        {% if p_mother.status == 'passed' %}<div class="fpar-status" style="background:#F3F4F6;color:#6B7280">🕊️ Passed{% if p_mother.death_date %} {{ p_mother.death_date|date:"Y" }}{% endif %}</div>{% else %}<div class="fpar-status" style="background:#F0FDF4;color:#16A34A">💚 Living</div>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
   </div>
   {% endif %}
 
-  <!-- ── CHILDREN ── -->
+  <!-- ══ CHILDREN ══ -->
   {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
-  {% if mtype == 'son' or mtype == 'daughter' %}
-  {% if h_members or w_members %}
-  <div class="fh-card" style="padding:0;overflow:hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #F1F5F9">
-      <div style="font-size:13px;font-weight:800;color:#0F172A">👶 Children</div>
-      <div style="display:flex;gap:8px">
-        <a href="/community/family/setup/?step=6" style="background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none">✏️ Edit</a>
-        <a href="/community/family/create/?type=son&side=husband" style="background:#F0FDF4;color:#16A34A;border:1.5px solid #BBF7D0;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none">＋ Add</a>
-      </div>
-    </div>
-    <div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px">
-      {% for m in h_members %}
-      <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:10px;text-decoration:none;background:#F8FAFC;border-radius:12px;padding:10px 12px;border:1px solid #E2E8F0;flex:1;min-width:140px">
-        <div style="width:38px;height:38px;border-radius:10px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;flex-shrink:0">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}{{ icon }}{% endif %}</div>
-        <div><div style="font-size:13px;font-weight:700;color:#0F172A">{{ m.name }}</div><div style="font-size:11px;color:#64748B">{% if m.age %}Age {{ m.age }}{% else %}{{ label }}{% endif %}</div></div>
-      </a>
-      {% endfor %}
-    </div>
+  {% if mtype == 'son' or mtype == 'daughter' %}{% if h_members or w_members %}
+  <div class="fh-sec-lbl">👶 Children
+    <a href="/community/family/setup/?step=6" style="font-size:10px;font-weight:700;color:#4F46E5;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:8px;padding:3px 8px;text-decoration:none;text-transform:none;letter-spacing:0">✏️ Edit</a>
+    <a href="/community/family/create/?type=son&side=husband" style="font-size:10px;font-weight:700;color:#16A34A;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:8px;padding:3px 8px;text-decoration:none;text-transform:none;letter-spacing:0">＋ Add</a>
   </div>
-  {% endif %}
-  {% endif %}
+  <div class="fmem-strip" style="margin-bottom:14px">
+    {% for m in h_members %}
+    <a href="/community/family/member/{{ m.pk }}/" class="fmem-item" style="text-decoration:none">
+      <div class="fmem-photo" onclick="event.preventDefault();openImg('{% if m.photo %}{{ m.photo.url }}{% endif %}','{{ icon }}')">
+        {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% else %}{{ icon }}{% endif %}
+      </div>
+      <div class="fmem-name">{{ m.name }}</div>
+      <div class="fmem-sub">{% if m.age %}Age {{ m.age }}{% else %}{{ label }}{% endif %}</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}{% endif %}
   {% endfor %}
 
-  <!-- ── PETS ── -->
+  <!-- ══ PETS ══ -->
   {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
   {% if mtype == 'pet' and h_members %}
-  <div class="fh-card" style="padding:0;overflow:hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #F1F5F9">
-      <div style="font-size:13px;font-weight:800;color:#0F172A">🐾 Pets</div>
-      <div style="display:flex;gap:8px">
-        <a href="/community/family/setup/?step=7" style="background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none">✏️ Edit</a>
-        <a href="/community/family/create/?type=pet&side=husband" style="background:#F0FDF4;color:#16A34A;border:1.5px solid #BBF7D0;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none">＋ Add</a>
+  <div class="fh-sec-lbl">🐾 Pets
+    <a href="/community/family/setup/?step=7" style="font-size:10px;font-weight:700;color:#4F46E5;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:8px;padding:3px 8px;text-decoration:none;text-transform:none;letter-spacing:0">✏️ Edit</a>
+  </div>
+  <div class="fmem-strip" style="margin-bottom:14px">
+    {% for m in h_members %}
+    <a href="/community/family/member/{{ m.pk }}/" class="fmem-item" style="text-decoration:none">
+      <div class="fmem-photo" style="background:#FFF7ED" onclick="event.preventDefault();openImg('{% if m.photo %}{{ m.photo.url }}{% endif %}','🐾')">
+        {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% else %}🐾{% endif %}
       </div>
-    </div>
-    <div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:12px">
-      {% for m in h_members %}
-      <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:10px;text-decoration:none;background:#F8FAFC;border-radius:12px;padding:10px 12px;border:1px solid #E2E8F0;flex:1;min-width:140px">
-        <div style="width:38px;height:38px;border-radius:10px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;flex-shrink:0">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}🐾{% endif %}</div>
-        <div><div style="font-size:13px;font-weight:700;color:#0F172A">{{ m.name }}</div><div style="font-size:11px;color:#64748B">{{ m.species|default:"Pet" }}</div></div>
-      </a>
-      {% endfor %}
-    </div>
+      <div class="fmem-name">{{ m.name }}</div>
+      <div class="fmem-sub">{{ m.species|default:"Pet" }}</div>
+    </a>
+    {% endfor %}
   </div>
   {% endif %}
   {% endfor %}
 
-  <!-- ── RELATIVES (all types) ── -->
+  <!-- ══ OTHER RELATIVES (preview) ══ -->
   {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
   {% if mtype != 'son' and mtype != 'daughter' and mtype != 'pet' and mtype != 'father' and mtype != 'mother' %}
   {% if h_members or w_members %}
-  <div class="fh-card" style="padding:0;overflow:hidden;margin-bottom:12px">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #F1F5F9">
-      <div style="font-size:13px;font-weight:800;color:#0F172A">{{ icon }} {{ label }}</div>
-      <a href="/community/family/" onclick="event.preventDefault();showFlow('relatives',document.querySelectorAll('.fh-maintab')[1])" style="background:#EEF2FF;color:#4F46E5;border:1.5px solid #C7D2FE;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;text-decoration:none">View All</a>
-    </div>
-    <div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px">
-      {% for m in h_members %}
-      <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:10px;text-decoration:none;background:#F8FAFC;border-radius:12px;padding:10px 12px;border:1px solid #E0E7FF;flex:1;min-width:130px">
-        <div style="width:40px;height:40px;border-radius:11px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}{{ icon }}{% endif %}</div>
-        <div>
-          <div style="font-size:12px;font-weight:800;color:#0F172A">{{ m.name }}</div>
-          <div style="font-size:10px;color:#6366F1;font-weight:700">{{ label }}</div>
-          {% if m.occupation %}<div style="font-size:10px;color:#64748B">{{ m.occupation }}</div>{% elif m.village %}<div style="font-size:10px;color:#64748B">{{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">Age {{ m.age }}</div>{% endif %}
-        </div>
-      </a>
-      {% endfor %}
-      {% for m in w_members %}
-      <a href="/community/family/member/{{ m.pk }}/" style="display:flex;align-items:center;gap:10px;text-decoration:none;background:#FFF7FB;border-radius:12px;padding:10px 12px;border:1px solid #FBCFE8;flex:1;min-width:130px">
-        <div style="width:40px;height:40px;border-radius:11px;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:1.4rem;overflow:hidden;flex-shrink:0">{% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover">{% else %}{{ icon }}{% endif %}</div>
-        <div>
-          <div style="font-size:12px;font-weight:800;color:#0F172A">{{ m.name }}</div>
-          <div style="font-size:10px;color:#BE185D;font-weight:700">{{ label }}</div>
-          {% if m.occupation %}<div style="font-size:10px;color:#64748B">{{ m.occupation }}</div>{% elif m.village %}<div style="font-size:10px;color:#64748B">{{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">Age {{ m.age }}</div>{% endif %}
-        </div>
-      </a>
-      {% endfor %}
-    </div>
+  <div class="fh-sec-lbl">{{ icon }} {{ label }}
+    <a href="#" onclick="event.preventDefault();showFlow('relatives',document.querySelectorAll('.fh-maintab')[1])" style="font-size:10px;font-weight:700;color:#4F46E5;background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:8px;padding:3px 8px;text-decoration:none;text-transform:none;letter-spacing:0">View All</a>
   </div>
-  {% endif %}
-  {% endif %}
+  <div class="fmem-strip" style="margin-bottom:14px">
+    {% for m in h_members %}
+    <a href="/community/family/member/{{ m.pk }}/" class="fmem-item" style="text-decoration:none">
+      <div class="fmem-photo" onclick="event.preventDefault();openImg('{% if m.photo %}{{ m.photo.url }}{% endif %}','{{ icon }}')">
+        {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% else %}{{ icon }}{% endif %}
+      </div>
+      <div class="fmem-name">{{ m.name }}</div>
+      <div class="fmem-sub" style="color:#6366F1">{{ label }}</div>
+    </a>
+    {% endfor %}
+    {% for m in w_members %}
+    <a href="/community/family/member/{{ m.pk }}/" class="fmem-item" style="text-decoration:none">
+      <div class="fmem-photo" style="box-shadow:0 2px 8px rgba(190,24,93,.12)" onclick="event.preventDefault();openImg('{% if m.photo %}{{ m.photo.url }}{% endif %}','{{ icon }}')">
+        {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% else %}{{ icon }}{% endif %}
+      </div>
+      <div class="fmem-name">{{ m.name }}</div>
+      <div class="fmem-sub" style="color:#BE185D">{{ label }}</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}{% endif %}
   {% endfor %}
 
-  {% if request.GET.setup_done %}
-  <div style="background:#ECFDF5;border:1.5px solid #6EE7B7;border-radius:16px;padding:16px;margin-bottom:12px;text-align:center">
-    <div style="font-size:1.8rem;margin-bottom:6px">🎉</div>
-    <div style="font-size:15px;font-weight:800;color:#059669;margin-bottom:4px">Family Circle set up!</div>
-    <div style="font-size:12px;color:#374151;margin-bottom:14px">Now complete your circle by adding more members.</div>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-      <a href="/community/family/setup/?step=8" style="background:#4F46E5;color:#fff;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none">👴 Add Grands</a>
-      <button onclick="showFlow('relatives',document.querySelectorAll('.fh-maintab')[0])" style="background:#7C3AED;color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer">🤝 Add Relatives & Friends</button>
-    </div>
-  </div>
-  {% endif %}
+
+  </div><!-- /main padding -->
 
 {% else %}
   <div class="fh-empty">
@@ -326,152 +393,98 @@ function shareFamily(){
 
 
 <!-- ════════════════════════════════
-     FLOW 2 — RELATIVES & FRIENDS
+     FLOW 2 — RELATIVES
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-relatives">
-
-  <!-- RELATIVES — split layout -->
   <div id="tab-relatives-relatives">
-    {% if setup.setup_done %}
+    {% if setup and setup.setup_done %}
+    <div style="padding:16px 16px 100px">
 
-    <!-- Two-column split -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
+    <!-- ── ADD RELATIVE INLINE PANEL ── -->
+    <div style="background:#fff;border-radius:20px;border:1px solid #E0E7FF;margin-bottom:18px;overflow:visible">
+      <div style="padding:14px 16px;background:#F8FAFF;border-bottom:1px solid #E0E7FF;font-size:12px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em">＋ Add Relative</div>
 
-      <!-- LEFT: My Side -->
-      <div>
-        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          👤 {{ setup.self_full_name|default:"My Side" }}
-        </div>
-        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-
-          {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
-          {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
-          {% for m in h_members %}
-          <div style="background:#fff;border-radius:14px;border:1px solid #E0E7FF;margin-bottom:10px;overflow:hidden">
-            <a href="/community/family/member/{{ m.pk }}/" style="display:block;text-decoration:none">
-              <!-- Photo banner -->
-              <div style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);height:70px;display:flex;align-items:center;justify-content:center;position:relative">
-                {% if m.photo %}
-                <img src="{{ m.photo.url }}" style="width:60px;height:60px;border-radius:14px;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,70,229,.2)" alt="">
-                {% else %}
-                <div style="width:60px;height:60px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(79,70,229,.2)">{{ icon }}</div>
-                {% endif %}
-                <div style="position:absolute;top:6px;left:8px;background:#4F46E5;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.04em">{{ label }}</div>
-              </div>
-              <!-- Details -->
-              <div style="padding:10px 12px">
-                <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ m.name }}</div>
-                {% if m.occupation %}<div style="font-size:10px;color:#6366F1;font-weight:700;margin-bottom:2px">💼 {{ m.occupation }}</div>{% endif %}
-                {% if m.village %}<div style="font-size:10px;color:#64748B">📍 {{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">🎂 Age {{ m.age }}</div>{% endif %}
-              </div>
-            </a>
-            <div style="padding:0 12px 10px;display:flex;gap:6px">
-              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#EEF2FF;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#4F46E5;cursor:pointer">🔗 Share</button>
-              <a href="/community/family/member/{{ m.pk }}/" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#374151;text-decoration:none">👁 View</a>
-            </div>
-          </div>
-          {% endfor %}
+      <!-- Step 1: Select person dropdown -->
+      <div style="padding:14px 16px;border-bottom:1px solid #F1F5F9">
+        <div style="font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:8px">Step 1 — Select whose relative</div>
+        <select id="relPersonSelect" onchange="relSelectPerson(this.value)"
+          style="width:100%;padding:11px 14px;border:2px solid #C7D2FE;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;color:#0F172A;background:#F8FAFF;outline:none;cursor:pointer;appearance:auto">
+          <option value="">-- Select --</option>
+          <option value="husband">{{ setup.self_full_name|default:"Me" }}</option>
+          {% if setup.marital_status == 'married' %}
+          <option value="wife">{{ setup.partner_full_name|default:"Partner" }}</option>
           {% endif %}
-          {% endfor %}
-
-          <!-- My side add dropdown -->
-          <div style="position:relative;margin-top:8px">
-            <button onclick="toggleDrop('drop-h')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer">＋ Add Relative ▾</button>
-            <div id="drop-h" style="display:none;position:absolute;z-index:200;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);overflow:hidden">
-              <div onclick="goAdd('grandfather','husband')" class="dditem">👴 Grandfather</div>
-              <div onclick="goAdd('grandmother','husband')" class="dditem">👵 Grandmother</div>
-              <div onclick="goAdd('brother','husband')" class="dditem">👱 Brother</div>
-              <div onclick="goAdd('sister','husband')" class="dditem">👱‍♀️ Sister</div>
-              <div onclick="goAdd('uncle','husband')" class="dditem">🧔 Uncle</div>
-              <div onclick="goAdd('aunt','husband')" class="dditem">👩‍🦳 Aunt</div>
-              <div onclick="goAdd('cousin','husband')" class="dditem">🧑 Cousin</div>
-            </div>
-          </div>
-        </div>
+        </select>
       </div>
 
-      <!-- RIGHT: Partner's Side -->
-      <div>
-        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          💑 {{ setup.partner_full_name|default:"Partner Side" }}
-        </div>
-        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-
-          {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
-          {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
-          {% for m in w_members %}
-          <div style="background:#fff;border-radius:14px;border:1px solid #FBCFE8;margin-bottom:10px;overflow:hidden">
-            <a href="/community/family/member/{{ m.pk }}/" style="display:block;text-decoration:none">
-              <div style="background:linear-gradient(135deg,#FCE7F3,#FBCFE8);height:70px;display:flex;align-items:center;justify-content:center;position:relative">
-                {% if m.photo %}
-                <img src="{{ m.photo.url }}" style="width:60px;height:60px;border-radius:14px;object-fit:cover;border:3px solid #fff;box-shadow:0 2px 8px rgba(190,24,93,.2)" alt="">
-                {% else %}
-                <div style="width:60px;height:60px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid #fff;box-shadow:0 2px 8px rgba(190,24,93,.2)">{{ icon }}</div>
-                {% endif %}
-                <div style="position:absolute;top:6px;left:8px;background:#BE185D;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.04em">{{ label }}</div>
-              </div>
-              <div style="padding:10px 12px">
-                <div style="font-size:13px;font-weight:800;color:#0F172A;margin-bottom:4px">{{ m.name }}</div>
-                {% if m.occupation %}<div style="font-size:10px;color:#BE185D;font-weight:700;margin-bottom:2px">💼 {{ m.occupation }}</div>{% endif %}
-                {% if m.village %}<div style="font-size:10px;color:#64748B">📍 {{ m.village }}</div>{% elif m.age %}<div style="font-size:10px;color:#64748B">🎂 Age {{ m.age }}</div>{% endif %}
-              </div>
-            </a>
-            <div style="padding:0 12px 10px;display:flex;gap:6px">
-              <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#FCE7F3;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#BE185D;cursor:pointer">🔗 Share</button>
-              <a href="/community/family/member/{{ m.pk }}/" style="flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:#F8FAFC;border:1px solid #FBCFE8;border-radius:8px;padding:7px;font-size:11px;font-weight:700;color:#374151;text-decoration:none">👁 View</a>
-            </div>
-          </div>
-          {% endfor %}
-          {% endif %}
-          {% endfor %}
-
-          <!-- Partner side add dropdown -->
-          <div style="position:relative;margin-top:8px">
-            <button onclick="toggleDrop('drop-w')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border:none;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer">＋ Add Relative ▾</button>
-            <div id="drop-w" style="display:none;position:absolute;z-index:200;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.15);overflow:hidden">
-              <div onclick="goAdd('grandfather','wife')" class="dditem">👴 Grandfather</div>
-              <div onclick="goAdd('grandmother','wife')" class="dditem">👵 Grandmother</div>
-              <div onclick="goAdd('brother','wife')" class="dditem">👱 Brother</div>
-              <div onclick="goAdd('sister','wife')" class="dditem">👱‍♀️ Sister</div>
-              <div onclick="goAdd('uncle','wife')" class="dditem">🧔 Uncle</div>
-              <div onclick="goAdd('aunt','wife')" class="dditem">👩‍🦳 Aunt</div>
-              <div onclick="goAdd('cousin','wife')" class="dditem">🧑 Cousin</div>
-            </div>
-          </div>
-        </div>
+      <!-- Step 2: Select relation (hidden until person selected) -->
+      <div id="relTypeRow" style="display:none;padding:14px 16px;border-bottom:1px solid #F1F5F9">
+        <div style="font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:8px">Step 2 — Select relation</div>
+        <select id="relTypeSelect" onchange="relPickType(_relSide, this.value)"
+          style="width:100%;padding:11px 14px;border:2px solid #C7D2FE;border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;color:#0F172A;background:#F8FAFF;outline:none;cursor:pointer;appearance:auto">
+          <option value="">-- Select relation --</option>
+          <option value="grandparents">Grandparents</option>
+          <option value="uncle">Uncle</option>
+          <option value="aunt">Aunty</option>
+          <option value="brother">Brother</option>
+          <option value="sister">Sister</option>
+          <option value="cousin">Cousin</option>
+          <option value="friend">Friend</option>
+          <option value="colleague">Colleague</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
-    </div><!-- /grid -->
+      <div id="grandSubRow" style="display:none"></div>
 
-    <script>
-    function toggleDrop(id){
-      const el = document.getElementById(id);
-      const isOpen = el.style.display === 'block';
-      document.querySelectorAll('[id^="drop-"]').forEach(d => d.style.display='none');
-      el.style.display = isOpen ? 'none' : 'block';
-    }
-    document.addEventListener('click', function(e){
-      if (!e.target.closest('[id^="drop-"]') && !e.target.closest('button[onclick^="toggleDrop"]')) {
-        document.querySelectorAll('[id^="drop-"]').forEach(d => d.style.display='none');
-      }
-    });
-    function goAdd(type, side){
-      window.location='/community/family/create/?type='+type+'&side='+side;
-    }
-    function shareVerify(pk, name){
-      var url = window.location.origin + '/community/family/member/' + pk + '/verify/';
-      var text = 'Are you ' + name + '? Confirm your family connection on OUR PINCODE.';
-      if(navigator.share){
-        navigator.share({title: text, url: url}).catch(function(){});
-      } else {
-        navigator.clipboard.writeText(url).then(function(){
-          var t = document.getElementById('shareToast');
-          t.style.display = 'block';
-          setTimeout(function(){ t.style.display='none'; }, 2500);
-        });
-      }
-    }
-    </script>
+      <!-- Dynamic form cards injected here -->
+      <div id="relFormsWrap"></div>
+    </div><!-- /add panel -->
+
+    <!-- ── RELATIVES LIST ── -->
+    <div id="relListWrap">
+      {% for mtype,label,icon,h_cnt,h_members,w_cnt,w_members in combined_rows %}
+      {% if mtype == 'grandfather' or mtype == 'grandmother' or mtype == 'uncle' or mtype == 'aunt' or mtype == 'cousin' or mtype == 'brother' or mtype == 'sister' %}
+
+      {% for m in h_members %}
+      <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;margin-bottom:10px;display:flex;align-items:center;gap:14px;padding:12px 14px">
+        <a href="/community/family/member/{{ m.pk }}/" style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;text-decoration:none;border:2px solid #C7D2FE">
+          {% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}
+        </a>
+        <a href="/community/family/member/{{ m.pk }}/" style="flex:1;min-width:0;text-decoration:none">
+          <div style="font-size:14px;font-weight:800;color:#0F172A">{{ m.name }}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">
+            <span style="font-size:10px;font-weight:700;color:#4F46E5;background:#EEF2FF;padding:2px 8px;border-radius:8px">{{ label }}</span>
+            <span style="font-size:10px;font-weight:600;color:#94A3B8">👤 My Side</span>
+          </div>
+          {% if m.occupation %}<div style="font-size:11px;color:#64748B;margin-top:3px">💼 {{ m.occupation }}</div>{% elif m.village %}<div style="font-size:11px;color:#64748B;margin-top:3px">📍 {{ m.village }}</div>{% endif %}
+        </a>
+        <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="width:34px;height:34px;border-radius:10px;background:#EEF2FF;border:none;font-size:14px;cursor:pointer;flex-shrink:0">🔗</button>
+      </div>
+      {% endfor %}
+
+      {% for m in w_members %}
+      <div style="background:#fff;border-radius:16px;border:1px solid #FBCFE8;margin-bottom:10px;display:flex;align-items:center;gap:14px;padding:12px 14px">
+        <a href="/community/family/member/{{ m.pk }}/" style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#FCE7F3;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;text-decoration:none;border:2px solid #FBCFE8">
+          {% if m.photo %}<img src="{{ m.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ icon }}{% endif %}
+        </a>
+        <a href="/community/family/member/{{ m.pk }}/" style="flex:1;min-width:0;text-decoration:none">
+          <div style="font-size:14px;font-weight:800;color:#0F172A">{{ m.name }}</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">
+            <span style="font-size:10px;font-weight:700;color:#BE185D;background:#FDF2F8;padding:2px 8px;border-radius:8px">{{ label }}</span>
+            <span style="font-size:10px;font-weight:600;color:#94A3B8">💑 Partner's Side</span>
+          </div>
+          {% if m.occupation %}<div style="font-size:11px;color:#64748B;margin-top:3px">💼 {{ m.occupation }}</div>{% elif m.village %}<div style="font-size:11px;color:#64748B;margin-top:3px">📍 {{ m.village }}</div>{% endif %}
+        </a>
+        <button onclick="shareVerify({{ m.pk }},'{{ m.name }}')" style="width:34px;height:34px;border-radius:10px;background:#FCE7F3;border:none;font-size:14px;cursor:pointer;flex-shrink:0">🔗</button>
+      </div>
+      {% endfor %}
+
+      {% endif %}
+      {% endfor %}
+    </div><!-- /relListWrap -->
+
+    </div>
     {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">👨‍👩‍👧</span>
@@ -481,7 +494,6 @@ function shareFamily(){
     </div>
     {% endif %}
   </div>
-
 </div><!-- /flow-relatives -->
 
 
@@ -489,44 +501,20 @@ function shareFamily(){
      FLOW 3 — FRIENDS
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-friends">
-  <div style="padding:16px">
+  <div style="padding:16px 16px 80px">
     {% if setup and setup.setup_done %}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
-
-      <!-- My Friends -->
-      <div>
-        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          👤 {{ setup.self_full_name|default:"My Side" }}
-        </div>
-        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-          {% for f in friends %}
-          <a href="#" style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:7px 8px;margin-bottom:6px;text-decoration:none;border:1px solid #E2E8F0">
-            <div style="width:32px;height:32px;border-radius:8px;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#4F46E5;flex-shrink:0;overflow:hidden">{% with p=f.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ f.get_full_name|default:f.username|first|upper }}{% endif %}{% endwith %}</div>
-            <div style="min-width:0"><div style="font-size:11px;font-weight:700;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ f.get_full_name|default:f.username }}</div><div style="font-size:10px;color:#64748B">📍 {{ f.pincode|default:"—" }}</div></div>
-          </a>
-          {% empty %}
-          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No friends yet</div>
-          {% endfor %}
-          <div style="margin-top:6px">
-            <button onclick="goAdd('friend','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 🤝 Add Friend</button>
-          </div>
-        </div>
+    <button onclick="goAdd('friend','')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:18px;font-family:inherit">＋ Add Friend</button>
+    {% for f in friends %}
+    <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;margin-bottom:10px;display:flex;align-items:center;gap:14px;padding:12px 14px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:#4F46E5;flex-shrink:0;overflow:hidden;border:2px solid #C7D2FE">{% with p=f.seeker %}{% if p and p.photo %}<img src="{{ p.photo.url }}" style="width:100%;height:100%;object-fit:cover" alt="">{% else %}{{ f.get_full_name|default:f.username|first|upper }}{% endif %}{% endwith %}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:800;color:#0F172A">{{ f.get_full_name|default:f.username }}</div>
+        <div style="font-size:11px;color:#64748B;margin-top:2px">📍 {{ f.pincode|default:"—" }}</div>
       </div>
-
-      <!-- Partner's Friends -->
-      <div>
-        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          💑 {{ setup.partner_full_name|default:"Partner Side" }}
-        </div>
-        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No friends yet</div>
-          <div style="margin-top:6px">
-            <button onclick="goAdd('friend','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 🤝 Add Friend</button>
-          </div>
-        </div>
-      </div>
-
     </div>
+    {% empty %}
+    <div style="text-align:center;padding:40px 20px;color:#94A3B8;font-size:13px">No friends added yet</div>
+    {% endfor %}
     {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">🤝</span>
@@ -543,37 +531,10 @@ function shareFamily(){
      FLOW 4 — COLLEAGUES
 ════════════════════════════════ -->
 <div class="fh-flow" id="flow-colleagues">
-  <div style="padding:16px">
+  <div style="padding:16px 16px 80px">
     {% if setup and setup.setup_done %}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
-
-      <!-- My Colleagues -->
-      <div>
-        <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          👤 {{ setup.self_full_name|default:"My Side" }}
-        </div>
-        <div style="background:#F8FAFC;border:1px solid #E0E7FF;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No colleagues yet</div>
-          <div style="margin-top:6px">
-            <button onclick="goAdd('other','husband')" style="display:flex;align-items:center;gap:5px;background:#EEF2FF;border:1.5px dashed #C7D2FE;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#4F46E5;cursor:pointer;width:100%">＋ 💼 Add Colleague</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Partner's Colleagues -->
-      <div>
-        <div style="background:linear-gradient(135deg,#BE185D,#EC4899);color:#fff;border-radius:14px 14px 0 0;padding:10px 12px;font-size:11px;font-weight:800;text-align:center;letter-spacing:.04em">
-          💑 {{ setup.partner_full_name|default:"Partner Side" }}
-        </div>
-        <div style="background:#FFF7FB;border:1px solid #FBCFE8;border-top:none;border-radius:0 0 14px 14px;padding:10px;min-height:60px">
-          <div style="font-size:10px;color:#94A3B8;text-align:center;padding:12px 0">No colleagues yet</div>
-          <div style="margin-top:6px">
-            <button onclick="goAdd('other','wife')" style="display:flex;align-items:center;gap:5px;background:#FCE7F3;border:1.5px dashed #FBCFE8;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:700;color:#BE185D;cursor:pointer;width:100%">＋ 💼 Add Colleague</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
+    <button onclick="goAdd('other','')" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:18px;font-family:inherit">＋ Add Colleague</button>
+    <div style="text-align:center;padding:40px 20px;color:#94A3B8;font-size:13px">No colleagues added yet</div>
     {% else %}
     <div class="fh-empty">
       <span class="fh-empty-icon">💼</span>
@@ -585,6 +546,106 @@ function shareFamily(){
   </div>
 </div><!-- /flow-colleagues -->
 
+
+<!-- ════════════════════════════════
+     FLOW 5 — FAMILY FLICK
+════════════════════════════════ -->
+<div class="fh-flow" id="flow-flick">
+  <div style="padding:16px 16px 80px">
+    {% if setup and setup.setup_done %}
+    <!-- Upload box -->
+    <div style="background:#fff;border-radius:20px;border:1px solid #E0E7FF;margin-bottom:18px;overflow:hidden">
+      <div style="padding:14px 16px;background:#F8FAFF;border-bottom:1px solid #E0E7FF;font-size:12px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em">📸 Add a Flick</div>
+      <div style="padding:14px 16px">
+        <div id="flickPreviewWrap" style="display:none;margin-bottom:10px">
+          <img id="flickPreviewImg" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px" alt="">
+          <video id="flickPreviewVid" style="width:100%;max-height:220px;border-radius:12px;display:none" controls></video>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+            <span style="font-size:1.8rem;margin-bottom:4px">📷</span>
+            <span style="font-size:12px;font-weight:700;color:#4F46E5">Photo</span>
+            <input type="file" id="flickPhotoInput" accept="image/*" style="display:none" onchange="flickPickPhoto(this)">
+          </label>
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+            <span style="font-size:1.8rem;margin-bottom:4px">🎥</span>
+            <span style="font-size:12px;font-weight:700;color:#7C3AED">Video</span>
+            <input type="file" id="flickVideoInput" accept="video/*" style="display:none" onchange="flickPickVideo(this)">
+          </label>
+        </div>
+        <input id="flickCaption" type="text" placeholder="Add a caption…" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px">
+        <button onclick="flickSave()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Share Flick</button>
+      </div>
+    </div>
+    <!-- Grid -->
+    <div id="flickGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+      {% for f in flicks %}
+      <div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF">
+        {% if f.video %}
+          <video src="{{ f.video.url }}" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>
+          <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>
+        {% else %}
+          <img src="{{ f.photo.url }}" style="width:100%;height:100%;object-fit:cover" onclick="openImg('{{ f.photo.url }}','📸')" alt="">
+        {% endif %}
+        {% if f.caption %}<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">{{ f.caption }}</div>{% endif %}
+      </div>
+      {% empty %}
+      <div style="grid-column:1/-1;text-align:center;padding:32px;color:#94A3B8;font-size:13px;font-weight:600">No flicks yet — share your first family photo!</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div><!-- /flow-flick -->
+
+
+<!-- ════════════════════════════════
+     FLOW 6 — FAMILY POST
+════════════════════════════════ -->
+<div class="fh-flow" id="flow-post">
+  <div style="padding:16px 16px 80px">
+    {% if setup and setup.setup_done %}
+    <!-- Compose box -->
+    <div style="background:#fff;border-radius:20px;border:1px solid #E0E7FF;margin-bottom:18px;overflow:hidden">
+      <div style="padding:14px 16px;background:#F8FAFF;border-bottom:1px solid #E0E7FF;font-size:12px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em">📝 New Post</div>
+      <div style="padding:14px 16px">
+        <textarea id="postText" placeholder="What's on your mind? Share a memory, update, or thought…" rows="3"
+          style="width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;resize:vertical;margin-bottom:10px"></textarea>
+        <div id="postPhotoPreviewWrap" style="display:none;margin-bottom:10px">
+          <img id="postPhotoPreviewImg" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px" alt="">
+        </div>
+        <div style="display:flex;gap:10px">
+          <label style="flex:1;padding:11px;border:1.5px solid #E2E8F0;border-radius:12px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#4F46E5;background:#EEF2FF">
+            📷 Add Photo
+            <input type="file" id="postPhotoInput" accept="image/*" style="display:none" onchange="postPhotoPreview(this)">
+          </label>
+          <button onclick="postSave()" style="flex:2;padding:11px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Post</button>
+        </div>
+      </div>
+    </div>
+    <!-- Feed -->
+    <div id="postFeed">
+      {% for p in posts %}
+      <div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;margin-bottom:14px;overflow:hidden">
+        <div style="padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F1F5F9">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0">
+            {% if setup.self_photo %}<img src="{{ setup.self_photo.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">{% else %}{{ setup.self_full_name|default:"Me"|slice:":1"|upper }}{% endif %}
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#0F172A">{{ setup.self_full_name|default:"Me" }}</div>
+            <div style="font-size:10px;color:#94A3B8">{{ p.created_at|timesince }} ago</div>
+          </div>
+        </div>
+        {% if p.photo %}<img src="{{ p.photo.url }}" style="width:100%;max-height:280px;object-fit:cover" alt="">{% endif %}
+        <div style="padding:12px 14px;font-size:14px;color:#1E293B;line-height:1.6">{{ p.text }}</div>
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:40px;color:#94A3B8;font-size:13px;font-weight:600">No posts yet — share your first family update!</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div><!-- /flow-post -->
+
 {% else %}
 <div class="fh-guest">
   <span class="fh-guest-icon">🏠</span>
@@ -595,11 +656,217 @@ function shareFamily(){
 {% endif %}
 
 <script>
+var _relType='other', _relSide='husband', _relNeedsSub=false, _relLabel='Relative', _relIcon='👤';
+
+var REL_TYPE_MAP = {uncle:'Uncle',aunt:'Aunty',brother:'Brother',sister:'Sister',cousin:'Cousin',friend:'Friend',colleague:'Colleague',other:'Other',grandfather:'Grandfather',grandmother:'Grandmother'};
+var _grandSide = 'husband';
+var _formCounter = 0;
+
+function relSelectPerson(side){
+  if(!side){ document.getElementById('relTypeRow').style.display='none'; return; }
+  _relSide = side;
+  var sel = document.getElementById('relPersonSelect');
+  if(sel){ sel.style.borderColor = side==='husband' ? '#4F46E5' : '#BE185D'; }
+  var list = document.getElementById('relTypeList');
+  if(list) list.style.borderColor = side==='husband' ? '#C7D2FE' : '#FBCFE8';
+  document.getElementById('relTypeRow').style.display='block';
+  document.getElementById('grandSubRow').style.display='none';
+  document.getElementById('relFormsWrap').innerHTML='';
+}
+
+function relPickType(side, type){
+  if(!type) return;
+  document.getElementById('relTypeRow').style.display='none';
+  document.getElementById('relTypeSelect').value='';
+  if(type==='grandparents'){
+    document.getElementById('grandSubRow').style.display='none';
+    relAddForm(side,'grandfather','Grandfather');
+    relAddForm(side,'grandmother','Grandmother');
+  } else {
+    document.getElementById('grandSubRow').style.display='none';
+    relAddForm(side, type, REL_TYPE_MAP[type]||'Relative');
+    if(type==='uncle') relAddForm(side,'aunt','Aunty');
+    else if(type==='aunt') relAddForm(side,'uncle','Uncle');
+  }
+}
+
+function relAddForm(side, type, label){
+  document.getElementById('grandSubRow').style.display='none';
+  document.getElementById('relTypeRow').style.display='none';
+  var gs = document.getElementById('grandTypeSelect'); if(gs) gs.value='';
+  var id = ++_formCounter;
+  var sideName = side==='husband' ? '{{ setup.self_full_name|default:"Me" }}' : '{{ setup.partner_full_name|default:"Partner" }}';
+  var accentColor = side==='husband' ? '#4F46E5' : '#BE185D';
+  var accentBg    = side==='husband' ? '#EEF2FF' : '#FDF2F8';
+  var html =
+    '<div id="rfc-'+id+'" style="border-top:1px solid #F1F5F9;padding:16px;background:#FAFBFF">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">' +
+        '<div style="font-size:12px;font-weight:800;color:'+accentColor+';text-transform:uppercase;letter-spacing:.06em">'+sideName+' — '+label+'</div>' +
+        '<button onclick="relRemoveForm('+id+')" style="background:none;border:none;color:#94A3B8;font-size:16px;cursor:pointer;padding:0;line-height:1">✕</button>' +
+      '</div>' +
+      /* Photo */
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+        '<div id="rph-'+id+'" onclick="document.getElementById(\'rpi-'+id+'\').click()" style="width:56px;height:56px;border-radius:50%;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.6rem;cursor:pointer;border:2px dashed #C7D2FE;overflow:hidden;flex-shrink:0">📷</div>' +
+        '<label for="rpi-'+id+'" style="background:'+accentBg+';color:'+accentColor+';border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer">Upload Photo</label>' +
+        '<input type="file" id="rpi-'+id+'" accept="image/*" style="display:none" onchange="relPhotoPreview(this,'+id+')">' +
+      '</div>' +
+      /* Name */
+      '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Full Name *</label>' +
+        '<input id="rname-'+id+'" type="text" placeholder="e.g. Rajan Kumar" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:14px;font-family:inherit;outline:none;color:#0F172A" onfocus="this.style.borderColor=\''+accentColor+'\'" onblur="this.style.borderColor=\'#E2E8F0\'"></div>' +
+      /* DOB + Occupation */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">' +
+        '<div><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Date of Birth</label><input id="rdob-'+id+'" type="date" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:13px;font-family:inherit;outline:none;color:#0F172A" onfocus="this.style.borderColor=\''+accentColor+'\'" onblur="this.style.borderColor=\'#E2E8F0\'"></div>' +
+        '<div><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Occupation</label><input id="rocc-'+id+'" type="text" placeholder="e.g. Farmer" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:13px;font-family:inherit;outline:none;color:#0F172A" onfocus="this.style.borderColor=\''+accentColor+'\'" onblur="this.style.borderColor=\'#E2E8F0\'"></div>' +
+      '</div>' +
+      /* Village + Phone */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">' +
+        '<div><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Village / Town</label><input id="rvil-'+id+'" type="text" placeholder="Native place" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:13px;font-family:inherit;outline:none;color:#0F172A" onfocus="this.style.borderColor=\''+accentColor+'\'" onblur="this.style.borderColor=\'#E2E8F0\'"></div>' +
+        '<div><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Phone</label><input id="rphn-'+id+'" type="tel" placeholder="Contact number" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:13px;font-family:inherit;outline:none;color:#0F172A" onfocus="this.style.borderColor=\''+accentColor+'\'" onblur="this.style.borderColor=\'#E2E8F0\'"></div>' +
+      '</div>' +
+      /* Status */
+      '<div style="display:flex;gap:9px;margin-bottom:10px">' +
+        '<label id="rsl-'+id+'" style="flex:1;border:2px solid #22C55E;border-radius:11px;padding:9px;text-align:center;cursor:pointer;background:#F0FDF4"><input type="radio" name="rstat-'+id+'" value="living" checked style="display:none" onchange="relStatChange('+id+',\'living\')"><span style="font-size:1.1rem;display:block">❤️</span><span style="font-size:11px;font-weight:700;color:#16A34A">Living</span></label>' +
+        '<label id="rsp-'+id+'" style="flex:1;border:2px solid #E2E8F0;border-radius:11px;padding:9px;text-align:center;cursor:pointer;background:#F8FAFC"><input type="radio" name="rstat-'+id+'" value="passed" style="display:none" onchange="relStatChange('+id+',\'passed\')"><span style="font-size:1.1rem;display:block">🕊️</span><span style="font-size:11px;font-weight:700;color:#64748B">Passed Away</span></label>' +
+      '</div>' +
+      '<div id="rdrow-'+id+'" style="display:none;margin-bottom:10px"><label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Date of Passing</label><input id="rdth-'+id+'" type="date" style="width:100%;padding:10px 13px;border:2px solid #E2E8F0;border-radius:11px;font-size:13px;font-family:inherit;outline:none;color:#0F172A"></div>' +
+      '<div id="rerr-'+id+'" style="display:none;color:#DC2626;font-size:12px;font-weight:600;margin-bottom:8px">Please enter a name</div>' +
+      '<button onclick="relSaveForm('+id+',\''+side+'\',\''+type+'\')" id="rsavebtn-'+id+'" style="width:100%;padding:12px;background:linear-gradient(135deg,'+accentColor+',#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Save</button>' +
+    '</div>';
+  var isFirst = document.getElementById('relFormsWrap').children.length === 0;
+  document.getElementById('relFormsWrap').insertAdjacentHTML('beforeend', html);
+  if(isFirst) setTimeout(function(){ var n=document.getElementById('rname-'+id); if(n){ n.focus(); n.scrollIntoView({behavior:'smooth',block:'start'}); } }, 80);
+}
+
+function relRemoveForm(id){ var el=document.getElementById('rfc-'+id); if(el) el.remove(); }
+
+function relPhotoPreview(input, id){
+  if(input.files&&input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){ var p=document.getElementById('rph-'+id); if(p) p.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">'; };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+
+function relStatChange(id, val){
+  var sl=document.getElementById('rsl-'+id), sp=document.getElementById('rsp-'+id), dr=document.getElementById('rdrow-'+id);
+  if(sl){ sl.style.borderColor=val==='living'?'#22C55E':'#E2E8F0'; sl.style.background=val==='living'?'#F0FDF4':'#F8FAFC'; }
+  if(sp){ sp.style.borderColor=val==='passed'?'#EF4444':'#E2E8F0'; sp.style.background=val==='passed'?'#FEF2F2':'#F8FAFC'; }
+  if(dr) dr.style.display=val==='passed'?'block':'none';
+}
+
+function relSaveForm(id, side, type){
+  var name=(document.getElementById('rname-'+id)||{}).value||''; name=name.trim();
+  if(!name){ var e=document.getElementById('rerr-'+id); if(e){e.style.display='block';e.textContent='Please enter a name';} return; }
+  var btn=document.getElementById('rsavebtn-'+id); if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  var status=(document.querySelector('input[name="rstat-'+id+'"]:checked')||{}).value||'living';
+  var fd=new FormData();
+  fd.append('name',name);
+  fd.append('member_type',type);
+  fd.append('side',side);
+  fd.append('dob',(document.getElementById('rdob-'+id)||{}).value||'');
+  fd.append('occupation',(document.getElementById('rocc-'+id)||{}).value||'');
+  fd.append('village',(document.getElementById('rvil-'+id)||{}).value||'');
+  fd.append('phone',(document.getElementById('rphn-'+id)||{}).value||'');
+  fd.append('status',status);
+  fd.append('death_date',(document.getElementById('rdth-'+id)||{}).value||'');
+  fd.append('csrfmiddlewaretoken',getCsrf());
+  var photoFiles=(document.getElementById('rpi-'+id)||{}).files;
+  if(photoFiles&&photoFiles[0]) fd.append('photo',photoFiles[0]);
+  fetch('/community/family/quick-add/',{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:fd})
+    .then(function(r){return r.json();}).then(function(d){
+      if(btn){btn.disabled=false;btn.textContent='✨ Save';}
+      if(d.ok){
+        relRemoveForm(id);
+        prependRelCard(d.pk,d.name,d.member_type,d.side,d.occupation,d.village);
+      } else {
+        var e=document.getElementById('rerr-'+id); if(e){e.style.display='block';e.textContent=d.error||'Error saving';}
+      }
+    }).catch(function(){
+      if(btn){btn.disabled=false;btn.textContent='✨ Save';}
+      var e=document.getElementById('rerr-'+id); if(e){e.style.display='block';e.textContent='Network error, try again';}
+    });
+}
+
+
+
+var REL_LABELS = {
+  grandfather:'Grandfather', grandmother:'Grandmother', uncle:'Uncle',
+  aunt:'Aunty', brother:'Brother', sister:'Sister', cousin:'Cousin', other:'Relative'
+};
+var REL_ICONS = {
+  grandfather:'👴', grandmother:'👵', uncle:'🧔', aunt:'👩‍🦳',
+  brother:'👱', sister:'👱‍♀️', cousin:'🧑', other:'👤'
+};
+
+function relShowStep(n){
+  ['relStep1','relStep2','relStep2b','relStep3'].forEach(function(id){
+    document.getElementById(id).style.display='none';
+  });
+  if(n==='2b') document.getElementById('relStep2b').style.display='block';
+  else document.getElementById('relStep'+n).style.display='block';
+}
+
+function getCsrf(){
+  var c=document.cookie.split(';');
+  for(var i=0;i<c.length;i++){
+    var p=c[i].trim().split('=');
+    if(p[0]==='csrftoken') return decodeURIComponent(p[1]);
+  }
+  return '';
+}
+
+function prependRelCard(pk, name, member_type, side, occupation, village){
+  var icon = REL_ICONS[member_type]||'👤';
+  var label = REL_LABELS[member_type]||'Relative';
+  var isMy = side==='husband';
+  var borderColor = isMy ? '#E0E7FF' : '#FBCFE8';
+  var badgeBg = isMy ? '#EEF2FF' : '#FDF2F8';
+  var badgeColor = isMy ? '#4F46E5' : '#BE185D';
+  var sideBadge = isMy ? '👤 My Side' : '💑 Partner\'s Side';
+  var html =
+    '<div id="relcard-'+pk+'" style="background:#fff;border-radius:16px;border:1px solid '+borderColor+';margin-bottom:10px;overflow:hidden;display:flex;align-items:center;gap:14px;padding:12px 14px">' +
+      '<a href="/community/family/member/'+pk+'/" style="width:52px;height:52px;border-radius:50%;overflow:hidden;background:#EEF2FF;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;text-decoration:none;border:2px solid #C7D2FE">'+icon+'</a>' +
+      '<a href="/community/family/member/'+pk+'/" style="flex:1;min-width:0;text-decoration:none">' +
+        '<div style="font-size:14px;font-weight:800;color:#0F172A">'+name+'</div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">' +
+          '<span style="font-size:10px;font-weight:700;color:'+badgeColor+';background:'+badgeBg+';padding:2px 8px;border-radius:8px">'+label+'</span>' +
+          '<span style="font-size:10px;font-weight:600;color:#94A3B8">'+sideBadge+'</span>' +
+        '</div>' +
+        (occupation ? '<div style="font-size:11px;color:#64748B;margin-top:3px">💼 '+occupation+'</div>' : (village ? '<div style="font-size:11px;color:#64748B;margin-top:3px">📍 '+village+'</div>' : '')) +
+      '</a>' +
+      '<button onclick="shareVerify('+pk+',\''+name.replace(/'/g,"\\'")+'\')" style="width:34px;height:34px;border-radius:10px;background:#EEF2FF;border:none;font-size:14px;cursor:pointer;flex-shrink:0">🔗</button>' +
+    '</div>';
+  var container = document.getElementById('relListWrap');
+  if(container) container.insertAdjacentHTML('afterbegin', html);
+}
+function shareVerify(pk, name){
+  var url = window.location.origin + '/community/family/member/' + pk + '/verify/';
+  if(navigator.share){ navigator.share({title:'Are you '+name+'? Confirm on OUR PINCODE.', url:url}).catch(function(){}); }
+  else { navigator.clipboard.writeText(url).then(function(){ var t=document.getElementById('shareToast'); t.style.display='block'; setTimeout(function(){t.style.display='none'},2500); }); }
+}
+function openImg(url, fallback){
+  var lb = document.getElementById('imgLightbox');
+  var img = document.getElementById('imgLightboxImg');
+  if(url && url.trim() && !url.startsWith('undefined')){
+    img.src = url; img.style.display='block';
+    lb.querySelector('.lb-emoji').style.display='none';
+  } else {
+    img.style.display='none';
+    lb.querySelector('.lb-emoji').textContent=fallback||'👤';
+    lb.querySelector('.lb-emoji').style.display='block';
+  }
+  lb.classList.add('open');
+}
 function showFlow(name, btn) {
   document.querySelectorAll('.fh-flow').forEach(function(f){ f.classList.remove('active'); });
   document.querySelectorAll('.fh-maintab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('flow-' + name).classList.add('active');
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+function showRelativesFlow() {
+  document.querySelectorAll('.fh-flow').forEach(function(f){ f.classList.remove('active'); });
+  document.querySelectorAll('.fh-maintab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('flow-relatives').classList.add('active');
 }
 
 function showTab(name, flow, btn) {
@@ -621,5 +888,218 @@ window.addEventListener('DOMContentLoaded', function(){
     if (e) e.style.display = 'none';
   }
 });
+
+/* ── FLICK ── */
+function flickPickPhoto(input){
+  if(input.files&&input.files[0]){
+    document.getElementById('flickVideoInput').value='';
+    var r=new FileReader();
+    r.onload=function(e){
+      var img=document.getElementById('flickPreviewImg');
+      var vid=document.getElementById('flickPreviewVid');
+      img.src=e.target.result; img.style.display='block';
+      vid.style.display='none';
+      document.getElementById('flickPreviewWrap').style.display='block';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+function flickPickVideo(input){
+  if(input.files&&input.files[0]){
+    var file=input.files[0];
+    var tmp=document.createElement('video');
+    tmp.preload='metadata';
+    tmp.onloadedmetadata=function(){
+      URL.revokeObjectURL(tmp.src);
+      if(tmp.duration>60){alert('Video must be 60 seconds or less.');input.value='';return;}
+      document.getElementById('flickPhotoInput').value='';
+      var vid=document.getElementById('flickPreviewVid');
+      var img=document.getElementById('flickPreviewImg');
+      vid.src=URL.createObjectURL(file); vid.style.display='block';
+      img.style.display='none';
+      document.getElementById('flickPreviewWrap').style.display='block';
+    };
+    tmp.src=URL.createObjectURL(file);
+  }
+}
+function flickSave(){
+  var photoInput=document.getElementById('flickPhotoInput');
+  var videoInput=document.getElementById('flickVideoInput');
+  var hasPhoto=photoInput.files&&photoInput.files[0];
+  var hasVideo=videoInput.files&&videoInput.files[0];
+  if(!hasPhoto&&!hasVideo){alert('Choose a photo or video first');return;}
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  if(hasPhoto) fd.append('photo',photoInput.files[0]);
+  if(hasVideo) fd.append('video',videoInput.files[0]);
+  fd.append('caption',document.getElementById('flickCaption').value);
+  fetch('/community/family/flick/add/',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.ok){alert(d.error||'Error');return;}
+      var grid=document.getElementById('flickGrid');
+      var empty=grid.querySelector('[style*="No flicks"]');
+      if(empty) empty.remove();
+      var div=document.createElement('div');
+      div.style.cssText='position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF';
+      if(d.is_video){
+        div.innerHTML='<video src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>'
+          +'<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>';
+      } else {
+        div.innerHTML='<img src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" onclick="openImg(\''+d.url+'\',\'📸\')" alt="">';
+      }
+      if(d.caption) div.innerHTML+='<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">'+d.caption+'</div>';
+      grid.insertAdjacentElement('afterbegin',div);
+      photoInput.value=''; videoInput.value='';
+      document.getElementById('flickCaption').value='';
+      document.getElementById('flickPreviewWrap').style.display='none';
+    });
+}
+
+/* ── POST ── */
+function postPhotoPreview(input){
+  if(input.files&&input.files[0]){
+    var r=new FileReader();
+    r.onload=function(e){
+      document.getElementById('postPhotoPreviewImg').src=e.target.result;
+      document.getElementById('postPhotoPreviewWrap').style.display='block';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+}
+function postSave(){
+  var text=document.getElementById('postText').value.trim();
+  if(!text){alert('Write something first');return;}
+  var fd=new FormData();
+  fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
+  fd.append('text',text);
+  var pi=document.getElementById('postPhotoInput');
+  if(pi.files&&pi.files[0]) fd.append('photo',pi.files[0]);
+  fetch('/community/family/post/add/',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.ok){alert(d.error||'Error');return;}
+      var feed=document.getElementById('postFeed');
+      var empty=feed.querySelector('[style*="No posts"]');
+      if(empty) empty.remove();
+      var photoHtml=d.photo_url?'<img src="'+d.photo_url+'" style="width:100%;max-height:280px;object-fit:cover" alt="">':'';
+      var html='<div style="background:#fff;border-radius:16px;border:1px solid #E0E7FF;margin-bottom:14px;overflow:hidden">'
+        +'<div style="padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #F1F5F9">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0">Me</div>'
+        +'<div><div style="font-size:13px;font-weight:800;color:#0F172A">{{ setup.self_full_name|default:"Me" }}</div>'
+        +'<div style="font-size:10px;color:#94A3B8">Just now</div></div></div>'
+        +photoHtml
+        +'<div style="padding:12px 14px;font-size:14px;color:#1E293B;line-height:1.6">'+d.text+'</div></div>';
+      feed.insertAdjacentHTML('afterbegin',html);
+      document.getElementById('postText').value='';
+      pi.value='';
+      document.getElementById('postPhotoPreviewWrap').style.display='none';
+    });
+}
 </script>
+
+<!-- Lightbox -->
+<div id="imgLightbox" onclick="this.classList.remove('open')" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <img id="imgLightboxImg" src="" alt="" style="max-width:100%;max-height:90vh;border-radius:16px;object-fit:contain">
+  <div class="lb-emoji" style="display:none;font-size:6rem;line-height:1"></div>
+</div>
+<style>#imgLightbox.open{display:flex!important}</style>
+
+<!-- Add Relative Bottom-Sheet -->
+<div id="addRelModal" style="display:none;position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.5)" onclick="if(event.target===this)closeAddRel()">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;padding:20px 20px 40px;max-width:520px;margin:0 auto">
+    <div style="width:40px;height:4px;background:#E2E8F0;border-radius:4px;margin:0 auto 20px"></div>
+
+    <!-- STEP 1: Side -->
+    <div id="relStep1">
+      <div style="font-size:17px;font-weight:900;color:#0F172A;margin-bottom:6px;text-align:center">Add a Relative</div>
+      <div style="font-size:13px;color:#64748B;text-align:center;margin-bottom:20px">Whose side are they on?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <button onclick="chooseSide('husband')" style="border:2px solid #C7D2FE;border-radius:16px;padding:18px 12px;background:#F8FAFF;cursor:pointer;text-align:center">
+          <div style="font-size:2.2rem;margin-bottom:8px">👤</div>
+          <div style="font-size:14px;font-weight:800;color:#4F46E5">My Relative</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:3px">{{ setup.self_full_name|default:"Me" }}</div>
+        </button>
+        <button onclick="chooseSide('wife')" style="border:2px solid #FBCFE8;border-radius:16px;padding:18px 12px;background:#FFF8FB;cursor:pointer;text-align:center">
+          <div style="font-size:2.2rem;margin-bottom:8px">💑</div>
+          <div style="font-size:14px;font-weight:800;color:#BE185D">Partner's Relative</div>
+          <div style="font-size:11px;color:#94A3B8;margin-top:3px">{{ setup.partner_full_name|default:"Partner" }}</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Relation Type -->
+    <div id="relStep2" style="display:none">
+      <button onclick="relShowStep(1)" style="background:none;border:none;color:#4F46E5;font-size:13px;font-weight:700;cursor:pointer;padding:0;margin-bottom:16px">← Back</button>
+      <div style="font-size:17px;font-weight:900;color:#0F172A;margin-bottom:4px;text-align:center">Who are they?</div>
+      <div style="font-size:12px;color:#94A3B8;text-align:center;margin-bottom:18px">Choose their relation</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="chooseType('grandparents')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;background:#F8FAFC;cursor:pointer;text-align:center;font-family:inherit">
+          <div style="font-size:1.8rem;margin-bottom:6px">👴👵</div>
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Grandparents</div>
+        </button>
+        <button onclick="chooseType('uncle')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;background:#F8FAFC;cursor:pointer;text-align:center;font-family:inherit">
+          <div style="font-size:1.8rem;margin-bottom:6px">🧔</div>
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Uncle</div>
+        </button>
+        <button onclick="chooseType('aunt')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;background:#F8FAFC;cursor:pointer;text-align:center;font-family:inherit">
+          <div style="font-size:1.8rem;margin-bottom:6px">👩‍🦳</div>
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Aunty</div>
+        </button>
+        <button onclick="chooseType('siblings')" style="border:2px solid #E2E8F0;border-radius:14px;padding:16px 10px;background:#F8FAFC;cursor:pointer;text-align:center;font-family:inherit">
+          <div style="font-size:1.8rem;margin-bottom:6px">👫</div>
+          <div style="font-size:14px;font-weight:800;color:#0F172A">Siblings</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2b: Sub-type (Grandparents / Siblings) -->
+    <div id="relStep2b" style="display:none">
+      <button onclick="relShowStep(2)" style="background:none;border:none;color:#4F46E5;font-size:13px;font-weight:700;cursor:pointer;padding:0;margin-bottom:16px">← Back</button>
+      <div style="font-size:17px;font-weight:900;color:#0F172A;margin-bottom:4px;text-align:center" id="relSubTitle">Choose</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px" id="relSubOptions"></div>
+    </div>
+
+    <!-- STEP 3: Name -->
+    <div id="relStep3" style="display:none">
+      <button onclick="relShowStep(_relNeedsSub?'2b':'2')" style="background:none;border:none;color:#4F46E5;font-size:13px;font-weight:700;cursor:pointer;padding:0;margin-bottom:16px">← Back</button>
+      <div style="font-size:17px;font-weight:900;color:#0F172A;margin-bottom:4px;text-align:center" id="relStep3Title">Enter Name</div>
+      <div style="font-size:12px;color:#94A3B8;text-align:center;margin-bottom:18px" id="relStep3Sub"></div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Full Name *</label>
+        <input id="relNameInput" type="text" placeholder="e.g. Rajan Kumar" style="width:100%;padding:13px 14px;border:2px solid #E2E8F0;border-radius:14px;font-size:15px;font-family:inherit;outline:none;color:#0F172A;transition:.2s" onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'" onkeydown="if(event.key==='Enter')quickSave()">
+      </div>
+      <div id="relNameErr" style="display:none;color:#DC2626;font-size:12px;font-weight:600;margin-bottom:10px">Please enter a name</div>
+      <button onclick="quickSave()" id="relAddBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">＋ Add</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block site_bottom_nav %}
+<style>
+.fh-botnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 16px rgba(0,0,0,.08);z-index:998;padding:6px 0 4px}
+.fh-botnav-inner{display:flex;align-items:flex-end;justify-content:space-around;max-width:640px;margin:0 auto}
+.fh-bn{display:flex;flex-direction:column;align-items:center;gap:3px;color:#888;text-decoration:none;font-size:10px;font-weight:600;flex:1;padding:6px 4px;position:relative}
+.fh-bn i{font-size:19px}
+.fh-bn-fab{margin-top:-22px}
+@media(max-width:768px){.fh-botnav{display:block}}
+</style>
+<nav class="fh-botnav">
+  <div class="fh-botnav-inner">
+    <a href="/community/family/" class="fh-bn" style="color:#7c3aed"><i class="fas fa-user-plus"></i><span>Add Relative</span></a>
+    <a href="/advertise/" class="fh-bn">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#ef4444;color:#fff;font-size:7px;font-weight:900;clip-path:polygon(50% 0%,54% 7%,61% 2%,63% 10%,71% 6%,71% 14%,79% 12%,77% 20%,86% 20%,82% 27%,91% 29%,85% 35%,93% 39%,86% 44%,93% 50%,86% 56%,93% 61%,85% 65%,91% 71%,82% 73%,86% 80%,77% 80%,79% 88%,71% 86%,71% 94%,63% 90%,61% 98%,54% 93%,50% 100%,46% 93%,39% 98%,37% 90%,29% 94%,29% 86%,21% 88%,23% 80%,14% 80%,18% 73%,9% 71%,15% 65%,7% 61%,14% 56%,7% 50%,14% 44%,7% 39%,15% 35%,9% 29%,18% 27%,14% 20%,23% 20%,21% 12%,29% 14%,29% 6%,37% 10%,39% 2%,46% 7%);box-shadow:0 2px 8px rgba(239,68,68,.4)">OFFER</span>
+      <span>Offers</span>
+    </a>
+    <a href="#" onclick="var btn=document.querySelector('.fh-maintab[onclick*=flick]');if(btn){showFlow('flick',btn);window.scrollTo({top:0,behavior:'smooth'});}return false;" class="fh-bn fh-bn-fab">
+      <div style="width:48px;height:48px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(124,58,237,.35)">
+        <img src="/static/images/reel.png" style="width:100%;height:100%;object-fit:cover;display:block">
+      </div>
+      <span>Flick</span>
+    </a>
+    <a href="/vouchers/marketplace/" class="fh-bn"><span style="font-size:22px;line-height:1">🎁</span><span>Voucher</span></a>
+    <a href="/jobs/" class="fh-bn"><span style="font-size:22px;line-height:1">🔍</span><span>Jobs</span></a>
+  </div>
+</nav>
 {% endblock %}

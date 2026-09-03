@@ -47,6 +47,7 @@
             <select name="join_mode" class="pform-input">
               <option value="open" {% if community.join_mode == 'open' %}selected{% endif %}>Open — Anyone can join</option>
               <option value="approval" {% if community.join_mode == 'approval' %}selected{% endif %}>Admin Approval Required</option>
+              <option value="private" {% if community.join_mode == 'private' %}selected{% endif %}>Private — Invite Only</option>
             </select>
           </div>
         </div>

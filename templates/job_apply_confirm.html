@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Apply – {{ job.title }}{% endblock %}
+{% block extra_css %}
+<style>
+.qac-wrap{max-width:620px;margin:32px auto;padding:0 16px}
+.qac-card{background:#fff;border-radius:16px;box-shadow:0 2px 16px rgba(0,0,0,.10);padding:32px}
+.qac-job-title{font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:4px}
+.qac-company{font-size:14px;color:#555;margin-bottom:20px}
+.qac-profile{background:#f0f7ff;border-radius:12px;padding:20px;margin-bottom:24px}
+.qac-profile h4{font-size:13px;font-weight:700;color:#0a66c2;margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
+.qac-row{display:flex;gap:8px;margin-bottom:10px;font-size:13px}
+.qac-label{color:#888;min-width:120px;font-weight:600}
+.qac-val{color:#222;font-weight:500}
+.qac-resume-note{font-size:12px;color:#059669;font-weight:600;margin-bottom:14px}
+.qac-actions{display:flex;gap:12px;flex-wrap:wrap}
+.qac-btn-apply{flex:1;padding:14px;background:#0a66c2;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;min-width:160px}
+.qac-btn-apply:hover{background:#084e96}
+.qac-btn-edit{padding:14px 20px;background:#f3f4f6;color:#333;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.qac-link-full{font-size:13px;color:#0a66c2;text-align:center;margin-top:14px;display:block}
+.qac-note{font-size:12px;color:#888;margin-top:8px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="qac-wrap">
+  <div class="qac-card">
+    <p class="qac-job-title">{{ job.title }}</p>
+    <p class="qac-company">
+      <i class="fas fa-building" style="color:#0a66c2"></i>
+      {% if job.posted_by.user_type == 'company' and job.posted_by.company %}
+        {{ job.posted_by.company.company_name }}
+      {% else %}{{ job.posted_by.get_full_name|default:job.posted_by.username }}{% endif %}
+      &nbsp;·&nbsp;<i class="fas fa-map-marker-alt"></i> {{ job.location }}
+    </p>
+
+    <div class="qac-profile">
+      <h4><i class="fas fa-user-check"></i> &nbsp;Applying with your saved profile</h4>
+      <div class="qac-row"><span class="qac-label">Name</span><span class="qac-val">{{ user.get_full_name|default:user.username }}</span></div>
+      <div class="qac-row"><span class="qac-label">Phone</span><span class="qac-val">{{ user.phone }}</span></div>
+      {% if seeker.experience %}<div class="qac-row"><span class="qac-label">Experience</span><span class="qac-val">{{ seeker.experience }}</span></div>{% endif %}
+      {% if seeker.education %}<div class="qac-row"><span class="qac-label">Qualification</span><span class="qac-val">{{ seeker.education }}</span></div>{% endif %}
+      {% if seeker.primary_skill %}<div class="qac-row"><span class="qac-label">Primary Skill</span><span class="qac-val">{{ seeker.primary_skill }}</span></div>{% endif %}
+      {% if seeker.skills %}<div class="qac-row"><span class="qac-label">Other Skills</span><span class="qac-val">{{ seeker.skills }}</span></div>{% endif %}
+      {% if seeker.salary_min %}<div class="qac-row"><span class="qac-label">Expected Salary</span><span class="qac-val">₹{{ seeker.salary_min }}/month</span></div>{% endif %}
+      {% if seeker.resume %}
+      <p class="qac-resume-note"><i class="fas fa-paperclip"></i> Resume on file — <a href="{{ seeker.resume.url }}" target="_blank">view</a></p>
+      {% endif %}
+    </div>
+
+    <form method="POST" action="/jobs/{{ job.pk }}/apply/">
+      {% csrf_token %}
+      <!-- carry profile data directly -->
+      <input type="hidden" name="quick_apply" value="1">
+      <textarea name="cover_note" rows="3" placeholder="Add a short note to the employer (optional)"
+        style="width:100%;padding:12px;border:1.5px solid #ddd;border-radius:10px;font-size:14px;resize:vertical;margin-bottom:16px;outline:none;box-sizing:border-box"></textarea>
+
+      <div class="qac-actions">
+        <button type="submit" class="qac-btn-apply"><i class="fas fa-paper-plane"></i> Apply Now</button>
+        <a href="/profile/edit/" class="qac-btn-edit"><i class="fas fa-edit"></i> Update Profile</a>
+      </div>
+      <p class="qac-note">Your profile details will be shared with the employer.</p>
+    </form>
+
+    <a href="/jobs/{{ job.pk }}/apply/?full=1" class="qac-link-full">Fill detailed application instead →</a>
+  </div>
+</div>
+{% endblock %}

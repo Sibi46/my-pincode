@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Marketing — OurPincode</title>
+  <link rel="stylesheet" href="/static/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/static/fonts/poppins/poppins.css">
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;background:#e5ddd5;color:#111;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+
+  /* Story top bar */
+  .story-bar{background:#075e54;color:#fff;padding:0 14px;height:56px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+  .story-bar-back{font-size:20px;color:#fff;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:.2s}
+  .story-bar-back:hover{background:rgba(255,255,255,.1)}
+  .story-bar-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .story-bar-info{flex:1;min-width:0}
+  .story-bar-name{font-size:14px;font-weight:800;line-height:1.1}
+  .story-bar-sub{font-size:11px;color:rgba(255,255,255,.75)}
+
+  /* Chat area */
+  .chat-area{padding:12px 14px;max-width:700px;margin:0 auto}
+  .msg-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:10px}
+  .msg-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0a66c2,#004182);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .bubble{background:#fff;border-radius:0 14px 14px 14px;padding:10px 13px 8px;max-width:88%;box-shadow:0 1px 3px rgba(0,0,0,.1);position:relative}
+  .bubble-tail{position:absolute;top:0;left:-7px;width:0;height:0;border-top:9px solid #fff;border-left:9px solid transparent}
+  .bubble-sender{font-size:12px;font-weight:800;color:#0a66c2;margin-bottom:5px}
+  .bubble p{font-size:13px;color:#222;line-height:1.55;margin-bottom:6px}
+  .bubble p:last-child{margin-bottom:0}
+  .bubble-time{font-size:10px;color:#aaa;text-align:right;margin-top:4px}
+
+  /* Blue banner inside bubble */
+  .inner-banner{background:linear-gradient(135deg,#0a66c2,#004182);border-radius:10px;padding:16px 14px;margin-bottom:10px;text-align:center;color:#fff}
+  .inner-banner .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:3px 12px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+  .inner-banner h2{font-size:22px;font-weight:900;letter-spacing:-.3px;margin-bottom:4px}
+  .inner-banner .sub{font-size:13px;font-weight:700;opacity:.9}
+
+  /* Feature card */
+  .feature-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+  .feature-card .ico{font-size:24px;flex-shrink:0;margin-top:2px}
+  .feature-card .ft{font-size:14px;font-weight:800;color:#111;margin-bottom:3px}
+  .feature-card .fd{font-size:12px;color:#555;line-height:1.5}
+
+  /* Package cards */
+  .pkg-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:8px}
+  .pkg{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:5px solid #0a66c2;position:relative}
+  .pkg-popular{position:absolute;top:10px;right:12px;background:#059669;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase}
+  .pkg-name{font-size:11px;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+  .pkg-price{font-size:24px;font-weight:900;color:#111;line-height:1;margin-bottom:2px}
+  .pkg-price span{font-size:12px;font-weight:600;color:#6b7280}
+  .pkg-term{font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:10px}
+  .pkg li{font-size:12px;color:#374151;padding:4px 0;display:flex;gap:6px;border-bottom:1px solid #f3f4f6}
+  .pkg li:last-child{border:none}
+  .pkg li .ck{color:#059669;font-weight:800}
+
+  /* Platform cards */
+  .platform-card{border-radius:14px;padding:16px;margin-bottom:8px}
+  .platform-card .plabel{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+  .platform-card .pname{font-size:18px;font-weight:900;margin-bottom:2px}
+  .platform-card .purl{font-size:11px;font-weight:600;margin-bottom:8px}
+  .platform-card p{font-size:12px;line-height:1.6;color:#374151}
+  .platform-card .tagline{font-size:11px;font-weight:700;font-style:italic;margin-top:8px}
+
+  /* Philosophy */
+  .philosophy{background:#0f172a;border-radius:14px;padding:18px;margin-bottom:8px}
+  .philosophy h3{font-size:17px;font-weight:900;color:#fff;line-height:1.3;margin-bottom:10px}
+  .philosophy p{font-size:12px;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:12px}
+  .phil-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);border-radius:8px;padding:9px 12px;margin-bottom:6px}
+  .phil-item span{font-size:12px;font-weight:700;color:#fff}
+
+  /* CTA bubble (right side - own message style) */
+  .msg-row-right{display:flex;justify-content:flex-end;margin-bottom:10px}
+  .bubble-right{background:#dcf8c6;border-radius:14px 0 14px 14px;padding:10px 13px 8px;max-width:88%;box-shadow:0 1px 3px rgba(0,0,0,.1);position:relative}
+  .bubble-right-tail{position:absolute;top:0;right:-7px;width:0;height:0;border-top:9px solid #dcf8c6;border-right:9px solid transparent}
+  </style>
+</head>
+<body>
+
+<!-- Story top bar -->
+<div class="story-bar">
+  <a href="/" class="story-bar-back"><i class="fas fa-arrow-left"></i></a>
+  <div class="story-bar-avatar">📣</div>
+  <div class="story-bar-info">
+    <div class="story-bar-name">Smart Marketing</div>
+    <div class="story-bar-sub">OurPincode.com · Official</div>
+  </div>
+  <a href="tel:9632410050" style="color:#fff;font-size:20px;padding:8px"><i class="fas fa-phone"></i></a>
+</div>
+
+<!-- Chat messages -->
+<div class="chat-area">
+
+  <!-- Intro bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="bubble-sender">Smart Marketing · OurPincode</div>
+      <div class="inner-banner">
+        <div class="badge">Powered by OURPINCODE.COM</div>
+        <h2>SMART MARKETING</h2>
+        <div class="sub">Helping Local Businesses Grow 🚀</div>
+      </div>
+      <p><strong>SMART MARKETING</strong> introduces <strong>OURPINCODE.COM</strong> — a unique platform that combines <strong>marketing, local promotion, and business resources</strong> to help your business attract more customers and grow faster.</p>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- Customer nearby bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="feature-card" style="background:#eff6ff;border-radius:10px;padding:12px 14px;margin-bottom:4px;display:flex;gap:10px">
+        <span style="font-size:22px">📍</span>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px">Your Next Customer is Already Nearby!</div>
+          <div style="font-size:12px;color:#555;line-height:1.5">Over <strong>80% of your customers</strong> live within a <strong>3km radius</strong> of your business. Reach them for <strong>less than ₹3/person/month</strong>.</div>
+        </div>
+      </div>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- Packages bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="bubble-sender">Our Packages</div>
+      <div class="pkg-grid">
+        <div class="pkg" style="border-left-color:#dc2626">
+          <div class="pkg-name">PROMO</div>
+          <div class="pkg-price">₹3,999<span>/month</span></div>
+          <div class="pkg-term">3-Month Plan</div>
+          <ul style="list-style:none;padding:0">
+            <li><span class="ck">✓</span> 5,000 Coupon Distribution</li>
+            <li><span class="ck">✓</span> 1 Month Ad on OURPINCODE.COM</li>
+          </ul>
+        </div>
+        <div class="pkg" style="border-left-color:#059669">
+          <div class="pkg-popular">Popular</div>
+          <div class="pkg-name">PROMO DIGITAL</div>
+          <div class="pkg-price">₹9,999<span>/month</span></div>
+          <div class="pkg-term">3-Month Plan</div>
+          <ul style="list-style:none;padding:0">
+            <li><span class="ck">✓</span> Everything in Promo</li>
+            <li><span class="ck">✓</span> Instagram Business Setup</li>
+            <li><span class="ck">✓</span> 15 AI Social Media Posts/Month</li>
+          </ul>
+        </div>
+        <div class="pkg" style="border-left-color:#0a66c2">
+          <div class="pkg-name">PROMO DIGITAL PLUS</div>
+          <div class="pkg-price">₹14,999<span>/month</span></div>
+          <div class="pkg-term">3-Month Plan</div>
+          <ul style="list-style:none;padding:0">
+            <li><span class="ck">✓</span> Everything in Promo Digital</li>
+            <li><span class="ck">✓</span> 2 AI Promo Reels/Month</li>
+          </ul>
+        </div>
+      </div>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- Why bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="bubble-sender">Why Smart Marketing?</div>
+      <p>✅ Affordable Local Marketing<br>✅ AI-Powered Content<br>✅ Consistent Brand Promotion<br>✅ Measurable Local Reach<br>✅ Dedicated Marketing Partner</p>
+      <p style="margin-top:6px;color:#374151">You run your business. <strong>We bring you customers.</strong></p>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- EVOXU header bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="bubble-sender">About EVOXU Pvt Ltd</div>
+      <p style="font-size:15px;font-weight:900;color:#0f172a;margin-bottom:2px">EVOXU Pvt Ltd</p>
+      <p style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:6px">Bengaluru, Karnataka, India</p>
+      <p>A Bengaluru-based marketing and venture-building company creating innovative digital platforms around communities, markets and opportunities.</p>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- Platforms bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="bubble-sender">Our Platforms</div>
+      <div class="platform-card" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1.5px solid #bfdbfe">
+        <div class="plabel" style="color:#1d4ed8">Platform 01</div>
+        <div class="pname" style="color:#1e3a8a">OUR PINCODE</div>
+        <div class="purl" style="color:#1d4ed8">www.ourpincode.com</div>
+        <p>A hyperlocal community and business platform built around the PINCODE — connecting families, businesses, schools, professionals and opportunities in your area.</p>
+        <div class="tagline" style="color:#1d4ed8">Your Pincode. Your Community. Your Opportunities.</div>
+      </div>
+      <div class="platform-card" style="background:linear-gradient(135deg,#fdf4ff,#f3e8ff);border:1.5px solid #e9d5ff">
+        <div class="plabel" style="color:#7c3aed">Platform 02</div>
+        <div class="pname" style="color:#4c1d95">111111 PERFUMES</div>
+        <div class="purl" style="color:#7c3aed">www.111111perfumes.com</div>
+        <p>An innovative fragrance concept built around manifestation, personal rituals and symbolic numbers — combining fragrance, identity, community and digital commerce.</p>
+        <div class="tagline" style="color:#7c3aed">A Fragrance. A Ritual. A Belief.</div>
+      </div>
+      <div class="platform-card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #bbf7d0">
+        <div class="plabel" style="color:#059669">Platform 03</div>
+        <div class="pname" style="color:#064e3b">AGROZS</div>
+        <div class="purl" style="color:#059669">www.agrozs.com</div>
+        <p>An agriculture-focused ecosystem connecting farmers, agripreneurs, buyers, resources and markets — making agriculture more connected, entrepreneurial and market-driven.</p>
+        <div class="tagline" style="color:#059669">From Farm to Market. From Farmer to Entrepreneur.</div>
+      </div>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- Philosophy bubble -->
+  <div class="msg-row">
+    <div class="msg-avatar">📣</div>
+    <div class="bubble">
+      <div class="bubble-tail"></div>
+      <div class="philosophy">
+        <div style="font-size:10px;font-weight:800;color:#f97316;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Our Philosophy</div>
+        <h3>Community is the market.<br>The Pincode is the connection.</h3>
+        <p>We believe the future of marketing is not simply about advertising — it is about creating communities, connecting people and building markets around innovative ideas.</p>
+        <div class="phil-item"><span>🏘️ Community Building</span></div>
+        <div class="phil-item"><span>💻 Digital Platform Development</span></div>
+        <div class="phil-item"><span>🎯 Market Activation</span></div>
+        <div class="phil-item"><span>🤝 Partnerships &amp; Ecosystem</span></div>
+      </div>
+      <p style="font-size:11px;color:#aaa;margin-top:4px">Bengaluru, Karnataka, India · EVOXU Pvt Ltd</p>
+      <div class="bubble-time">✓✓</div>
+    </div>
+  </div>
+
+  <!-- CTA - right side (own message style) -->
+  <div class="msg-row-right">
+    <div class="bubble-right">
+      <div class="bubble-right-tail"></div>
+      <p style="font-size:13px;color:#111;margin-bottom:8px">Ready to grow your business? 🚀</p>
+      <a href="tel:9632410050" style="display:flex;align-items:center;gap:8px;background:#075e54;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:6px">
+        <i class="fas fa-phone"></i> Call Now: 9632410050
+      </a>
+      <a href="/advertise/register/" style="display:flex;align-items:center;gap:8px;background:#0a66c2;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700">
+        <i class="fas fa-bullhorn"></i> Register Your Business
+      </a>
+      <div style="font-size:10px;color:#aaa;text-align:right;margin-top:4px">✓✓</div>
+    </div>
+  </div>
+
+  <div style="height:24px"></div>
+</div>
+
+</body>
+</html>

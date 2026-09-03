@@ -72,6 +72,14 @@ function loadEmployerForm(type) {
     if (!m) return;
     const c = BADGE_COLORS[m.badge] || BADGE_COLORS.blue;
 
+    // Skip phone step — go directly to company details
+    var sub1 = document.getElementById('emp-substep1');
+    var sub2 = document.getElementById('emp-substep2');
+    if (sub1 && sub2) {
+        sub1.classList.add('hidden');
+        sub2.classList.remove('hidden');
+    }
+
     document.getElementById('emp-user-type-input').value = type;
     document.getElementById('emp-type-label').textContent = m.label;
     document.getElementById('emp-type-icon').className    = 'fas ' + m.icon;
@@ -149,19 +157,7 @@ function sendOTP(prefix) {
     })
     .then(function(r) { return r.json(); })
     .then(function(d) {
-        if (d.exists) {
-            // Already registered — show inline password sign-in
-            btn.textContent = 'Continue';
-            btn.disabled = false;
-            if (errDiv) {
-                errDiv.style.display = 'flex';
-            } else {
-                alert('This phone number is already registered. Please sign in.');
-                window.location.href = '/login/';
-            }
-            return;
-        }
-        // New number — skip OTP, go directly to details/password step
+        // Always proceed to next step regardless of whether phone exists
         btn.textContent = 'Continue ✓';
         btn.classList.add('sent');
         btn.disabled = true;
@@ -171,7 +167,6 @@ function sendOTP(prefix) {
             sub1.classList.add('hidden');
             sub2.classList.remove('hidden');
         } else {
-            // Fallback: hide otp box, show verified badge
             var otpBox = document.getElementById(prefix + 'OtpBox');
             if (otpBox) otpBox.classList.add('hidden');
             var badge = document.getElementById(prefix + 'Verified');
@@ -321,13 +316,8 @@ function attachLivePhoneCheck(phoneInputId, errorDivId, otpBtnClass) {
         })
         .then(function (r) { return r.json(); })
         .then(function (d) {
-            if (d.exists) {
-                errDiv.style.display = 'flex';
-                if (btn) { btn.disabled = true; btn.textContent = 'Send OTP'; }
-            } else {
-                errDiv.style.display = 'none';
-                if (btn) btn.disabled = false;
-            }
+            errDiv.style.display = 'none';
+            if (btn) btn.disabled = false;
         })
         .catch(function () { /* silent — sendOTP will catch it */ });
     });

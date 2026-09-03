@@ -95,7 +95,7 @@
 
 .btn-join:hover { background: #004182; }
 
-.hamburger { display: none; cursor: pointer; font-size: 20px; color: #444; }
+.hamburger { display: none; cursor: pointer; font-size: 20px; color: #444; margin-left: auto; }
 
 .mobile-menu {
   display: none;

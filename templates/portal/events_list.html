@@ -70,41 +70,75 @@
 .ev-chip:hover:not(.on){border-color:#a5b4fc;color:#4f46e5}
 </style>
 
-<!-- Header -->
-<div class="ev-page-header">
-  <div>
-    <div class="ev-page-title">🗓 Events</div>
-    <div class="ev-page-sub">Discover what's happening in your communities</div>
-  </div>
-  {% if request.user.is_authenticated %}
-  <a href="/portal/events/create/" class="pbtn pbtn-primary" style="flex-shrink:0;font-size:12px;padding:8px 16px">
-    <i class="fas fa-plus"></i> Create
-  </a>
-  {% endif %}
-</div>
+<!-- Full Hero with search & tabs -->
+<style>
+.ev-full-hero{position:relative;overflow:hidden;margin-bottom:20px}
+.ev-full-hero img{width:100%;height:340px;object-fit:cover;object-position:center;display:block}
+.ev-full-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(5,5,30,0.45) 0%,rgba(5,5,30,0.82) 100%)}
+.ev-full-hero-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 20px 20px}
+.ev-full-hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:auto;padding-top:4px}
+.ev-full-hero-title{font-size:26px;font-weight:900;color:#fff;line-height:1.2}
+.ev-full-hero-sub{font-size:12px;color:rgba(255,255,255,.75);margin-top:4px}
+.ev-full-search{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.ev-full-search input{flex:1;min-width:120px;padding:9px 14px;border:none;border-radius:10px;font-size:13px;outline:none;background:rgba(255,255,255,.95)}
+.ev-full-search button{background:#f97316;color:#fff;border:none;border-radius:10px;padding:9px 18px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+.ev-full-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.ev-full-tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;border:1.5px solid rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.12);white-space:nowrap;transition:.15s}
+.ev-full-tab.on{background:#f97316;border-color:#f97316;color:#fff}
+@media(max-width:600px){
+  .ev-full-hero img{height:260px}
+  .ev-full-hero-title{font-size:19px}
+  .ev-full-search input{font-size:12px;padding:8px 10px}
+  .ev-full-search button{font-size:12px;padding:8px 14px}
+}
+</style>
 
-<!-- Tabs -->
-<div class="ev-tabs">
-  <a href="?tab=upcoming{% if q %}&q={{ q }}{% endif %}{% if pincode %}&pincode={{ pincode }}{% endif %}" class="ev-tab {% if tab == 'upcoming' %}on{% endif %}">📅 Upcoming</a>
-  <a href="?tab=ongoing{% if q %}&q={{ q }}{% endif %}{% if pincode %}&pincode={{ pincode }}{% endif %}"  class="ev-tab {% if tab == 'ongoing' %}on{% endif %}">🔴 Live Now</a>
-  <a href="?tab=past{% if q %}&q={{ q }}{% endif %}{% if pincode %}&pincode={{ pincode }}{% endif %}"     class="ev-tab {% if tab == 'past' %}on{% endif %}">Past</a>
-  <a href="?tab=all{% if q %}&q={{ q }}{% endif %}{% if pincode %}&pincode={{ pincode }}{% endif %}"      class="ev-tab {% if tab == 'all' %}on{% endif %}">All</a>
-</div>
+<div class="ev-full-hero">
+  <img src="/static/images/events.jpg" alt="">
+  <div class="ev-full-hero-overlay"></div>
+  <div class="ev-full-hero-content">
+    <div class="ev-full-hero-top">
+      <div>
+        <div class="ev-full-hero-title">🗓 Events</div>
+        <div class="ev-full-hero-sub">Discover what's happening in your communities</div>
+      </div>
+      {% if request.user.is_authenticated %}
+      <a href="/portal/events/create/" class="pbtn pbtn-orange" style="font-size:11px;padding:7px 14px;flex-shrink:0;margin-left:10px">
+        <i class="fas fa-plus"></i> Create
+      </a>
+      {% endif %}
+    </div>
 
-<!-- Filters -->
-<form method="get">
-  <input type="hidden" name="tab" value="{{ tab }}">
-  <div class="ev-filters-row">
-    <input type="text" name="q" placeholder="🔍 Search events…" value="{{ q }}">
-    <input type="text" name="pincode" placeholder="📍 Pincode" value="{{ pincode }}" style="max-width:110px">
-    <a href="?tab={{ tab }}&mode=online{% if q %}&q={{ q }}{% endif %}"  class="ev-chip {% if mode == 'online' %}on{% endif %}">📹 Online</a>
-    <a href="?tab={{ tab }}&free=1{% if q %}&q={{ q }}{% endif %}"       class="ev-chip {% if free == '1' %}on{% endif %}">🎁 Free</a>
-    <button type="submit" class="pbtn pbtn-primary" style="font-size:12px;padding:7px 16px">Search</button>
-    {% if q or mode or free or pincode %}
-    <a href="?tab={{ tab }}" style="font-size:12px;color:#94a3b8;font-weight:700;text-decoration:none">✕ Clear</a>
-    {% endif %}
+    <!-- Search + Filters as dropdowns -->
+    <form method="get" style="width:100%">
+      <div class="ev-full-search">
+        <input type="text" name="q" placeholder="🔍 Search events…" value="{{ q }}">
+        <input type="text" name="pincode" placeholder="📍 Pincode" value="{{ pincode }}" style="max-width:100px">
+        <select name="tab" style="padding:9px 12px;border:none;border-radius:10px;font-size:13px;font-weight:700;background:rgba(255,255,255,.95);outline:none;cursor:pointer">
+          <option value="upcoming" {% if tab == 'upcoming' %}selected{% endif %}>📅 Upcoming</option>
+          <option value="ongoing"  {% if tab == 'ongoing'  %}selected{% endif %}>🔴 Live Now</option>
+          <option value="past"     {% if tab == 'past'     %}selected{% endif %}>📆 Past</option>
+          <option value="all"      {% if tab == 'all'      %}selected{% endif %}>📋 All</option>
+        </select>
+        <select name="filter" style="padding:9px 12px;border:none;border-radius:10px;font-size:13px;font-weight:700;background:rgba(255,255,255,.95);outline:none;cursor:pointer">
+          <option value="">🎯 Filter</option>
+          <option value="online" {% if mode == 'online' %}selected{% endif %}>📹 Online</option>
+          <option value="free"   {% if free == '1'      %}selected{% endif %}>🎁 Free</option>
+        </select>
+        <button type="submit">Search</button>
+      </div>
+      <input type="hidden" name="mode" id="modeInput" value="{{ mode }}">
+      <input type="hidden" name="free" id="freeInput" value="{{ free }}">
+    </form>
+    <script>
+    document.querySelector('select[name="filter"]').addEventListener('change', function(){
+      var v = this.value;
+      document.getElementById('modeInput').value = v === 'online' ? 'online' : '';
+      document.getElementById('freeInput').value = v === 'free' ? '1' : '';
+    });
+    </script>
   </div>
-</form>
+</div>
 
 <!-- Grid — same columns as community list -->
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">

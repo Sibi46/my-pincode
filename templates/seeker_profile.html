@@ -541,24 +541,66 @@ function showTab(name, btnEl) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── Photo preview ────────────────────────────────────────────────────
-function previewPhoto(input) {
-  if (!input.files || !input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const el = document.querySelector('.sp-avatar');
-    if (el.tagName === 'IMG') {
-      el.src = e.target.result;
-    } else {
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      img.className = 'sp-avatar';
-      img.alt = 'Profile photo';
-      el.replaceWith(img);
-    }
-  };
-  reader.readAsDataURL(input.files[0]);
+// ── Photo crop & preview ─────────────────────────────────────────────
+let _cropImg=new Image(),_cropX=0,_cropY=0,_cropScale=1,_cropDragging=false,_cropLx=0,_cropLy=0,_cropOrigFile=null,_cropInput=null;
+function previewPhoto(input){
+  if(!input.files||!input.files[0])return;
+  _cropInput=input; _cropOrigFile=input.files[0];
+  const url=URL.createObjectURL(_cropOrigFile);
+  _cropImg=new Image(); _cropImg.onload=function(){_fitCrop();_drawCrop();document.getElementById('crop-modal').style.display='flex';};
+  _cropImg.src=url;
 }
+function _fitCrop(){
+  const cv=document.getElementById('crop-canvas');
+  const s=Math.max(cv.width/_cropImg.naturalWidth,cv.height/_cropImg.naturalHeight);
+  _cropScale=s; _cropX=(cv.width-_cropImg.naturalWidth*s)/2; _cropY=(cv.height-_cropImg.naturalHeight*s)/2;
+  document.getElementById('crop-zoom').value=1;
+}
+function _drawCrop(){
+  const cv=document.getElementById('crop-canvas'),ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(_cropImg,_cropX,_cropY,_cropImg.naturalWidth*_cropScale,_cropImg.naturalHeight*_cropScale);
+  ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.save(); ctx.beginPath(); ctx.arc(cv.width/2,cv.height/2,cv.width/2,0,Math.PI*2); ctx.clip();
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(_cropImg,_cropX,_cropY,_cropImg.naturalWidth*_cropScale,_cropImg.naturalHeight*_cropScale);
+  ctx.restore();
+}
+function _cropApply(){
+  const out=document.createElement('canvas'); out.width=300; out.height=300;
+  const ctx=out.getContext('2d'),cv=document.getElementById('crop-canvas');
+  const r=300/cv.width;
+  ctx.beginPath(); ctx.arc(150,150,150,0,Math.PI*2); ctx.clip();
+  ctx.drawImage(_cropImg,_cropX*r,_cropY*r,_cropImg.naturalWidth*_cropScale*r,_cropImg.naturalHeight*_cropScale*r);
+  out.toBlob(function(blob){
+    const file=new File([blob],'photo.png',{type:'image/png'});
+    const dt=new DataTransfer(); dt.items.add(file); _cropInput.files=dt.files;
+    const url=URL.createObjectURL(blob);
+    const el=document.querySelector('.sp-avatar');
+    if(el.tagName==='IMG'){el.src=url;}
+    else{const img=document.createElement('img');img.src=url;img.className='sp-avatar';img.alt='Profile photo';el.replaceWith(img);}
+    document.getElementById('crop-modal').style.display='none';
+  },'image/png');
+}
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    const cv=document.getElementById('crop-canvas');
+    if(!cv)return;
+    cv.addEventListener('mousedown',function(e){_cropDragging=true;_cropLx=e.clientX;_cropLy=e.clientY;cv.style.cursor='grabbing';});
+    document.addEventListener('mousemove',function(e){if(!_cropDragging)return;_cropX+=e.clientX-_cropLx;_cropY+=e.clientY-_cropLy;_cropLx=e.clientX;_cropLy=e.clientY;_drawCrop();});
+    document.addEventListener('mouseup',function(){_cropDragging=false;cv.style.cursor='grab';});
+    cv.addEventListener('touchstart',function(e){_cropDragging=true;_cropLx=e.touches[0].clientX;_cropLy=e.touches[0].clientY;},{passive:true});
+    cv.addEventListener('touchmove',function(e){if(!_cropDragging)return;_cropX+=e.touches[0].clientX-_cropLx;_cropY+=e.touches[0].clientY-_cropLy;_cropLx=e.touches[0].clientX;_cropLy=e.touches[0].clientY;_drawCrop();e.preventDefault();},{passive:false});
+    cv.addEventListener('touchend',function(){_cropDragging=false;});
+    document.getElementById('crop-zoom').addEventListener('input',function(){
+      const cv2=document.getElementById('crop-canvas'),cx=cv2.width/2,cy=cv2.height/2;
+      const base=Math.max(cv2.width/_cropImg.naturalWidth,cv2.height/_cropImg.naturalHeight);
+      const oldS=_cropScale,newS=base*parseFloat(this.value);
+      _cropX=cx-(cx-_cropX)*newS/oldS; _cropY=cy-(cy-_cropY)*newS/oldS;
+      _cropScale=newS; _drawCrop();
+    });
+  });
+})();
 
 // ── Tag input (Skills / Roles) ───────────────────────────────────────
 function handleTagKey(e, field) {
@@ -918,6 +960,25 @@ function renderPrefPinTags() {
 .bn-fab-flick{background:linear-gradient(135deg,#7c3aed,#0a66c2);box-shadow:0 4px 14px rgba(124,58,237,.4)}
 body{padding-bottom:62px}
 </style>
+
+<!-- Crop Modal -->
+<div id="crop-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#1a1a2e;border-radius:20px;padding:20px;max-width:340px;width:100%;text-align:center">
+    <div style="font-size:15px;font-weight:800;color:#fff;margin-bottom:14px">Adjust Photo</div>
+    <div style="position:relative;display:inline-block;margin-bottom:14px">
+      <canvas id="crop-canvas" width="280" height="280" style="border-radius:50%;display:block;cursor:grab;touch-action:none"></canvas>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:0 8px">
+      <i class="fa-solid fa-magnifying-glass-minus" style="color:#aaa;font-size:13px"></i>
+      <input type="range" id="crop-zoom" min="0.5" max="3" step="0.01" value="1" style="flex:1;accent-color:#4f46e5">
+      <i class="fa-solid fa-magnifying-glass-plus" style="color:#aaa;font-size:13px"></i>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('crop-modal').style.display='none'" style="flex:1;padding:11px;border-radius:12px;border:1.5px solid #555;background:none;color:#ccc;font-weight:700;cursor:pointer;font-size:13px">Cancel</button>
+      <button onclick="_cropApply()" style="flex:1;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:800;cursor:pointer;font-size:13px">Use Photo</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 

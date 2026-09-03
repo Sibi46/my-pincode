@@ -91,6 +91,15 @@
 
 <div class="ev-body">
 
+{% if join_required %}
+<div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:14px;padding:14px 18px;margin-bottom:16px;font-size:14px;color:#92400e;font-weight:600">
+  <i class="fas fa-exclamation-circle"></i>
+  Please join
+  <a href="/portal/c/{{ join_required.page_id }}/" style="color:#4f46e5;font-weight:800;text-decoration:underline">{{ join_required.name }}</a>
+  community first to register for this event.
+</div>
+{% endif %}
+
 <!-- Meta chips -->
 <div class="ev-meta-row">
   <div class="ev-meta-chip"><i class="fas fa-calendar-alt"></i> {{ event.date|date:"D, d M Y" }}{% if event.end_date %} – {{ event.end_date|date:"d M" }}{% endif %}</div>
@@ -123,6 +132,7 @@
         {% if registration.status == 'approved' %}
         <div style="display:flex;flex-direction:column;gap:4px">
           <span style="background:rgba(255,255,255,.15);color:#fff;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700">✅ You're going!</span>
+          <a href="/portal/my/events/" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;text-align:center;border:1px solid rgba(255,255,255,.2)">📅 My Events</a>
           {% if registration.answers_list %}
           <div style="margin-top:6px;display:flex;flex-direction:column;gap:3px">
             {% for q, ans in registration.answers_list %}{% if ans %}
@@ -255,10 +265,14 @@
   <div class="ev-sect-body">
     <div class="ev-attendees">
       {% for p in attendees %}
+      {% if is_admin %}
+      <a href="/portal/member/{{ p.user.pk }}/" style="text-decoration:none;color:inherit" title="View profile">
+      {% endif %}
       <div class="ev-att">
-        <div class="ev-att-avatar">{{ p.user.get_full_name|default:p.user.username|slice:":2"|upper }}</div>
+        <div class="ev-att-avatar" style="{% if is_admin %}border:2px solid #4f46e5{% endif %}">{{ p.user.get_full_name|default:p.user.username|slice:":2"|upper }}</div>
         <div class="ev-att-name">{{ p.user.first_name|default:p.user.username }}</div>
       </div>
+      {% if is_admin %}</a>{% endif %}
       {% endfor %}
       {% if going_count > 20 %}
       <div class="ev-att">

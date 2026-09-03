@@ -186,7 +186,7 @@ select.pform-input{background:#fff}
   font-size:18px;transition:.15s;
 }
 .pbot-nav-item.active .pbot-icon{background:#ede9fe}
-.pbot-create .pbot-icon{background:#4f46e5;font-size:20px}
+.pbot-create .pbot-icon{background:linear-gradient(135deg,#4f46e5,#7c3aed);font-size:18px;width:44px;height:44px;border-radius:14px;box-shadow:0 4px 14px rgba(79,70,229,.45);margin-top:-8px;color:#fff}
 .pbot-create{color:#4f46e5}
 /* push content up on mobile */
 @media(max-width:900px){.pcontent{padding-bottom:80px}.pfooter{padding-bottom:80px}}
@@ -260,7 +260,6 @@ select.pform-input{background:#fff}
     <a href="/logout/" class="pbtn pnav-login" style="border:1.5px solid #e5e7eb">Logout</a>
   {% else %}
     <a href="/login/" class="pbtn pnav-login">Login</a>
-    <a href="/register/" class="pbtn pnav-create">Join Free</a>
   {% endif %}
   <div class="pnav-ham" onclick="document.getElementById('pmob').classList.toggle('open')">
     <i class="fas fa-bars"></i>
@@ -274,11 +273,11 @@ select.pform-input{background:#fff}
   <a href="/portal/videos/"><i class="fas fa-video" style="color:#7c3aed;width:18px"></i> Videos</a>
   {% if user.is_authenticated %}
   <a href="/portal/my/communities/"><i class="fas fa-star" style="color:#f59e0b;width:18px"></i> My Communities</a>
+  <a href="/portal/my/events/"><i class="fas fa-calendar-check" style="color:#7c3aed;width:18px"></i> My Events</a>
   <a href="/portal/create/"><i class="fas fa-plus-circle" style="color:#1d4ed8;width:18px"></i> Create Community</a>
   <a href="/logout/"><i class="fas fa-sign-out-alt" style="color:#64748b;width:18px"></i> Logout</a>
   {% else %}
   <a href="/login/"><i class="fas fa-sign-in-alt" style="color:#1d4ed8;width:18px"></i> Login</a>
-  <a href="/register/"><i class="fas fa-user-plus" style="color:#059669;width:18px"></i> Join Free</a>
   {% endif %}
 </div>
 
@@ -445,7 +444,7 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
     <span>Flick</span>
   </a>
   <a href="/portal/create/" class="pbot-nav-item pbot-create">
-    <div class="pbot-icon">➕</div>
+    <div class="pbot-icon"><i class="fas fa-plus" style="color:#fff;font-size:18px"></i></div>
     <span>Create</span>
   </a>
   <a href="/portal/events/" class="pbot-nav-item {% if '/events' in request.path %}active{% endif %}">
@@ -455,15 +454,7 @@ document.querySelector('.u-share-fab').addEventListener('click', function(e){
 </nav>
 {% endblock %}
 
-<div class="pfooter">
-  <p>
-    <a href="/">OUR PINCODE</a>
-    <a href="/portal/">Communities</a>
-    <a href="/portal/events/">Events</a>
-    <a href="/about/">About</a>
-  </p>
-  <p style="margin-top:6px">© EVOXU Pvt Ltd — Don't just post. Participate.</p>
-</div>
+{% block portal_footer %}{% endblock %}
 
 {% block extra_js %}{% endblock %}
 <script>

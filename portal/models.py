@@ -32,7 +32,7 @@ class Category(models.Model):
 
 
 class Community(models.Model):
-    JOIN_MODES = [('open', 'Open Join'), ('approval', 'Admin Approval')]
+    JOIN_MODES = [('open', 'Open Join'), ('approval', 'Admin Approval'), ('private', 'Private — Invite Only')]
 
     name        = models.CharField(max_length=200)
     page_id     = models.CharField(max_length=25, unique=True, editable=False)

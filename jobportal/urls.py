@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/',                  admin.site.urls),
     path('',                        views.home,               name='home'),
     path('favicon.ico',             views.favicon,            name='favicon'),
+    path('api/pincode/<str:pin>/',  views.api_pincode_lookup, name='api_pincode_lookup'),
 
     # Auth
     path('register/',               views.register,           name='register'),
@@ -36,14 +37,18 @@ urlpatterns = [
     path('employer/dashboard/',        views.employer_dashboard,       name='employer_dashboard'),
     path('employer/profile/save/',     views.employer_profile_save,    name='employer_profile_save'),
     path('jobseeker/dashboard/',       views.jobseeker_dashboard, name='jobseeker_dashboard'),
-    path('jobseeker/profile/',         views.seeker_profile,      name='seeker_profile'),
+    path('jobseeker/profile/',                views.seeker_profile,        name='seeker_profile'),
+    path('jobseeker/profile/<int:pk>/',       views.view_applicant_profile, name='view_applicant_profile'),
     path('jobseeker/certificate/<int:cert_id>/delete/', views.seeker_cert_delete, name='seeker_cert_delete'),
 
 
     # Job Seeker Actions
     path('jobs/<int:pk>/save/',              views.save_job,              name='save_job'),
     path('jobs/saved/',                      views.saved_jobs,            name='saved_jobs'),
-    path('jobs/<int:pk>/withdraw/',          views.withdraw_application,  name='withdraw_application'),
+    path('jobs/<int:pk>/withdraw/',          views.withdraw_application,    name='withdraw_application'),
+    path('jobs/<int:pk>/close/',             views.close_job,               name='close_job'),
+    path('applications/<int:pk>/shortlist/', views.shortlist_application,   name='shortlist_application'),
+    path('applications/<int:pk>/reject/',    views.reject_application,      name='reject_application'),
 
     # Messaging
     path('messages/',                            views.chat_list,          name='chat_list'),
@@ -66,6 +71,7 @@ urlpatterns = [
     path('offer/download/<int:app_id>/',     views.download_offer_letter, name='download_offer_letter'),
 
     # Advertiser — Public
+    path('smart-marketing/',                  views.smart_marketing_story,    name='smart_marketing_story'),
     path('advertise/',                        views.ads_gallery,              name='ads_gallery'),
     path('advertise/register/',               views.advertiser_register,      name='advertiser_register'),
     path('advertise/success/',                views.advertiser_register_success, name='advertiser_register_success'),
@@ -80,6 +86,7 @@ urlpatterns = [
     path('advertiser/performance/<int:ad_id>/', views.ad_performance,         name='ad_performance'),
     path('advertiser/renew/<int:ad_id>/',     views.renew_ad,                 name='renew_ad'),
     path('ads/click/<int:ad_id>/',            views.ad_click_track,           name='ad_click_track'),
+    path('ads/adpost-click/<int:ad_id>/',     views.adpost_click_track,       name='adpost_click_track'),
 
     # Advertiser — Ad Panel (old admin)
     path('admin-panel/advertisers/',          views.admin_advertisers,          name='admin_advertisers'),

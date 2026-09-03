@@ -75,6 +75,7 @@ select.form-control{background:#fff}
             <label>Owner Name <span class="required">*</span></label>
             {{ form.owner_name }}
             {% if form.owner_name.errors %}<ul class="errorlist">{% for e in form.owner_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+            <script>document.addEventListener('DOMContentLoaded',function(){var f=document.querySelector('[name="owner_name"]');if(f&&!f.value)f.value='{{ request.user.get_full_name|default:request.user.username }}';})</script>
           </div>
         </div>
         <div class="form-row">
@@ -84,7 +85,7 @@ select.form-control{background:#fff}
             {% if form.category.errors %}<ul class="errorlist">{% for e in form.category.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           </div>
           <div class="form-group">
-            <label>Mobile Number <span class="required">*</span></label>
+            <label>Business Mobile No <span class="required">*</span></label>
             {{ form.mobile }}
             {% if form.mobile.errors %}<ul class="errorlist">{% for e in form.mobile.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           </div>

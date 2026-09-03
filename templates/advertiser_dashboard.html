@@ -65,17 +65,17 @@
     <i class="fas fa-check-circle" style="font-size:22px;color:#2e7d32;flex-shrink:0;margin-top:1px"></i>
     <div style="flex:1;min-width:200px">
       <div style="font-size:14px;font-weight:800;color:#1b5e20;margin-bottom:4px">Your banner is LIVE on the home page!</div>
-      <div style="font-size:12px;color:#2e7d32;margin-bottom:10px">Your ad is currently rotating in the home page slider at <a href="https://www.OURPINCODE.com" target="_blank" style="color:#0a66c2;font-weight:700">www.OURPINCODE.com</a></div>
+      <div style="font-size:12px;color:#2e7d32;margin-bottom:10px">Your ad is currently rotating in the home page slider at <a href="https://www.mypincod.com" target="_blank" style="color:#0a66c2;font-weight:700">www.mypincod.com</a></div>
       <img src="{{ adv.banner_image.url }}" alt="Your banner" style="max-width:280px;width:100%;height:80px;object-fit:cover;border-radius:8px;border:1px solid #c8e6c9;display:block">
     </div>
-    <a href="https://www.OURPINCODE.com" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#2e7d32;color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">
+    <a href="https://www.mypincod.com" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#2e7d32;color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;flex-shrink:0">
       <i class="fas fa-external-link-alt"></i> View Live
     </a>
   </div>
   {% elif adv.status == 'approved' %}
   <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">
     <i class="fas fa-image" style="font-size:18px;flex-shrink:0;margin-top:1px"></i>
-    <div><strong>Approved — no banner image yet.</strong> Contact admin to upload your banner image so it appears on the home page.</div>
+    <div><strong>Admin Approved successfully</strong> — {% if ads %}Post more ads to reach more customers!{% else %}Post your first ads!{% endif %}</div>
   </div>
   {% elif adv.status == 'pending' %}
   <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">
@@ -159,7 +159,8 @@
           {% if ad.pincode %}<div style="font-size:11px;color:#0369a1;font-weight:700;margin-bottom:4px"><i class="fas fa-map-marker-alt"></i> {{ ad.pincode }}</div>{% endif %}
           <div style="font-size:12px;color:#666;line-height:1.5;margin-bottom:8px">{{ ad.description|truncatechars:100 }}</div>
           <div style="display:flex;flex-wrap:wrap;gap:10px">
-            {% if ad.views %}<span style="font-size:12px;background:#f0f9ff;color:#0369a1;padding:4px 10px;border-radius:20px;font-weight:700"><i class="fas fa-eye"></i> {{ ad.views }} views</span>{% endif %}
+            <span style="font-size:12px;background:#f0f9ff;color:#0369a1;padding:4px 10px;border-radius:20px;font-weight:700"><i class="fas fa-eye"></i> {{ ad.views }} views</span>
+            <span style="font-size:12px;background:#fdf4ff;color:#7c3aed;padding:4px 10px;border-radius:20px;font-weight:700"><i class="fas fa-mouse-pointer"></i> {{ ad.clicks }} clicks</span>
             {% if ad.website %}<a href="{{ ad.website }}" target="_blank" style="font-size:12px;background:#f0fdf4;color:#15803d;padding:4px 10px;border-radius:20px;font-weight:700;text-decoration:none"><i class="fas fa-external-link-alt"></i> Visit Website</a>{% endif %}
             <span style="font-size:12px;color:#aaa"><i class="fas fa-clock"></i> Submitted {{ ad.created_at|date:"d M Y" }}</span>
           </div>

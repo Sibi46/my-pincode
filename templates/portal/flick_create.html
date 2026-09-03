@@ -52,9 +52,15 @@
           </select>
         </div>
 
+        <div class="pform-group">
+          <label class="pform-label">Title <span style="font-weight:400;color:#94a3b8">(max 60 chars)</span></label>
+          <input name="title" class="pform-input" type="text" placeholder="Give your flick a title…" maxlength="60" id="flickTitle" oninput="document.getElementById('titleCount').textContent=this.value.length+'/60'">
+          <div style="text-align:right;font-size:11px;color:#94a3b8;margin-top:3px"><span id="titleCount">0/60</span></div>
+        </div>
         <div class="pform-group" style="margin-bottom:0">
-          <label class="pform-label">Caption <span style="font-weight:400;color:#94a3b8">(optional)</span></label>
-          <textarea name="caption" class="pform-input" rows="3" placeholder="Say something about this flick…" maxlength="300"></textarea>
+          <label class="pform-label">Caption <span style="font-weight:400;color:#94a3b8">(max 160 chars)</span></label>
+          <textarea name="caption" class="pform-input" rows="3" placeholder="Say something about this flick…" maxlength="160" id="flickCaption" oninput="document.getElementById('captionCount').textContent=this.value.length+'/160'"></textarea>
+          <div style="text-align:right;font-size:11px;color:#94a3b8;margin-top:3px"><span id="captionCount">0/160</span></div>
         </div>
       </div>
     </div>
@@ -85,10 +91,24 @@ function previewMedia(input) {
   var img = document.getElementById('previewImage');
   placeholder.style.display = 'none';
   if (file.type.startsWith('video/')) {
-    video.src = URL.createObjectURL(file);
-    video.style.display = 'block';
-    img.style.display = 'none';
-    video.play();
+    var url = URL.createObjectURL(file);
+    var tmp = document.createElement('video');
+    tmp.preload = 'metadata';
+    tmp.onloadedmetadata = function() {
+      URL.revokeObjectURL(url);
+      if (tmp.duration > 60) {
+        alert('Video must be 60 seconds or less. Your video is ' + Math.round(tmp.duration) + 's.');
+        input.value = '';
+        placeholder.style.display = 'block';
+        video.style.display = 'none';
+        return;
+      }
+      video.src = URL.createObjectURL(file);
+      video.style.display = 'block';
+      img.style.display = 'none';
+      video.play();
+    };
+    tmp.src = url;
   } else {
     img.src = URL.createObjectURL(file);
     img.style.display = 'block';

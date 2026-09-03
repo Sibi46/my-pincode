@@ -45,12 +45,12 @@
       <!-- Description -->
       <div>
         <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Description <span style="color:#ef4444">*</span></label>
-        <textarea name="description" required rows="4" maxlength="600"
+        <textarea name="description" required rows="4" maxlength="160"
           placeholder="Tell users what you offer, your location, contact details…"
           style="width:100%;padding:12px 14px;border:1.5px solid #dde1ea;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;font-family:inherit;resize:vertical"
           onfocus="this.style.borderColor='#0a66c2'" onblur="this.style.borderColor='#dde1ea'"
-          oninput="document.getElementById('dc').textContent=this.value.length+'/600'"></textarea>
-        <div style="text-align:right;font-size:11px;color:#aaa;margin-top:3px" id="dc">0/600</div>
+          oninput="document.getElementById('dc').textContent=this.value.length+'/160'"></textarea>
+        <div style="text-align:right;font-size:11px;color:#aaa;margin-top:3px" id="dc">0/160</div>
       </div>
 
       <!-- Website -->
@@ -61,20 +61,75 @@
           onfocus="this.style.borderColor='#0a66c2'" onblur="this.style.borderColor='#dde1ea'">
       </div>
 
-      <!-- Image Upload -->
+      <!-- Image Upload + Crop -->
       <div>
         <label style="display:block;font-size:13px;font-weight:700;color:#374151;margin-bottom:6px">Ad Image <span style="color:#ef4444">*</span></label>
-        <div id="uploadZone"
-          onclick="document.getElementById('imgInput').click()"
+
+        <!-- Upload zone (shown before image picked) -->
+        <div id="uploadZone" onclick="document.getElementById('imgInput').click()"
           style="border:2px dashed #c9d6e8;border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;background:#f8faff;transition:.2s"
           onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='#c9d6e8'">
           <i class="fas fa-cloud-upload-alt" style="font-size:30px;color:#93c5fd;display:block;margin-bottom:8px"></i>
           <div style="font-size:14px;font-weight:700;color:#374151;margin-bottom:3px">Click to upload image</div>
-          <div style="font-size:12px;color:#aaa" id="imgName">JPG, PNG — Max 5MB</div>
+          <div style="font-size:12px;color:#aaa">JPG, PNG — Max 5MB</div>
         </div>
-        <input type="file" id="imgInput" name="image" accept="image/*" required style="display:none" onchange="previewImg(this)">
-        <img id="imgPreview" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-top:12px;border-radius:10px;border:1.5px solid #e5e7eb">
-        <div id="imgErr" style="display:none;color:#c62828;font-size:12px;margin-top:6px;font-weight:700"><i class="fas fa-exclamation-circle"></i> Please upload an image.</div>
+        <input type="file" id="imgInput" accept="image/*" required style="display:none" onchange="onImgPick(this)">
+
+        <!-- Cropper area (shown after image picked) -->
+        <div id="cropWrap" style="display:none;margin-top:12px">
+          <!-- Grid overlay crop box -->
+          <div style="position:relative;width:100%;background:#111;border-radius:12px;overflow:hidden;line-height:0">
+            <img id="cropImg" style="max-width:100%;display:block">
+          </div>
+
+          <!-- Aspect ratio & controls -->
+          <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+            <span style="font-size:12px;font-weight:700;color:#555">Ratio:</span>
+            <button type="button" class="cr-btn cr-ratio active" data-ratio="1.91" onclick="setRatio(1.91,this)">16:9 Banner</button>
+            <button type="button" class="cr-btn cr-ratio" data-ratio="1" onclick="setRatio(1,this)">1:1 Square</button>
+            <button type="button" class="cr-btn cr-ratio" data-ratio="0.5625" onclick="setRatio(0.5625,this)">9:16 Story</button>
+            <button type="button" class="cr-btn cr-ratio" data-ratio="NaN" onclick="setRatio(NaN,this)">Free</button>
+          </div>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px">
+            <button type="button" class="cr-btn" onclick="cropper.zoom(0.1)"><i class="fas fa-search-plus"></i> Zoom In</button>
+            <button type="button" class="cr-btn" onclick="cropper.zoom(-0.1)"><i class="fas fa-search-minus"></i> Zoom Out</button>
+            <button type="button" class="cr-btn" onclick="cropper.rotate(-90)"><i class="fas fa-undo"></i> Rotate</button>
+            <button type="button" class="cr-btn" onclick="cropper.reset()"><i class="fas fa-sync"></i> Reset</button>
+            <button type="button" class="cr-btn" onclick="document.getElementById('imgInput').click()" style="margin-left:auto"><i class="fas fa-image"></i> Change</button>
+          </div>
+
+          <!-- Cropped preview -->
+          <div style="margin-top:12px">
+            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px">Preview:</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+              <div style="text-align:center">
+                <div id="prevBanner" style="width:160px;height:84px;overflow:hidden;border-radius:8px;border:1px solid #e5e7eb;background:#f3f4f6"></div>
+                <div style="font-size:10px;color:#aaa;margin-top:3px">Banner</div>
+              </div>
+              <div style="text-align:center">
+                <div id="prevSquare" style="width:72px;height:72px;overflow:hidden;border-radius:8px;border:1px solid #e5e7eb;background:#f3f4f6"></div>
+                <div style="font-size:10px;color:#aaa;margin-top:3px">Thumb</div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="cropDoneBtn" onclick="applyCrop()"
+            style="margin-top:14px;width:100%;padding:12px;background:#16a34a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+            <i class="fas fa-crop-alt"></i> Use This Crop
+          </button>
+        </div>
+
+        <!-- Final cropped result display -->
+        <div id="croppedResult" style="display:none;margin-top:12px;position:relative">
+          <img id="croppedPreview" style="width:100%;border-radius:10px;border:1.5px solid #e5e7eb;display:block">
+          <button type="button" onclick="resetCrop()"
+            style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+
+        <input type="hidden" id="croppedDataInput" name="image_data">
+        <div id="imgErr" style="display:none;color:#c62828;font-size:12px;margin-top:6px;font-weight:700"><i class="fas fa-exclamation-circle"></i> Please upload and crop an image.</div>
       </div>
 
       <!-- Submit -->
@@ -140,25 +195,101 @@
 
 </div>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<style>
+.cr-btn{padding:6px 12px;border:1.5px solid #dde1ea;border-radius:8px;background:#fff;font-size:12px;font-weight:700;color:#374151;cursor:pointer;transition:.15s}
+.cr-btn:hover,.cr-btn.active{background:#0a66c2;color:#fff;border-color:#0a66c2}
+.cropper-view-box,.cropper-face{border-radius:0}
+</style>
 <script>
-function previewImg(input) {
+var cropper = null;
+var croppedBlob = null;
+
+function onImgPick(input) {
   const file = input.files[0];
   if (!file) return;
-  document.getElementById('imgName').textContent = file.name;
   document.getElementById('imgErr').style.display = 'none';
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = function(e) {
     document.getElementById('uploadZone').style.display = 'none';
-    const img = document.getElementById('imgPreview');
+    document.getElementById('croppedResult').style.display = 'none';
+    document.getElementById('cropWrap').style.display = 'block';
+    const img = document.getElementById('cropImg');
     img.src = e.target.result;
-    img.style.display = 'block';
+    if (cropper) { cropper.destroy(); cropper = null; }
+    cropper = new Cropper(img, {
+      aspectRatio: 1.91,
+      viewMode: 1,
+      dragMode: 'move',
+      autoCropArea: 0.9,
+      guides: true,
+      center: true,
+      highlight: true,
+      background: true,
+      responsive: true,
+      checkCrossOrigin: false,
+      crop: updatePreviews
+    });
+    // set first ratio button active
+    document.querySelectorAll('.cr-ratio').forEach(b => b.classList.remove('active'));
+    document.querySelector('.cr-ratio[data-ratio="1.91"]').classList.add('active');
   };
   reader.readAsDataURL(file);
 }
+
+function setRatio(r, btn) {
+  if (!cropper) return;
+  cropper.setAspectRatio(isNaN(r) ? NaN : r);
+  document.querySelectorAll('.cr-ratio').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updatePreviews() {
+  if (!cropper) return;
+  var canvas = cropper.getCroppedCanvas({width:480, height:252, imageSmoothingQuality:'high'});
+  if (!canvas) return;
+  var url = canvas.toDataURL('image/jpeg', 0.9);
+  // Banner preview
+  var pb = document.getElementById('prevBanner');
+  pb.style.backgroundImage = 'url('+url+')';
+  pb.style.backgroundSize = 'cover';
+  pb.style.backgroundPosition = 'center';
+  // Square thumb preview
+  var ps = document.getElementById('prevSquare');
+  var sq = cropper.getCroppedCanvas({width:200,height:200,imageSmoothingQuality:'high'});
+  if (sq) {
+    ps.style.backgroundImage = 'url('+sq.toDataURL('image/jpeg',0.85)+')';
+    ps.style.backgroundSize = 'cover';
+    ps.style.backgroundPosition = 'center';
+  }
+}
+
+function applyCrop() {
+  if (!cropper) return;
+  var canvas = cropper.getCroppedCanvas({maxWidth:1200, maxHeight:630, imageSmoothingQuality:'high'});
+  canvas.toBlob(function(blob) {
+    croppedBlob = blob;
+    var url = URL.createObjectURL(blob);
+    document.getElementById('croppedPreview').src = url;
+    document.getElementById('cropWrap').style.display = 'none';
+    document.getElementById('croppedResult').style.display = 'block';
+    // put blob URL into hidden field — we'll convert on submit
+    document.getElementById('croppedDataInput').value = canvas.toDataURL('image/jpeg', 0.88);
+  }, 'image/jpeg', 0.88);
+}
+
+function resetCrop() {
+  document.getElementById('croppedResult').style.display = 'none';
+  document.getElementById('cropWrap').style.display = 'block';
+}
+
 document.getElementById('adForm').addEventListener('submit', function(e) {
-  if (!document.getElementById('imgInput').files.length) {
+  var dataVal = document.getElementById('croppedDataInput').value;
+  if (!dataVal) {
     e.preventDefault();
     document.getElementById('imgErr').style.display = 'block';
+    document.getElementById('imgErr').scrollIntoView({behavior:'smooth'});
   }
 });
 </script>

@@ -19,6 +19,37 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
 User = get_user_model()
 
 
+# ── PINCODE LOOKUP API ────────────────────────────────────────────────────────
+def api_pincode_lookup(request, pin):
+    """Return area/district/state for a 6-digit PIN code."""
+    try:
+        pc = PinCode.objects.select_related('district', 'district__state').get(code=pin, is_active=True)
+        return JsonResponse({
+            'success': True,
+            'area':     pc.area_name or pc.district.name,
+            'district': pc.district.name,
+            'state':    pc.district.state.name,
+        })
+    except PinCode.DoesNotExist:
+        pass
+    # Fallback: India Post public API
+    try:
+        import urllib.request as ur, json as _json
+        with ur.urlopen(f'https://api.postalpincode.in/pincode/{pin}', timeout=4) as resp:
+            data = _json.loads(resp.read())[0]
+        if data.get('Status') == 'Success' and data.get('PostOffice'):
+            po = data['PostOffice'][0]
+            return JsonResponse({
+                'success': True,
+                'area':     po.get('Name', ''),
+                'district': po.get('District', ''),
+                'state':    po.get('State', ''),
+            })
+    except Exception:
+        pass
+    return JsonResponse({'success': False})
+
+
 # ── HOME ──────────────────────────────────────────────────────────────────────
 def home(request):
     from django.utils import timezone as tz
@@ -26,11 +57,11 @@ def home(request):
 
     # ── Ads ─────────────────────────────────────────────
     ads_active         = Advertisement.objects.filter(status='active', start_date__lte=today, end_date__gte=today)
-    homepage_banners   = ads_active.filter(package__ad_type='homepage_banner')[:3]
-    featured_employers = ads_active.filter(package__ad_type='featured_employer')[:6]
-    featured_job_ads   = ads_active.filter(package__ad_type='featured_job')[:6]
-    sidebar_ad         = ads_active.filter(package__ad_type='sidebar').first()
-    popup_ad           = ads_active.filter(package__ad_type='popup').first()
+    homepage_banners   = ads_active.filter(package__ad_type='homepage_banner').order_by('?')[:3]
+    featured_employers = ads_active.filter(package__ad_type='featured_employer').order_by('?')[:6]
+    featured_job_ads   = ads_active.filter(package__ad_type='featured_job').order_by('?')[:6]
+    sidebar_ad         = ads_active.filter(package__ad_type='sidebar').order_by('?').first()
+    popup_ad           = ads_active.filter(package__ad_type='popup').order_by('?').first()
     # track views for all active ads shown on home page
     all_shown_pks = []
     if homepage_banners:
@@ -47,13 +78,17 @@ def home(request):
         Advertisement.objects.filter(pk__in=all_shown_pks).update(views=F('views') + 1)
 
     # ── Approved advertiser banners ──────────────────────
-    advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='')[:6]
+    advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='').order_by('?')[:6]
 
     # ── Live simple ads (AdPost) ─────────────────────────
     from .models import AdPost
     live_ads = AdPost.objects.filter(status='approved').filter(
         Q(expires_at__isnull=True) | Q(expires_at__gte=today)
-    ).order_by('-approved_at')[:12]
+    ).order_by('?')[:12]
+    # Track views for AdPost ads shown on home page
+    live_ad_pks = [a.pk for a in live_ads]
+    if live_ad_pks:
+        AdPost.objects.filter(pk__in=live_ad_pks).update(views=F('views') + 1)
 
 
     # ── Jobs & employers ────────────────────────────────
@@ -148,6 +183,8 @@ def register_process(request):
         return redirect('register')
 
     user_type  = request.POST.get('user_type', '').strip()
+    if user_type not in User.EMPLOYER_TYPES and user_type not in ('employee', 'freelancer'):
+        user_type = 'individual'
     password   = request.POST.get('password', '')
     phone      = request.POST.get('phone', '').strip()
     email      = request.POST.get('email', '').strip()
@@ -159,31 +196,54 @@ def register_process(request):
     whatsapp   = request.POST.get('whatsapp', '').strip()
     ref_code   = request.POST.get('ref_code', '').strip().upper()
 
-    username = phone if phone else email
-    if not username:
-        return err('Phone or email is required.')
+    # If already logged in and registering a business — link to existing account
+    if request.user.is_authenticated and user_type in User.EMPLOYER_TYPES:
+        user = request.user
+        user.user_type = user_type
+        if pincode: user.pincode = pincode
+        # Save business phone if provided and not already taken
+        if phone and phone != user.phone:
+            if not User.objects.filter(business_phone=phone).exclude(pk=user.pk).exists():
+                user.business_phone = phone
+        if password:
+            user.set_password(password)
+        user.save()
+    else:
+        username = phone if phone else email
+        if not username:
+            return err('Phone or email is required.')
 
-    if not password:
-        return err('Password is required.')
+        if not password:
+            return err('Password is required.')
 
-    if User.objects.filter(username=username).exists():
-        return err('An account already exists with this phone/email. Please login instead.')
-
-    from .utils import generate_referral_code
-    user = User.objects.create_user(
-        username=username,
-        password=password,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        phone=phone,
-        whatsapp=whatsapp,
-        user_type=user_type,
-        address=address,
-        city=city,
-        pincode=pincode,
-        referral_code=generate_referral_code(),
-    )
+        existing_user = User.objects.filter(username=username).first() or \
+                        User.objects.filter(phone=phone).first() if phone else None
+        if existing_user:
+            if user_type in User.EMPLOYER_TYPES:
+                user = existing_user
+                if password: user.set_password(password)
+                user.user_type = user_type
+                if first_name: user.first_name = first_name
+                if pincode: user.pincode = pincode
+                user.save()
+            else:
+                return err('An account already exists with this phone. Please login instead.')
+        else:
+            from .utils import generate_referral_code
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone,
+                whatsapp=whatsapp,
+                user_type=user_type,
+                address=address,
+                city=city,
+                pincode=pincode,
+                referral_code=generate_referral_code(),
+            )
 
     # Track referral and award signup bonus
     if ref_code:
@@ -203,20 +263,24 @@ def register_process(request):
     )
 
     if user_type in User.EMPLOYER_TYPES:
-        CompanyProfile.objects.create(
+        CompanyProfile.objects.update_or_create(
             user=user,
-            company_name=org_name,
-            industry=request.POST.get('industry', '').strip(),
-            website=request.POST.get('website', '').strip(),
-            company_size=request.POST.get('company_size', '').strip(),
+            defaults=dict(
+                company_name=org_name,
+                industry=request.POST.get('industry', '').strip(),
+                website=request.POST.get('website', '').strip(),
+                company_size=request.POST.get('company_size', '').strip(),
+            )
         )
         if user_type == 'shop':
-            ShopProfile.objects.create(
+            ShopProfile.objects.update_or_create(
                 user=user,
-                shop_name=org_name,
-                shop_type=request.POST.get('shop_type', '').strip(),
-                owner_name=first_name,
-                website=request.POST.get('website', '').strip(),
+                defaults=dict(
+                    shop_name=org_name,
+                    shop_type=request.POST.get('shop_type', '').strip(),
+                    owner_name=first_name,
+                    website=request.POST.get('website', '').strip(),
+                )
             )
     elif user_type in ('employee', 'individual', 'freelancer'):
         JobSeekerProfile.objects.create(
@@ -232,7 +296,7 @@ def register_process(request):
     if user_type in User.EMPLOYER_TYPES:
         redirect_url = '/employer/dashboard/'
     else:
-        redirect_url = '/jobseeker/dashboard/'
+        redirect_url = '/'
 
     if is_ajax:
         return JsonResponse({'success': True, 'redirect': redirect_url})
@@ -268,7 +332,10 @@ def reset_password(request):
     user.save()
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     request.session.pop('otp_verified', None)
-    redirect_url = '/employer/dashboard/' if user.is_employer() else '/jobseeker/dashboard/'
+    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
+        redirect_url = '/employer/dashboard/'
+    else:
+        redirect_url = '/'
     return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
@@ -284,7 +351,13 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse as _JR
+                return _JR({'success': True, 'redirect': next_url or '/'})
             return redirect(next_url or 'dashboard')
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            from django.http import JsonResponse as _JR
+            return _JR({'success': False, 'error': 'Invalid phone/email or password.'})
         messages.error(request, 'Invalid phone/email or password.')
 
     return render(request, 'login.html', {'next': next_url})
@@ -304,7 +377,7 @@ def dashboard(request):
         return redirect('state_admin_dashboard')
     if role == 'district_admin':
         return redirect('district_admin_dashboard')
-    if request.user.user_type in User.EMPLOYER_TYPES:
+    if request.user.user_type in User.EMPLOYER_TYPES or CompanyProfile.objects.filter(user=request.user).exists():
         return redirect('employer_dashboard')
     if request.user.user_type == 'advertiser' or hasattr(request.user, 'advertiser'):
         return redirect('advertiser_dashboard')
@@ -395,31 +468,79 @@ def job_detail(request, pk):
 @login_required
 def apply_job(request, pk):
     job = get_object_or_404(Job, pk=pk, status='active', is_approved=True, job_plan__in=['free', 'paid'])
+
+    # Already applied — redirect back
+    existing = JobApplication.objects.filter(job=job, applicant=request.user).first()
+    if existing:
+        messages.warning(request, 'You have already applied for this job.')
+        return redirect('job_detail', pk=pk)
+
+    # Load seeker profile for pre-fill
+    try:
+        seeker = request.user.seeker
+    except Exception:
+        seeker = None
+
+    if request.method == 'GET':
+        # If profile already filled, show quick-confirm page instead of full form
+        profile_complete = bool(
+            seeker and
+            seeker.experience and
+            seeker.education and
+            (seeker.primary_skill or seeker.skills)
+        )
+        if profile_complete and not request.GET.get('full'):
+            return render(request, 'job_apply_confirm.html', {'job': job, 'seeker': seeker, 'user': request.user})
+        # Profile incomplete — send to profile edit, come back after saving
+        messages.info(request, 'Please complete your profile first, then apply for the job.')
+        return redirect(f'/profile/edit/?next=/jobs/{pk}/apply/')
+
     if request.method == 'POST':
-        if not JobApplication.objects.filter(job=job, applicant=request.user).exists():
-            JobApplication.objects.create(
+        p = request.POST
+        if p.get('quick_apply') == '1' and seeker:
+            # Quick apply: use saved profile data
+            app = JobApplication(
                 job=job,
                 applicant=request.user,
-                cover_note=request.POST.get('cover_note', ''),
+                cover_note=p.get('cover_note', '').strip(),
+                expected_salary=str(seeker.salary_min) if seeker.salary_min else '',
+                declared=True,
             )
-            messages.success(request, 'Application submitted successfully!')
-            # Referral bonus: first application by a referred seeker
-            try:
-                ref = Referral.objects.get(referred=request.user, bonus_action=False)
-                first_app = JobApplication.objects.filter(applicant=request.user).count() == 1
-                if first_app:
-                    from .utils import award_referral_points
-                    award_referral_points(
-                        ref.referrer, 25, 'referral_apply',
-                        f'{request.user.get_full_name() or request.user.username} applied for their first job!'
-                    )
-                    ref.bonus_action = True
-                    ref.save(update_fields=['bonus_action'])
-            except Referral.DoesNotExist:
-                pass
+            if seeker.resume:
+                app.application_resume = seeker.resume
+            app.save()
         else:
-            messages.warning(request, 'You have already applied for this job.')
-    return redirect('job_detail', pk=pk)
+            app = JobApplication(
+                job=job,
+                applicant=request.user,
+                cover_note=p.get('cover_note', '').strip(),
+                expected_salary=p.get('expected_salary', '').strip(),
+                notice_period=p.get('notice_period', '').strip(),
+                employment_type=p.get('employment_type', '').strip(),
+                why_join=p.get('why_join', '').strip(),
+                why_suitable=p.get('why_suitable', '').strip(),
+                currently_employed=p.get('currently_employed') == 'yes',
+                how_heard=p.get('how_heard', '').strip(),
+                declared=bool(p.get('declared')),
+            )
+            if 'application_resume' in request.FILES:
+                app.application_resume = request.FILES['application_resume']
+            if 'cover_letter_file' in request.FILES:
+                app.cover_letter_file = request.FILES['cover_letter_file']
+            app.save()
+        messages.success(request, 'Application submitted successfully!')
+        # Referral bonus
+        try:
+            ref = Referral.objects.get(referred=request.user, bonus_action=False)
+            if JobApplication.objects.filter(applicant=request.user).count() == 1:
+                from .utils import award_referral_points
+                award_referral_points(ref.referrer, 25, 'referral_apply',
+                    f'{request.user.get_full_name() or request.user.username} applied for their first job!')
+                ref.bonus_action = True
+                ref.save(update_fields=['bonus_action'])
+        except Referral.DoesNotExist:
+            pass
+        return redirect('job_detail', pk=pk)
 
 
 # ── POST JOB ──────────────────────────────────────────────────────────────────
@@ -707,6 +828,24 @@ def employer_dashboard(request):
     recent_flicks = Flick.objects.select_related('user').prefetch_related('likes')[:12]
     liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
 
+    # ── Gift Voucher stats ──
+    try:
+        from vouchers.models import Business as VoucherBusiness, GiftVoucher, VoucherPurchase
+        from django.db.models import Sum as VSum
+        voucher_business = VoucherBusiness.objects.filter(owner=request.user).first()
+        if voucher_business:
+            recent_vouchers  = GiftVoucher.objects.filter(business=voucher_business).order_by('-created_at')[:5]
+            voucher_count    = GiftVoucher.objects.filter(business=voucher_business).count()
+            voucher_purchases = VoucherPurchase.objects.filter(
+                gift_voucher__business=voucher_business, status__in=['paid','sent','redeemed']).count()
+            voucher_revenue  = VoucherPurchase.objects.filter(
+                gift_voucher__business=voucher_business, status__in=['paid','sent','redeemed']
+            ).aggregate(t=VSum('amount_paid'))['t'] or 0
+        else:
+            recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
+    except Exception:
+        voucher_business = recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
         'expired_jobs':       expired_jobs,
@@ -735,6 +874,11 @@ def employer_dashboard(request):
         'job_posted_title':   job_posted_title,
         'recent_flicks':      recent_flicks,
         'liked_ids':          liked_ids,
+        'voucher_business':   voucher_business,
+        'recent_vouchers':    recent_vouchers,
+        'voucher_count':      voucher_count,
+        'voucher_purchases':  voucher_purchases,
+        'voucher_revenue':    voucher_revenue,
     })
 
 
@@ -798,6 +942,19 @@ def jobseeker_dashboard(request):
         'recent_flicks':      recent_flicks,
         'liked_ids':          liked_ids,
     })
+
+
+@login_required
+def view_applicant_profile(request, pk):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    applicant = get_object_or_404(User, pk=pk)
+    seeker = getattr(applicant, 'seeker', None)
+    # Only employers who have received an application from this person can view
+    if not request.user.is_employer():
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden()
+    return render(request, 'applicant_profile.html', {'applicant': applicant, 'seeker': seeker})
 
 
 @login_required
@@ -1063,10 +1220,10 @@ def phone_login(request):
            User.objects.filter(business_phone=phone).first()
     if user and user.check_password(password):
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        if user.is_employer():
+        if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
             redirect_url = '/employer/dashboard/'
         else:
-            redirect_url = '/jobseeker/dashboard/'
+            redirect_url = '/'
         return JsonResponse({'success': True, 'redirect': redirect_url})
     return JsonResponse({'success': False, 'error': 'Wrong phone number or password. Try again.'})
 
@@ -1095,7 +1252,7 @@ def quick_register(request):
     if User.objects.filter(phone=phone).exists():
         return JsonResponse({'success': False, 'error': 'This phone number is already registered. Please sign in.'})
 
-    user_type = 'employee' if job_type == 'find' else 'individual_employer'
+    user_type = 'individual'
     username  = phone
     if User.objects.filter(username=username).exists():
         import random
@@ -1136,6 +1293,37 @@ def save_job(request, pk):
 def saved_jobs(request):
     saves = SavedJob.objects.filter(user=request.user).select_related('job')
     return render(request, 'saved_jobs.html', {'saves': saves})
+
+
+# ── CLOSE JOB ─────────────────────────────────────────────────────────────────
+@login_required
+def close_job(request, pk):
+    from .models import Job
+    job = get_object_or_404(Job, pk=pk, posted_by=request.user)
+    job.status = 'closed'
+    job.save(update_fields=['status'])
+    messages.success(request, f'"{job.title}" has been closed.')
+    return redirect('employer_dashboard')
+
+
+# ── SHORTLIST APPLICATION ──────────────────────────────────────────────────────
+@login_required
+def shortlist_application(request, pk):
+    app = get_object_or_404(JobApplication, pk=pk, job__posted_by=request.user)
+    app.status = 'shortlisted'
+    app.save(update_fields=['status'])
+    messages.success(request, f'{app.applicant.get_full_name() or app.applicant.username} shortlisted.')
+    return redirect('employer_dashboard')
+
+
+# ── REJECT APPLICATION ─────────────────────────────────────────────────────────
+@login_required
+def reject_application(request, pk):
+    app = get_object_or_404(JobApplication, pk=pk, job__posted_by=request.user)
+    app.status = 'rejected'
+    app.save(update_fields=['status'])
+    messages.success(request, 'Application rejected.')
+    return redirect('employer_dashboard')
 
 
 # ── WITHDRAW APPLICATION ───────────────────────────────────────────────────────
@@ -1329,6 +1517,9 @@ def chat_messages_api(request, user_id, job_id=0):
 # ==============================================================
 
 @login_required
+def smart_marketing_story(request):
+    return render(request, 'smart_marketing_story.html')
+
 def ads_gallery(request):
     """Public page: show all ads same style as home page."""
     ads = Advertisement.objects.select_related('advertiser', 'package').order_by('-created_at')
@@ -1423,10 +1614,6 @@ def advertiser_register(request):
             status         = 'pending',
             user           = user,
         )
-        if 'banner_image' in request.FILES:
-            adv.banner_image = request.FILES['banner_image']
-            adv.save()
-
         return redirect('advertiser_register_success')
 
     from .models import Flick, FlickLike
@@ -1452,11 +1639,12 @@ def advertiser_dashboard(request):
     simple_ads   = AdPost.objects.filter(user=request.user).prefetch_related('renewals').order_by('-created_at')
     ad_settings  = AdSettings.get()
     total_views  = sum(a.views or 0 for a in simple_ads)
+    total_clicks = sum(getattr(a, 'clicks', 0) or 0 for a in simple_ads)
     active_count = sum(1 for a in simple_ads if a.is_live)
     packages     = AdPackage.objects.filter(is_active=True)
     return render(request, 'advertiser_dashboard.html', {
         'adv': adv, 'ads': simple_ads,
-        'total_views': total_views, 'total_clicks': 0,
+        'total_views': total_views, 'total_clicks': total_clicks,
         'active_count': active_count, 'expiring': [],
         'packages': packages, 'settings': ad_settings,
     })
@@ -1591,6 +1779,19 @@ def ad_click_track(request, ad_id):
         if ad.link_url:
             return redirect(ad.link_url)
     except Advertisement.DoesNotExist:
+        pass
+    return redirect('home')
+
+
+def adpost_click_track(request, ad_id):
+    """Tracks click on an AdPost and redirects to its website."""
+    from .models import AdPost
+    try:
+        ad = AdPost.objects.get(pk=ad_id, status='approved')
+        AdPost.objects.filter(pk=ad_id).update(clicks=F('clicks') + 1)
+        if ad.website:
+            return redirect(ad.website)
+    except AdPost.DoesNotExist:
         pass
     return redirect('home')
 
@@ -2037,12 +2238,29 @@ def district_admin_required(view_func):
 @login_required
 def post_simple_ad(request):
     from .models import AdPost, AdSettings
+    if not request.user.is_authenticated:
+        return redirect(f'/login/?next=/ads/post/')
+    adv = getattr(request.user, 'advertiser', None)
+    if not adv:
+        messages.error(request, 'Please register as an advertiser first.')
+        return redirect('advertiser_register')
+    if adv.status != 'approved':
+        messages.error(request, 'Your advertiser account is pending admin approval. You can create ads once approved.')
+        return redirect('advertiser_dashboard')
     if request.method == 'POST':
+        import base64, io
+        from django.core.files.base import ContentFile
         company_name = request.POST.get('company_name', '').strip()
         pincode      = request.POST.get('pincode', '').strip()
-        description  = request.POST.get('description', '').strip()
+        description  = request.POST.get('description', '').strip()[:160]
         website      = request.POST.get('website', '').strip()
+        image_data   = request.POST.get('image_data', '').strip()
         image        = request.FILES.get('image')
+        # Prefer cropped base64 data over raw file
+        if image_data and image_data.startswith('data:image'):
+            fmt, b64 = image_data.split(';base64,', 1)
+            ext = fmt.split('/')[-1].replace('jpeg', 'jpg')
+            image = ContentFile(base64.b64decode(b64), name=f'ad_{request.user.pk}.{ext}')
         if not company_name or not description or not image:
             messages.error(request, 'Company name, description and image are required.')
             return redirect('post_simple_ad')
@@ -2713,8 +2931,9 @@ def api_pincode_lookup(request, pin):
 
     # Fall back to India Post API
     try:
-        resp   = _req.get(f'https://api.postalpincode.in/pincode/{pin}', timeout=8)
-        data   = resp.json()
+        import urllib.request as _ur, json as _json
+        with _ur.urlopen(f'https://api.postalpincode.in/pincode/{pin}', timeout=8) as _resp:
+            data = _json.loads(_resp.read())
         if data and data[0].get('Status') == 'Success' and data[0].get('PostOffice'):
             po       = data[0]['PostOffice'][0]
             area     = po.get('Name', '')
@@ -3220,28 +3439,66 @@ def my_accounts(request):
 @login_required
 def profile_edit(request):
     user = request.user
-    # get sub-profile if exists
-    seeker = getattr(user, 'seeker', None)
     company = getattr(user, 'company', None)
+
+    # Auto-create seeker profile for individual/employee/freelancer
+    if user.user_type in ('individual', 'employee', 'freelancer'):
+        seeker, _ = JobSeekerProfile.objects.get_or_create(user=user)
+    else:
+        seeker = getattr(user, 'seeker', None)
 
     if request.method == 'POST':
         p = request.POST
         f = request.FILES
+        # User fields
         user.first_name = p.get('first_name', '').strip()
         user.last_name  = p.get('last_name', '').strip()
         user.email      = p.get('email', '').strip()
-        user.phone      = p.get('phone', '').strip()
         user.whatsapp   = p.get('whatsapp', '').strip()
         user.city       = p.get('city', '').strip()
         user.pincode    = p.get('pincode', '').strip()
         user.address    = p.get('address', '').strip()
         user.save()
 
-        if seeker and 'photo' in f:
-            seeker.photo = f['photo']
+        # Seeker profile fields
+        if seeker:
+            if 'photo' in f:
+                seeker.photo = f['photo']
+            dob_str = p.get('dob', '').strip()
+            if dob_str:
+                from datetime import datetime
+                try:
+                    seeker.dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+            seeker.gender           = p.get('gender', '').strip()
+            seeker.experience       = p.get('experience', '').strip()
+            seeker.education        = p.get('qualification', '').strip()
+            seeker.education_details = p.get('education_details', '').strip()
+            seeker.primary_skill    = p.get('primary_skill', '').strip()
+            seeker.skills           = p.get('technical_skills', '').strip()
+            seeker.languages        = p.get('languages', '').strip()
+            seeker.preferred_roles  = p.get('current_title', '').strip()
+            seeker.preferred_location = p.get('preferred_location', '').strip()
+            seeker.open_to_relocate = p.get('willing_to_relocate') == 'yes'
+            job_cat = p.get('job_category', '').strip()
+            if job_cat in ('blue', 'white', 'any'):
+                seeker.job_category = job_cat
+            salary_min = p.get('salary_min', '').strip()
+            if salary_min:
+                try:
+                    seeker.salary_min = int(salary_min.replace(',', '').replace('₹', '').replace(' ', ''))
+                except ValueError:
+                    pass
+            seeker.portfolio_url    = p.get('portfolio_url', '').strip()
+            if 'resume' in f:
+                seeker.resume = f['resume']
             seeker.save()
 
         messages.success(request, 'Profile updated successfully.')
+        next_url = request.POST.get('next') or request.GET.get('next') or ''
+        if next_url.startswith('/'):
+            return redirect(next_url)
         return redirect('profile_edit')
 
     return render(request, 'profile_edit.html', {

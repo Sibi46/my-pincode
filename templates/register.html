@@ -188,7 +188,7 @@
                 <form method="POST" action="/register/process/" id="employerForm"
                       onsubmit="injectField(this,'org_name',document.getElementById('emp-org-input').value);
                                 injectField(this,'first_name',document.getElementById('emp-owner-input').value);
-                                injectField(this,'phone',document.getElementById('empPhone').value);
+                                injectField(this,'phone',(document.getElementById('empPhone2')||document.getElementById('empPhone')).value);
                                 injectField(this,'pincode',document.getElementById('emp-pincode-input').value)">
                     {% csrf_token %}
                     <input type="hidden" name="user_type" id="emp-user-type-input" value="company">
@@ -242,7 +242,6 @@
 
                     <!-- ── Substep 2: Details + Password (after OTP) ── -->
                     <div id="emp-substep2" class="hidden">
-                        <div class="verified-badge"><i class="fas fa-check-circle"></i> Mobile Verified</div>
                         <div class="form-group full">
                             <label id="emp-org-label"><i class="fas fa-building"></i> Company / Organization Name *</label>
                             <input type="text" id="emp-org-input" name="org_name" placeholder="Enter your company name" required>
@@ -250,6 +249,13 @@
                         <div class="form-group full">
                             <label><i class="fas fa-user"></i> Owner Name *</label>
                             <input type="text" id="emp-owner-input" name="owner_name" placeholder="Enter owner / contact person name" required>
+                        </div>
+                        <div class="form-group full">
+                            <label><i class="fas fa-phone"></i> Mobile Number *</label>
+                            <div class="otp-input-row" style="gap:8px">
+                                <span class="country-code">+91</span>
+                                <input type="tel" id="empPhone2" name="phone" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" style="flex:1;padding:10px 12px;border:1.5px solid #dde1ea;border-radius:10px;font-size:14px;outline:none" oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+                            </div>
                         </div>
                         <div class="form-group full">
                             <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
@@ -618,7 +624,7 @@
     body{padding-bottom:62px}
     </style>
 
-    <script src="{% static 'js/register.js' %}?v=10"></script>
+    <script src="{% static 'js/register.js' %}?v=12"></script>
 <script>
 function doInlineLogin() {
     var phone = document.getElementById('empPhone').value.trim();
