@@ -697,6 +697,7 @@ def family_quick_add(request):
     return JsonResponse({'ok': True, 'pk': m.pk, 'name': name, 'member_type': member_type, 'side': side, 'occupation': occupation, 'village': village})
 
 
+@login_required
 def family_member_detail(request, pk):
     member = get_object_or_404(FamilyMember, pk=pk)
     return render(request, 'community/family_member_detail.html', {'member': member})

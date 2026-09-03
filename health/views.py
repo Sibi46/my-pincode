@@ -181,10 +181,18 @@ def health_chat(request):
     return render(request, 'health/chat.html')
 
 
-@csrf_exempt
+@login_required
 def health_chat_api(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+
+    # Rate limit: 20 requests per user per hour
+    from django.core.cache import cache
+    cache_key = f'health_chat_{request.user.pk}'
+    count = cache.get(cache_key, 0)
+    if count >= 20:
+        return JsonResponse({'error': 'Too many requests. Please try again later.'}, status=429)
+    cache.set(cache_key, count + 1, 3600)
     try:
         body    = json.loads(request.body)
         message = body.get('message', '').strip()

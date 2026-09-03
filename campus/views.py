@@ -664,8 +664,8 @@ def student_applications(request):
 def application_detail(request, pk):
     student = get_student(request.user)
     app = get_object_or_404(Application, pk=pk)
-    # access check
-    if student and app.student != student:
+    # access check — reject if user is not a student OR does not own this application
+    if student is None or app.student != student:
         messages.error(request, 'Access denied.')
         return redirect('campus_student_applications')
     history   = app.history.all()
