@@ -1056,7 +1056,15 @@ def teacher_register(request):
                 )
                 generated = {'name': full_name, 'phone': phone, 'password': password, 'school': school}
             except Exception as e:
-                error = f'Registration failed: {e}'
+                from django.db import IntegrityError as _IntegrityError
+                import logging as _logging
+                _logging.getLogger('community.views').exception(
+                    'teacher_register: failed for phone=%s', phone
+                )
+                if isinstance(e, _IntegrityError):
+                    error = 'This phone may already be in use.'
+                else:
+                    error = 'Registration failed. Please try again.'
     return render(request, 'community/teacher_register.html', {
         'schools':   schools,
         'error':     error,
