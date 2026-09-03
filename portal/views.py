@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -17,6 +19,8 @@ from .models import (
     Post, PostLike, PostComment, ShortVideo, PortalNotification,
     Flick, FlickLike, FlickComment,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def _notify(user, notif_type, message, link=''):
@@ -504,7 +508,7 @@ def join_community(request, page_id):
                 profile.photo = request.FILES['photo']
                 profile.save()
             except Exception:
-                pass
+                logger.exception('join_community: failed to save profile photo for user %s', user.pk)
 
     # Do the join
     if community.join_mode == 'open':

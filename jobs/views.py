@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -5,6 +7,9 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q, F, Count
 from django.utils import timezone
+
+logger = logging.getLogger(__name__)
+
 from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      JobSeekerProfile, SeekerCertificate, SavedJob, Interview,
                      Conversation, Message, OfferLetter,
@@ -196,6 +201,8 @@ def register_process(request):
     whatsapp   = request.POST.get('whatsapp', '').strip()
     ref_code   = request.POST.get('ref_code', '').strip().upper()
 
+    from django.db import IntegrityError as _IntegrityError
+
     # If already logged in and registering a business — link to existing account
     if request.user.is_authenticated and user_type in User.EMPLOYER_TYPES:
         user = request.user
@@ -207,7 +214,11 @@ def register_process(request):
                 user.business_phone = phone
         if password:
             user.set_password(password)
-        user.save()
+        try:
+            user.save()
+        except Exception:
+            logger.exception('register_process: user.save() failed (authenticated link) user=%s', user.pk)
+            return err('Registration failed. Please try again.')
     else:
         username = phone if phone else email
         if not username:
@@ -225,25 +236,36 @@ def register_process(request):
                 user.user_type = user_type
                 if first_name: user.first_name = first_name
                 if pincode: user.pincode = pincode
-                user.save()
+                try:
+                    user.save()
+                except Exception:
+                    logger.exception('register_process: user.save() failed (existing employer) user=%s', user.pk)
+                    return err('Registration failed. Please try again.')
             else:
                 return err('An account already exists with this phone. Please login instead.')
         else:
-            from .utils import generate_referral_code
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                phone=phone,
-                whatsapp=whatsapp,
-                user_type=user_type,
-                address=address,
-                city=city,
-                pincode=pincode,
-                referral_code=generate_referral_code(),
-            )
+            try:
+                from .utils import generate_referral_code
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    phone=phone,
+                    whatsapp=whatsapp,
+                    user_type=user_type,
+                    address=address,
+                    city=city,
+                    pincode=pincode,
+                    referral_code=generate_referral_code(),
+                )
+            except _IntegrityError:
+                logger.exception('register_process: create_user IntegrityError phone=%s', phone)
+                return err('An account already exists with this phone or email. Please login instead.')
+            except Exception:
+                logger.exception('register_process: create_user failed phone=%s', phone)
+                return err('Registration failed. Please try again.')
 
     # Track referral and award signup bonus
     if ref_code:
@@ -262,33 +284,39 @@ def register_process(request):
         or f"{first_name} {last_name}".strip()
     )
 
-    if user_type in User.EMPLOYER_TYPES:
-        CompanyProfile.objects.update_or_create(
-            user=user,
-            defaults=dict(
-                company_name=org_name,
-                industry=request.POST.get('industry', '').strip(),
-                website=request.POST.get('website', '').strip(),
-                company_size=request.POST.get('company_size', '').strip(),
-            )
-        )
-        if user_type == 'shop':
-            ShopProfile.objects.update_or_create(
+    try:
+        if user_type in User.EMPLOYER_TYPES:
+            CompanyProfile.objects.update_or_create(
                 user=user,
                 defaults=dict(
-                    shop_name=org_name,
-                    shop_type=request.POST.get('shop_type', '').strip(),
-                    owner_name=first_name,
+                    company_name=org_name,
+                    industry=request.POST.get('industry', '').strip(),
                     website=request.POST.get('website', '').strip(),
+                    company_size=request.POST.get('company_size', '').strip(),
                 )
             )
-    elif user_type in ('employee', 'individual', 'freelancer'):
-        JobSeekerProfile.objects.create(
-            user=user,
-            job_category=request.POST.get('job_category', ''),
-            primary_skill=request.POST.get('primary_skill', ''),
-            rate=request.POST.get('rate', ''),
-        )
+            if user_type == 'shop':
+                ShopProfile.objects.update_or_create(
+                    user=user,
+                    defaults=dict(
+                        shop_name=org_name,
+                        shop_type=request.POST.get('shop_type', '').strip(),
+                        owner_name=first_name,
+                        website=request.POST.get('website', '').strip(),
+                    )
+                )
+        elif user_type in ('employee', 'individual', 'freelancer'):
+            JobSeekerProfile.objects.get_or_create(
+                user=user,
+                defaults=dict(
+                    job_category=request.POST.get('job_category', ''),
+                    primary_skill=request.POST.get('primary_skill', ''),
+                    rate=request.POST.get('rate', ''),
+                )
+            )
+    except Exception:
+        logger.exception('register_process: profile create failed for user %s type=%s', user.pk, user_type)
+        # User account was created — log them in; profile can be completed later.
 
     login(request, user, backend='jobs.backends.PhoneOrEmailBackend')
     request.session['show_referral_popup'] = True
@@ -307,42 +335,6 @@ def register_process(request):
 def forgot_password(request):
     phone = request.GET.get('phone', '')
     return render(request, 'forgot_password.html', {'prefill_phone': phone})
-
-
-def reset_password(request):
-    """Reset password after OTP verification."""
-    if request.method != 'POST':
-        return JsonResponse({'success': False})
-    import json
-    data     = json.loads(request.body)
-    phone    = data.get('phone', '').strip()
-    password = data.get('password', '').strip()
-
-    if not request.session.get('otp_verified'):
-        return JsonResponse({'success': False, 'error': 'OTP not verified'})
-
-    # Ensure the OTP was verified for THIS phone number, not a different one
-    if request.session.get('otp_phone') != phone:
-        return JsonResponse({'success': False, 'error': 'OTP verification mismatch. Please restart.'})
-
-    if not password or len(password) < 6:
-        return JsonResponse({'success': False, 'error': 'Password must be at least 6 characters'})
-
-    User = get_user_model()
-    user = User.objects.filter(phone=phone).first()
-    if not user:
-        return JsonResponse({'success': False, 'error': 'No account found with this mobile number'})
-
-    user.set_password(password)
-    user.save()
-    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    request.session.pop('otp_verified', None)
-    request.session.pop('otp_phone', None)
-    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
-        redirect_url = '/employer/dashboard/'
-    else:
-        redirect_url = '/'
-    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 def login_view(request):
@@ -905,7 +897,12 @@ def employer_profile_save(request):
         User = get_user_model()
         if not User.objects.filter(business_phone=biz_phone).exclude(pk=user.pk).exists():
             user.business_phone = biz_phone
-    user.save()
+    try:
+        user.save()
+    except Exception:
+        logger.exception('employer_profile_save: user.save() failed for user %s', user.pk)
+        messages.error(request, 'Could not save your profile. Please try again.')
+        return redirect('employer_dashboard')
     try:
         prof = user.company
     except Exception:
@@ -914,7 +911,13 @@ def employer_profile_save(request):
         prof.industry     = p.get('industry', '').strip()
         prof.company_size = p.get('company_size', '').strip()
         prof.website      = p.get('website', '').strip()
-        prof.save()
+        try:
+            prof.save()
+        except Exception:
+            logger.exception('employer_profile_save: prof.save() failed for user %s', user.pk)
+            messages.error(request, 'Could not save your profile. Please try again.')
+            return redirect('employer_dashboard')
+    messages.success(request, 'Profile saved successfully.')
     return redirect('employer_dashboard')
 
 
@@ -1098,10 +1101,7 @@ def seeker_cert_delete(request, cert_id):
 
 # ── Rate limiting helpers ─────────────────────────────────────────────────────
 def _rate_limit(cache_key, max_attempts, window_seconds):
-    """
-    Returns True if the action is allowed, False if rate limit exceeded.
-    Increments the counter on each call.
-    """
+    """Returns True if the action is allowed, False if rate limit exceeded."""
     from django.core.cache import cache
     count = cache.get(cache_key, 0)
     if count >= max_attempts:
@@ -1134,7 +1134,7 @@ def send_otp(request):
 
     # Rate limit: max 3 OTP sends per phone per 10 minutes
     if not _rate_limit(f'otp_send_{phone}', max_attempts=3, window_seconds=600):
-        return JsonResponse({'success': False, 'error': 'Too many OTP requests. Please wait 10 minutes.'})
+        return JsonResponse({'success': False, 'error': 'Too many OTP requests. Please wait 10 minutes.'}, status=429)
 
     User = get_user_model()
     allow_existing = data.get('allow_existing', False) if isinstance(data, dict) else False
@@ -1173,7 +1173,9 @@ def send_otp(request):
         request.session.modified = True
         return JsonResponse({'success': True})
     else:
-        return JsonResponse({'success': False, 'error': result.get('Details', 'Failed to send OTP.')})
+        logger.warning('send_otp: 2factor API error for phone=%s status=%s details=%s',
+                       phone, result.get('Status'), result.get('Details'))
+        return JsonResponse({'success': False, 'error': 'Failed to send OTP. Please try again.'})
 
 
 def verify_otp(request):
@@ -1193,7 +1195,7 @@ def verify_otp(request):
     if phone and not _rate_limit(f'otp_verify_{phone}', max_attempts=5, window_seconds=600):
         request.session.pop('otp', None)
         request.session.pop('otp_verified', None)
-        return JsonResponse({'success': False, 'error': 'Too many wrong attempts. Please request a new OTP.'})
+        return JsonResponse({'success': False, 'error': 'Too many wrong attempts. Please request a new OTP.'}, status=429)
 
     if entered == stored:
         request.session['otp_verified'] = True
@@ -1225,8 +1227,8 @@ def forgot_password(request):
     return render(request, 'forgot_password.html', {'prefill_phone': phone})
 
 
-def reset_password_otp(request):
-    """Reset password via OTP flow (called from register/login page JS)."""
+def reset_password(request):
+    """Reset password after OTP verification (forgot-password flow)."""
     if request.method != 'POST':
         return JsonResponse({'success': False})
     import json
@@ -1251,13 +1253,19 @@ def reset_password_otp(request):
     user = User.objects.filter(phone=phone).first()
     if not user:
         return JsonResponse({'success': False, 'error': 'No account found with this number'})
+
     user.set_password(password)
     user.save()
-    request.session.pop('otp_verified', None)
-    request.session.pop('otp_phone', None)
     from django.contrib.auth import login as auth_login
     auth_login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-    return JsonResponse({'success': True, 'redirect': '/dashboard/'})
+    request.session.pop('otp_verified', None)
+    request.session.pop('otp_phone', None)
+
+    if user.is_employer() or CompanyProfile.objects.filter(user=user).exists():
+        redirect_url = '/employer/dashboard/'
+    else:
+        redirect_url = '/'
+    return JsonResponse({'success': True, 'redirect': redirect_url})
 
 
 def phone_login(request):
@@ -1272,7 +1280,7 @@ def phone_login(request):
     # Rate limit: max 5 login attempts per IP per 5 minutes
     ip = _get_client_ip(request)
     if not _rate_limit(f'login_ip_{ip}', max_attempts=5, window_seconds=300):
-        return JsonResponse({'success': False, 'error': 'Too many login attempts. Please wait 5 minutes.'})
+        return JsonResponse({'success': False, 'error': 'Too many login attempts. Please wait 5 minutes.'}, status=429)
 
     User     = get_user_model()
     # Try personal phone first, then business phone
@@ -2097,7 +2105,8 @@ def nearby_jobs_api(request):
 
     lat, lng = geocode_pincode(pincode)
     if lat is None:
-        return JsonResponse({'error': f'Could not geocode pincode {pincode}'}, status=404)
+        logger.warning('nearby_jobs_api: geocode failed for pincode=%s', pincode)
+        return JsonResponse({'error': 'Location not found for the given pincode.'}, status=404)
 
     base_qs = Job.objects.filter(status='active')
     if collar:
@@ -2140,7 +2149,8 @@ def ai_generate_description(request):
     from django.conf import settings as django_settings
     api_key = getattr(django_settings, 'ANTHROPIC_API_KEY', '').strip()
     if not api_key:
-        return JsonResponse({'error': 'API key not configured. Add ANTHROPIC_API_KEY in settings.py.'}, status=500)
+        logger.error('ai_generate_description: ANTHROPIC_API_KEY is not configured')
+        return JsonResponse({'error': 'AI feature is temporarily unavailable.'}, status=500)
     try:
         import anthropic
         title       = request.POST.get('title', '').strip()
@@ -2190,7 +2200,8 @@ Keep it clear, professional, and suitable for Indian job seekers. Do not include
         msg = str(e)
         if 'credit balance is too low' in msg or '400' in msg:
             return JsonResponse({'error': 'Insufficient API credits. Please add credits at console.anthropic.com → Plans & Billing.'}, status=402)
-        return JsonResponse({'error': msg}, status=500)
+        logger.exception('ai_generate_description: unexpected error for user %s', request.user.pk)
+        return JsonResponse({'error': 'Something went wrong. Please try again.'}, status=500)
 
 
 # ── INTERVIEW ─────────────────────────────────────────────────────────────────
@@ -3045,7 +3056,6 @@ def favicon(request):
 
 # ── FLICKS ────────────────────────────────────────────────────────────────────
 
-@login_required
 def flicks_feed(request):
     from .models import Flick, FlickLike
     from django.utils import timezone
@@ -3127,6 +3137,7 @@ def delete_flick(request, pk):
     return redirect('flicks_feed')
 
 
+@login_required
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:

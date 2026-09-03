@@ -333,3 +333,74 @@ class LoginRateLimitTest(TestCase):
         data = json.loads(resp.content)
         self.assertFalse(data['success'])
         self.assertIn('Too many', data['error'])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. CRIT-E1 / CRIT-E4 — AI chat endpoint safe error responses
+#
+# Uses RequestFactory + direct view call to bypass Django test DB creation.
+# The view is called directly after patching login_required and settings.
+# ─────────────────────────────────────────────────────────────────────────────
+class AiChatSafeErrorTest(TestCase):
+
+    def _post(self, api_key, side_effect=None, post_data=None):
+        """
+        Call ai_generate_description directly via RequestFactory.
+        Patches login_required so no DB user is needed.
+        """
+        from django.test import RequestFactory
+        from jobs.views import ai_generate_description
+        from django.conf import settings as django_settings
+
+        factory = RequestFactory()
+        request = factory.post('/api/ai-job-description/', post_data or {'title': 'Test'})
+
+        # Attach a minimal mock user so login_required passes
+        mock_user = MagicMock()
+        mock_user.is_authenticated = True
+        mock_user.pk = 0
+        request.user = mock_user
+
+        with patch.object(django_settings, 'ANTHROPIC_API_KEY', api_key):
+            if side_effect is not None:
+                with patch('anthropic.Anthropic') as MockAnthropic:
+                    MockAnthropic.return_value.messages.create.side_effect = side_effect
+                    return ai_generate_description(request)
+            else:
+                return ai_generate_description(request)
+
+    def test_missing_api_key_returns_generic_500(self):
+        """Empty API key returns generic 500 — not settings details."""
+        resp = self._post(api_key='')
+        self.assertEqual(resp.status_code, 500)
+        data = json.loads(resp.content)
+        self.assertEqual(data['error'], 'AI feature is temporarily unavailable.')
+
+    def test_missing_api_key_does_not_expose_settings(self):
+        """Response must not mention settings.py or ANTHROPIC_API_KEY."""
+        resp = self._post(api_key='')
+        body = resp.content.decode()
+        self.assertNotIn('settings.py', body)
+        self.assertNotIn('ANTHROPIC_API_KEY', body)
+
+    def test_api_exception_returns_generic_500(self):
+        """Anthropic API exception → generic message, not str(e)."""
+        resp = self._post(
+            api_key='fake-key',
+            side_effect=RuntimeError('Connection refused: internal details at /v1/messages'),
+        )
+        self.assertEqual(resp.status_code, 500)
+        data = json.loads(resp.content)
+        self.assertEqual(data['error'], 'Something went wrong. Please try again.')
+
+    def test_api_exception_does_not_leak_exception_text(self):
+        """Raw exception message must not appear in the HTTP response body."""
+        secret_detail = 'top_secret_internal_path_xyz_12345'
+        resp = self._post(api_key='fake-key', side_effect=RuntimeError(secret_detail))
+        self.assertNotIn(secret_detail, resp.content.decode())
+
+    def test_api_exception_does_not_expose_api_key(self):
+        """API key value must never appear in the response body."""
+        fake_key = 'fake-key-must-not-appear-in-response'
+        resp = self._post(api_key=fake_key, side_effect=Exception('fail'))
+        self.assertNotIn(fake_key, resp.content.decode())
