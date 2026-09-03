@@ -3056,7 +3056,6 @@ def favicon(request):
 
 # ── FLICKS ────────────────────────────────────────────────────────────────────
 
-@login_required
 def flicks_feed(request):
     from .models import Flick, FlickLike
     from django.utils import timezone
@@ -3138,6 +3137,7 @@ def delete_flick(request, pk):
     return redirect('flicks_feed')
 
 
+@login_required
 def referral_dashboard(request):
     user = request.user
     if not user.referral_code:
