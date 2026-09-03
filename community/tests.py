@@ -329,3 +329,44 @@ class FamilyMemberAgeValidationTest(TestCase):
         for age in created_ages:
             self.assertIsNotNone(age, 'age should be 0, not None, for a future DOB')
             self.assertEqual(age, 0, f'Expected age=0 for future DOB, got {age!r}')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY HARDENING — family_member_detail must require authentication
+# ─────────────────────────────────────────────────────────────────────────────
+
+class FamilyMemberDetailAuthTest(TestCase):
+    """MEDIUM IDOR — family_member_detail must be decorated with @login_required."""
+
+    def test_login_required_decorator_applied(self):
+        """family_member_detail must have @login_required in its decorator chain."""
+        from community import views as community_views
+        view = community_views.family_member_detail
+        self.assertTrue(
+            hasattr(view, 'login_url') or hasattr(view, '__wrapped__'),
+            'family_member_detail must be decorated with @login_required'
+        )
+
+    def test_anonymous_request_is_redirected(self):
+        """Anonymous GET to family_member_detail must redirect to login, not return 200."""
+        from community.views import family_member_detail
+        factory = RequestFactory()
+        request = factory.get('/community/family/member/1/')
+        request.user = MagicMock()
+        request.user.is_authenticated = False
+
+        from django.contrib.sessions.backends.db import SessionStore
+        session = SessionStore()
+        session.create()
+        request.session = session
+
+        with patch('community.views.get_object_or_404') as mock_goo:
+            mock_member = MagicMock()
+            mock_goo.return_value = mock_member
+            resp = family_member_detail(request, pk=1)
+
+        # @login_required returns a redirect (302) for anonymous users
+        self.assertEqual(resp.status_code, 302,
+            f'Expected 302 redirect for anonymous user, got {resp.status_code}')
+        self.assertIn('/login/', resp.get('Location', ''),
+            'Redirect must point to login page')

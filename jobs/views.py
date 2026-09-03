@@ -338,7 +338,11 @@ def forgot_password(request):
 
 
 def login_view(request):
-    next_url = request.GET.get('next', '') or request.POST.get('next', '')
+    from django.utils.http import url_has_allowed_host_and_scheme
+    raw_next = request.GET.get('next', '') or request.POST.get('next', '')
+    next_url = raw_next if url_has_allowed_host_and_scheme(
+        raw_next, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ) else ''
 
     if request.user.is_authenticated:
         return redirect(next_url or 'dashboard')
@@ -1139,7 +1143,7 @@ def send_otp(request):
     User = get_user_model()
     allow_existing = data.get('allow_existing', False) if isinstance(data, dict) else False
     if User.objects.filter(phone=phone).exists() and not allow_existing:
-        return JsonResponse({'success': False, 'already_registered': True,
+        return JsonResponse({'success': False,
                              'error': 'This phone number is already registered. Please sign in.'})
 
     import secrets as _secrets
@@ -1252,7 +1256,7 @@ def reset_password(request):
     User = get_user_model()
     user = User.objects.filter(phone=phone).first()
     if not user:
-        return JsonResponse({'success': False, 'error': 'No account found with this number'})
+        return JsonResponse({'success': False, 'error': 'Invalid request. Please restart the process.'})
 
     user.set_password(password)
     user.save()
@@ -1525,8 +1529,19 @@ def send_message(request):
         msg.content         = content or 'Interview Invitation'
 
     if f:
-        ext          = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
-        msg.msg_type = 'image' if ext in ('jpg','jpeg','png','gif','webp') else (msg_type if msg_type == 'resume' else 'file')
+        ext = f.name.rsplit('.', 1)[-1].lower() if '.' in f.name else ''
+        if ext in ('jpg', 'jpeg', 'png', 'gif', 'webp'):
+            try:
+                from PIL import Image as _PILImage
+                import io as _io
+                _img = _PILImage.open(_io.BytesIO(f.read()))
+                _img.verify()
+                f.seek(0)
+            except Exception:
+                return JsonResponse({'ok': False, 'error': 'Invalid image file.'}, status=400)
+            msg.msg_type = 'image'
+        else:
+            msg.msg_type = msg_type if msg_type == 'resume' else 'file'
         msg.file      = f
         msg.file_name = f.name
 
@@ -2071,6 +2086,9 @@ def _users_list(request):
 def admin_panel_login(request):
     if request.method != 'POST':
         return redirect('home')
+    if not _rate_limit(f'admin_login_{_get_client_ip(request)}', max_attempts=5, window_seconds=300):
+        messages.error(request, 'Too many login attempts. Please wait 5 minutes.')
+        return redirect('home')
     phone    = request.POST.get('phone', '').strip()
     password = request.POST.get('password', '').strip()
     user = authenticate(request, username=phone, password=password)
@@ -2308,8 +2326,8 @@ def state_admin_required(view_func):
 def district_admin_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.admin_role:
-            messages.error(request, 'Admin access required.')
+        if not request.user.is_authenticated or request.user.admin_role != 'district_admin':
+            messages.error(request, 'District Admin access required.')
             return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper

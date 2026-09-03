@@ -404,3 +404,276 @@ class AiChatSafeErrorTest(TestCase):
         fake_key = 'fake-key-must-not-appear-in-response'
         resp = self._post(api_key=fake_key, side_effect=Exception('fail'))
         self.assertNotIn(fake_key, resp.content.decode())
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY HARDENING — PR security-hardening regression tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+class OpenRedirectTest(TestCase):
+    """HIGH — login_view must not redirect to external domains."""
+
+    def _login_next(self, next_url, authenticated=False):
+        from jobs.views import login_view
+        factory = RequestFactory()
+        request = factory.get('/login/', {'next': next_url})
+        request.user = MagicMock()
+        request.user.is_authenticated = authenticated
+        _with_session(request)
+        with patch('jobs.views.messages'):
+            resp = login_view(request)
+        return resp
+
+    def test_open_redirect_external_blocked(self):
+        """next=https://evil.com must not redirect to evil.com."""
+        resp = self._login_next('https://evil.com', authenticated=True)
+        location = resp.get('Location', '')
+        self.assertNotIn('evil.com', location)
+
+    def test_open_redirect_http_external_blocked(self):
+        """next=http://evil.com must not redirect to evil.com."""
+        resp = self._login_next('http://evil.com', authenticated=True)
+        location = resp.get('Location', '')
+        self.assertNotIn('evil.com', location)
+
+    def test_open_redirect_relative_allowed(self):
+        """next=/dashboard/ (relative) must be followed."""
+        resp = self._login_next('/dashboard/', authenticated=True)
+        location = resp.get('Location', '')
+        self.assertIn('dashboard', location)
+
+    def test_open_redirect_empty_goes_to_dashboard(self):
+        """No next param: redirect to dashboard."""
+        resp = self._login_next('', authenticated=True)
+        location = resp.get('Location', '')
+        self.assertTrue(location)  # some redirect happened
+
+
+class SendOtpNoEnumerationKeyTest(TestCase):
+    """MEDIUM — send_otp must not expose already_registered in JSON."""
+
+    def _post_otp(self, phone, phone_exists=True):
+        from jobs.views import send_otp
+        factory = RequestFactory()
+        request = factory.post(
+            '/api/send-otp/',
+            data=json.dumps({'phone': phone}),
+            content_type='application/json',
+        )
+        request.user = MagicMock(is_authenticated=False)
+        _with_session(request)
+        with patch('jobs.views._rate_limit', return_value=True), \
+             patch('jobs.views.get_user_model') as MockUser:
+            MockUser.return_value.objects.filter.return_value.exists.return_value = phone_exists
+            resp = send_otp(request)
+        return resp
+
+    def test_registered_phone_no_enumeration_key(self):
+        """Response for a registered phone must not contain 'already_registered'."""
+        resp = self._post_otp('9876543210', phone_exists=True)
+        body = json.loads(resp.content)
+        self.assertNotIn('already_registered', body)
+
+    def test_registered_phone_has_error_message(self):
+        """Response must still contain a user-facing error message."""
+        resp = self._post_otp('9876543210', phone_exists=True)
+        body = json.loads(resp.content)
+        self.assertIn('error', body)
+        self.assertFalse(body.get('success', True))
+
+
+class ResetPasswordGenericErrorTest(TestCase):
+    """MEDIUM — reset_password must not reveal whether a phone is registered."""
+
+    def _post_reset(self, phone, user_exists=False, otp_verified=True):
+        from jobs.views import reset_password
+        factory = RequestFactory()
+        import json as _json
+        request = factory.post(
+            '/api/reset-password/',
+            data=_json.dumps({'phone': phone, 'password': 'newpass123'}),
+            content_type='application/json',
+        )
+        request.user = MagicMock(is_authenticated=False)
+        _with_session(request, {
+            'otp_verified': otp_verified,
+            'otp_phone': phone,
+        })
+        with patch('jobs.views.get_user_model') as MockUser:
+            MockUser.return_value.objects.filter.return_value.first.return_value = (
+                MagicMock() if user_exists else None
+            )
+            resp = reset_password(request)
+        return json.loads(resp.content)
+
+    def test_unregistered_phone_no_account_hint(self):
+        """'No account found' must not appear for unregistered phones."""
+        body = self._post_reset('9000000000', user_exists=False)
+        self.assertNotIn('No account', str(body))
+        self.assertNotIn('not found', str(body).lower())
+        self.assertFalse(body.get('success', True))
+
+    def test_unregistered_phone_generic_message(self):
+        """Generic safe message must be returned for unknown phones."""
+        body = self._post_reset('9000000000', user_exists=False)
+        self.assertIn('error', body)
+        # Must not reveal account existence
+        self.assertNotIn('number', body.get('error', '').lower())
+
+
+class AdminLoginRateLimitTest(TestCase):
+    """MEDIUM — admin_panel_login must be rate-limited."""
+
+    def _post_admin_login(self, rate_limit_allows=True):
+        from jobs.views import admin_panel_login
+        factory = RequestFactory()
+        request = factory.post('/admin-panel/login/', {'phone': '9000000001', 'password': 'wrong'})
+        request.user = MagicMock(is_authenticated=False)
+        _with_session(request)
+
+        with patch('jobs.views._rate_limit', return_value=rate_limit_allows), \
+             patch('jobs.views._get_client_ip', return_value='1.2.3.4'), \
+             patch('jobs.views.messages') as mock_messages, \
+             patch('jobs.views.authenticate', return_value=None):
+            resp = admin_panel_login(request)
+        return resp, mock_messages
+
+    def test_first_attempt_allowed(self):
+        """Rate limit allows → proceeds to credential check, not blocked."""
+        resp, msgs = self._post_admin_login(rate_limit_allows=True)
+        calls = [str(c) for c in msgs.error.call_args_list]
+        self.assertFalse(any('Too many' in c for c in calls))
+
+    def test_sixth_attempt_blocked(self):
+        """Rate limit denies → 'Too many attempts' error, redirect to home."""
+        resp, msgs = self._post_admin_login(rate_limit_allows=False)
+        calls = [str(c) for c in msgs.error.call_args_list]
+        self.assertTrue(any('Too many' in c for c in calls))
+
+
+class DistrictAdminRoleCheckTest(TestCase):
+    """MEDIUM — district_admin_required must only pass district_admin role."""
+
+    def _call_with_role(self, role):
+        from jobs.views import district_admin_required
+
+        @district_admin_required
+        def dummy_view(request):
+            from django.http import HttpResponse
+            return HttpResponse('OK')
+
+        factory = RequestFactory()
+        request = factory.get('/district-admin/something/')
+        request.user = MagicMock(is_authenticated=True)
+        request.user.admin_role = role
+        _with_session(request)
+        with patch('jobs.views.messages'):
+            return dummy_view(request)
+
+    def test_district_admin_passes(self):
+        """district_admin role must be granted access."""
+        resp = self._call_with_role('district_admin')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_state_admin_blocked(self):
+        """state_admin must NOT pass district_admin_required."""
+        resp = self._call_with_role('state_admin')
+        self.assertEqual(resp.status_code, 302)
+
+    def test_super_admin_blocked(self):
+        """super_admin must NOT bypass district_admin_required."""
+        resp = self._call_with_role('super_admin')
+        self.assertEqual(resp.status_code, 302)
+
+    def test_empty_role_blocked(self):
+        """Empty admin_role must be blocked."""
+        resp = self._call_with_role('')
+        self.assertEqual(resp.status_code, 302)
+
+    def test_no_role_blocked(self):
+        """None admin_role must be blocked."""
+        resp = self._call_with_role(None)
+        self.assertEqual(resp.status_code, 302)
+
+
+class ImageUploadValidationTest(TestCase):
+    """MEDIUM — send_message must reject files with image extension but non-image content."""
+
+    def _make_file(self, name, content):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        return SimpleUploadedFile(name, content, content_type='application/octet-stream')
+
+    def _call_send_message(self, uploaded_file):
+        from jobs.views import send_message
+        factory = RequestFactory()
+        # conv_id is POST data, not a URL kwarg
+        post_data = {'conv_id': '1', 'msg_type': 'text', 'content': ''}
+        request = factory.post('/messages/send/', post_data)
+        request.user = MagicMock()
+        request.user.pk = 1
+        request.FILES['file'] = uploaded_file
+        _with_session(request)
+
+        mock_conv = MagicMock()
+        mock_conv.user_a = request.user
+        mock_conv.user_b = MagicMock()
+        mock_conv.other_user.return_value = mock_conv.user_b
+
+        with patch('jobs.views.get_object_or_404', return_value=mock_conv), \
+             patch('jobs.views.Message') as MockMsg, \
+             patch('jobs.views.UserNotification'), \
+             patch('jobs.views._render_bubble', return_value=''):
+            mock_msg_instance = MagicMock()
+            MockMsg.return_value = mock_msg_instance
+            resp = send_message(request)
+        return resp
+
+    def test_invalid_image_disguised_as_jpg_is_rejected(self):
+        """A file named .jpg containing HTML must be rejected with HTTP 400."""
+        fake_image = self._make_file('payload.jpg', b'<html><script>evil()</script></html>')
+        resp = self._call_send_message(fake_image)
+        self.assertEqual(resp.status_code, 400,
+            f'Expected 400 for invalid image, got {resp.status_code}')
+        body = json.loads(resp.content)
+        self.assertFalse(body.get('ok', True))
+
+    def test_invalid_image_disguised_as_png_is_rejected(self):
+        """A file named .png containing text must be rejected."""
+        fake_image = self._make_file('malware.png', b'This is not a PNG file.')
+        resp = self._call_send_message(fake_image)
+        self.assertEqual(resp.status_code, 400)
+
+    def test_non_image_extension_is_not_pillow_validated(self):
+        """A .pdf file must not trigger Pillow validation — only image extensions are validated."""
+        pdf_file = self._make_file('resume.pdf', b'%PDF-1.4 this is not an image')
+
+        # Patch PIL.Image.open at its source — if called, it would raise for this bad content
+        with patch('PIL.Image.open', side_effect=AssertionError('Pillow must not be called for .pdf')) as mock_pil, \
+             patch('jobs.views.Message') as MockMsg, \
+             patch('jobs.views.UserNotification'), \
+             patch('jobs.views._render_bubble', return_value=''), \
+             patch('jobs.views.get_object_or_404') as mock_goo:
+            mock_conv = MagicMock()
+            mock_conv.user_a = MagicMock()
+            mock_conv.user_b = MagicMock()
+            mock_conv.other_user.return_value = mock_conv.user_b
+            mock_goo.return_value = mock_conv
+
+            mock_msg_instance = MagicMock()
+            mock_msg_instance.pk = 1
+            MockMsg.return_value = mock_msg_instance
+
+            factory = RequestFactory()
+            request = factory.post('/messages/send/', {'conv_id': '1', 'msg_type': 'text', 'content': ''})
+            request.user = mock_conv.user_a
+            request.FILES['file'] = pdf_file
+            _with_session(request)
+
+            from jobs.views import send_message
+            # If Pillow is called, the patched side_effect raises AssertionError
+            try:
+                resp = send_message(request)
+                self.assertNotEqual(resp.status_code, 400,
+                    'PDF upload must not be rejected by image validation')
+            except AssertionError:
+                self.fail('PIL.Image.open was called for a .pdf file — it must not be')
