@@ -7,19 +7,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('community', '0030_merge_20260902_2047'),
+        ('community', '0028_familyflick_video'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='familyflick',
-            name='video',
-            field=models.FileField(blank=True, null=True, upload_to='family_flick_videos/'),
-        ),
-        migrations.AlterField(
-            model_name='familyflick',
-            name='photo',
-            field=models.ImageField(blank=True, null=True, upload_to='family_flicks/'),
-        ),
         migrations.AlterField(
             model_name='familymember',
             name='member_type',

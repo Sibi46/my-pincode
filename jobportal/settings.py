@@ -31,7 +31,7 @@ SITE_TAGLINE = 'Find Jobs Near You. Hire People Near You.'
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'change-me-in-local-settings')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-!22xkr*k3tn!jmif%n$@^1e+jzm5yl1d7!d(80u4*$#h$1-k!')
 
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
