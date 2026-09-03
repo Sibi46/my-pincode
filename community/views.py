@@ -630,8 +630,12 @@ def family_member_create(request):
             breed       = request.POST.get('breed', '').strip(),
         )
         if request.POST.get('age'):
-            try: m.age = int(request.POST['age'])
-            except ValueError: pass
+            try:
+                _age = int(request.POST['age'])
+                if 0 <= _age <= 150:
+                    m.age = _age
+            except ValueError:
+                pass
         if request.POST.get('dob'):
             from datetime import date
             try:
@@ -714,8 +718,12 @@ def family_member_edit(request, pk):
         member.species     = request.POST.get('species', '').strip()
         member.breed       = request.POST.get('breed', '').strip()
         if request.POST.get('age'):
-            try: member.age = int(request.POST['age'])
-            except ValueError: pass
+            try:
+                _age = int(request.POST['age'])
+                if 0 <= _age <= 150:
+                    member.age = _age
+            except ValueError:
+                pass
         if request.POST.get('dob'):
             from datetime import date
             try:
