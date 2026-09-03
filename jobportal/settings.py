@@ -282,3 +282,28 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+# ── Sentry error monitoring ───────────────────────────────────────────────────
+# Activated only when SENTRY_DSN env var is set (production/staging).
+# Never set SENTRY_DSN in development — errors stay local.
+_SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+if _SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    import logging
+
+    sentry_sdk.init(
+        dsn=_SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+            # Capture WARNING+ log messages as breadcrumbs; ERROR+ as events
+            LoggingIntegration(level=logging.WARNING, event_level=logging.ERROR),
+        ],
+        # Capture 10 % of transactions for performance data (low overhead)
+        traces_sample_rate=0.1,
+        # Do not send passwords, tokens, OTPs, or card numbers
+        send_default_pii=False,
+        environment=os.environ.get('DJANGO_ENV', 'production'),
+        release=os.environ.get('GIT_COMMIT', ''),
+    )
