@@ -19,7 +19,7 @@ from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
                      UserNotification, SavedCandidate, Wallet, WalletTransaction,
                      EmployerSubscription, BillingRecord,
                      PointsWallet, PointsTransaction, Referral,
-                     SpinGift, UserSpin, LocalOffer)
+                     SpinGift, UserSpin, LocalOffer, AdPost)
 
 User = get_user_model()
 
@@ -57,39 +57,56 @@ def api_pincode_lookup(request, pin):
 
 # ── HOME ──────────────────────────────────────────────────────────────────────
 def home(request):
+    import random as _random
     from django.utils import timezone as tz
     today = tz.now().date()
 
     # ── Ads ─────────────────────────────────────────────
-    ads_active         = Advertisement.objects.filter(status='active', start_date__lte=today, end_date__gte=today)
-    homepage_banners   = ads_active.filter(package__ad_type='homepage_banner').order_by('?')[:3]
-    featured_employers = ads_active.filter(package__ad_type='featured_employer').order_by('?')[:6]
-    featured_job_ads   = ads_active.filter(package__ad_type='featured_job').order_by('?')[:6]
-    sidebar_ad         = ads_active.filter(package__ad_type='sidebar').order_by('?').first()
-    popup_ad           = ads_active.filter(package__ad_type='popup').order_by('?').first()
-    # track views for all active ads shown on home page
-    all_shown_pks = []
-    if homepage_banners:
-        all_shown_pks += list(homepage_banners.values_list('pk', flat=True))
-    if featured_employers:
-        all_shown_pks += list(featured_employers.values_list('pk', flat=True))
-    if featured_job_ads:
-        all_shown_pks += list(featured_job_ads.values_list('pk', flat=True))
-    if sidebar_ad:
-        all_shown_pks.append(sidebar_ad.pk)
-    if popup_ad:
-        all_shown_pks.append(popup_ad.pk)
+    # Fetch active ads in one query (replaces 5 × ORDER BY RAND() queries).
+    # Pool cap of 90 covers all realistic ad inventory; shuffle in Python.
+    ads_active = Advertisement.objects.filter(status='active', start_date__lte=today, end_date__gte=today)
+    _ad_pool   = list(ads_active.select_related('package')[:90])
+    _random.shuffle(_ad_pool)
+
+    def _pick_ads(ad_type, n):
+        return [a for a in _ad_pool if a.package.ad_type == ad_type][:n]
+
+    homepage_banners   = _pick_ads('homepage_banner', 3)
+    featured_employers = _pick_ads('featured_employer', 6)
+    featured_job_ads   = _pick_ads('featured_job', 6)
+    _sidebar           = _pick_ads('sidebar', 1)
+    sidebar_ad         = _sidebar[0] if _sidebar else None
+    _popup             = _pick_ads('popup', 1)
+    popup_ad           = _popup[0] if _popup else None
+
+    # track views — same UPDATE logic, now using already-fetched PKs
+    all_shown_pks = (
+        [a.pk for a in homepage_banners]
+        + [a.pk for a in featured_employers]
+        + [a.pk for a in featured_job_ads]
+        + ([sidebar_ad.pk] if sidebar_ad else [])
+        + ([popup_ad.pk] if popup_ad else [])
+    )
     if all_shown_pks:
         Advertisement.objects.filter(pk__in=all_shown_pks).update(views=F('views') + 1)
 
     # ── Approved advertiser banners ──────────────────────
-    advertiser_banners = Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='').order_by('?')[:6]
+    # Fetch up to 60 rows (all approved banners in practice), shuffle in Python.
+    _adv_pool = list(
+        Advertiser.objects.filter(status='approved', banner_image__isnull=False).exclude(banner_image='')[:60]
+    )
+    _random.shuffle(_adv_pool)
+    advertiser_banners = _adv_pool[:6]
 
     # ── Live simple ads (AdPost) ─────────────────────────
-    from .models import AdPost
-    live_ads = AdPost.objects.filter(status='approved').filter(
-        Q(expires_at__isnull=True) | Q(expires_at__gte=today)
-    ).order_by('?')[:12]
+    _adpost_pool = list(
+        AdPost.objects.filter(status='approved').filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gte=today)
+        )[:60]
+    )
+    _random.shuffle(_adpost_pool)
+    live_ads = _adpost_pool[:12]
+
     # Track views for AdPost ads shown on home page
     live_ad_pks = [a.pk for a in live_ads]
     if live_ad_pks:
