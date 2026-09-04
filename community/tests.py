@@ -601,3 +601,159 @@ class GalleryTimelineTest(TestCase):
         flicks = list(FamilyFlick.objects.filter(creator=user).order_by('-event_date', '-created_at'))
         self.assertEqual(flicks[0].event_date.year, 2024)
         self.assertEqual(flicks[1].event_date.year, 2023)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Birthday Notifications — detection logic, idempotency, security
+# ─────────────────────────────────────────────────────────────────────────────
+
+class BirthdayNotificationTest(TestCase):
+    """Tests for birthday detection, notification sending, and gift redirect."""
+
+    def _make_user(self, prefix='9'):
+        from jobs.models import User as U
+        import uuid
+        phone = prefix + str(uuid.uuid4().int)[:9]
+        return U.objects.create_user(username=phone, password='test', phone=phone)
+
+    def _make_setup(self, user, self_dob=None, partner_dob=None, partner_name=''):
+        from community.models import FamilySetup
+        return FamilySetup.objects.create(
+            user=user,
+            self_full_name='Test User',
+            gender='male',
+            marital_status='married' if partner_name else 'single',
+            self_dob=self_dob,
+            partner_dob=partner_dob,
+            partner_full_name=partner_name,
+            setup_done=True,
+        )
+
+    def _make_member(self, user, name, dob, status='living'):
+        from community.models import FamilyMember
+        return FamilyMember.objects.create(
+            creator=user, name=name, member_type='brother',
+            side='husband', dob=dob, status=status,
+        )
+
+    def _run_command(self):
+        from django.core.management import call_command
+        call_command('send_birthday_notifications', verbosity=0)
+
+    # ── 1. Birthday today sends notification ──────────────────────────────────
+    def test_birthday_today_sends_notification(self):
+        from datetime import date
+        from jobs.models import UserNotification
+        from community.models import BirthdayNotificationLog
+        user = self._make_user()
+        self._make_setup(user)
+        today = date.today()
+        self._make_member(user, 'Arun', today.replace(year=today.year - 30))
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user, notif_type='success').count(), 1)
+        self.assertEqual(BirthdayNotificationLog.objects.filter(user=user, notif_type='today').count(), 1)
+
+    # ── 2. Birthday in 2 days sends reminder ─────────────────────────────────
+    def test_birthday_in_two_days_sends_reminder(self):
+        from datetime import date, timedelta
+        from jobs.models import UserNotification
+        from community.models import BirthdayNotificationLog
+        user = self._make_user()
+        self._make_setup(user)
+        in_two = date.today() + timedelta(days=2)
+        self._make_member(user, 'Priya', in_two.replace(year=in_two.year - 25))
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user, notif_type='info').count(), 1)
+        self.assertEqual(BirthdayNotificationLog.objects.filter(user=user, notif_type='reminder').count(), 1)
+
+    # ── 3. Other dates send nothing ───────────────────────────────────────────
+    def test_no_notification_for_other_dates(self):
+        from datetime import date, timedelta
+        from jobs.models import UserNotification
+        user = self._make_user()
+        self._make_setup(user)
+        in_five = date.today() + timedelta(days=5)
+        self._make_member(user, 'Rajan', in_five.replace(year=in_five.year - 40))
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user).count(), 0)
+
+    # ── 4. Duplicate not sent on second run ───────────────────────────────────
+    def test_duplicate_not_sent(self):
+        from datetime import date
+        from jobs.models import UserNotification
+        user = self._make_user()
+        self._make_setup(user)
+        today = date.today()
+        self._make_member(user, 'Kavitha', today.replace(year=today.year - 28))
+        self._run_command()
+        self._run_command()  # second run
+        self.assertEqual(UserNotification.objects.filter(user=user).count(), 1)
+
+    # ── 5. Deceased member skipped ────────────────────────────────────────────
+    def test_deceased_member_skipped(self):
+        from datetime import date
+        from jobs.models import UserNotification
+        user = self._make_user()
+        self._make_setup(user)
+        today = date.today()
+        self._make_member(user, 'Late Grandpa', today.replace(year=today.year - 80), status='passed')
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user).count(), 0)
+
+    # ── 6. Null DOB skipped without error ─────────────────────────────────────
+    def test_null_dob_skipped(self):
+        from jobs.models import UserNotification
+        user = self._make_user()
+        self._make_setup(user)
+        self._make_member(user, 'Unknown', dob=None)
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user).count(), 0)
+
+    # ── 7. partner_dob triggers notification ─────────────────────────────────
+    def test_partner_dob_notification(self):
+        from datetime import date
+        from jobs.models import UserNotification
+        user = self._make_user()
+        today = date.today()
+        self._make_setup(user, partner_dob=today.replace(year=today.year - 30), partner_name='Kavitha')
+        self._run_command()
+        notif = UserNotification.objects.filter(user=user).first()
+        self.assertIsNotNone(notif)
+        self.assertIn('Kavitha', notif.message)
+
+    # ── 8. self_dob triggers notification ────────────────────────────────────
+    def test_self_dob_notification(self):
+        from datetime import date
+        from jobs.models import UserNotification
+        user = self._make_user()
+        today = date.today()
+        self._make_setup(user, self_dob=today.replace(year=today.year - 35))
+        self._run_command()
+        self.assertEqual(UserNotification.objects.filter(user=user).count(), 1)
+
+    # ── 9. Gift redirect validates ownership ─────────────────────────────────
+    def test_gift_redirect_validates_ownership(self):
+        from datetime import date
+        user_a = self._make_user('7')
+        user_b = self._make_user('8')
+        self._make_setup(user_a)
+        self._make_setup(user_b)
+        today = date.today()
+        member_b = self._make_member(user_b, 'Bob', today.replace(year=today.year - 30))
+        # user_a tries to gift user_b's family member
+        self.client.force_login(user_a)
+        resp = self.client.get(f'/community/family/birthday-gift/{member_b.pk}/')
+        self.assertEqual(resp.status_code, 403)
+
+    # ── 10. Gift redirect succeeds for own member ─────────────────────────────
+    def test_gift_redirect_succeeds_for_own_member(self):
+        from datetime import date
+        user = self._make_user()
+        self._make_setup(user)
+        today = date.today()
+        member = self._make_member(user, 'Arun', today.replace(year=today.year - 30))
+        self.client.force_login(user)
+        resp = self.client.get(f'/community/family/birthday-gift/{member.pk}/')
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn('gift_for', resp['Location'])
+        self.assertIn('Arun', resp['Location'])
