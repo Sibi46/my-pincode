@@ -215,6 +215,57 @@ function shareFamily(){
 {% endif %}
 
 <!-- ════════════════════════════════
+     BIRTHDAY CARDS
+════════════════════════════════ -->
+{% if birthday_cards %}
+<div style="padding:12px 14px 0;background:#fff">
+  <div style="font-size:12px;font-weight:800;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+    🎂 <span>Birthdays</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    {% for card in birthday_cards %}
+    <div style="background:{% if card.is_today %}linear-gradient(135deg,#fef9c3,#fef3c7){% else %}linear-gradient(135deg,#eff6ff,#dbeafe){% endif %};border:1.5px solid {% if card.is_today %}#fde68a{% else %}#bfdbfe{% endif %};border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+      <!-- Avatar -->
+      <div style="width:46px;height:46px;border-radius:50%;flex-shrink:0;overflow:hidden;background:{% if card.is_today %}#fbbf24{% else %}#93c5fd{% endif %};display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid {% if card.is_today %}#f59e0b{% else %}#60a5fa{% endif %}">
+        {% if card.photo %}<img src="{{ card.photo }}" style="width:100%;height:100%;object-fit:cover">{% else %}{% if card.is_today %}🎂{% else %}🎈{% endif %}{% endif %}
+      </div>
+      <!-- Info -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:900;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ card.name }}</div>
+        <div style="font-size:11px;color:#64748b;font-weight:600;margin-top:1px">{{ card.relation }}</div>
+        <div style="font-size:11px;font-weight:800;margin-top:3px;color:{% if card.is_today %}#b45309{% else %}#1d4ed8{% endif %}">
+          {% if card.is_today %}🎉 Birthday Today!{% else %}🎂 Birthday in 2 days{% endif %}
+        </div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+        {% if card.member_pk %}
+        <a href="/community/family/birthday-gift/{{ card.member_pk }}/" style="display:inline-block;background:{% if card.is_today %}#f59e0b{% else %}#1d4ed8{% endif %};color:#fff;font-size:11px;font-weight:800;padding:6px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;text-align:center">🎁 Send Gift</a>
+        {% endif %}
+        <button onclick="wishBirthday('{{ card.name }}')" style="background:{% if card.is_today %}#16a34a{% else %}#6d28d9{% endif %};color:#fff;font-size:11px;font-weight:800;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap">🎉 Wish Now</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<div id="bdayToast" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;z-index:9999;white-space:nowrap">✅ Message copied!</div>
+<script>
+function wishBirthday(name){
+  var msg = '🎉 Happy Birthday ' + name + '! Wishing you a wonderful day filled with joy and happiness! 🎂';
+  if(navigator.share){
+    navigator.share({title:'Birthday Wishes for '+name, text:msg}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(msg).then(function(){
+      var t=document.getElementById('bdayToast');
+      t.style.display='block';
+      setTimeout(function(){t.style.display='none'},2500);
+    });
+  }
+}
+</script>
+
+<!-- ════════════════════════════════
      FLOW 1 — MY FAMILY
 ════════════════════════════════ -->
 <div class="fh-flow active" id="flow-family">

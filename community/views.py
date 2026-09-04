@@ -584,6 +584,67 @@ def family_hub(request):
         member_type__in=['uncle','aunt','cousin','brother','sister','friend','colleague']
     ).exists() if request.user.is_authenticated else False
 
+    # ── BIRTHDAY CARDS ────────────────────────────────────────────────────────
+    birthday_cards = []
+    if request.user.is_authenticated and setup:
+        from datetime import date as _date, timedelta
+        import calendar as _cal
+
+        def _bday_match(dob, target):
+            if dob.month == 2 and dob.day == 29:
+                if not _cal.isleap(target.year):
+                    return target.month == 2 and target.day == 28
+            return dob.month == target.month and dob.day == target.day
+
+        _today   = _date.today()
+        _in_two  = _today + timedelta(days=2)
+
+        def _days_until(dob):
+            this_year = _date(year=_today.year, month=dob.month if not (dob.month == 2 and dob.day == 29 and not _cal.isleap(_today.year)) else 2,
+                              day=dob.day if not (dob.month == 2 and dob.day == 29 and not _cal.isleap(_today.year)) else 28)
+            if this_year < _today:
+                this_year = this_year.replace(year=_today.year + 1)
+            return (this_year - _today).days
+
+        # self_dob
+        if setup.self_dob:
+            days = _days_until(setup.self_dob)
+            if days in (0, 2):
+                birthday_cards.append({
+                    'name': setup.self_full_name or request.user.get_full_name() or 'You',
+                    'relation': 'You',
+                    'days': days,
+                    'is_today': days == 0,
+                    'member_pk': None,
+                    'photo': setup.self_photo.url if setup.self_photo else None,
+                })
+
+        # partner_dob
+        if setup.partner_dob and setup.partner_full_name:
+            days = _days_until(setup.partner_dob)
+            if days in (0, 2):
+                birthday_cards.append({
+                    'name': setup.partner_full_name,
+                    'relation': setup.partner_gender.title() if setup.partner_gender else 'Partner',
+                    'days': days,
+                    'is_today': days == 0,
+                    'member_pk': None,
+                    'photo': setup.partner_photo.url if setup.partner_photo else None,
+                })
+
+        # FamilyMember DOBs
+        for _m in FamilyMember.objects.filter(creator=request.user, status='living', dob__isnull=False).only('pk', 'name', 'dob', 'member_type', 'photo'):
+            days = _days_until(_m.dob)
+            if days in (0, 2):
+                birthday_cards.append({
+                    'name': _m.name,
+                    'relation': _m.get_member_type_display(),
+                    'days': days,
+                    'is_today': days == 0,
+                    'member_pk': _m.pk,
+                    'photo': _m.photo.url if _m.photo else None,
+                })
+
     return render(request, 'community/family_hub.html', {
         'setup':           setup,
         'setup_rows':      setup_rows,
@@ -600,6 +661,7 @@ def family_hub(request):
         'flick_groups':    flick_groups,
         'posts':           posts,
         'relatives_exist': relatives_exist,
+        'birthday_cards':  birthday_cards,
     })
 
 
@@ -2513,3 +2575,19 @@ def community_search(request):
         'pincode': pincode,
         'count':   len(results),
     })
+
+
+# ── BIRTHDAY GIFT REDIRECT ─────────────────────────────────────────────────────
+@login_required
+def birthday_gift_redirect(request, member_pk):
+    """
+    Security-checked redirect to the voucher marketplace pre-filled for a
+    birthday family member. Returns 403 if the member does not belong to this user.
+    """
+    from django.http import HttpResponseForbidden
+    member = get_object_or_404(FamilyMember, pk=member_pk)
+    if member.creator_id != request.user.pk:
+        return HttpResponseForbidden('You are not allowed to gift this family member.')
+    from urllib.parse import urlencode
+    params = urlencode({'gift_for': member.pk, 'gift_name': member.name})
+    return redirect(f'/vouchers/marketplace/?{params}')

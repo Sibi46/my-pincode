@@ -963,6 +963,25 @@ class FamilyMember(models.Model):
         return f"{self.name} ({self.get_member_type_display()})"
 
 
+# ── BIRTHDAY NOTIFICATION LOG ──────────────────────────────────────────────────
+class BirthdayNotificationLog(models.Model):
+    """Idempotency guard — one row per (user, dob_owner_key, year, notif_type)."""
+    NOTIF_TYPES = [('reminder', 'Reminder'), ('today', 'Today')]
+    user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='birthday_notif_logs')
+    family_member = models.ForeignKey('FamilyMember', null=True, blank=True, on_delete=models.SET_NULL)
+    # 'self' | 'partner' | str(FamilyMember.pk)
+    dob_owner_key = models.CharField(max_length=20)
+    year          = models.PositiveIntegerField()
+    notif_type    = models.CharField(max_length=10, choices=NOTIF_TYPES)
+    sent_at       = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [('user', 'dob_owner_key', 'year', 'notif_type')]
+
+    def __str__(self):
+        return f"{self.user} | {self.dob_owner_key} | {self.year} | {self.notif_type}"
+
+
 class FamilyFlick(models.Model):
     creator    = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_flicks')
     photo      = models.ImageField(upload_to='family_flicks/', blank=True, null=True)
