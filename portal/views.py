@@ -94,12 +94,40 @@ def community_page(request, page_id):
     leaders    = community.leaders.filter(status='accepted').order_by('role')
     members    = community.memberships.filter(status='approved').select_related('user').prefetch_related('user__seeker')[:12]
 
+    # Gallery timeline — image posts grouped by year/month
+    _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    gallery_groups = []
+    image_posts = community.posts.filter(is_active=True).exclude(image='').order_by('-event_date', '-created_at')
+    _cur_ym = None
+    _cur_grp = None
+    _last_year = None
+    for p in image_posts:
+        d = p.event_date or p.created_at.date()
+        ym = (d.year, d.month)
+        if ym != _cur_ym:
+            if _cur_grp:
+                gallery_groups.append(_cur_grp)
+            _cur_grp = {
+                'year': d.year,
+                'show_year': d.year != _last_year,
+                'month_name': _MONTHS[d.month - 1],
+                'count': 0,
+                'items': [],
+            }
+            _last_year = d.year
+            _cur_ym = ym
+        _cur_grp['items'].append(p)
+        _cur_grp['count'] += 1
+    if _cur_grp:
+        gallery_groups.append(_cur_grp)
+
     return render(request, 'portal/community_page.html', {
         'community': community, 'is_member': is_member,
         'is_admin': is_admin, 'membership': membership,
         'posts': posts, 'causes': causes, 'events': events, 'pending_events': pending_events,
         'activities': activities, 'videos': videos, 'flicks': flicks,
         'leaders': leaders, 'members': members,
+        'gallery_groups': gallery_groups,
     })
 
 
@@ -1316,11 +1344,20 @@ def create_post(request, page_id):
         return redirect('portal_community', page_id=page_id)
 
     if request.method == 'POST':
+        from datetime import date as _date
         p = request.POST
+        event_date = None
+        raw_date = p.get('event_date', '').strip()
+        if raw_date:
+            try:
+                event_date = _date.fromisoformat(raw_date)
+            except ValueError:
+                pass
         post = Post(
             community=community, author=request.user,
-            post_type=p.get('post_type','update'),
-            content=p.get('content','').strip(),
+            post_type=p.get('post_type', 'update'),
+            content=p.get('content', '').strip(),
+            event_date=event_date,
         )
         if 'image' in request.FILES:
             post.image = request.FILES['image']

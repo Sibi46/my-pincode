@@ -351,6 +351,7 @@ class Post(models.Model):
     post_type  = models.CharField(max_length=15, choices=POST_TYPES, default='update')
     content    = models.TextField()
     image      = models.ImageField(upload_to='portal/posts/', blank=True)
+    event_date = models.DateField(null=True, blank=True)
     is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
