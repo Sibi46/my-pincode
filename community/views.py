@@ -550,7 +550,33 @@ def family_hub(request):
         _cm = FamilyMember.objects.filter(child_linked_user=request.user).first()
         if _cm:
             _family_owner = _cm.creator
-    flicks    = FamilyFlick.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
+    _MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    flick_groups = []
+    if request.user.is_authenticated:
+        raw_flicks = FamilyFlick.objects.filter(creator=_family_owner).order_by('-event_date', '-created_at')
+        current_ym = None
+        current_group = None
+        last_year = None
+        for f in raw_flicks:
+            d = f.event_date or f.created_at.date()
+            ym = (d.year, d.month)
+            if ym != current_ym:
+                if current_group:
+                    flick_groups.append(current_group)
+                current_group = {
+                    'year': d.year,
+                    'show_year': d.year != last_year,
+                    'month_name': _MONTHS[d.month - 1],
+                    'count': 0,
+                    'items': [],
+                }
+                last_year = d.year
+                current_ym = ym
+            current_group['items'].append(f)
+            current_group['count'] += 1
+        if current_group:
+            flick_groups.append(current_group)
+
     posts     = FamilyPost.objects.filter(creator=_family_owner) if request.user.is_authenticated else []
 
     relatives_exist = FamilyMember.objects.filter(
@@ -571,7 +597,7 @@ def family_hub(request):
         'p_father':        p_father,
         'p_mother':        p_mother,
         'friends':         friends,
-        'flicks':          flicks,
+        'flick_groups':    flick_groups,
         'posts':           posts,
         'relatives_exist': relatives_exist,
     })
@@ -767,20 +793,30 @@ def family_member_verify(request, pk):
 @login_required
 @require_POST
 def family_flick_add(request):
+    from datetime import date as _date
     photo = request.FILES.get('photo')
     video = request.FILES.get('video')
     if not photo and not video:
         return JsonResponse({'ok': False, 'error': 'Choose a photo or video'})
     caption = request.POST.get('caption', '').strip()
-    flick = FamilyFlick(creator=request.user, caption=caption)
+    event_date = None
+    raw_date = request.POST.get('event_date', '').strip()
+    if raw_date:
+        try:
+            event_date = _date.fromisoformat(raw_date)
+        except ValueError:
+            pass
+    flick = FamilyFlick(creator=request.user, caption=caption, event_date=event_date)
     if photo:
         flick.photo = photo
     if video:
         flick.video = video
     flick.save()
     media_url = flick.photo.url if flick.photo else flick.video.url
+    display_date = (event_date or flick.created_at.date()).isoformat()
     return JsonResponse({'ok': True, 'pk': flick.pk, 'url': media_url,
-                         'is_video': bool(video), 'caption': caption})
+                         'is_video': bool(video), 'caption': caption,
+                         'event_date': display_date})
 
 
 @login_required

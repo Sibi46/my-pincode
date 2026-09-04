@@ -548,51 +548,101 @@ function shareFamily(){
 
 
 <!-- ════════════════════════════════
-     FLOW 5 — FAMILY FLICK
+     FLOW 5 — FAMILY GALLERY (TIMELINE)
 ════════════════════════════════ -->
+<style>
+/* ── GALLERY TIMELINE ── */
+.gl-timeline{padding:16px 16px 100px}
+.gl-year-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-size:11px;font-weight:800;padding:5px 14px;border-radius:20px;margin:18px 0 10px;letter-spacing:.04em}
+.gl-month-row{display:flex;align-items:center;gap:8px;margin:12px 0 8px}
+.gl-month-lbl{font-size:11px;font-weight:800;color:#64748B;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em}
+.gl-month-line{flex:1;height:1px;background:#E0E7FF}
+.gl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:4px}
+.gl-cell{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#EEF2FF;cursor:pointer}
+.gl-cell img,.gl-cell video{width:100%;height:100%;object-fit:cover;display:block}
+.gl-play-badge{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.52);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;pointer-events:none}
+.gl-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.65));padding:6px 8px;font-size:10px;font-weight:600;color:#fff;line-height:1.3;pointer-events:none}
+.gl-date-tag{font-size:9px;font-weight:700;color:#94A3B8;margin-top:4px;text-align:center}
+.gl-share-btn{display:flex;align-items:center;justify-content:center;gap:3px;font-size:9px;font-weight:700;color:#4F46E5;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;padding:3px 8px;cursor:pointer;font-family:inherit;width:100%;margin-top:3px}
+.gl-share-btn:active{background:#C7D2FE}
+.gl-item{display:flex;flex-direction:column}
+/* upload box stays same style */
+.gl-upload-box{background:#fff;border-radius:20px;border:1px solid #E0E7FF;margin-bottom:18px;overflow:hidden}
+.gl-upload-head{padding:14px 16px;background:#F8FAFF;border-bottom:1px solid #E0E7FF;font-size:12px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em}
+</style>
+
 <div class="fh-flow" id="flow-flick">
-  <div style="padding:16px 16px 80px">
+  <div class="gl-timeline">
     {% if setup and setup.setup_done %}
-    <!-- Upload box -->
-    <div style="background:#fff;border-radius:20px;border:1px solid #E0E7FF;margin-bottom:18px;overflow:hidden">
-      <div style="padding:14px 16px;background:#F8FAFF;border-bottom:1px solid #E0E7FF;font-size:12px;font-weight:800;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em">📸 Add a Flick</div>
+
+    <!-- ── Upload box ── -->
+    <div class="gl-upload-box">
+      <div class="gl-upload-head">📸 Add to Gallery</div>
       <div style="padding:14px 16px">
         <div id="flickPreviewWrap" style="display:none;margin-bottom:10px">
           <img id="flickPreviewImg" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px" alt="">
           <video id="flickPreviewVid" style="width:100%;max-height:220px;border-radius:12px;display:none" controls></video>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:10px">
-          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
             <span style="font-size:1.8rem;margin-bottom:4px">📷</span>
             <span style="font-size:12px;font-weight:700;color:#4F46E5">Photo</span>
             <input type="file" id="flickPhotoInput" accept="image/*" style="display:none" onchange="flickPickPhoto(this)">
           </label>
-          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:18px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
+          <label style="flex:1;display:flex;flex-direction:column;align-items:center;border:2px dashed #C7D2FE;border-radius:14px;padding:16px 10px;text-align:center;cursor:pointer;background:#FAFBFF">
             <span style="font-size:1.8rem;margin-bottom:4px">🎥</span>
             <span style="font-size:12px;font-weight:700;color:#7C3AED">Video</span>
             <input type="file" id="flickVideoInput" accept="video/*" style="display:none" onchange="flickPickVideo(this)">
           </label>
         </div>
-        <input id="flickCaption" type="text" placeholder="Add a caption…" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:10px">
-        <button onclick="flickSave()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Share Flick</button>
+        <input id="flickCaption" type="text" placeholder="Add a caption…" style="width:100%;padding:11px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:14px;font-family:inherit;outline:none;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <label style="font-size:11px;font-weight:700;color:#64748B;white-space:nowrap">📅 Date taken</label>
+          <input id="flickEventDate" type="date" style="flex:1;padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;font-family:inherit;outline:none;color:#0F172A">
+        </div>
+        <button onclick="flickSave()" style="width:100%;padding:12px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">✨ Add to Gallery</button>
       </div>
     </div>
-    <!-- Grid -->
-    <div id="flickGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-      {% for f in flicks %}
-      <div style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF">
-        {% if f.video %}
-          <video src="{{ f.video.url }}" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>
-          <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>
-        {% else %}
-          <img src="{{ f.photo.url }}" style="width:100%;height:100%;object-fit:cover" onclick="openImg('{{ f.photo.url }}','📸')" alt="">
+
+    <!-- ── Timeline ── -->
+    <div id="flickTimeline">
+    {% if flick_groups %}
+      {% for grp in flick_groups %}
+        {% if grp.show_year %}
+        <div class="gl-year-pill">📅 {{ grp.year }}</div>
         {% endif %}
-        {% if f.caption %}<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">{{ f.caption }}</div>{% endif %}
-      </div>
-      {% empty %}
-      <div style="grid-column:1/-1;text-align:center;padding:32px;color:#94A3B8;font-size:13px;font-weight:600">No flicks yet — share your first family photo!</div>
+        <div class="gl-month-row">
+          <span class="gl-month-lbl">{{ grp.month_name }}</span>
+          <div class="gl-month-line"></div>
+          <span style="font-size:10px;font-weight:700;color:#94A3B8">{{ grp.count }} photo{% if grp.count != 1 %}s{% endif %}</span>
+        </div>
+        <div class="gl-grid">
+          {% for f in grp.items %}
+          <div class="gl-item">
+            <div class="gl-cell" id="glcell-{{ f.pk }}">
+              {% if f.video %}
+                <video src="{{ f.video.url }}" playsinline muted onclick="this.paused?this.play():this.pause()"></video>
+                <div class="gl-play-badge">▶</div>
+              {% else %}
+                <img src="{{ f.photo.url }}" onclick="openImg('{{ f.photo.url }}','📸')" alt="{{ f.caption|default:'family photo' }}">
+              {% endif %}
+              {% if f.caption %}<div class="gl-caption">{{ f.caption }}</div>{% endif %}
+            </div>
+            <div class="gl-date-tag">{% if f.event_date %}{{ f.event_date|date:"d M Y" }}{% else %}{{ f.created_at|date:"d M Y" }}{% endif %}</div>
+            <button class="gl-share-btn" onclick="flickShare('{% if f.photo %}{{ f.photo.url }}{% else %}{{ f.video.url }}{% endif %}','{{ f.caption|default:"Family memory"|escapejs }}',{{ f.pk }})">🔗 Share</button>
+          </div>
+          {% endfor %}
+        </div>
       {% endfor %}
-    </div>
+    {% else %}
+      <div style="text-align:center;padding:48px 20px">
+        <div style="font-size:3rem;margin-bottom:12px">📷</div>
+        <div style="font-size:15px;font-weight:800;color:#0F172A;margin-bottom:6px">Your gallery is empty</div>
+        <div style="font-size:13px;color:#94A3B8;line-height:1.6">Add photos and videos above to build your family timeline.</div>
+      </div>
+    {% endif %}
+    </div><!-- /flickTimeline -->
+
     {% endif %}
   </div>
 </div><!-- /flow-flick -->
@@ -933,27 +983,70 @@ function flickSave(){
   if(hasPhoto) fd.append('photo',photoInput.files[0]);
   if(hasVideo) fd.append('video',videoInput.files[0]);
   fd.append('caption',document.getElementById('flickCaption').value);
+  var evDate=document.getElementById('flickEventDate').value;
+  if(evDate) fd.append('event_date',evDate);
   fetch('/community/family/flick/add/',{method:'POST',body:fd})
     .then(function(r){return r.json();})
     .then(function(d){
       if(!d.ok){alert(d.error||'Error');return;}
-      var grid=document.getElementById('flickGrid');
-      var empty=grid.querySelector('[style*="No flicks"]');
-      if(empty) empty.remove();
-      var div=document.createElement('div');
-      div.style.cssText='position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#EEF2FF';
-      if(d.is_video){
-        div.innerHTML='<video src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" playsinline muted onclick="this.paused?this.play():this.pause()"></video>'
-          +'<div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.5);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:10px">▶</div>';
-      } else {
-        div.innerHTML='<img src="'+d.url+'" style="width:100%;height:100%;object-fit:cover" onclick="openImg(\''+d.url+'\',\'📸\')" alt="">';
+      /* Format display date */
+      var rawDate=d.event_date||'';
+      var dateLabel='';
+      if(rawDate){
+        var parts=rawDate.split('-');
+        if(parts.length===3){
+          var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          dateLabel=parseInt(parts[2],10)+' '+months[parseInt(parts[1],10)-1]+' '+parts[0];
+        }
       }
-      if(d.caption) div.innerHTML+='<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:6px 8px;font-size:10px;font-weight:600;color:#fff">'+d.caption+'</div>';
-      grid.insertAdjacentElement('afterbegin',div);
+      /* Build the new timeline item */
+      var item=document.createElement('div');
+      item.className='gl-item';
+      var cell='<div class="gl-cell" id="glcell-'+d.pk+'">';
+      if(d.is_video){
+        cell+='<video src="'+d.url+'" playsinline muted onclick="this.paused?this.play():this.pause()"></video>'
+             +'<div class="gl-play-badge">▶</div>';
+      } else {
+        cell+='<img src="'+d.url+'" onclick="openImg(\''+d.url+'\',\'📸\')" alt="">';
+      }
+      if(d.caption) cell+='<div class="gl-caption">'+d.caption+'</div>';
+      cell+='</div>';
+      cell+='<div class="gl-date-tag">'+(dateLabel||'Just now')+'</div>';
+      cell+='<button class="gl-share-btn" onclick="flickShare(\''+d.url+'\',\''+(d.caption||'Family memory')+'\','+d.pk+')">🔗 Share</button>';
+      item.innerHTML=cell;
+      /* Prepend to timeline — find or create a "Just added" section */
+      var tl=document.getElementById('flickTimeline');
+      var emptyMsg=tl.querySelector('[style*="gallery is empty"]');
+      if(emptyMsg) emptyMsg.parentElement.remove();
+      var firstGrid=tl.querySelector('.gl-grid');
+      if(firstGrid){
+        firstGrid.insertAdjacentElement('afterbegin',item);
+      } else {
+        var wrapper=document.createElement('div');
+        wrapper.innerHTML='<div class="gl-year-pill">📅 '+(rawDate?rawDate.slice(0,4):new Date().getFullYear())+'</div>'
+          +'<div class="gl-month-row"><span class="gl-month-lbl">Recent</span><div class="gl-month-line"></div></div>'
+          +'<div class="gl-grid"></div>';
+        tl.insertAdjacentElement('afterbegin',wrapper);
+        wrapper.querySelector('.gl-grid').appendChild(item);
+      }
       photoInput.value=''; videoInput.value='';
       document.getElementById('flickCaption').value='';
+      document.getElementById('flickEventDate').value='';
       document.getElementById('flickPreviewWrap').style.display='none';
     });
+}
+function flickShare(url,caption,pk){
+  var pageUrl=window.location.origin+'/community/family/#glcell-'+pk;
+  var text=caption+' — Family Gallery on OUR PINCODE';
+  if(navigator.share){
+    navigator.share({title:text,url:pageUrl,text:caption}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(pageUrl).then(function(){
+      var t=document.getElementById('shareToast');
+      t.style.display='block';
+      setTimeout(function(){t.style.display='none';},2500);
+    });
+  }
 }
 
 /* ── POST ── */
