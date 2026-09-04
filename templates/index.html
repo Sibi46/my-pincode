@@ -152,16 +152,15 @@ a{text-decoration:none;color:inherit}
 
 /* ── CATEGORY SECTION ── */
 .cat-section{background:#fff;border-bottom:1px solid #eee}
-.cat-section-header{max-width:640px;margin:0 auto;padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between}
+.cat-section-header{max-width:400px;margin:0 auto;padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between}
 .cat-section-title{font-size:14px;font-weight:900;color:#111}
 .cat-section-more{font-size:12px;color:#1d4ed8;font-weight:700;text-decoration:none}
-.cat-inner{max-width:480px;margin:0 auto;padding:10px 12px 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px 4px}
-@media(max-width:400px){.cat-inner{grid-template-columns:repeat(4,1fr)}}
-.cat-item{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px 8px;cursor:pointer;transition:.2s;text-decoration:none;color:#111;opacity:0;transform:scale(.6) translateY(20px)}
+.cat-inner{max-width:360px;margin:0 auto;padding:10px 16px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px 0}
+.cat-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;cursor:pointer;transition:.2s;text-decoration:none;color:#111;opacity:0;transform:scale(.6) translateY(20px)}
 .cat-item.cat-popped{opacity:1;transform:scale(1) translateY(0);transition:opacity .35s ease,transform .35s cubic-bezier(.34,1.56,.64,1)}
-.cat-item:hover .cat-icon{transform:scale(1.12)}
-.cat-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;transition:.2s;border:2px solid rgba(0,0,0,.04);box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.cat-label{font-size:9px;font-weight:800;color:#333;text-align:center;line-height:1.3}
+.cat-item:hover .cat-icon{transform:scale(1.1)}
+.cat-icon{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;transition:.2s;border:2px solid rgba(0,0,0,.04);box-shadow:0 2px 10px rgba(0,0,0,.09)}
+.cat-label{font-size:10px;font-weight:800;color:#333;text-align:center;line-height:1.3;max-width:80px}
 .cat-sub{display:none}
 .ci-pur{background:#f3e8ff;color:#7c3aed}
 .ci-yel{background:#fef9c3;color:#b45309}
@@ -371,23 +370,19 @@ a{text-decoration:none;color:inherit}
 </div>
 
 <!-- WORLD'S FIRST HUMAN MEDIA STRIP -->
-<div style="background:linear-gradient(160deg,#0f172a 0%,#1d4ed8 45%,#7c3aed 100%);padding:22px 16px 20px;text-align:center;position:relative;overflow:hidden">
-  <!-- decorative circles -->
-  <div style="position:absolute;top:-40px;left:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none"></div>
-  <div style="position:absolute;bottom:-50px;right:-10px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none"></div>
-  <div style="position:absolute;top:10px;right:30px;width:60px;height:60px;border-radius:50%;background:rgba(249,115,22,.15);pointer-events:none"></div>
-  <div style="position:relative;z-index:1">
+<div style="background:linear-gradient(160deg,#0f172a 0%,#1a3aaf 50%,#6d28d9 100%);padding:26px 16px 24px;text-align:center;position:relative;overflow:hidden">
+  <div style="position:absolute;top:-50px;left:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none"></div>
+  <div style="position:absolute;bottom:-60px;right:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0">
     <!-- Brand name -->
-    <div style="font-size:28px;font-weight:900;color:#fff;line-height:1;letter-spacing:-.5px;margin-bottom:6px;text-shadow:0 2px 16px rgba(0,0,0,.35)">
-      <span style="color:#fff">Our</span><span style="color:#f97316">Pincode</span><span style="color:rgba(255,255,255,.6);font-size:18px;font-weight:700">.com</span>
+    <div style="font-size:32px;font-weight:900;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">
+      <span style="color:#fff">Our</span><span style="color:#fb923c">Pincode</span>
     </div>
-    <!-- World's first tag -->
-    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;margin-bottom:6px">
-      <span style="font-size:13px">🌍</span>
-      <span style="font-size:10px;font-weight:800;color:rgba(255,255,255,.9);letter-spacing:.12em;text-transform:uppercase">World's First</span>
-    </div>
+    <!-- Globe + WORLD'S FIRST -->
+    <div style="font-size:22px;margin-bottom:2px">🌍</div>
+    <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.75);letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px">World's First</div>
     <!-- Tagline -->
-    <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,.95);letter-spacing:.01em;text-shadow:0 1px 6px rgba(0,0,0,.2)">Human Media Platform</div>
+    <div style="font-size:16px;font-weight:700;color:#fff;letter-spacing:.01em">Human Media Platform</div>
   </div>
 </div>
 
