@@ -1029,6 +1029,8 @@ function flickSave(){
   var hasPhoto=photoInput.files&&photoInput.files[0];
   var hasVideo=videoInput.files&&videoInput.files[0];
   if(!hasPhoto&&!hasVideo){alert('Choose a photo or video first');return;}
+  var btn=document.querySelector('[onclick="flickSave()"]');
+  if(btn){btn.disabled=true;btn.textContent='Uploading…';}
   var fd=new FormData();
   fd.append('csrfmiddlewaretoken','{{ csrf_token }}');
   if(hasPhoto) fd.append('photo',photoInput.files[0]);
@@ -1037,9 +1039,13 @@ function flickSave(){
   var evDate=document.getElementById('flickEventDate').value;
   if(evDate) fd.append('event_date',evDate);
   fetch('/community/family/flick/add/',{method:'POST',body:fd})
-    .then(function(r){return r.json();})
+    .then(function(r){
+      if(!r.ok) return r.text().then(function(t){throw new Error('Server error '+r.status+': '+t.slice(0,200));});
+      return r.json();
+    })
     .then(function(d){
-      if(!d.ok){alert(d.error||'Error');return;}
+      if(btn){btn.disabled=false;btn.textContent='✨ Add to Gallery';}
+      if(!d.ok){alert(d.error||'Upload failed');return;}
       /* Format display date */
       var rawDate=d.event_date||'';
       var dateLabel='';
@@ -1084,6 +1090,10 @@ function flickSave(){
       document.getElementById('flickCaption').value='';
       document.getElementById('flickEventDate').value='';
       document.getElementById('flickPreviewWrap').style.display='none';
+    })
+    .catch(function(err){
+      if(btn){btn.disabled=false;btn.textContent='✨ Add to Gallery';}
+      alert('Upload failed: '+(err.message||'Network error. Please try again.'));
     });
 }
 function flickShare(url,caption,pk){

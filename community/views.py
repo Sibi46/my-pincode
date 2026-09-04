@@ -868,12 +868,17 @@ def family_flick_add(request):
             event_date = _date.fromisoformat(raw_date)
         except ValueError:
             pass
-    flick = FamilyFlick(creator=request.user, caption=caption, event_date=event_date)
-    if photo:
-        flick.photo = photo
-    if video:
-        flick.video = video
-    flick.save()
+    try:
+        flick = FamilyFlick(creator=request.user, caption=caption, event_date=event_date)
+        if photo:
+            flick.photo = photo
+        if video:
+            flick.video = video
+        flick.save()
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).error('family_flick_add save failed: %s', exc, exc_info=True)
+        return JsonResponse({'ok': False, 'error': 'Save failed: ' + str(exc)}, status=500)
     media_url = flick.photo.url if flick.photo else flick.video.url
     display_date = (event_date or flick.created_at.date()).isoformat()
     return JsonResponse({'ok': True, 'pk': flick.pk, 'url': media_url,
