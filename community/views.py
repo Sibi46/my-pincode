@@ -1413,7 +1413,7 @@ def kids_corner_post(request):
             KidsPost.objects.create(
                 posted_by=request.user, title=title, content=content,
                 post_type=post_type, kid_name=kid_name,
-                age=int(age) if age.isdigit() else None,
+                age=max(0, min(150, int(age))) if age.isdigit() else None,
                 image=image, pincode=pincode,
             )
             messages.success(request, 'Posted to Kids Corner!')
@@ -1593,7 +1593,7 @@ def grandparents_post(request):
             GrandparentStory.objects.create(
                 user=request.user, title=title, content=content,
                 category=category, elder_name=elder_name,
-                age=int(age) if age.isdigit() else None,
+                age=max(0, min(200, int(age))) if age.isdigit() else None,
                 era=era, image=image, pincode=pincode,
             )
             messages.success(request, 'Story preserved in the archive!')

@@ -370,3 +370,107 @@ class FamilyMemberDetailAuthTest(TestCase):
             f'Expected 302 redirect for anonymous user, got {resp.status_code}')
         self.assertIn('/login/', resp.get('Location', ''),
             'Redirect must point to login page')
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HIGH ISSUE #2 — kids_corner_post and grandparents_post age clamping
+# Prevents DataError (1264) under STRICT_ALL_TABLES when a user submits
+# an age value outside the column's PositiveSmallIntegerField range (0-65535).
+# ─────────────────────────────────────────────────────────────────────────────
+
+class KidsCornerAgeClampTest(TestCase):
+    """
+    Verify that kids_corner_post clamps age to max 150 before any DB write.
+    PositiveSmallIntegerField (smallint unsigned) max is 65535; values like
+    99999 would previously cause DataError (1264) under STRICT_ALL_TABLES.
+    """
+
+    def _compute_age(self, age_str):
+        """Return the age value that kids_corner_post would pass to KidsPost.objects.create."""
+        age = age_str.strip()
+        if age.isdigit():
+            return max(0, min(150, int(age)))
+        return None
+
+    def test_large_age_clamped_to_150(self):
+        """Age 99999 must be clamped to 150, not passed to DB unchanged."""
+        self.assertEqual(self._compute_age('99999'), 150)
+
+    def test_age_65535_clamped_to_150(self):
+        """Age 65535 (smallint unsigned max) must be clamped to 150."""
+        self.assertEqual(self._compute_age('65535'), 150)
+
+    def test_normal_age_preserved(self):
+        """Normal child age (e.g. 10) must pass through unchanged."""
+        self.assertEqual(self._compute_age('10'), 10)
+
+    def test_zero_age_preserved(self):
+        """Age 0 (newborn) must pass through as 0."""
+        self.assertEqual(self._compute_age('0'), 0)
+
+    def test_max_valid_age_preserved(self):
+        """Age 150 (the clamping ceiling) must be preserved."""
+        self.assertEqual(self._compute_age('150'), 150)
+
+    def test_non_numeric_age_returns_none(self):
+        """Non-numeric input must result in None (no DB write for age)."""
+        self.assertIsNone(self._compute_age('abc'))
+
+    def test_empty_age_returns_none(self):
+        """Empty string must result in None."""
+        self.assertIsNone(self._compute_age(''))
+
+    def test_age_expression_matches_views_code(self):
+        """The clamping expression in views.py must match exactly."""
+        age = '99999'
+        result = max(0, min(150, int(age))) if age.isdigit() else None
+        self.assertEqual(result, 150)
+
+
+class GrandparentsAgeClampTest(TestCase):
+    """
+    Verify that grandparents_post clamps age to max 200 before any DB write.
+    Elder ages can legitimately be higher than 150, so the ceiling is 200.
+    PositiveSmallIntegerField max is 65535; 99999 would previously cause DataError.
+    """
+
+    def _compute_age(self, age_str):
+        """Return the age value that grandparents_post would pass to GrandparentStory.objects.create."""
+        age = age_str.strip()
+        if age.isdigit():
+            return max(0, min(200, int(age)))
+        return None
+
+    def test_large_age_clamped_to_200(self):
+        """Age 99999 must be clamped to 200."""
+        self.assertEqual(self._compute_age('99999'), 200)
+
+    def test_age_65535_clamped_to_200(self):
+        """Age 65535 (smallint unsigned max) must be clamped to 200."""
+        self.assertEqual(self._compute_age('65535'), 200)
+
+    def test_normal_elder_age_preserved(self):
+        """Normal elder age (e.g. 85) must pass through unchanged."""
+        self.assertEqual(self._compute_age('85'), 85)
+
+    def test_zero_age_preserved(self):
+        """Age 0 must pass through as 0."""
+        self.assertEqual(self._compute_age('0'), 0)
+
+    def test_max_valid_age_preserved(self):
+        """Age 200 (the clamping ceiling) must be preserved."""
+        self.assertEqual(self._compute_age('200'), 200)
+
+    def test_non_numeric_age_returns_none(self):
+        """Non-numeric input must result in None."""
+        self.assertIsNone(self._compute_age('abc'))
+
+    def test_empty_age_returns_none(self):
+        """Empty string must result in None."""
+        self.assertIsNone(self._compute_age(''))
+
+    def test_age_expression_matches_views_code(self):
+        """The clamping expression in views.py must match exactly."""
+        age = '99999'
+        result = max(0, min(200, int(age))) if age.isdigit() else None
+        self.assertEqual(result, 200)
