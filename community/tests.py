@@ -474,3 +474,130 @@ class GrandparentsAgeClampTest(TestCase):
         age = '99999'
         result = max(0, min(200, int(age))) if age.isdigit() else None
         self.assertEqual(result, 200)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Gallery Timeline — FamilyFlick.event_date field and family_flick_add view
+# ─────────────────────────────────────────────────────────────────────────────
+
+class GalleryTimelineTest(TestCase):
+    """
+    Tests for the gallery timeline feature:
+    - event_date field saved correctly from POST
+    - invalid/missing date handled safely (no 500)
+    - view returns event_date in JSON response
+    """
+
+    def _make_user(self):
+        from jobs.models import User as User2
+        import uuid
+        phone = '98' + str(uuid.uuid4().int)[:8]
+        return User2.objects.create_user(username=phone, password='test', phone=phone)
+
+    def _tiny_image(self):
+        """Return a minimal valid JPEG as bytes."""
+        import io
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        # 1x1 red pixel JPEG
+        jpeg = (
+            b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00'
+            b'\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t'
+            b'\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a'
+            b'\x1f\x1e\x1d\x1a\x1c\x1c $.\' ",#\x1c\x1c(7),01444\x1f\'9=82<.342\x1e'
+            b'=\x19\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18'
+            b'\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18\x18'
+            b'\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4'
+            b'\x00\x1f\x00\x00\x01\x05\x01\x01\x01\x01\x01\x01\x00\x00\x00'
+            b'\x00\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b'
+            b'\xff\xc4\x00\xb5\x10\x00\x02\x01\x03\x03\x02\x04\x03\x05\x05'
+            b'\x04\x04\x00\x00\x01}\x01\x02\x03\x00\x04\x11\x05\x12!1A\x06'
+            b'\x13Qa\x07"q\x142\x81\x91\xa1\x08#B\xb1\xc1\x15R\xd1\xf0$3br'
+            b'\x82\t\n\x16\x17\x18\x19\x1a%&\'()*456789:CDEFGHIJSTUVWXYZ'
+            b'cdefghijstuvwxyz\x83\x84\x85\x86\x87\x88\x89\x8a\x92\x93\x94'
+            b'\x95\x96\x97\x98\x99\x9a\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa'
+            b'\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xc2\xc3\xc4\xc5\xc6\xc7'
+            b'\xc8\xc9\xca\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xe1\xe2\xe3'
+            b'\xe4\xe5\xe6\xe7\xe8\xe9\xea\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8'
+            b'\xf9\xfa\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xfb\xd4P\x00\x00'
+            b'\x00\x1f\xff\xd9'
+        )
+        return SimpleUploadedFile('test.jpg', jpeg, content_type='image/jpeg')
+
+    def test_event_date_saved(self):
+        """POST with event_date saves the correct date to the DB."""
+        from community.models import FamilyFlick
+        user = self._make_user()
+        self.client.force_login(user)
+        resp = self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(),
+            'caption': 'Birthday',
+            'event_date': '2024-06-15',
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['ok'])
+        self.assertEqual(data['event_date'], '2024-06-15')
+        flick = FamilyFlick.objects.get(pk=data['pk'])
+        from datetime import date
+        self.assertEqual(flick.event_date, date(2024, 6, 15))
+
+    def test_no_event_date_is_null(self):
+        """POST without event_date stores null in DB."""
+        from community.models import FamilyFlick
+        user = self._make_user()
+        self.client.force_login(user)
+        resp = self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(),
+            'caption': '',
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['ok'])
+        flick = FamilyFlick.objects.get(pk=data['pk'])
+        self.assertIsNone(flick.event_date)
+
+    def test_invalid_event_date_ignored(self):
+        """POST with a non-date string does not cause a 500; event_date is null."""
+        from community.models import FamilyFlick
+        user = self._make_user()
+        self.client.force_login(user)
+        resp = self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(),
+            'event_date': 'not-a-date',
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['ok'])
+        flick = FamilyFlick.objects.get(pk=data['pk'])
+        self.assertIsNone(flick.event_date)
+
+    def test_future_event_date_accepted(self):
+        """Future dates are accepted (no restriction on event_date)."""
+        from community.models import FamilyFlick
+        user = self._make_user()
+        self.client.force_login(user)
+        resp = self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(),
+            'event_date': '2099-12-31',
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data['ok'])
+        flick = FamilyFlick.objects.get(pk=data['pk'])
+        from datetime import date
+        self.assertEqual(flick.event_date, date(2099, 12, 31))
+
+    def test_flick_ordering_by_event_date(self):
+        """Flicks are ordered newest event_date first."""
+        from community.models import FamilyFlick
+        user = self._make_user()
+        self.client.force_login(user)
+        self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(), 'event_date': '2023-01-01',
+        })
+        self.client.post('/community/family/flick/add/', {
+            'photo': self._tiny_image(), 'event_date': '2024-06-01',
+        })
+        flicks = list(FamilyFlick.objects.filter(creator=user).order_by('-event_date', '-created_at'))
+        self.assertEqual(flicks[0].event_date.year, 2024)
+        self.assertEqual(flicks[1].event_date.year, 2023)
