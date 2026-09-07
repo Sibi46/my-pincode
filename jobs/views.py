@@ -10,7 +10,7 @@ from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
-from .models import (Job, JobApplication, CompanyProfile, ShopProfile,
+from .models import (Job, JobApplication, CompanyProfile, ShopProfile, ShopPhoto,
                      JobSeekerProfile, SeekerCertificate, SavedJob, Interview,
                      Conversation, Message, OfferLetter,
                      Advertiser, AdPackage, Advertisement, AdPayment,
@@ -320,8 +320,16 @@ def register_process(request):
                         shop_type=request.POST.get('shop_type', '').strip(),
                         owner_name=first_name,
                         website=request.POST.get('website', '').strip(),
+                        category=request.POST.get('category', '').strip(),
+                        address=request.POST.get('address', '').strip(),
+                        whatsapp_phone=request.POST.get('whatsapp', '').strip(),
                     )
                 )
+            elif user_type in User.EMPLOYER_TYPES and user_type != 'shop':
+                # Save category to CompanyProfile description for non-shop employers
+                cat = request.POST.get('category', '').strip()
+                if cat:
+                    CompanyProfile.objects.filter(user=user).update(industry=cat)
         elif user_type in ('employee', 'individual', 'freelancer'):
             JobSeekerProfile.objects.get_or_create(
                 user=user,
@@ -3796,3 +3804,68 @@ def offer_approve(request, pk):
 def offer_delete(request, pk):
     LocalOffer.objects.filter(pk=pk).delete()
     return redirect('manage_offers')
+
+
+# ── Shop Profile ──────────────────────────────────────────────────────────────
+
+@login_required
+def shop_profile(request):
+    try:
+        shop = request.user.shop
+    except ShopProfile.DoesNotExist:
+        shop = None
+
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+
+        if action == 'update_profile':
+            if not shop:
+                shop = ShopProfile(user=request.user)
+            shop.shop_name      = request.POST.get('shop_name', shop.shop_name if shop.shop_name else '').strip()
+            shop.owner_name     = request.POST.get('owner_name', '').strip()
+            shop.category       = request.POST.get('category', '').strip()
+            shop.description    = request.POST.get('description', '').strip()
+            shop.address        = request.POST.get('address', '').strip()
+            shop.whatsapp_phone = request.POST.get('whatsapp_phone', '').strip()
+            shop.website        = request.POST.get('website', '').strip()
+            if 'logo' in request.FILES:
+                shop.logo = request.FILES['logo']
+            if 'cover_image' in request.FILES:
+                shop.cover_image = request.FILES['cover_image']
+            shop.save()
+            from django.contrib import messages
+            messages.success(request, 'Shop profile updated.')
+            return redirect('shop_profile')
+
+        elif action == 'add_photo':
+            if shop and 'photo' in request.FILES:
+                if shop.photos.count() < 10:
+                    ShopPhoto.objects.create(
+                        shop=shop,
+                        image=request.FILES['photo'],
+                        caption=request.POST.get('caption', '').strip(),
+                    )
+                    from django.http import JsonResponse
+                    photo = shop.photos.first()
+                    return JsonResponse({'ok': True, 'url': photo.image.url, 'pk': photo.pk, 'caption': photo.caption})
+                else:
+                    from django.http import JsonResponse
+                    return JsonResponse({'ok': False, 'error': 'Maximum 10 photos allowed'})
+            from django.http import JsonResponse
+            return JsonResponse({'ok': False, 'error': 'No photo provided'})
+
+        elif action == 'delete_photo':
+            pk = request.POST.get('photo_pk')
+            if shop and pk:
+                ShopPhoto.objects.filter(pk=pk, shop=shop).delete()
+            from django.http import JsonResponse
+            return JsonResponse({'ok': True})
+
+    photos = shop.photos.all() if shop else []
+    photo_count = len(list(photos))
+    return render(request, 'shop_profile.html', {
+        'shop': shop,
+        'photos': photos,
+        'photo_count': photo_count,
+        'can_add_photo': photo_count < 10,
+    })

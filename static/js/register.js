@@ -6,17 +6,17 @@ const EMPLOYER_TYPES = [
 ];
 
 const TYPE_META = {
-    company:             { label: 'Company',             icon: 'fa-building',      badge: 'blue',   org: 'Company Name',       desc: 'Register your company and start hiring talent' },
-    shop:                { label: 'Shop',                 icon: 'fa-store',         badge: 'purple', org: 'Shop Name',          desc: 'Hire the right staff for your shop' },
-    recruiter:           { label: 'Recruiter',            icon: 'fa-user-tie',      badge: 'teal',   org: 'Agency Name',        desc: 'Post jobs on behalf of your client companies' },
-    factory:             { label: 'Factory',              icon: 'fa-industry',      badge: 'orange', org: 'Factory Name',       desc: 'Hire skilled workers for your factory' },
-    startup:             { label: 'Startup',              icon: 'fa-rocket',        badge: 'red',    org: 'Startup Name',       desc: 'Build your startup team from scratch' },
-    institution:         { label: 'Institution',          icon: 'fa-university',    badge: 'blue',   org: 'Institution Name',   desc: 'Hire staff for your school, college or institute' },
-    ngo:                 { label: 'NGO',                  icon: 'fa-hands-helping', badge: 'green',  org: 'NGO / Trust Name',   desc: 'Hire workers for your social organization' },
-    hospital:            { label: 'Hospital',             icon: 'fa-hospital',      badge: 'teal',   org: 'Hospital Name',      desc: 'Hire doctors, nurses & support staff' },
-    hotel:               { label: 'Hotel / Restaurant',   icon: 'fa-hotel',         badge: 'gold',   org: 'Hotel / Rest. Name', desc: 'Hire hospitality and kitchen staff' },
-    farm:                { label: 'Farm',                  icon: 'fa-leaf',          badge: 'green',  org: 'Farm Name',          desc: 'Hire agricultural and farm workers' },
-    individual_employer: { label: 'Individual Employer',  icon: 'fa-user-plus',     badge: 'orange', org: 'Your Full Name',     desc: 'Hire personal, domestic or household staff' },
+    company:             { label: 'Company',             icon: 'fa-building',      badge: 'blue',   org: 'Business Name',      desc: 'Start Promoting & Hiring — register your company today' },
+    shop:                { label: 'Shop',                 icon: 'fa-store',         badge: 'purple', org: 'Business Name',      desc: 'Start Promoting & Hiring — attract customers and the right staff' },
+    recruiter:           { label: 'Recruiter',            icon: 'fa-user-tie',      badge: 'teal',   org: 'Agency Name',        desc: 'Start Promoting & Hiring — post jobs for your client companies' },
+    factory:             { label: 'Factory',              icon: 'fa-industry',      badge: 'orange', org: 'Business Name',      desc: 'Start Promoting & Hiring — find skilled workers for your factory' },
+    startup:             { label: 'Startup',              icon: 'fa-rocket',        badge: 'red',    org: 'Business Name',      desc: 'Start Promoting & Hiring — build your startup team from scratch' },
+    institution:         { label: 'Institution',          icon: 'fa-university',    badge: 'blue',   org: 'Business Name',      desc: 'Start Promoting & Hiring — connect with students and staff' },
+    ngo:                 { label: 'NGO',                  icon: 'fa-hands-helping', badge: 'green',  org: 'NGO / Trust Name',   desc: 'Start Promoting & Hiring — grow your social organization' },
+    hospital:            { label: 'Hospital',             icon: 'fa-hospital',      badge: 'teal',   org: 'Business Name',      desc: 'Start Promoting & Hiring — recruit doctors, nurses & support staff' },
+    hotel:               { label: 'Hotel / Restaurant',   icon: 'fa-hotel',         badge: 'gold',   org: 'Business Name',      desc: 'Start Promoting & Hiring — find the best hospitality staff' },
+    farm:                { label: 'Farm',                  icon: 'fa-leaf',          badge: 'green',  org: 'Business Name',      desc: 'Start Promoting & Hiring — connect with agricultural workers' },
+    individual_employer: { label: 'Individual Employer',  icon: 'fa-user-plus',     badge: 'orange', org: 'Your Full Name',     desc: 'Start Promoting & Hiring — find domestic or household staff' },
 };
 
 let currentType = '';

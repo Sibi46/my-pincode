@@ -76,14 +76,41 @@ class CompanyProfile(models.Model):
 
 
 class ShopProfile(models.Model):
-    user       = models.OneToOneField(User, on_delete=models.CASCADE, related_name='shop')
-    shop_name  = models.CharField(max_length=200)
-    shop_type  = models.CharField(max_length=100, blank=True)
-    owner_name = models.CharField(max_length=100, blank=True)
-    website    = models.URLField(blank=True)
+    user            = models.OneToOneField(User, on_delete=models.CASCADE, related_name='shop')
+    shop_name       = models.CharField(max_length=200)
+    shop_type       = models.CharField(max_length=100, blank=True)
+    owner_name      = models.CharField(max_length=100, blank=True)
+    website         = models.URLField(blank=True)
+    # Extended fields
+    category        = models.CharField(max_length=100, blank=True)
+    description     = models.TextField(blank=True)
+    address         = models.TextField(blank=True)
+    whatsapp_phone  = models.CharField(max_length=10, blank=True)
+    logo            = models.ImageField(upload_to='shop_logos/', blank=True, null=True)
+    cover_image     = models.ImageField(upload_to='shop_covers/', blank=True, null=True)
+    shop_id         = models.CharField(max_length=20, unique=True, blank=True, null=True, db_index=True)
 
     def __str__(self):
         return self.shop_name
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.shop_id:
+            self.shop_id = f'SH-{self.pk:06d}'
+            ShopProfile.objects.filter(pk=self.pk).update(shop_id=self.shop_id)
+
+
+class ShopPhoto(models.Model):
+    shop        = models.ForeignKey(ShopProfile, on_delete=models.CASCADE, related_name='photos')
+    image       = models.ImageField(upload_to='shop_photos/')
+    caption     = models.CharField(max_length=200, blank=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return f'Photo for {self.shop.shop_name}'
 
 
 class JobSeekerProfile(models.Model):

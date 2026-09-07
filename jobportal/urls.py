@@ -184,6 +184,7 @@ urlpatterns = [
     path('super-admin/offers/',                       views.manage_offers,                name='manage_offers'),
     path('super-admin/offers/<int:pk>/approve/',      views.offer_approve,                name='offer_approve'),
     path('super-admin/offers/<int:pk>/delete/',       views.offer_delete,                 name='offer_delete'),
+    path('shop/profile/',                             views.shop_profile,                 name='shop_profile'),
     path('health/',     include('health.urls')),
     path('vouchers/',   include('vouchers.urls')),
     path('community/',  include('community.urls')),
