@@ -1952,8 +1952,15 @@ def admin_advertisers(request):
         if phone and not phone.startswith('91'):
             phone = '91' + phone
         name = adv.contact_person or adv.business_name
-        msg = f"Hi {name}, we received your advertiser registration ({adv.business_name}) on Pincode Job Portal. Are you interested in proceeding? Please confirm."
-        adv.wa_link = f"https://wa.me/{phone}?text={quote(msg)}" if phone else ''
+        msg_inquiry = f"Hi {name}, we received your advertiser registration ({adv.business_name}) on OURPINCODE.com. Are you interested in proceeding? Please confirm."
+        msg_reject  = (
+            f"Hi {name}, we received your advertiser registration ({adv.business_name}) on OURPINCODE.com. "
+            f"Unfortunately, we are unable to approve this ad account creation. "
+            f"Please make necessary edits and re-apply. "
+            f"If you feel everything is correct, reach us at +91 9876543210. Thanks"
+        )
+        adv.wa_link        = f"https://wa.me/{phone}?text={quote(msg_inquiry)}" if phone else ''
+        adv.wa_link_reject = f"https://wa.me/{phone}?text={quote(msg_reject)}"  if phone else ''
     return render(request, 'admin_advertisers.html', {
         'advs': advs, 'status_filter': status_filter, 'counts': counts,
     })

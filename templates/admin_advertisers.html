@@ -98,7 +98,11 @@
                 {% elif adv.status == 'rejected' %}
                 <a href="/admin-panel/advertisers/{{ adv.pk }}/approve/" class="adm-btn adm-approve">Re-Approve</a>
                 {% endif %}
-                {% if adv.wa_link %}
+                {% if adv.status == 'rejected' and adv.wa_link_reject %}
+                <a href="{{ adv.wa_link_reject }}" target="_blank" class="adm-btn" style="background:#fce4ec;color:#c62828">
+                  <i class="fab fa-whatsapp"></i> Notify Rejection
+                </a>
+                {% elif adv.wa_link %}
                 <a href="{{ adv.wa_link }}" target="_blank" class="adm-btn" style="background:#e7f9ed;color:#1b8a3d">
                   <i class="fab fa-whatsapp"></i> WhatsApp
                 </a>
