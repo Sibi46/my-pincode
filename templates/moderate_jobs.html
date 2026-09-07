@@ -51,7 +51,7 @@
 
           <!-- Job title -->
           <td>
-            <a href="/jobs/{{ job.pk }}/" style="font-weight:700;color:#0a66c2;font-size:13px">{{ job.title }}</a>
+            <a href="#" onclick="openJobDetail('{{ job.pk }}');return false;" style="font-weight:700;color:#0a66c2;font-size:13px">{{ job.title }}</a>
             <div style="font-size:11px;color:#aaa;margin-top:2px">{{ job.job_id }}</div>
             <span style="font-size:11px;color:{% if job.collar_type == 'white' %}#0a66c2{% else %}#e65100{% endif %}">{{ job.get_collar_type_display }}</span>
           </td>
@@ -267,6 +267,102 @@ function closeScreenshot(e) {
     document.getElementById('ss-modal').style.display = 'none';
   }
 }
+</script>
+
+<!-- Job Detail Modal -->
+<div id="jd-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)closeJobDetail()">
+  <div style="background:#fff;border-radius:20px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)" onclick="event.stopPropagation()">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px" id="jd-collar"></div>
+        <div style="font-size:20px;font-weight:900;color:#0f172a" id="jd-title"></div>
+        <div style="font-size:13px;color:#64748b;margin-top:2px" id="jd-company"></div>
+      </div>
+      <button onclick="closeJobDetail()" style="background:#f1f5f9;border:none;border-radius:50%;width:36px;height:36px;font-size:20px;cursor:pointer;color:#64748b;flex-shrink:0">&times;</button>
+    </div>
+    <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:12px" id="jd-body"></div>
+    <div style="padding:0 24px 16px">
+      <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:6px">Description</div>
+      <div id="jd-desc" style="font-size:13px;color:#374151;line-height:1.6;white-space:pre-wrap"></div>
+    </div>
+    <div style="padding:16px 24px;background:#f8fafc;border-top:1px solid #f0f0f0;border-radius:0 0 20px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#64748b">Employer Contact</div>
+        <div style="font-size:15px;font-weight:800;color:#0f172a" id="jd-emp-name"></div>
+        <div style="font-size:13px;color:#64748b" id="jd-emp-phone"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a id="jd-wa-btn" href="#" target="_blank" style="display:none;background:#25D366;color:#fff;padding:10px 18px;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none;align-items:center;gap:6px">
+          <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        <a id="jd-view-btn" href="#" target="_blank" style="background:#0a66c2;color:#fff;padding:10px 18px;border-radius:10px;font-weight:800;font-size:13px;text-decoration:none">
+          <i class="fas fa-external-link-alt"></i> View Job
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var JD = {
+  {% for job in jobs %}
+  "{{ job.pk }}": {
+    title:    "{{ job.title|escapejs }}",
+    collar:   "{{ job.get_collar_type_display }}",
+    collarColor: "{% if job.collar_type == 'white' %}#0a66c2{% else %}#e65100{% endif %}",
+    company:  "{% if job.posted_by.company %}{{ job.posted_by.company.company_name|escapejs }}{% elif job.posted_by.shop %}{{ job.posted_by.shop.shop_name|escapejs }}{% else %}{{ job.posted_by.get_full_name|default:job.posted_by.username|escapejs }}{% endif %}",
+    jobType:  "{{ job.get_job_type_display }}",
+    location: "{{ job.location|escapejs }}",
+    pincode:  "{{ job.pincode }}",
+    salary:   "{{ job.salary_display }}",
+    exp:      "{{ job.experience|escapejs }}",
+    gender:   "{{ job.get_gender_preference_display|default:'Any' }}",
+    skills:   "{{ job.skills|escapejs }}",
+    language: "{{ job.language|escapejs }}",
+    vacancies:"{{ job.vacancies|default:'' }}",
+    desc:     "{{ job.description|escapejs }}",
+    empName:  "{{ job.posted_by.get_full_name|default:job.posted_by.username|escapejs }}",
+    empPhone: "{{ job.posted_by.phone|default:'' }}",
+    empWA:    "{{ job.posted_by.whatsapp|default:'' }}"
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+};
+function openJobDetail(pk) {
+  var d = JD[pk]; if (!d) return;
+  document.getElementById('jd-title').textContent = d.title;
+  document.getElementById('jd-collar').innerHTML = '<span style="background:' + d.collarColor + '22;color:' + d.collarColor + ';padding:3px 10px;border-radius:20px">' + d.collar + '</span>';
+  document.getElementById('jd-company').textContent = d.company;
+  document.getElementById('jd-desc').textContent = d.desc || '—';
+  document.getElementById('jd-emp-name').textContent = d.empName;
+  document.getElementById('jd-emp-phone').textContent = d.empPhone ? '📞 ' + d.empPhone : '';
+  var wa = d.empWA || d.empPhone;
+  var waBtn = document.getElementById('jd-wa-btn');
+  if (wa) {
+    var msg = encodeURIComponent('Hi ' + d.empName + ', I am reviewing your job posting "' + d.title + '" on OURPINCODE.com. Please confirm the details.');
+    waBtn.href = 'https://wa.me/91' + wa + '?text=' + msg;
+    waBtn.style.display = 'inline-flex';
+  } else { waBtn.style.display = 'none'; }
+  document.getElementById('jd-view-btn').href = '/jobs/' + pk + '/';
+  var rows = [
+    ['Job Type', d.jobType],
+    ['Location', d.location + (d.pincode ? ' – ' + d.pincode : '')],
+    ['Salary', d.salary || '—'],
+    ['Experience', d.exp || 'Any'],
+    ['Gender', d.gender || 'Any'],
+    ['Vacancies', d.vacancies || '—'],
+    ['Skills', d.skills || '—'],
+    ['Language', d.language || 'Any'],
+  ];
+  var html = '';
+  rows.forEach(function(r) {
+    html += '<div style="background:#f8fafc;border-radius:10px;padding:10px 14px">' +
+      '<div style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">' + r[0] + '</div>' +
+      '<div style="font-size:13px;font-weight:700;color:#0f172a">' + (r[1]||'—') + '</div></div>';
+  });
+  document.getElementById('jd-body').innerHTML = html;
+  document.getElementById('jd-modal').style.display = 'flex';
+}
+function closeJobDetail() { document.getElementById('jd-modal').style.display = 'none'; }
 </script>
 
 {% endblock %}
