@@ -1,9 +1,92 @@
 {% extends 'admin_base.html' %}
 {% block title %}Super Admin Dashboard{% endblock %}
 
+{% block extra_css %}
+<style>
+.sa-section {
+  background: #fff;
+  border-radius: 16px;
+  border: 1.5px solid #E2E8F0;
+  box-shadow: 0 2px 12px rgba(15,23,42,.06);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.sa-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1.5px solid #F1F5F9;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sa-section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+}
+.sa-section-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.sa-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 14px 16px;
+}
+.sa-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 10px;
+  border-radius: 10px;
+  border: 1.5px solid #E2E8F0;
+  background: #FAFBFF;
+  text-decoration: none;
+  color: #0F172A;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  transition: all .18s;
+}
+.sa-action:hover {
+  border-color: #4F46E5;
+  background: #EEF2FF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79,70,229,.10);
+}
+.sa-action i { font-size: 20px; display: block; }
+.sa-badge {
+  display: inline-block;
+  background: #EF4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 20px;
+  margin-top: 2px;
+}
+.sa-badge.warn { background: #F59E0B; }
+.sa-badge.info { background: #2563EB; }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<!-- Page header -->
+<!-- ── PAGE HEADER ── -->
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px">
   <div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
@@ -27,7 +110,7 @@
 <!-- ── NEEDS ATTENTION BANNER ── -->
 {% if pending_jobs_count or paid_verify_count or pending_ad_posts or community_pending_count or voucher_biz_pending or voucher_slot_pending or pending_offers_count %}
 <div style="background:linear-gradient(135deg,#FEF3C7,#FEF9C3);border:1.5px solid #FCD34D;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
-  <div style="display:flex;align-items:center;gap:8px;margin-right:8px">
+  <div style="display:flex;align-items:center;gap:8px;margin-right:4px">
     <i class="fas fa-exclamation-circle" style="color:#D97706;font-size:18px"></i>
     <span style="font-size:13px;font-weight:800;color:#92400E">Needs Attention</span>
   </div>
@@ -114,277 +197,129 @@
   </a>
 </div>
 
-<!-- ── VOUCHER STATS ── -->
-<div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Gift Vouchers</div>
-<div class="ap-stats" style="margin-bottom:28px">
-  <a href="/vouchers/admin-panel/" class="ap-stat purple" style="text-decoration:none">
-    <div class="ap-stat-icon"><i class="fas fa-store"></i></div>
-    <h3>{{ voucher_total_biz }}</h3>
-    <p>Active Businesses</p>
-  </a>
-  <a href="/vouchers/admin-panel/" class="ap-stat" style="text-decoration:none;border-color:{% if voucher_biz_pending %}#FCD34D{% else %}#E2E8F0{% endif %}">
-    <div class="ap-stat-icon" style="background:{% if voucher_biz_pending %}#FEF3C7{% else %}#F5F3FF{% endif %};color:{% if voucher_biz_pending %}#D97706{% else %}#7C3AED{% endif %}"><i class="fas fa-hourglass-half"></i></div>
-    <h3 style="color:{% if voucher_biz_pending %}#D97706{% else %}#0F172A{% endif %}">{{ voucher_biz_pending }}</h3>
-    <p>Biz Approvals</p>
-  </a>
-  <a href="/vouchers/admin-panel/" class="ap-stat" style="text-decoration:none;border-color:{% if voucher_slot_pending %}#FCD34D{% else %}#E2E8F0{% endif %}">
-    <div class="ap-stat-icon" style="background:{% if voucher_slot_pending %}#FEF3C7{% else %}#F5F3FF{% endif %};color:{% if voucher_slot_pending %}#D97706{% else %}#7C3AED{% endif %}"><i class="fas fa-layer-group"></i></div>
-    <h3 style="color:{% if voucher_slot_pending %}#D97706{% else %}#0F172A{% endif %}">{{ voucher_slot_pending }}</h3>
-    <p>Slot Requests</p>
-  </a>
-  <a href="/vouchers/marketplace/" class="ap-stat green" style="text-decoration:none">
-    <div class="ap-stat-icon"><i class="fas fa-gift"></i></div>
-    <h3>{{ voucher_live }}</h3>
-    <p>Live Vouchers</p>
-  </a>
-  <div class="ap-stat green">
-    <div class="ap-stat-icon"><i class="fas fa-rupee-sign"></i></div>
-    <h3>&#8377;{{ voucher_revenue|floatformat:0 }}</h3>
-    <p>Revenue</p>
-  </div>
-</div>
-
-<!-- ── QUICK ACTIONS ── -->
-<div class="ap-card">
-  <div class="ap-card-header">
-    <h3><i class="fas fa-th" style="color:#4F46E5"></i> Quick Actions</h3>
-  </div>
-  <div class="ap-quick-grid">
-    <a href="/super-admin/states/" class="ap-quick-card">
-      <i class="fas fa-flag" style="color:#2563EB"></i>
-      <span>Manage States</span>
-    </a>
-    <a href="/super-admin/state-admins/create/" class="ap-quick-card">
-      <i class="fas fa-user-plus" style="color:#059669"></i>
-      <span>Add State Admin</span>
-    </a>
-    <a href="/super-admin/industries/" class="ap-quick-card">
-      <i class="fas fa-industry" style="color:#EA580C"></i>
-      <span>Industries</span>
-    </a>
-    <a href="/super-admin/payment-plans/" class="ap-quick-card">
-      <i class="fas fa-credit-card" style="color:#7C3AED"></i>
-      <span>Payment Plans</span>
-    </a>
-    <a href="/super-admin/discounts/" class="ap-quick-card">
-      <i class="fas fa-tag" style="color:#DC2626"></i>
-      <span>Discounts</span>
-    </a>
-    <a href="/super-admin/analytics/" class="ap-quick-card">
-      <i class="fas fa-chart-line" style="color:#F59E0B"></i>
-      <span>Analytics</span>
-    </a>
-    <a href="/district-admin/jobs/?tab=pending" class="ap-quick-card"
-      style="{% if pending_jobs_count %}border-color:#FCA5A5;background:#FEF2F2{% endif %}">
-      <i class="fas fa-check-square" style="color:{% if pending_jobs_count %}#DC2626{% else %}#EA580C{% endif %}"></i>
-      <span>Job Approval{% if pending_jobs_count %}<br><small style="color:#DC2626;font-weight:900">{{ pending_jobs_count }} pending</small>{% endif %}</span>
-    </a>
-    <a href="/district-admin/jobs/?tab=payment" class="ap-quick-card"
-      style="{% if paid_verify_count %}border-color:#93C5FD;background:#EFF6FF{% endif %}">
-      <i class="fas fa-receipt" style="color:#2563EB"></i>
-      <span>Verify Payments{% if paid_verify_count %}<br><small style="color:#1D4ED8;font-weight:900">{{ paid_verify_count }} to verify</small>{% endif %}</span>
-    </a>
-    <a href="/admin-panel/advertisers/" class="ap-quick-card">
-      <i class="fas fa-bullhorn" style="color:#2563EB"></i>
-      <span>Advertisers{% if pending_adverts %}<br><small style="color:#DC2626">{{ pending_adverts }} pending</small>{% endif %}</span>
-    </a>
-    <a href="/super-admin/notifications/" class="ap-quick-card">
-      <i class="fas fa-bell" style="color:#059669"></i>
-      <span>Notifications</span>
-    </a>
-    <a href="/super-admin/users/" class="ap-quick-card">
-      <i class="fas fa-users" style="color:#7C3AED"></i>
-      <span>All Users</span>
-    </a>
-    <a href="/super-admin/flicks/" class="ap-quick-card">
-      <i class="fas fa-bolt" style="color:#7C3AED"></i>
-      <span>Flick Management</span>
-    </a>
-    <a href="/community/school-corner/admin/list/" class="ap-quick-card" style="border-color:#BBF7D0;background:#F0FDF4">
-      <i class="fas fa-school" style="color:#059669"></i>
-      <span style="color:#065F46">Schools</span>
-    </a>
-    <a href="/super-admin/spin-gifts/" class="ap-quick-card">
-      <i class="fas fa-gift" style="color:#EF4444"></i>
-      <span>Spin Gifts</span>
-    </a>
-    <a href="/super-admin/feedback/" class="ap-quick-card"
-      style="{% if open_complaints %}border-color:#FCA5A5;background:#FEF2F2{% endif %}">
-      <i class="fas fa-comment-dots" style="color:{% if open_complaints %}#DC2626{% else %}#2563EB{% endif %}"></i>
-      <span>Feedback{% if open_complaints %}<br><small style="color:#DC2626;font-weight:900">{{ open_complaints }} open</small>{% endif %}</span>
-    </a>
-    <a href="/super-admin/ad-packages/" class="ap-quick-card">
-      <i class="fas fa-box-open" style="color:#EA580C"></i>
-      <span>Ad Packages</span>
-    </a>
-    <a href="/super-admin/ad-posts/" class="ap-quick-card"
-      style="{% if pending_ad_posts %}border-color:#FCD34D;background:#FFFBEB{% endif %}">
-      <i class="fas fa-bullhorn" style="color:#F59E0B"></i>
-      <span>Ad Management{% if pending_ad_posts %}<br><small style="color:#D97706;font-weight:900">{{ pending_ad_posts }} pending</small>{% endif %}</span>
-    </a>
-    <a href="/vouchers/admin-panel/" class="ap-quick-card"
-      style="{% if voucher_biz_pending or voucher_slot_pending %}border-color:#C4B5FD;background:#F5F3FF{% endif %}">
-      <i class="fas fa-gift" style="color:#7C3AED"></i>
-      <span>Gift Vouchers{% if voucher_biz_pending %}<br><small style="color:#D97706;font-weight:900">{{ voucher_biz_pending }} biz pending</small>{% endif %}{% if voucher_slot_pending %}<br><small style="color:#D97706;font-weight:900">{{ voucher_slot_pending }} slots pending</small>{% endif %}</span>
-    </a>
-    <a href="/vouchers/marketplace/" class="ap-quick-card">
-      <i class="fas fa-store" style="color:#7C3AED"></i>
-      <span>Voucher Marketplace</span>
-    </a>
-    <a href="/campus/admin/dashboard/" class="ap-quick-card" style="border-color:#C7D2FE;background:#EEF2FF">
-      <i class="fas fa-graduation-cap" style="color:#4F46E5"></i>
-      <span style="color:#4338CA">Campus Admin</span>
-    </a>
-    <a href="/portal/admin/communities/" class="ap-quick-card"
-      style="{% if community_pending_count %}border-color:#FCD34D;background:#FFFBEB{% else %}border-color:#C7D2FE;background:#EEF2FF{% endif %}">
-      <i class="fas fa-people-roof" style="color:{% if community_pending_count %}#D97706{% else %}#4F46E5{% endif %}"></i>
-      <span style="color:{% if community_pending_count %}#92400E{% else %}#3730A3{% endif %}">Communities{% if community_pending_count %}<br><small style="color:#D97706;font-weight:900">{{ community_pending_count }} pending</small>{% endif %}</span>
-    </a>
-    <a href="/super-admin/offers/" class="ap-quick-card"
-      style="{% if pending_offers_count %}border-color:#FCA5A5;background:#FEF2F2{% else %}border-color:#FDBA74;background:#FFF7ED{% endif %}">
-      <i class="fas fa-tag" style="color:#EA580C"></i>
-      <span style="color:#9A3412">Offers{% if pending_offers_count %}<br><small style="color:#DC2626;font-weight:900">{{ pending_offers_count }} pending</small>{% endif %}</span>
-    </a>
-  </div>
-</div>
-
-<!-- ── PENDING APPROVALS: Gift Voucher ── -->
-{% if pending_voucher_businesses or pending_voucher_slots %}
-<div class="ap-card" style="border-color:#DDD6FE">
-  <div class="ap-card-header">
-    <h3><i class="fas fa-gift" style="color:#7C3AED"></i> Gift Voucher — Pending Actions</h3>
-    <a href="/vouchers/admin-panel/" class="ap-btn ap-btn-primary">Full Panel</a>
-  </div>
-
-  {% if pending_voucher_businesses %}
-  <div style="font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Business Approvals</div>
-  <div class="ap-table-wrap">
-    <table class="ap-table">
-      <thead><tr><th>Business</th><th>Owner</th><th>Category</th><th>City</th><th>Action</th></tr></thead>
-      <tbody>
-        {% for biz in pending_voucher_businesses %}
-        <tr>
-          <td><strong>{{ biz.business_name }}</strong></td>
-          <td>{% if biz.owner %}{{ biz.owner.get_full_name|default:biz.owner.username }}{% else %}—{% endif %}</td>
-          <td>{{ biz.category.name }}</td>
-          <td>{{ biz.city }}</td>
-          <td>
-            <form method="post" action="/vouchers/admin-panel/business/{{ biz.pk }}/approve/" style="display:inline">
-              {% csrf_token %}
-              <button type="submit" class="ap-btn ap-btn-success">Approve</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endif %}
-
-  {% if pending_voucher_slots %}
-  <div style="font-size:11px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.6px;margin:16px 0 10px">Slot Requests</div>
-  <div class="ap-table-wrap">
-    <table class="ap-table">
-      <thead><tr><th>Business</th><th>Slots</th><th>Amount</th><th>Payment Ref</th><th>Action</th></tr></thead>
-      <tbody>
-        {% for slot in pending_voucher_slots %}
-        <tr>
-          <td><strong>{{ slot.business.business_name }}</strong></td>
-          <td>{{ slot.slots_count }}</td>
-          <td>&#8377;{{ slot.amount_paid }}</td>
-          <td style="font-family:monospace;font-size:12px">{{ slot.payment_reference }}</td>
-          <td>
-            <form method="post" action="/vouchers/admin-panel/slot/{{ slot.pk }}/approve/" style="display:inline">
-              {% csrf_token %}
-              <button type="submit" class="ap-btn ap-btn-success">Approve</button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endif %}
-</div>
-{% endif %}
-
-<!-- ── PENDING APPROVALS: Communities ── -->
-{% if community_pending %}
-<div class="ap-card" style="border-color:#FCD34D">
-  <div class="ap-card-header">
-    <h3>
-      <i class="fas fa-people-roof" style="color:#D97706"></i>
-      Communities Pending Approval
-      <span style="background:#FEF3C7;color:#92400E;font-size:11px;font-weight:800;padding:2px 10px;border-radius:20px">{{ community_pending_count }}</span>
+<!-- ══════════════════════════════════════════════
+     SECTION: JOBS
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#FFF7ED;color:#EA580C"><i class="fas fa-briefcase"></i></div>
+      Jobs Management
     </h3>
-    <a href="/portal/admin/communities/" class="ap-btn ap-btn-primary">Full Panel</a>
+    <div style="display:flex;gap:6px">
+      {% if pending_jobs_count %}<span style="background:#FEE2E2;color:#991B1B;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">{{ pending_jobs_count }} pending</span>{% endif %}
+      {% if paid_verify_count %}<span style="background:#DBEAFE;color:#1E40AF;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">{{ paid_verify_count }} to verify</span>{% endif %}
+    </div>
   </div>
-  <div class="ap-table-wrap">
-    <table class="ap-table">
-      <thead>
-        <tr><th>Community</th><th>Page ID</th><th>Created By</th><th>Category</th><th>Location</th><th>Actions</th></tr>
-      </thead>
-      <tbody>
-        {% for c in community_pending %}
-        <tr>
-          <td>
-            <div style="font-weight:800;color:#0F172A;font-size:13px">{{ c.name }}</div>
-            <div style="font-size:11px;color:#64748B">{{ c.purpose|truncatechars:50 }}</div>
-          </td>
-          <td><span style="font-family:monospace;font-size:12px;font-weight:700;color:#1D4ED8;background:#EFF6FF;padding:2px 8px;border-radius:6px">{{ c.page_id }}</span></td>
-          <td style="font-size:12px">{% if c.created_by %}{{ c.created_by.get_full_name|default:c.created_by.username }}{% else %}—{% endif %}</td>
-          <td style="font-size:12px;color:#64748B">{{ c.category.name|default:"—" }}</td>
-          <td style="font-size:12px;color:#64748B">{{ c.location }}, {{ c.pincode }}</td>
-          <td>
-            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-              <a href="/portal/c/{{ c.page_id }}/" target="_blank" class="ap-btn ap-btn-gray" style="font-size:11px">View</a>
-              <a href="/portal/admin/communities/{{ c.pk }}/verify/" onclick="return confirm('Approve {{ c.name }}?')" class="ap-btn ap-btn-success" style="font-size:11px">✓ Approve</a>
-              <a href="/portal/admin/communities/{{ c.pk }}/reject/" onclick="return confirm('Reject {{ c.name }}?')" class="ap-btn ap-btn-danger" style="font-size:11px">✗ Reject</a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="sa-action-grid">
+    <a href="/district-admin/jobs/?tab=pending" class="sa-action" style="{% if pending_jobs_count %}border-color:#FCA5A5;background:#FEF2F2{% endif %}">
+      <i class="fas fa-check-square" style="color:{% if pending_jobs_count %}#DC2626{% else %}#EA580C{% endif %}"></i>
+      Job Approval
+      {% if pending_jobs_count %}<span class="sa-badge">{{ pending_jobs_count }} pending</span>{% endif %}
+    </a>
+    <a href="/district-admin/jobs/?tab=payment" class="sa-action" style="{% if paid_verify_count %}border-color:#93C5FD;background:#EFF6FF{% endif %}">
+      <i class="fas fa-receipt" style="color:#2563EB"></i>
+      Verify Payments
+      {% if paid_verify_count %}<span class="sa-badge info">{{ paid_verify_count }} to verify</span>{% endif %}
+    </a>
+    <a href="/jobs/" class="sa-action">
+      <i class="fas fa-list" style="color:#64748B"></i>
+      All Jobs
+    </a>
+    <a href="/super-admin/industries/" class="sa-action">
+      <i class="fas fa-industry" style="color:#EA580C"></i>
+      Industries
+    </a>
+    <a href="/super-admin/job-roles/" class="sa-action">
+      <i class="fas fa-briefcase" style="color:#F59E0B"></i>
+      Job Roles
+    </a>
+    <a href="/super-admin/payment-plans/" class="sa-action">
+      <i class="fas fa-credit-card" style="color:#7C3AED"></i>
+      Payment Plans
+    </a>
+    <a href="/super-admin/discounts/" class="sa-action">
+      <i class="fas fa-tag" style="color:#DC2626"></i>
+      Discounts
+    </a>
+  </div>
+
+  <!-- Recent Jobs table -->
+  <div style="border-top:1.5px solid #F1F5F9">
+    <div style="padding:10px 18px 6px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px">Recent Job Postings</span>
+      <a href="/jobs/" class="ap-btn ap-btn-gray" style="font-size:11px">View All</a>
+    </div>
+    <div class="ap-table-wrap">
+      <table class="ap-table">
+        <thead><tr><th>Job Title</th><th>Type</th><th>Location</th><th>Posted By</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for job in recent_jobs %}
+          <tr>
+            <td><a href="/jobs/{{ job.pk }}/" style="color:#2563EB;font-weight:700;text-decoration:none">{{ job.title }}</a></td>
+            <td><span style="font-size:11px;font-weight:700;{% if job.collar_type == 'white' %}color:#2563EB;background:#EFF6FF{% else %}color:#EA580C;background:#FFF7ED{% endif %};padding:2px 8px;border-radius:6px">{{ job.get_collar_type_display }}</span></td>
+            <td style="font-size:12px;color:#64748B">{{ job.location }} {{ job.pincode }}</td>
+            <td style="font-size:12px">{% if job.posted_by %}{{ job.posted_by.get_full_name|default:job.posted_by.username }}{% else %}—{% endif %}</td>
+            <td><span class="status-pill pill-{% if job.status == 'active' %}active{% else %}inactive{% endif %}">{{ job.get_status_display }}</span></td>
+            <td style="font-size:12px;color:#94A3B8;white-space:nowrap">{{ job.created_at|date:"d M Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" style="text-align:center;color:#94A3B8;padding:24px">No recent jobs.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
-{% endif %}
 
-<!-- ── STATES + RECENT USERS ── -->
-<div class="ap-two-col">
-
-  <div class="ap-card">
-    <div class="ap-card-header">
-      <h3><i class="fas fa-flag" style="color:#2563EB"></i> States ({{ total_states }})</h3>
-      <a href="/super-admin/states/" class="ap-btn ap-btn-primary"><i class="fas fa-plus"></i> Add</a>
-    </div>
-    {% if state_list %}
-    <table class="ap-table">
-      <thead><tr><th>State</th><th>Code</th><th>Districts</th><th>Status</th><th></th></tr></thead>
-      <tbody>
-        {% for s in state_list %}
-        <tr>
-          <td><strong>{{ s.name }}</strong></td>
-          <td><code style="background:#F1F5F9;padding:2px 8px;border-radius:6px;font-size:11px;color:#475569">{{ s.code }}</code></td>
-          <td style="font-variant-numeric:tabular-nums">{{ s.d_count }}</td>
-          <td><span class="status-pill {% if s.is_active %}pill-active{% else %}pill-inactive{% endif %}">{{ s.is_active|yesno:"Active,Inactive" }}</span></td>
-          <td><a href="/super-admin/states/{{ s.pk }}/districts/" class="ap-btn ap-btn-gray" style="font-size:11px">Districts</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="ap-empty"><i class="fas fa-flag"></i><p>No states yet. <a href="/super-admin/states/" style="color:#4F46E5">Add one</a>.</p></div>
-    {% endif %}
+<!-- ══════════════════════════════════════════════
+     SECTION: USERS
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#F0FDF4;color:#059669"><i class="fas fa-users"></i></div>
+      Users Management
+    </h3>
+    <a href="/super-admin/users/" class="ap-btn ap-btn-primary" style="font-size:12px">All Users</a>
+  </div>
+  <div class="sa-action-grid">
+    <a href="/super-admin/users/" class="sa-action">
+      <i class="fas fa-users" style="color:#7C3AED"></i>
+      All Users
+    </a>
+    <a href="/admin-panel/users/?type=employer" class="sa-action">
+      <i class="fas fa-building" style="color:#2563EB"></i>
+      Employers
+    </a>
+    <a href="/admin-panel/users/?type=jobseeker" class="sa-action">
+      <i class="fas fa-search" style="color:#059669"></i>
+      Job Seekers
+    </a>
+    <a href="/super-admin/state-admins/" class="sa-action">
+      <i class="fas fa-user-shield" style="color:#7C3AED"></i>
+      State Admins
+    </a>
+    <a href="/super-admin/state-admins/create/" class="sa-action">
+      <i class="fas fa-user-plus" style="color:#059669"></i>
+      Add State Admin
+    </a>
+    <a href="/super-admin/feedback/" class="sa-action" style="{% if open_complaints %}border-color:#FCA5A5;background:#FEF2F2{% endif %}">
+      <i class="fas fa-comment-dots" style="color:{% if open_complaints %}#DC2626{% else %}#2563EB{% endif %}"></i>
+      Feedback
+      {% if open_complaints %}<span class="sa-badge">{{ open_complaints }} open</span>{% endif %}
+    </a>
+    <a href="/admin/" class="sa-action">
+      <i class="fas fa-cog" style="color:#64748B"></i>
+      Django Admin
+    </a>
   </div>
 
-  <div class="ap-card">
-    <div class="ap-card-header">
-      <h3><i class="fas fa-users" style="color:#059669"></i> Recent Users</h3>
-      <a href="/super-admin/users/" class="ap-btn ap-btn-primary">All Users</a>
-    </div>
+  <!-- Recent Users -->
+  <div style="border-top:1.5px solid #F1F5F9;padding:14px 18px">
+    <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">Recent Signups</div>
     {% for u in recent_users %}
-    <div class="ap-user-row" style="padding:10px 0;border-bottom:1px solid #F1F5F9">
+    <div class="ap-user-row" style="padding:9px 0;border-bottom:1px solid #F1F5F9">
       <div class="ap-avatar">{{ u.get_full_name|default:u.username|first|upper }}</div>
       <div style="flex:1;min-width:0">
         <div class="ap-user-name">{{ u.get_full_name|default:u.username }}</div>
@@ -395,38 +330,310 @@
       </span>
     </div>
     {% empty %}
-    <div class="ap-empty"><i class="fas fa-users"></i><p>No users yet.</p></div>
+    <div style="text-align:center;color:#94A3B8;padding:16px;font-size:13px">No users yet.</div>
     {% endfor %}
-    <div style="padding:14px 0 4px;display:flex;gap:8px;flex-wrap:wrap">
-      <a href="/super-admin/flicks/" class="ap-btn ap-btn-gray"><i class="fas fa-bolt"></i> Flicks</a>
-      <a href="/super-admin/feedback/" class="ap-btn ap-btn-gray"><i class="fas fa-comment-dots"></i> Feedback</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION: ADS
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#FFFBEB;color:#D97706"><i class="fas fa-bullhorn"></i></div>
+      Ads & Advertising
+    </h3>
+    {% if pending_ad_posts %}<span style="background:#FEE2E2;color:#991B1B;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">{{ pending_ad_posts }} pending</span>{% endif %}
+  </div>
+  <div class="sa-action-grid">
+    <a href="/super-admin/ad-posts/" class="sa-action" style="{% if pending_ad_posts %}border-color:#FCD34D;background:#FFFBEB{% endif %}">
+      <i class="fas fa-bullhorn" style="color:#F59E0B"></i>
+      Ad Management
+      {% if pending_ad_posts %}<span class="sa-badge warn">{{ pending_ad_posts }} pending</span>{% endif %}
+    </a>
+    <a href="/super-admin/ad-posts/?tab=ads&status=pending" class="sa-action">
+      <i class="fas fa-clock" style="color:#D97706"></i>
+      Pending Ads
+    </a>
+    <a href="/super-admin/ad-packages/" class="sa-action">
+      <i class="fas fa-box-open" style="color:#EA580C"></i>
+      Ad Packages
+    </a>
+    <a href="/admin-panel/advertisers/" class="sa-action">
+      <i class="fas fa-user-tie" style="color:#2563EB"></i>
+      Advertisers
+      {% if pending_adverts %}<span class="sa-badge warn">{{ pending_adverts }}</span>{% endif %}
+    </a>
+    <a href="/admin-panel/ads/" class="sa-action">
+      <i class="fas fa-ad" style="color:#7C3AED"></i>
+      Advertisements
+    </a>
+    <a href="/super-admin/offers/" class="sa-action" style="{% if pending_offers_count %}border-color:#FCA5A5;background:#FEF2F2{% endif %}">
+      <i class="fas fa-tag" style="color:#EA580C"></i>
+      Offers
+      {% if pending_offers_count %}<span class="sa-badge">{{ pending_offers_count }} pending</span>{% endif %}
+    </a>
+    <a href="/super-admin/spin-gifts/" class="sa-action">
+      <i class="fas fa-gift" style="color:#EF4444"></i>
+      Spin Gifts
+    </a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION: COMMUNITY & CONTENT
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#EEF2FF;color:#4F46E5"><i class="fas fa-people-roof"></i></div>
+      Community & Content
+    </h3>
+    {% if community_pending_count %}<span style="background:#FEF3C7;color:#92400E;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">{{ community_pending_count }} pending</span>{% endif %}
+  </div>
+  <div class="sa-action-grid">
+    <a href="/portal/admin/communities/" class="sa-action" style="{% if community_pending_count %}border-color:#FCD34D;background:#FFFBEB{% else %}border-color:#C7D2FE;background:#EEF2FF{% endif %}">
+      <i class="fas fa-people-roof" style="color:{% if community_pending_count %}#D97706{% else %}#4F46E5{% endif %}"></i>
+      Communities
+      {% if community_pending_count %}<span class="sa-badge warn">{{ community_pending_count }} pending</span>{% endif %}
+    </a>
+    <a href="/campus/admin/dashboard/" class="sa-action" style="border-color:#C7D2FE;background:#EEF2FF">
+      <i class="fas fa-graduation-cap" style="color:#4F46E5"></i>
+      Campus Admin
+    </a>
+    <a href="/community/school-corner/admin/list/" class="sa-action" style="border-color:#BBF7D0;background:#F0FDF4">
+      <i class="fas fa-school" style="color:#059669"></i>
+      Schools
+    </a>
+    <a href="/super-admin/flicks/" class="sa-action">
+      <i class="fas fa-bolt" style="color:#7C3AED"></i>
+      Flick Management
+    </a>
+    <a href="/super-admin/notifications/" class="sa-action">
+      <i class="fas fa-bell" style="color:#059669"></i>
+      Notifications
+    </a>
+    <a href="/super-admin/states/" class="sa-action">
+      <i class="fas fa-flag" style="color:#2563EB"></i>
+      Manage States
+    </a>
+    <a href="/super-admin/pincodes/" class="sa-action">
+      <i class="fas fa-map-pin" style="color:#64748B"></i>
+      PIN Codes
+    </a>
+  </div>
+
+  <!-- Community Pending Approvals -->
+  {% if community_pending %}
+  <div style="border-top:1.5px solid #FCD34D">
+    <div style="padding:10px 18px 6px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.8px">
+        Communities Awaiting Approval
+        <span style="background:#FEF3C7;color:#92400E;font-size:10px;padding:1px 8px;border-radius:20px;margin-left:6px">{{ community_pending_count }}</span>
+      </span>
+      <a href="/portal/admin/communities/" class="ap-btn ap-btn-primary" style="font-size:11px">Full Panel</a>
+    </div>
+    <div class="ap-table-wrap">
+      <table class="ap-table">
+        <thead>
+          <tr><th>Community</th><th>Page ID</th><th>Created By</th><th>Category</th><th>Location</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for c in community_pending %}
+          <tr>
+            <td>
+              <div style="font-weight:800;color:#0F172A;font-size:13px">{{ c.name }}</div>
+              <div style="font-size:11px;color:#64748B">{{ c.purpose|truncatechars:50 }}</div>
+            </td>
+            <td><span style="font-family:monospace;font-size:12px;font-weight:700;color:#1D4ED8;background:#EFF6FF;padding:2px 8px;border-radius:6px">{{ c.page_id }}</span></td>
+            <td style="font-size:12px">{% if c.created_by %}{{ c.created_by.get_full_name|default:c.created_by.username }}{% else %}—{% endif %}</td>
+            <td style="font-size:12px;color:#64748B">{{ c.category.name|default:"—" }}</td>
+            <td style="font-size:12px;color:#64748B">{{ c.location }}, {{ c.pincode }}</td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <a href="/portal/c/{{ c.page_id }}/" target="_blank" class="ap-btn ap-btn-gray" style="font-size:11px">View</a>
+                <a href="/portal/admin/communities/{{ c.pk }}/verify/" onclick="return confirm('Approve {{ c.name }}?')" class="ap-btn ap-btn-success" style="font-size:11px">✓ Approve</a>
+                <a href="/portal/admin/communities/{{ c.pk }}/reject/" onclick="return confirm('Reject {{ c.name }}?')" class="ap-btn ap-btn-danger" style="font-size:11px">✗ Reject</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION: VOUCHERS
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#F5F3FF;color:#7C3AED"><i class="fas fa-gift"></i></div>
+      Gift Vouchers
+    </h3>
+    <div style="display:flex;gap:6px;align-items:center">
+      {% if voucher_biz_pending or voucher_slot_pending %}
+      <span style="background:#FEF3C7;color:#92400E;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px">
+        {% if voucher_biz_pending %}{{ voucher_biz_pending }} biz{% endif %}{% if voucher_biz_pending and voucher_slot_pending %} · {% endif %}{% if voucher_slot_pending %}{{ voucher_slot_pending }} slots{% endif %} pending
+      </span>
+      {% endif %}
+      <a href="/vouchers/admin-panel/" class="ap-btn ap-btn-primary" style="font-size:12px">Full Panel</a>
     </div>
   </div>
 
+  <!-- Voucher stats row -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:14px 16px;border-bottom:1.5px solid #F1F5F9">
+    <a href="/vouchers/admin-panel/" style="text-decoration:none;background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:20px;font-weight:900;color:#7C3AED;font-variant-numeric:tabular-nums">{{ voucher_total_biz }}</span>
+      <span style="font-size:11px;color:#6B7280;font-weight:600">Active Businesses</span>
+    </a>
+    <a href="/vouchers/admin-panel/" style="text-decoration:none;background:{% if voucher_biz_pending %}#FFFBEB{% else %}#F5F3FF{% endif %};border:1.5px solid {% if voucher_biz_pending %}#FCD34D{% else %}#DDD6FE{% endif %};border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:20px;font-weight:900;color:{% if voucher_biz_pending %}#D97706{% else %}#7C3AED{% endif %};font-variant-numeric:tabular-nums">{{ voucher_biz_pending }}</span>
+      <span style="font-size:11px;color:#6B7280;font-weight:600">Biz Approvals</span>
+    </a>
+    <a href="/vouchers/admin-panel/" style="text-decoration:none;background:{% if voucher_slot_pending %}#FFFBEB{% else %}#F5F3FF{% endif %};border:1.5px solid {% if voucher_slot_pending %}#FCD34D{% else %}#DDD6FE{% endif %};border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:20px;font-weight:900;color:{% if voucher_slot_pending %}#D97706{% else %}#7C3AED{% endif %};font-variant-numeric:tabular-nums">{{ voucher_slot_pending }}</span>
+      <span style="font-size:11px;color:#6B7280;font-weight:600">Slot Requests</span>
+    </a>
+    <a href="/vouchers/marketplace/" style="text-decoration:none;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:20px;font-weight:900;color:#059669;font-variant-numeric:tabular-nums">{{ voucher_live }}</span>
+      <span style="font-size:11px;color:#6B7280;font-weight:600">Live Vouchers</span>
+    </a>
+    <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:3px">
+      <span style="font-size:20px;font-weight:900;color:#059669;font-variant-numeric:tabular-nums">&#8377;{{ voucher_revenue|floatformat:0 }}</span>
+      <span style="font-size:11px;color:#6B7280;font-weight:600">Revenue</span>
+    </div>
+  </div>
+
+  <div class="sa-action-grid">
+    <a href="/vouchers/admin-panel/" class="sa-action" style="{% if voucher_biz_pending or voucher_slot_pending %}border-color:#C4B5FD;background:#F5F3FF{% endif %}">
+      <i class="fas fa-gift" style="color:#7C3AED"></i>
+      Voucher Admin
+    </a>
+    <a href="/vouchers/marketplace/" class="sa-action">
+      <i class="fas fa-store" style="color:#7C3AED"></i>
+      Marketplace
+    </a>
+  </div>
+
+  <!-- Voucher pending tables -->
+  {% if pending_voucher_businesses %}
+  <div style="border-top:1.5px solid #F1F5F9">
+    <div style="padding:10px 18px 6px">
+      <span style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px">Business Approvals</span>
+    </div>
+    <div class="ap-table-wrap">
+      <table class="ap-table">
+        <thead><tr><th>Business</th><th>Owner</th><th>Category</th><th>City</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for biz in pending_voucher_businesses %}
+          <tr>
+            <td><strong>{{ biz.business_name }}</strong></td>
+            <td>{% if biz.owner %}{{ biz.owner.get_full_name|default:biz.owner.username }}{% else %}—{% endif %}</td>
+            <td>{{ biz.category.name }}</td>
+            <td>{{ biz.city }}</td>
+            <td>
+              <form method="post" action="/vouchers/admin-panel/business/{{ biz.pk }}/approve/" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="ap-btn ap-btn-success">Approve</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if pending_voucher_slots %}
+  <div style="border-top:1.5px solid #F1F5F9">
+    <div style="padding:10px 18px 6px">
+      <span style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px">Slot Requests</span>
+    </div>
+    <div class="ap-table-wrap">
+      <table class="ap-table">
+        <thead><tr><th>Business</th><th>Slots</th><th>Amount</th><th>Payment Ref</th><th>Action</th></tr></thead>
+        <tbody>
+          {% for slot in pending_voucher_slots %}
+          <tr>
+            <td><strong>{{ slot.business.business_name }}</strong></td>
+            <td>{{ slot.slots_count }}</td>
+            <td>&#8377;{{ slot.amount_paid }}</td>
+            <td style="font-family:monospace;font-size:12px">{{ slot.payment_reference }}</td>
+            <td>
+              <form method="post" action="/vouchers/admin-panel/slot/{{ slot.pk }}/approve/" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="ap-btn ap-btn-success">Approve</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
-<!-- ── RECENT JOBS ── -->
-<div class="ap-card">
-  <div class="ap-card-header">
-    <h3><i class="fas fa-briefcase" style="color:#EA580C"></i> Recent Job Postings</h3>
-    <a href="/jobs/" class="ap-btn ap-btn-gray">View All</a>
+<!-- ══════════════════════════════════════════════
+     SECTION: GEOGRAPHY & CONFIG
+════════════════════════════════════════════════ -->
+<div class="sa-section">
+  <div class="sa-section-head">
+    <h3 class="sa-section-title">
+      <div class="sa-section-icon" style="background:#EFF6FF;color:#2563EB"><i class="fas fa-map"></i></div>
+      Geography & Configuration
+    </h3>
+    <a href="/super-admin/states/" class="ap-btn ap-btn-primary" style="font-size:12px"><i class="fas fa-plus"></i> Add State</a>
   </div>
-  <div class="ap-table-wrap">
-    <table class="ap-table">
-      <thead><tr><th>Job Title</th><th>Type</th><th>Location</th><th>Posted By</th><th>Status</th><th>Date</th></tr></thead>
-      <tbody>
-        {% for job in recent_jobs %}
-        <tr>
-          <td><a href="/jobs/{{ job.pk }}/" style="color:#2563EB;font-weight:700;text-decoration:none">{{ job.title }}</a></td>
-          <td><span style="font-size:11px;font-weight:700;{% if job.collar_type == 'white' %}color:#2563EB;background:#EFF6FF{% else %}color:#EA580C;background:#FFF7ED{% endif %};padding:2px 8px;border-radius:6px">{{ job.get_collar_type_display }}</span></td>
-          <td style="font-size:12px;color:#64748B">{{ job.location }} {{ job.pincode }}</td>
-          <td style="font-size:12px">{% if job.posted_by %}{{ job.posted_by.get_full_name|default:job.posted_by.username }}{% else %}—{% endif %}</td>
-          <td><span class="status-pill pill-{% if job.status == 'active' %}active{% else %}inactive{% endif %}">{{ job.get_status_display }}</span></td>
-          <td style="font-size:12px;color:#94A3B8;white-space:nowrap">{{ job.created_at|date:"d M Y" }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+
+  <div class="ap-two-col" style="padding:14px 16px;gap:14px">
+    <!-- States table -->
+    <div>
+      <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">States ({{ total_states }})</div>
+      {% if state_list %}
+      <table class="ap-table">
+        <thead><tr><th>State</th><th>Code</th><th>Districts</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {% for s in state_list %}
+          <tr>
+            <td><strong>{{ s.name }}</strong></td>
+            <td><code style="background:#F1F5F9;padding:2px 8px;border-radius:6px;font-size:11px;color:#475569">{{ s.code }}</code></td>
+            <td style="font-variant-numeric:tabular-nums">{{ s.d_count }}</td>
+            <td><span class="status-pill {% if s.is_active %}pill-active{% else %}pill-inactive{% endif %}">{{ s.is_active|yesno:"Active,Inactive" }}</span></td>
+            <td><a href="/super-admin/states/{{ s.pk }}/districts/" class="ap-btn ap-btn-gray" style="font-size:11px">Districts</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="ap-empty"><i class="fas fa-flag"></i><p>No states yet. <a href="/super-admin/states/" style="color:#4F46E5">Add one</a>.</p></div>
+      {% endif %}
+    </div>
+
+    <!-- Config quick links -->
+    <div>
+      <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Config Links</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="/super-admin/analytics/" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid #E2E8F0;text-decoration:none;color:#0F172A;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.borderColor='#4F46E5'" onmouseout="this.style.borderColor='#E2E8F0'">
+          <i class="fas fa-chart-bar" style="color:#F59E0B;width:18px;text-align:center"></i> Analytics
+        </a>
+        <a href="/super-admin/pincodes/" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid #E2E8F0;text-decoration:none;color:#0F172A;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.borderColor='#4F46E5'" onmouseout="this.style.borderColor='#E2E8F0'">
+          <i class="fas fa-map-pin" style="color:#64748B;width:18px;text-align:center"></i> PIN Codes
+        </a>
+        <a href="/health/admin/" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid #E2E8F0;text-decoration:none;color:#0F172A;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.borderColor='#4F46E5'" onmouseout="this.style.borderColor='#E2E8F0'">
+          <i class="fas fa-heartbeat" style="color:#EF4444;width:18px;text-align:center"></i> Health Guide
+        </a>
+        <a href="/admin/" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1.5px solid #E2E8F0;text-decoration:none;color:#0F172A;font-size:13px;font-weight:700;transition:.15s" onmouseover="this.style.borderColor='#4F46E5'" onmouseout="this.style.borderColor='#E2E8F0'">
+          <i class="fas fa-cog" style="color:#64748B;width:18px;text-align:center"></i> Django Admin
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -439,11 +646,7 @@
   </div>
   {% for n in notifications %}
   <div style="padding:10px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:12px;align-items:flex-start">
-    <span class="status-pill
-      {% if n.notif_type == 'info' %}pill-active
-      {% elif n.notif_type == 'warning' %}pill-pending
-      {% elif n.notif_type == 'success' %}pill-approved
-      {% else %}pill-suspended{% endif %}" style="margin-top:1px;flex-shrink:0">
+    <span class="status-pill {% if n.notif_type == 'info' %}pill-active{% elif n.notif_type == 'warning' %}pill-pending{% elif n.notif_type == 'success' %}pill-approved{% else %}pill-suspended{% endif %}" style="margin-top:1px;flex-shrink:0">
       {{ n.get_notif_type_display }}
     </span>
     <div>
