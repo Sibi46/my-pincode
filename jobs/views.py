@@ -2370,7 +2370,7 @@ def state_admin_required(view_func):
 def district_admin_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.admin_role != 'district_admin':
+        if not request.user.is_authenticated or request.user.admin_role not in ('super_admin', 'state_admin', 'district_admin'):
             messages.error(request, 'District Admin access required.')
             return redirect('login')
         return view_func(request, *args, **kwargs)
