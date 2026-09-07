@@ -58,8 +58,18 @@
               {% if adv.banner_image %}
               <img src="{{ adv.banner_image.url }}" alt="" style="width:80px;height:48px;object-fit:cover;border-radius:6px;display:block;margin-bottom:6px;border:1px solid #eee">
               {% endif %}
-              <div class="adm-biz-name">{{ adv.business_name }}</div>
+              <div class="adm-biz-name">
+                {{ adv.business_name }}
+                {% if adv.status == 'pending' and adv.rejection_note %}
+                <span style="background:#fff3e0;color:#e65100;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle">↩ Re-application</span>
+                {% endif %}
+              </div>
               <div class="adm-biz-contact">{{ adv.address }}</div>
+              {% if adv.status == 'pending' and adv.rejection_note %}
+              <div style="margin-top:5px;font-size:11px;color:#b71c1c;background:#fce4ec;border-radius:6px;padding:4px 8px">
+                <strong>Prev. rejection:</strong> {{ adv.rejection_note }}
+              </div>
+              {% endif %}
             </td>
             <td>{{ adv.contact_person }}</td>
             <td>

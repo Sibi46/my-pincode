@@ -1713,8 +1713,7 @@ def advertiser_register(request):
             existing_adv.description    = request.POST.get('description', '').strip()
             existing_adv.gst            = request.POST.get('gst', '').strip()
             existing_adv.website        = request.POST.get('website', '').strip()
-            existing_adv.status         = 'pending'
-            existing_adv.rejection_note = ''
+            existing_adv.status = 'pending'
             existing_adv.save()
         else:
             Advertiser.objects.create(
