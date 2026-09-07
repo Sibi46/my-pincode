@@ -172,6 +172,24 @@
                     </div>
                 </div>
 
+                {% if existing_business %}
+                <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:16px">
+                  <div style="width:54px;height:54px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <i class="fas fa-building" style="font-size:22px;color:#16a34a"></i>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Already Registered</div>
+                    <div style="font-size:16px;font-weight:800;color:#15803d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                      {{ existing_business }}
+                    </div>
+                    <div style="font-size:12px;color:#4ade80;margin-top:2px">{{ request.user.get_user_type_display|default:request.user.user_type }}</div>
+                  </div>
+                  <a href="/employer/dashboard/" style="background:#16a34a;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap;flex-shrink:0">
+                    Go to Dashboard →
+                  </a>
+                </div>
+                {% endif %}
+
                 <!-- Selected type banner -->
                 <div class="emp-type-banner" id="empTypeBanner">
                     <div class="etb-icon" id="etbIcon">

@@ -189,7 +189,20 @@ def home(request):
 # ── REGISTER ─────────────────────────────────────────────────────────────────
 def register(request):
     ref_code = request.GET.get('ref', '').strip().upper()
-    return render(request, 'register.html', {'ref_code': ref_code})
+    existing_business = None
+    if request.user.is_authenticated and request.user.is_employer():
+        existing_business = (
+            getattr(request.user, 'company', None) or
+            getattr(request.user, 'shop', None) or
+            getattr(request.user, 'factory', None) or
+            getattr(request.user, 'startup', None) or
+            getattr(request.user, 'institution', None) or
+            getattr(request.user, 'ngo', None) or
+            getattr(request.user, 'hospital', None) or
+            getattr(request.user, 'hotel', None) or
+            getattr(request.user, 'farm', None)
+        )
+    return render(request, 'register.html', {'ref_code': ref_code, 'existing_business': existing_business})
 
 
 def register_process(request):
