@@ -6,7 +6,7 @@ const EMPLOYER_TYPES = [
 ];
 
 const TYPE_META = {
-    company:             { label: 'Company',             icon: 'fa-building',      badge: 'blue',   org: 'Company Name',       desc: 'Register your company and start hiring talent' },
+    company:             { label: 'Company',             icon: 'fa-building',      badge: 'blue',   org: 'Company Name',       desc: 'Start Promoting & Hiring' },
     shop:                { label: 'Shop',                 icon: 'fa-store',         badge: 'purple', org: 'Shop Name',          desc: 'Hire the right staff for your shop' },
     recruiter:           { label: 'Recruiter',            icon: 'fa-user-tie',      badge: 'teal',   org: 'Agency Name',        desc: 'Post jobs on behalf of your client companies' },
     factory:             { label: 'Factory',              icon: 'fa-industry',      badge: 'orange', org: 'Factory Name',       desc: 'Hire skilled workers for your factory' },
