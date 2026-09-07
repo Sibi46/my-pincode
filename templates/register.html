@@ -154,24 +154,6 @@
             <div class="reg-card">
                 <button class="back-btn" onclick="goBack()" style="margin-bottom:16px"><i class="fas fa-arrow-left"></i> Back</button>
 
-                <!-- Type switcher — pill cards -->
-                <div class="emp-type-switcher">
-                    <label class="ets-label"><i class="fas fa-layer-group"></i> Register As</label>
-                    <div class="ets-pills" id="empTypePills">
-                        <button type="button" class="ets-pill" data-type="company"             data-badge="blue"   onclick="switchEmployerType('company')">            <span class="ep-emoji">🏢</span><span class="ep-lbl">Business</span>            <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="shop"                data-badge="purple" onclick="switchEmployerType('shop')">               <span class="ep-emoji">🏪</span><span class="ep-lbl">Shop</span>               <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="recruiter"           data-badge="teal"   onclick="switchEmployerType('recruiter')">           <span class="ep-emoji">🤝</span><span class="ep-lbl">Recruiter</span>          <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="factory"             data-badge="orange" onclick="switchEmployerType('factory')">             <span class="ep-emoji">🏭</span><span class="ep-lbl">Factory</span>            <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="startup"             data-badge="red"    onclick="switchEmployerType('startup')">             <span class="ep-emoji">🚀</span><span class="ep-lbl">Startup</span>            <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="institution"         data-badge="blue"   onclick="switchEmployerType('institution')">         <span class="ep-emoji">🏫</span><span class="ep-lbl">Institution</span>        <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="ngo"                 data-badge="green"  onclick="switchEmployerType('ngo')">                 <span class="ep-emoji">🤲</span><span class="ep-lbl">NGO</span>                <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="hospital"            data-badge="teal"   onclick="switchEmployerType('hospital')">            <span class="ep-emoji">🏥</span><span class="ep-lbl">Hospital</span>           <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="hotel"               data-badge="gold"   onclick="switchEmployerType('hotel')">               <span class="ep-emoji">🏨</span><span class="ep-lbl">Hotel</span>              <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="farm"                data-badge="green"  onclick="switchEmployerType('farm')">                <span class="ep-emoji">🌿</span><span class="ep-lbl">Farm</span>               <i class="fas fa-check ep-tick"></i></button>
-                        <button type="button" class="ets-pill" data-type="individual_employer" data-badge="orange" onclick="switchEmployerType('individual_employer')"> <span class="ep-emoji">👤</span><span class="ep-lbl">Individual</span>         <i class="fas fa-check ep-tick"></i></button>
-                    </div>
-                </div>
-
                 {% if existing_business %}
                 <div style="background:#f0fdf4;border:2px solid #22c55e;border-radius:16px;padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;gap:16px">
                   <div style="width:54px;height:54px;border-radius:14px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0">
@@ -200,6 +182,24 @@
                             <span id="emp-type-label">Business</span> Registration
                         </div>
                         <p class="etb-desc" id="emp-type-desc">Start Promoting & Hiring</p>
+                    </div>
+                </div>
+
+                <!-- Type switcher — pill cards -->
+                <div class="emp-type-switcher">
+                    <label class="ets-label"><i class="fas fa-layer-group"></i> Register As</label>
+                    <div class="ets-pills" id="empTypePills">
+                        <button type="button" class="ets-pill" data-type="company"             data-badge="blue"   onclick="switchEmployerType('company')">            <span class="ep-emoji">🏢</span><span class="ep-lbl">Business</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="shop"                data-badge="purple" onclick="switchEmployerType('shop')">               <span class="ep-emoji">🏪</span><span class="ep-lbl">Shop</span>               <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="recruiter"           data-badge="teal"   onclick="switchEmployerType('recruiter')">           <span class="ep-emoji">🤝</span><span class="ep-lbl">Recruiter</span>          <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="factory"             data-badge="orange" onclick="switchEmployerType('factory')">             <span class="ep-emoji">🏭</span><span class="ep-lbl">Factory</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="startup"             data-badge="red"    onclick="switchEmployerType('startup')">             <span class="ep-emoji">🚀</span><span class="ep-lbl">Startup</span>            <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="institution"         data-badge="blue"   onclick="switchEmployerType('institution')">         <span class="ep-emoji">🏫</span><span class="ep-lbl">Institution</span>        <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="ngo"                 data-badge="green"  onclick="switchEmployerType('ngo')">                 <span class="ep-emoji">🤲</span><span class="ep-lbl">NGO</span>                <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="hospital"            data-badge="teal"   onclick="switchEmployerType('hospital')">            <span class="ep-emoji">🏥</span><span class="ep-lbl">Hospital</span>           <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="hotel"               data-badge="gold"   onclick="switchEmployerType('hotel')">               <span class="ep-emoji">🏨</span><span class="ep-lbl">Hotel</span>              <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="farm"                data-badge="green"  onclick="switchEmployerType('farm')">                <span class="ep-emoji">🌿</span><span class="ep-lbl">Farm</span>               <i class="fas fa-check ep-tick"></i></button>
+                        <button type="button" class="ets-pill" data-type="individual_employer" data-badge="orange" onclick="switchEmployerType('individual_employer')"> <span class="ep-emoji">👤</span><span class="ep-lbl">Individual</span>         <i class="fas fa-check ep-tick"></i></button>
                     </div>
                 </div>
 
