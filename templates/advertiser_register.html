@@ -218,7 +218,7 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
       <div class="ar-form-hd">
         <div class="ar-form-hd-icon"><i class="fas fa-bullhorn"></i></div>
         <div>
-          <h2>Register as Advertiser</h2>
+          <h2>{% if reapply %}Re-apply as Advertiser{% else %}Register as Advertiser{% endif %}</h2>
           <p>Our team will review and contact you within 24 hours</p>
         </div>
       </div>
@@ -240,6 +240,22 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
         </div>
       </div>
 
+      {% if reapply and adv.rejection_note %}
+      <div style="background:#fce4ec;border:1.5px solid #f48fb1;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start">
+        <i class="fas fa-exclamation-circle" style="color:#c62828;margin-top:2px;flex-shrink:0"></i>
+        <div>
+          <strong style="color:#b71c1c">Rejection reason:</strong>
+          <span style="color:#c62828"> {{ adv.rejection_note }}</span>
+          <p style="margin:6px 0 0;font-size:13px;color:#880e4f">Please update your details below and re-submit for review.</p>
+        </div>
+      </div>
+      {% elif reapply %}
+      <div style="background:#fff3e0;border:1.5px solid #ffcc80;border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:center">
+        <i class="fas fa-redo" style="color:#e65100"></i>
+        <span style="color:#bf360c">Your previous application was rejected. Update your details and re-submit.</span>
+      </div>
+      {% endif %}
+
       <form method="POST" enctype="multipart/form-data" class="ar-form-body">
         {% csrf_token %}
 
@@ -248,11 +264,11 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
         <div class="ar-row">
           <div class="ar-field">
             <label>Business Name <span class="ar-req">*</span></label>
-            <input type="text" name="business_name" required placeholder="Company / Shop Name" value="{% if user.company %}{{ user.company.company_name }}{% endif %}">
+            <input type="text" name="business_name" required placeholder="Company / Shop Name" value="{% if adv %}{{ adv.business_name }}{% elif user.company %}{{ user.company.company_name }}{% endif %}">
           </div>
           <div class="ar-field">
             <label>Contact Person <span class="ar-req">*</span></label>
-            <input type="text" name="contact_person" required value="{{ user.get_full_name|default:user.username }}" placeholder="Owner / Manager Name">
+            <input type="text" name="contact_person" required value="{% if adv %}{{ adv.contact_person }}{% else %}{{ user.get_full_name|default:user.username }}{% endif %}" placeholder="Owner / Manager Name">
           </div>
         </div>
 
@@ -261,27 +277,27 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
             <label>Phone Number <span class="ar-req">*</span></label>
             <div class="ar-icon-wrap">
               <i class="fas fa-phone"></i>
-              <input type="tel" name="phone" required maxlength="10" pattern="[6-9][0-9]{9}" value="{{ user.phone }}" placeholder="10-digit mobile">
+              <input type="tel" name="phone" required maxlength="10" pattern="[6-9][0-9]{9}" value="{% if adv %}{{ adv.phone }}{% else %}{{ user.phone }}{% endif %}" placeholder="10-digit mobile">
             </div>
           </div>
           <div class="ar-field">
             <label>Email Address</label>
             <div class="ar-icon-wrap">
               <i class="fas fa-envelope"></i>
-              <input type="email" name="email" value="{{ user.email }}" placeholder="business@email.com">
+              <input type="email" name="email" value="{% if adv %}{{ adv.email }}{% else %}{{ user.email }}{% endif %}" placeholder="business@email.com">
             </div>
           </div>
         </div>
 
         <div class="ar-field">
           <label>Business Address <span class="ar-req">*</span></label>
-          <textarea name="address" required placeholder="Full address with city and PIN code">{{ user.address }}</textarea>
+          <textarea name="address" required placeholder="Full address with city and PIN code">{% if adv %}{{ adv.address }}{% else %}{{ user.address }}{% endif %}</textarea>
         </div>
 
         <div class="ar-field">
           <label>Business Description <span class="ar-req">*</span></label>
-          <textarea name="description" required rows="4" maxlength="500" placeholder="Tell us about your business — what you offer, your services, why customers should choose you…" oninput="descCount(this)" style="resize:vertical"></textarea>
-          <div style="text-align:right;margin-top:3px"><small id="descCharCount" style="color:#aaa;font-weight:700">0 / 500</small></div>
+          <textarea name="description" required rows="4" maxlength="500" placeholder="Tell us about your business — what you offer, your services, why customers should choose you…" oninput="descCount(this)" style="resize:vertical">{% if adv %}{{ adv.description }}{% endif %}</textarea>
+          <div style="text-align:right;margin-top:3px"><small id="descCharCount" style="color:#aaa;font-weight:700">{% if adv %}{{ adv.description|length }}{% else %}0{% endif %} / 500</small></div>
         </div>
 
         <div class="ar-grp-title" style="margin-top:24px"><i class="fas fa-id-card"></i> Optional Details</div>
@@ -289,13 +305,13 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
         <div class="ar-row">
           <div class="ar-field">
             <label>GST Number</label>
-            <input type="text" name="gst" maxlength="15" placeholder="22AAAAA0000A1Z5">
+            <input type="text" name="gst" maxlength="15" placeholder="22AAAAA0000A1Z5" value="{% if adv %}{{ adv.gst }}{% endif %}">
           </div>
           <div class="ar-field">
             <label>Website</label>
             <div class="ar-icon-wrap">
               <i class="fas fa-globe"></i>
-              <input type="url" name="website" placeholder="https://yourwebsite.com">
+              <input type="url" name="website" placeholder="https://yourwebsite.com" value="{% if adv %}{{ adv.website }}{% endif %}">
             </div>
           </div>
         </div>
@@ -306,7 +322,7 @@ document.addEventListener('keydown',e=>{if(!document.getElementById('adv-fs').st
         </div>
 
         <button type="submit" class="ar-submit">
-          <i class="fas fa-paper-plane"></i> Submit Ad Registration
+          <i class="fas fa-paper-plane"></i> {% if reapply %}Re-submit Application{% else %}Submit Ad Registration{% endif %}
         </button>
       </form>
     </div>

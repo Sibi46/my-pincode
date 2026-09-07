@@ -1696,24 +1696,39 @@ def advertiser_register(request):
         messages.error(request, 'Only registered business accounts (Company, Shop, Factory, etc.) can post advertisements. Please register as a business first.')
         return redirect('/register/?type=company')
 
-    # Already has an advertiser profile
-    if hasattr(user, 'advertiser'):
+    # Already has an advertiser profile — allow through only if rejected (re-apply flow)
+    existing_adv = getattr(user, 'advertiser', None)
+    if existing_adv and existing_adv.status != 'rejected':
         messages.info(request, 'You already have an advertiser profile.')
         return redirect('advertiser_dashboard')
 
     if request.method == 'POST':
-        adv = Advertiser.objects.create(
-            business_name  = request.POST.get('business_name', '').strip(),
-            contact_person = request.POST.get('contact_person', user.get_full_name()).strip(),
-            phone          = request.POST.get('phone', user.phone).strip(),
-            email          = request.POST.get('email', user.email).strip(),
-            address        = request.POST.get('address', '').strip(),
-            description    = request.POST.get('description', '').strip(),
-            gst            = request.POST.get('gst', '').strip(),
-            website        = request.POST.get('website', '').strip(),
-            status         = 'pending',
-            user           = user,
-        )
+        if existing_adv:
+            # Re-apply: update existing record and reset to pending
+            existing_adv.business_name  = request.POST.get('business_name', '').strip()
+            existing_adv.contact_person = request.POST.get('contact_person', user.get_full_name()).strip()
+            existing_adv.phone          = request.POST.get('phone', user.phone).strip()
+            existing_adv.email          = request.POST.get('email', user.email).strip()
+            existing_adv.address        = request.POST.get('address', '').strip()
+            existing_adv.description    = request.POST.get('description', '').strip()
+            existing_adv.gst            = request.POST.get('gst', '').strip()
+            existing_adv.website        = request.POST.get('website', '').strip()
+            existing_adv.status         = 'pending'
+            existing_adv.rejection_note = ''
+            existing_adv.save()
+        else:
+            Advertiser.objects.create(
+                business_name  = request.POST.get('business_name', '').strip(),
+                contact_person = request.POST.get('contact_person', user.get_full_name()).strip(),
+                phone          = request.POST.get('phone', user.phone).strip(),
+                email          = request.POST.get('email', user.email).strip(),
+                address        = request.POST.get('address', '').strip(),
+                description    = request.POST.get('description', '').strip(),
+                gst            = request.POST.get('gst', '').strip(),
+                website        = request.POST.get('website', '').strip(),
+                status         = 'pending',
+                user           = user,
+            )
         return redirect('advertiser_register_success')
 
     from .models import Flick, FlickLike
@@ -1721,7 +1736,13 @@ def advertiser_register(request):
     liked_ids = set()
     if request.user.is_authenticated:
         liked_ids = set(FlickLike.objects.filter(user=request.user).values_list('flick_id', flat=True))
-    return render(request, 'advertiser_register.html', {'user': user, 'recent_flicks': recent_flicks, 'liked_ids': liked_ids})
+    return render(request, 'advertiser_register.html', {
+        'user': user,
+        'adv': existing_adv,
+        'reapply': existing_adv is not None,
+        'recent_flicks': recent_flicks,
+        'liked_ids': liked_ids,
+    })
 
 
 def advertiser_register_success(request):
