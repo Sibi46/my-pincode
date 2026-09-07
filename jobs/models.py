@@ -64,6 +64,8 @@ class CompanyProfile(models.Model):
     website      = models.URLField(blank=True)
     company_size = models.CharField(max_length=50, blank=True)
     company_id   = models.CharField(max_length=20, unique=True, blank=True, db_index=True)
+    logo         = models.ImageField(upload_to='business_logos/', blank=True, null=True)
+    banner_image = models.ImageField(upload_to='business_banners/', blank=True, null=True)
 
     def __str__(self):
         return self.company_name
@@ -76,11 +78,13 @@ class CompanyProfile(models.Model):
 
 
 class ShopProfile(models.Model):
-    user       = models.OneToOneField(User, on_delete=models.CASCADE, related_name='shop')
-    shop_name  = models.CharField(max_length=200)
-    shop_type  = models.CharField(max_length=100, blank=True)
-    owner_name = models.CharField(max_length=100, blank=True)
-    website    = models.URLField(blank=True)
+    user         = models.OneToOneField(User, on_delete=models.CASCADE, related_name='shop')
+    shop_name    = models.CharField(max_length=200)
+    shop_type    = models.CharField(max_length=100, blank=True)
+    owner_name   = models.CharField(max_length=100, blank=True)
+    website      = models.URLField(blank=True)
+    logo         = models.ImageField(upload_to='business_logos/', blank=True, null=True)
+    banner_image = models.ImageField(upload_to='business_banners/', blank=True, null=True)
 
     def __str__(self):
         return self.shop_name

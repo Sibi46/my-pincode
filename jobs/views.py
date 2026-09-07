@@ -316,25 +316,31 @@ def register_process(request):
 
     try:
         if user_type in User.EMPLOYER_TYPES:
-            CompanyProfile.objects.update_or_create(
-                user=user,
-                defaults=dict(
-                    company_name=org_name,
-                    industry=request.POST.get('industry', '').strip(),
-                    website=request.POST.get('website', '').strip(),
-                    company_size=request.POST.get('company_size', '').strip(),
-                )
+            logo_file = request.FILES.get('logo') or None
+            banner_file = request.FILES.get('banner_image') or None
+            cp_defaults = dict(
+                company_name=org_name,
+                industry=request.POST.get('industry', '').strip(),
+                website=request.POST.get('website', '').strip(),
+                company_size=request.POST.get('company_size', '').strip(),
             )
+            if logo_file:
+                cp_defaults['logo'] = logo_file
+            if banner_file:
+                cp_defaults['banner_image'] = banner_file
+            CompanyProfile.objects.update_or_create(user=user, defaults=cp_defaults)
             if user_type == 'shop':
-                ShopProfile.objects.update_or_create(
-                    user=user,
-                    defaults=dict(
-                        shop_name=org_name,
-                        shop_type=request.POST.get('shop_type', '').strip(),
-                        owner_name=first_name,
-                        website=request.POST.get('website', '').strip(),
-                    )
+                sp_defaults = dict(
+                    shop_name=org_name,
+                    shop_type=request.POST.get('shop_type', '').strip(),
+                    owner_name=first_name,
+                    website=request.POST.get('website', '').strip(),
                 )
+                if logo_file:
+                    sp_defaults['logo'] = logo_file
+                if banner_file:
+                    sp_defaults['banner_image'] = banner_file
+                ShopProfile.objects.update_or_create(user=user, defaults=sp_defaults)
         elif user_type in ('employee', 'individual', 'freelancer'):
             JobSeekerProfile.objects.get_or_create(
                 user=user,

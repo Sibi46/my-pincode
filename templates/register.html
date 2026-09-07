@@ -231,7 +231,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="/register/process/" id="employerForm"
+                <form method="POST" action="/register/process/" id="employerForm" enctype="multipart/form-data"
                       onsubmit="injectField(this,'org_name',document.getElementById('emp-org-input').value);
                                 injectField(this,'first_name',document.getElementById('emp-owner-input').value);
                                 injectField(this,'phone',(document.getElementById('empPhone2')||document.getElementById('empPhone')).value);
@@ -306,6 +306,38 @@
                         <div class="form-group full">
                             <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
                             <input type="text" id="emp-pincode-input" name="emp_pincode" placeholder="Enter 6-digit area pincode" maxlength="6" inputmode="numeric" pattern="\d{6}" required>
+                        </div>
+                        <!-- Logo Upload -->
+                        <div class="form-group full">
+                            <label><i class="fas fa-image"></i> Business Logo <span style="font-weight:400;color:#888">(optional)</span></label>
+                            <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+                                <label for="emp-logo-input" style="display:flex;align-items:center;justify-content:center;width:72px;height:72px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;flex-shrink:0" id="emp-logo-preview-wrap">
+                                    <img id="emp-logo-preview" src="" style="width:72px;height:72px;object-fit:cover;border-radius:10px;display:none">
+                                    <i class="fas fa-plus" id="emp-logo-icon" style="color:#90a4ae;font-size:20px"></i>
+                                </label>
+                                <div style="flex:1">
+                                    <input type="file" id="emp-logo-input" name="logo" accept="image/*" style="display:none" onchange="previewImg(this,'emp-logo-preview','emp-logo-icon')">
+                                    <button type="button" onclick="document.getElementById('emp-logo-input').click()" style="padding:8px 16px;border:1.5px solid #0a66c2;border-radius:8px;background:#fff;color:#0a66c2;font-size:13px;cursor:pointer;font-weight:600">
+                                        <i class="fas fa-upload"></i> Upload Logo
+                                    </button>
+                                    <p style="font-size:12px;color:#888;margin-top:4px">Square image recommended. JPG, PNG up to 5 MB.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Banner Upload -->
+                        <div class="form-group full">
+                            <label><i class="fas fa-panorama"></i> Business Banner <span style="font-weight:400;color:#888">(optional)</span></label>
+                            <div style="margin-top:6px">
+                                <label for="emp-banner-input" style="display:block;width:100%;height:100px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;position:relative" id="emp-banner-preview-wrap">
+                                    <img id="emp-banner-preview" src="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:none">
+                                    <div id="emp-banner-icon" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                                        <i class="fas fa-panorama" style="color:#90a4ae;font-size:22px"></i>
+                                        <span style="font-size:12px;color:#90a4ae">Click to upload banner</span>
+                                    </div>
+                                </label>
+                                <input type="file" id="emp-banner-input" name="banner_image" accept="image/*" style="display:none" onchange="previewBanner(this)">
+                                <p style="font-size:12px;color:#888;margin-top:4px">Landscape image recommended (e.g. 1200×400). JPG, PNG up to 5 MB.</p>
+                            </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
@@ -672,6 +704,31 @@
 
     <script src="{% static 'js/register.js' %}?v=13"></script>
 <script>
+function previewImg(input, previewId, iconId) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = document.getElementById(previewId);
+        img.src = e.target.result;
+        img.style.display = 'block';
+        var icon = document.getElementById(iconId);
+        if (icon) icon.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+function previewBanner(input) {
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = document.getElementById('emp-banner-preview');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        document.getElementById('emp-banner-icon').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
 function doInlineLogin() {
     var phone = document.getElementById('empPhone').value.trim();
     var pwd   = document.getElementById('empInlinePassword').value;
