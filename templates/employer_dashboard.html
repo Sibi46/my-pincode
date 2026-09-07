@@ -1407,25 +1407,9 @@ function postAction(url){
 <!-- ═══ GIFT VOUCHERS ═══ -->
 <section class="dsec hidden" id="sec-gift-vouchers" style="max-width:900px;margin:0 auto 18px;padding:0 16px">
 
-  <!-- Inline iframe view -->
-  <div id="gv-frame-view" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-      <button onclick="closeGvFrame()" style="background:#f1f5f9;border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;color:#374151;display:flex;align-items:center;justify-content:center"><i class="fas fa-arrow-left"></i></button>
-      <span id="gv-frame-title" style="font-size:15px;font-weight:800;color:#111"></span>
-    </div>
-    <iframe id="gv-frame" src="" style="width:100%;height:calc(100vh - 180px);border:none;border-radius:14px;background:#f8fafc"></iframe>
-  </div>
   <script>
   function openGvFrame(url, title) {
-    document.getElementById('gv-list-view').style.display = 'none';
-    document.getElementById('gv-frame-view').style.display = 'block';
-    document.getElementById('gv-frame-title').textContent = title;
-    document.getElementById('gv-frame').src = url;
-  }
-  function closeGvFrame() {
-    document.getElementById('gv-frame-view').style.display = 'none';
-    document.getElementById('gv-list-view').style.display = 'block';
-    document.getElementById('gv-frame').src = '';
+    window.location.href = url;
   }
   </script>
 
