@@ -3437,6 +3437,21 @@ def moderate_jobs(request):
                 link=f'/jobs/{job.pk}/',
             )
             messages.success(request, f'Plan activated for "{job.title}". Employer notified.')
+        elif action == 'set_free_plan':
+            import datetime
+            job.job_plan = 'free'
+            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=1)
+            job.save()
+            from .utils import notify_seekers_for_job
+            notify_seekers_for_job(job)
+            UserNotification.objects.create(
+                user=job.posted_by,
+                title='Your Job is Now Live!',
+                message=f'"{job.title}" has been approved and is now live for 1 week. Job seekers can find and apply!',
+                notif_type='success',
+                link=f'/jobs/{job.pk}/',
+            )
+            messages.success(request, f'Free plan set for "{job.title}". Job is now live.')
         return redirect(f'/district-admin/jobs/?tab={back_tab}')
 
     base_qs = Job.objects.select_related('posted_by').order_by('is_approved', '-created_at')

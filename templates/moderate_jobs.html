@@ -142,7 +142,7 @@
             {% if job.status == 'active' and not job.is_approved %}
               <span class="status-pill" style="background:#fff3cd;color:#856404;border:1px solid #ffc107;font-size:11px">Pending Approval</span>
             {% elif job.is_approved and not job.job_plan %}
-              <span class="status-pill" style="background:#e8f0fe;color:#0a66c2;font-size:11px">Choose Plan</span>
+              <span class="status-pill" style="background:#fce4ec;color:#c62828;border:1px solid #f48fb1;font-size:11px">⚠ No Plan Set</span>
             {% else %}
               <span class="status-pill pill-{% if job.status == 'active' %}active{% elif job.status == 'closed' %}suspended{% else %}inactive{% endif %}">{{ job.get_status_display }}</span>
             {% endif %}
@@ -193,15 +193,29 @@
               </form>
             </div>
             {% else %}
-            <form method="POST" style="display:inline">
-              {% csrf_token %}
-              <input type="hidden" name="job_id" value="{{ job.pk }}">
-              <input type="hidden" name="action" value="{% if job.status == 'active' %}suspend{% else %}activate{% endif %}">
-              <input type="hidden" name="back_tab" value="{{ tab }}">
-              <button type="submit" class="ap-btn {% if job.status == 'active' %}ap-btn-danger{% else %}ap-btn-success{% endif %}" style="font-size:11px">
-                {% if job.status == 'active' %}Suspend{% else %}Activate{% endif %}
-              </button>
-            </form>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              {% if job.is_approved and not job.job_plan %}
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="set_free_plan">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn ap-btn-success" style="font-size:11px;background:#2e7d32;border-color:#2e7d32"
+                  onclick="return confirm('Set Free 1-Week plan for this job? It will go live immediately.')">
+                  <i class="fas fa-gift"></i> Set Free Plan
+                </button>
+              </form>
+              {% endif %}
+              <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="job_id" value="{{ job.pk }}">
+                <input type="hidden" name="action" value="{% if job.status == 'active' %}suspend{% else %}activate{% endif %}">
+                <input type="hidden" name="back_tab" value="{{ tab }}">
+                <button type="submit" class="ap-btn {% if job.status == 'active' %}ap-btn-danger{% else %}ap-btn-success{% endif %}" style="font-size:11px">
+                  {% if job.status == 'active' %}Suspend{% else %}Activate{% endif %}
+                </button>
+              </form>
+            </div>
             {% endif %}
           </td>
         </tr>
