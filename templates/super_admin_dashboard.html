@@ -86,63 +86,6 @@
 
 {% block content %}
 
-<!-- ── STICKY ATTENTION BAR ── -->
-{% with total_pending=pending_jobs_count|add:paid_verify_count|add:pending_ad_posts|add:community_pending_count|add:voucher_biz_pending|add:voucher_slot_pending|add:pending_offers_count|add:pending_adverts %}
-<div id="attention-bar" style="position:sticky;top:60px;z-index:200;margin:-18px -18px 20px -18px;background:#1E293B;border-bottom:2px solid #F59E0B;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.25)">
-  <div style="display:flex;align-items:center;gap:7px;margin-right:6px;flex-shrink:0">
-    <div style="width:28px;height:28px;border-radius:8px;background:#F59E0B;display:flex;align-items:center;justify-content:center">
-      <i class="fas fa-bell" style="color:#fff;font-size:13px"></i>
-    </div>
-    <span style="font-size:12px;font-weight:900;color:#F59E0B;letter-spacing:.3px;text-transform:uppercase">
-      {% if total_pending %}{{ total_pending }} Pending{% else %}All Clear{% endif %}
-    </span>
-  </div>
-  {% if pending_jobs_count %}
-  <a href="/district-admin/jobs/?tab=pending" style="background:#EF4444;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-briefcase"></i> {{ pending_jobs_count }} Jobs
-  </a>
-  {% endif %}
-  {% if paid_verify_count %}
-  <a href="/district-admin/jobs/?tab=payment" style="background:#2563EB;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-receipt"></i> {{ paid_verify_count }} Payments
-  </a>
-  {% endif %}
-  {% if pending_adverts %}
-  <a href="/admin-panel/advertisers/?status=pending" style="background:#7C3AED;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-user-tie"></i> {{ pending_adverts }} Advertisers
-  </a>
-  {% endif %}
-  {% if pending_ad_posts %}
-  <a href="/super-admin/ad-posts/?tab=ads&status=pending" style="background:#EA580C;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-bullhorn"></i> {{ pending_ad_posts }} Ads
-  </a>
-  {% endif %}
-  {% if community_pending_count %}
-  <a href="/portal/admin/communities/?status=pending" style="background:#0891B2;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-people-roof"></i> {{ community_pending_count }} Communities
-  </a>
-  {% endif %}
-  {% if voucher_biz_pending %}
-  <a href="/vouchers/admin-panel/" style="background:#7C3AED;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-store"></i> {{ voucher_biz_pending }} Voucher Biz
-  </a>
-  {% endif %}
-  {% if voucher_slot_pending %}
-  <a href="/vouchers/admin-panel/" style="background:#7C3AED;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-layer-group"></i> {{ voucher_slot_pending }} Slots
-  </a>
-  {% endif %}
-  {% if pending_offers_count %}
-  <a href="/super-admin/offers/" style="background:#DC2626;color:#fff;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:4px;white-space:nowrap">
-    <i class="fas fa-tag"></i> {{ pending_offers_count }} Offers
-  </a>
-  {% endif %}
-  {% if not total_pending %}
-  <span style="color:#94A3B8;font-size:12px">Nothing needs attention right now.</span>
-  {% endif %}
-</div>
-{% endwith %}
-
 <!-- ── PAGE HEADER ── -->
 <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px">
   <div>
@@ -163,6 +106,51 @@
     </a>
   </div>
 </div>
+
+<!-- ── NEEDS ATTENTION BANNER ── -->
+{% if pending_jobs_count or paid_verify_count or pending_ad_posts or community_pending_count or voucher_biz_pending or voucher_slot_pending or pending_offers_count %}
+<div style="background:linear-gradient(135deg,#FEF3C7,#FEF9C3);border:1.5px solid #FCD34D;border-radius:14px;padding:14px 18px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+  <div style="display:flex;align-items:center;gap:8px;margin-right:4px">
+    <i class="fas fa-exclamation-circle" style="color:#D97706;font-size:18px"></i>
+    <span style="font-size:13px;font-weight:800;color:#92400E">Needs Attention</span>
+  </div>
+  {% if pending_jobs_count %}
+  <a href="/district-admin/jobs/?tab=pending" style="background:#fff;border:1.5px solid #FCA5A5;color:#991B1B;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-briefcase"></i> {{ pending_jobs_count }} Job{{ pending_jobs_count|pluralize }} Pending
+  </a>
+  {% endif %}
+  {% if paid_verify_count %}
+  <a href="/district-admin/jobs/?tab=payment" style="background:#fff;border:1.5px solid #93C5FD;color:#1E40AF;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-receipt"></i> {{ paid_verify_count }} Payment{{ paid_verify_count|pluralize }} to Verify
+  </a>
+  {% endif %}
+  {% if pending_ad_posts %}
+  <a href="/super-admin/ad-posts/?tab=ads&status=pending" style="background:#fff;border:1.5px solid #FCD34D;color:#92400E;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-bullhorn"></i> {{ pending_ad_posts }} Ad{{ pending_ad_posts|pluralize }} Pending
+  </a>
+  {% endif %}
+  {% if community_pending_count %}
+  <a href="/portal/admin/communities/?status=pending" style="background:#fff;border:1.5px solid #FCD34D;color:#92400E;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-people-roof"></i> {{ community_pending_count }} Communit{{ community_pending_count|pluralize:"y,ies" }} Pending
+  </a>
+  {% endif %}
+  {% if voucher_biz_pending %}
+  <a href="/vouchers/admin-panel/" style="background:#fff;border:1.5px solid #C4B5FD;color:#5B21B6;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-store"></i> {{ voucher_biz_pending }} Biz Approval{{ voucher_biz_pending|pluralize }}
+  </a>
+  {% endif %}
+  {% if voucher_slot_pending %}
+  <a href="/vouchers/admin-panel/" style="background:#fff;border:1.5px solid #C4B5FD;color:#5B21B6;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-layer-group"></i> {{ voucher_slot_pending }} Slot{{ voucher_slot_pending|pluralize }} Pending
+  </a>
+  {% endif %}
+  {% if pending_offers_count %}
+  <a href="/super-admin/offers/" style="background:#fff;border:1.5px solid #FCA5A5;color:#991B1B;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+    <i class="fas fa-tag"></i> {{ pending_offers_count }} Offer{{ pending_offers_count|pluralize }} Pending
+  </a>
+  {% endif %}
+</div>
+{% endif %}
 
 <!-- ── PLATFORM STATS ── -->
 <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Platform Overview</div>
