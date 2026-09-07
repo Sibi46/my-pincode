@@ -662,7 +662,11 @@
       {% if notifs %}
       <div class="notif-list">
         {% for n in notifs %}
+        {% if n.link %}
+        <a href="{{ n.link }}" class="notif-row {{ n.notif_type }} {% if not n.is_read %}unread{% endif %}" style="text-decoration:none;display:flex;cursor:pointer">
+        {% else %}
         <div class="notif-row {{ n.notif_type }} {% if not n.is_read %}unread{% endif %}">
+        {% endif %}
           <div class="notif-icon {{ n.notif_type }}">
             <i class="fas {% if n.notif_type == 'success' %}fa-check-circle{% elif n.notif_type == 'warning' %}fa-exclamation-triangle{% elif n.notif_type == 'alert' %}fa-bell{% else %}fa-info-circle{% endif %}"></i>
           </div>
@@ -672,7 +676,8 @@
             <span class="notif-time">{{ n.created_at|timesince }} ago</span>
           </div>
           {% if not n.is_read %}<span class="unread-dot"></span>{% endif %}
-        </div>
+          {% if n.link %}<span style="margin-left:auto;align-self:center;color:#0a66c2;font-size:12px;font-weight:700;white-space:nowrap">Tap →</span>{% endif %}
+        {% if n.link %}</a>{% else %}</div>{% endif %}
         {% endfor %}
       </div>
       {% else %}
