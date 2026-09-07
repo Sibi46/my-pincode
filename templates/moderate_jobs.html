@@ -76,7 +76,7 @@
           <td style="min-width:140px">
             {% if job.job_plan == 'free' %}
               <span style="background:#e6f4ea;color:#2e7d32;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">
-                <i class="fas fa-gift"></i> Free – 1 Week
+                <i class="fas fa-gift"></i> Free – 2 Weeks
               </span>
             {% elif job.job_plan == 'free_expired' %}
               <span style="background:#fce4ec;color:#c62828;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">
@@ -201,7 +201,7 @@
                 <input type="hidden" name="action" value="set_free_plan">
                 <input type="hidden" name="back_tab" value="{{ tab }}">
                 <button type="submit" class="ap-btn ap-btn-success" style="font-size:11px;background:#2e7d32;border-color:#2e7d32"
-                  onclick="return confirm('Set Free 1-Week plan for this job? It will go live immediately.')">
+                  onclick="return confirm('Set Free 2-Week plan for this job? It will go live immediately.')">
                   <i class="fas fa-gift"></i> Set Free Plan
                 </button>
               </form>

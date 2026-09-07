@@ -677,11 +677,11 @@ def job_select_plan(request, pk):
 
         if plan == 'free':
             job.job_plan = 'free'
-            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=1)
+            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=2)
             job.save()
             from .utils import notify_seekers_for_job
             notify_seekers_for_job(job)
-            messages.success(request, 'Free plan activated! Your job is now live for 1 week.')
+            messages.success(request, 'Free plan activated! Your job is now live for 2 weeks.')
             return redirect('employer_dashboard')
 
         elif plan == 'paid_confirm':
@@ -770,7 +770,7 @@ def employer_dashboard(request):
             link=f'/jobs/{_job.pk}/select-plan/',
             defaults={
                 'title': f'Free Week Ended: {_job.title}',
-                'message': f'Your 1-week free listing for "{_job.title}" has expired. Upgrade to 12 weeks for ₹499!',
+                'message': f'Your 2-week free listing for "{_job.title}" has expired. Upgrade to 12 weeks for ₹499!',
                 'notif_type': 'warning',
             },
         )
@@ -3412,7 +3412,7 @@ def moderate_jobs(request):
             UserNotification.objects.create(
                 user=job.posted_by,
                 title=f'Job Approved! Choose Your Plan — {job.title}',
-                message='Your job is approved! 🎉 Start with 1 Week FREE, or go straight to 12 Weeks for ₹499. Tap to choose.',
+                message='Your job is approved! 🎉 Start with 2 Weeks FREE, or go straight to 12 Weeks for ₹499. Tap to choose.',
                 notif_type='success',
                 link=f'/jobs/{job.pk}/select-plan/',
             )
@@ -3440,14 +3440,14 @@ def moderate_jobs(request):
         elif action == 'set_free_plan':
             import datetime
             job.job_plan = 'free'
-            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=1)
+            job.plan_expires_at = datetime.date.today() + datetime.timedelta(weeks=2)
             job.save()
             from .utils import notify_seekers_for_job
             notify_seekers_for_job(job)
             UserNotification.objects.create(
                 user=job.posted_by,
                 title='Your Job is Now Live!',
-                message=f'"{job.title}" has been approved and is now live for 1 week. Job seekers can find and apply!',
+                message=f'"{job.title}" has been approved and is now live for 2 weeks. Job seekers can find and apply!',
                 notif_type='success',
                 link=f'/jobs/{job.pk}/',
             )
