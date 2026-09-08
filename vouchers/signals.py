@@ -1,8 +1,16 @@
+import threading
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Business
+
+
+def _send_async(subject, message, recipient):
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [recipient], fail_silently=True)
+    except Exception:
+        pass
 
 
 @receiver(pre_save, sender=Business)
@@ -27,15 +35,7 @@ def notify_business_on_approval(sender, instance, **kwargs):
             f"Login here: https://www.mypincod.com/vouchers/dashboard/\n\n"
             f"Regards,\nMYPINCOD Team"
         )
-        try:
-            send_mail(
-                subject, message,
-                settings.DEFAULT_FROM_EMAIL,
-                [instance.email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
+        threading.Thread(target=_send_async, args=(subject, message, instance.email), daemon=True).start()
 
     if previous.status != 'rejected' and instance.status == 'rejected':
         subject = "Business Registration Update – MYPINCOD"
@@ -47,12 +47,4 @@ def notify_business_on_approval(sender, instance, **kwargs):
             f"You may re-apply after addressing the above.\n\n"
             f"Regards,\nMYPINCOD Team"
         )
-        try:
-            send_mail(
-                subject, message,
-                settings.DEFAULT_FROM_EMAIL,
-                [instance.email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
+        threading.Thread(target=_send_async, args=(subject, message, instance.email), daemon=True).start()
