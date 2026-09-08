@@ -165,8 +165,18 @@ def home(request):
     ]
     pincode_jobs.sort(key=lambda x: x['count'], reverse=True)
 
+    # ── Business logo strip ─────────────────────────────────────────────────────
+    from .models import CompanyProfile
+    business_logos = list(
+        CompanyProfile.objects.filter(logo__isnull=False).exclude(logo='')
+        .select_related('user').order_by('-user__date_joined')[:30]
+    )
+    _random.shuffle(business_logos)
+    business_logos = business_logos[:20]
+
     return render(request, 'index.html', {
         'featured_jobs':       featured_jobs,
+        'business_logos':      business_logos,
         'homepage_banners':    homepage_banners,
         'featured_employers':  featured_employers,
         'featured_job_ads':    featured_job_ads,
