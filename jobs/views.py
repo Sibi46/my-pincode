@@ -817,6 +817,24 @@ def business_profile(request, company_id):
             gallery_images.append(o.image.url)
     gallery_images = list(dict.fromkeys(gallery_images))[:24]
 
+    # Active jobs posted by this business
+    jobs = Job.objects.filter(
+        posted_by=owner, status='active', is_approved=True,
+        job_plan__in=['free', 'paid']
+    ).order_by('-created_at')[:20]
+
+    # Gallery: uploaded gallery images + ad post images + offer images
+    from .models import BusinessGalleryImage
+    gallery_uploaded = BusinessGalleryImage.objects.filter(user=owner).order_by('-created_at')[:20]
+    gallery_images = [g.image.url for g in gallery_uploaded if g.image]
+    for ap in AdPost.objects.filter(user=owner, status='approved').order_by('-created_at')[:20]:
+        if ap.image:
+            gallery_images.append(ap.image.url)
+    for o in LocalOffer.objects.filter(business_name__iexact=profile.company_name, is_active=True):
+        if o.image:
+            gallery_images.append(o.image.url)
+    gallery_images = list(dict.fromkeys(gallery_images))[:24]
+
     # Gift vouchers via vouchers Business model
     vouchers = []
     vbiz = None
@@ -836,6 +854,8 @@ def business_profile(request, company_id):
         'user_type': user_type,
         'offers': offers,
         'offers_count': offers.count(),
+        'jobs': jobs,
+        'jobs_count': jobs.count(),
         'vouchers': vouchers,
         'vouchers_count': len(vouchers),
         'flicks': flicks,
