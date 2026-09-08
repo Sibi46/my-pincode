@@ -213,8 +213,8 @@ def register(request):
             getattr(request.user, 'farm', None)
         )
     registered_companies = CompanyProfile.objects.filter(
-        is_approved=True
-    ).order_by('-created_at')[:50]
+        company_name__isnull=False
+    ).exclude(company_name='').order_by('-id')[:50]
     return render(request, 'register.html', {
         'ref_code': ref_code,
         'existing_business': existing_business,
