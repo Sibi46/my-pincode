@@ -107,7 +107,7 @@ body{background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 
 <!-- TOPBAR -->
 <div class="bp-topbar">
-  <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i></a>
+  <a href="#" onclick="if(document.referrer)history.back();else window.location='/';return false;"><i class="fas fa-arrow-left"></i></a>
   <div class="bp-topbar-title">{{ profile.company_name }}</div>
   <button class="bp-follow-btn" onclick="shareBiz()"><i class="fas fa-share-alt"></i> Share</button>
 </div>
