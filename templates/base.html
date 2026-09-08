@@ -1013,6 +1013,68 @@ document.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('DOMContentLoaded', attachAll);
 })();
 </script>
+
+<!-- EMAIL AUTO-FILL: saves email on any input → auto-fills all email fields everywhere -->
+<script>
+(function(){
+  var STORAGE_KEY = 'op_user_email';
+
+  // Server-side: if logged-in user has email, seed it into localStorage
+  {% if request.user.is_authenticated and request.user.email %}
+  (function(){
+    var serverEmail = '{{ request.user.email|escapejs }}';
+    if (serverEmail && serverEmail.indexOf('@') > 0) {
+      try { localStorage.setItem(STORAGE_KEY, serverEmail); } catch(e){}
+    }
+  })();
+  {% endif %}
+
+  function isValidEmail(v) {
+    return v && v.indexOf('@') > 1 && v.indexOf('.') > v.indexOf('@') + 1;
+  }
+
+  function getEmailInputs() {
+    return document.querySelectorAll(
+      'input[type="email"], input[name*="email"], input[placeholder*="email" i], input[placeholder*="Email" i]'
+    );
+  }
+
+  function fillAll(email) {
+    getEmailInputs().forEach(function(el) {
+      if (!el.value && email) el.value = email;
+    });
+  }
+
+  function saveAndFill(email) {
+    if (!isValidEmail(email)) return;
+    try { localStorage.setItem(STORAGE_KEY, email); } catch(e){}
+    fillAll(email);
+  }
+
+  function attachListeners() {
+    // Auto-fill on load
+    var saved;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch(e){}
+    if (saved) fillAll(saved);
+
+    // Listen for email entry on any email input
+    getEmailInputs().forEach(function(el) {
+      el.addEventListener('blur', function() {
+        if (isValidEmail(el.value.trim())) saveAndFill(el.value.trim());
+      });
+      el.addEventListener('change', function() {
+        if (isValidEmail(el.value.trim())) saveAndFill(el.value.trim());
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attachListeners);
+  } else {
+    attachListeners();
+  }
+})();
+</script>
 </body>
 </html>
 
