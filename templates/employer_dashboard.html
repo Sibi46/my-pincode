@@ -143,11 +143,15 @@
   <!-- PROFILE HEADER -->
   <div class="ig-header">
     <div class="ig-logo-row">
-      {% if profile and profile.logo %}
-        <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="ig-logo">
-      {% else %}
-        <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
-      {% endif %}
+      <div class="ig-logo-wrap">
+        {% if profile and profile.logo %}
+          <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="ig-logo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ig-logo-init" style="display:none">{{ profile.company_name|first|upper|default:"B" }}</div>
+        {% else %}
+          <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
+        {% endif %}
+      </div>
       <div class="ig-action-btns">
         {% if profile_incomplete %}
           <button onclick="showSection('my-profile')" class="ig-btn-primary" style="background:#e65100"><i class="fas fa-lock"></i> Complete</button>
@@ -205,17 +209,19 @@
 
   <!-- TABS -->
   <div class="ig-tabs" id="igTabs">
+    <div class="ig-tab" onclick="window.location.href='/offers/post/'"><i class="fas fa-tag" style="color:#FF5722"></i>Offer</div>
+    <div class="ig-tab" onclick="window.location.href='/vouchers/business/register/'"><i class="fas fa-gift" style="color:#7c3aed"></i>Voucher</div>
+    <div class="ig-tab" onclick="window.location.href='/advertiser/dashboard/'"><i class="fas fa-bullhorn"></i>Ads</div>
+    <div class="ig-tab" onclick="showSection('flicks',this)" data-sec="flicks"><i class="fas fa-bolt" style="color:#f59e0b"></i>Flicks</div>
+    <div class="ig-tab" onclick="showSection('gallery',this)" data-sec="gallery"><i class="fas fa-images" style="color:#10b981"></i>Gallery</div>
+    <div class="ig-tab" onclick="showSection('notifications',this)" data-sec="notifications"><i class="fas fa-bell"></i>Notifs{% if unread_notif_count %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">{{ unread_notif_count }}</span>{% endif %}</div>
+    <div class="ig-tab" onclick="showSection('messages',this)" data-sec="messages"><i class="fas fa-comment-dots"></i>Msgs{% if unread_msg_count %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">{{ unread_msg_count }}</span>{% endif %}</div>
     <div class="ig-tab active" onclick="showSection('active-jobs',this)" data-sec="active-jobs"><i class="fas fa-briefcase"></i>Jobs</div>
     <div class="ig-tab" onclick="showSection('applications',this)" data-sec="applications"><i class="fas fa-file-alt"></i>Apply</div>
     <div class="ig-tab" onclick="showSection('shortlisted',this)" data-sec="shortlisted"><i class="fas fa-star"></i>Short</div>
-    <div class="ig-tab" onclick="showSection('messages',this)" data-sec="messages"><i class="fas fa-comment-dots"></i>Msgs{% if unread_msg_count %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">{{ unread_msg_count }}</span>{% endif %}</div>
-    <div class="ig-tab" onclick="showSection('notifications',this)" data-sec="notifications"><i class="fas fa-bell"></i>Notifs</div>
-    <div class="ig-tab" onclick="showSection('flicks',this)" data-sec="flicks"><i class="fas fa-bolt"></i>Flicks</div>
-    <div class="ig-tab" onclick="window.location.href='/vouchers/business/register/'"><i class="fas fa-gift" style="color:#7c3aed"></i>Voucher</div>
-    <div class="ig-tab" onclick="showSection('wallet',this)" data-sec="wallet"><i class="fas fa-wallet"></i>Wallet</div>
-    <div class="ig-tab" onclick="showSection('subscription',this)" data-sec="subscription"><i class="fas fa-crown"></i>Plan</div>
     <div class="ig-tab" onclick="showSection('my-profile',this)" data-sec="my-profile"><i class="fas fa-id-card"></i>Profile{% if profile_incomplete %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">!</span>{% endif %}</div>
-    <div class="ig-tab" onclick="window.location.href='/advertiser/dashboard/'"><i class="fas fa-bullhorn"></i>Ads</div>
+    <div class="ig-tab" onclick="showSection('subscription',this)" data-sec="subscription"><i class="fas fa-crown"></i>Plan</div>
+    <div class="ig-tab" onclick="showSection('wallet',this)" data-sec="wallet"><i class="fas fa-wallet"></i>Wallet</div>
     <div class="ig-tab" onclick="showSection('billing',this)" data-sec="billing"><i class="fas fa-receipt"></i>Billing</div>
     <div class="ig-tab" onclick="showSection('feedback',this)" data-sec="feedback"><i class="fas fa-comment-alt"></i>Feedback</div>
   </div>
@@ -812,6 +818,37 @@
       {% endif %}
     </section>
 
+    <!-- ═══ GALLERY ═══ -->
+    <section class="dsec hidden" id="sec-gallery">
+      <div class="dsec-header">
+        <div><h2><i class="fas fa-images"></i> My Gallery</h2><p>Your approved ads and offer images</p></div>
+        <a href="/ads/post/" class="dsec-btn"><i class="fas fa-plus"></i> Post Ad</a>
+      </div>
+      {% with gallery_ads=my_ad_posts %}
+      {% if gallery_ads %}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        {% for ad in gallery_ads %}
+        {% if ad.image %}
+        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer" onclick="document.getElementById('gal-lb').style.display='flex';document.getElementById('gal-lb-img').src='{{ ad.image.url }}'">
+          <img src="{{ ad.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="text-align:center;padding:40px 20px;color:#888">
+        <i class="fas fa-images" style="font-size:40px;margin-bottom:12px;display:block;color:#cbd5e1"></i>
+        No images yet. Post an ad or offer to build your gallery.
+        <br><a href="/ads/post/" style="display:inline-block;margin-top:14px;background:#0a66c2;color:#fff;padding:10px 22px;border-radius:10px;text-decoration:none;font-weight:700">Post Ad</a>
+      </div>
+      {% endif %}
+      {% endwith %}
+      <!-- Lightbox -->
+      <div id="gal-lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center" onclick="this.style.display='none'">
+        <img id="gal-lb-img" src="" style="max-width:96vw;max-height:96vh;border-radius:12px;object-fit:contain">
+      </div>
+    </section>
+
     <!-- ═══ BILLING ═══ -->
     <section class="dsec hidden" id="sec-billing">
       <div class="dsec-header">
@@ -1195,9 +1232,12 @@ function dashPreviewBanner(input) {
 }
 function showSection(id, navEl) {
   document.querySelectorAll('.dsec').forEach(s => s.classList.add('hidden'));
+  document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
   document.querySelectorAll('.ig-tab').forEach(a => a.classList.remove('active'));
   const sec = document.getElementById('sec-' + id);
   if (sec) sec.classList.remove('hidden');
+  const dSec = document.querySelector('.dash-section[data-sec="' + id + '"]');
+  if (dSec) dSec.style.display = '';
   if (navEl) {
     navEl.classList.add('active');
   } else {
@@ -1205,7 +1245,8 @@ function showSection(id, navEl) {
     if (m) m.classList.add('active');
   }
   history.replaceState(null, '', '#' + id);
-  window.scrollTo({top: document.querySelector('.ig-tabs') ? document.querySelector('.ig-tabs').offsetTop - 52 : 0, behavior: 'smooth'});
+  const tabs = document.querySelector('.ig-tabs');
+  if (tabs) window.scrollTo({top: tabs.offsetTop - 52, behavior: 'smooth'});
 }
 
 function filterApps(status) {
@@ -1214,8 +1255,9 @@ function filterApps(status) {
   });
 }
 
-// Restore section from URL hash on load
+// Hide all dash-sections on init, then show hash or default
 (function() {
+  document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
   const hash = window.location.hash.replace('#', '');
   if (hash) showSection(hash);
 })();
