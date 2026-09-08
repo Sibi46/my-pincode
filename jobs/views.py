@@ -947,8 +947,9 @@ def employer_dashboard(request):
     except Exception:
         voucher_business = recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
 
-    from .models import AdPost, LocalOffer
+    from .models import AdPost, LocalOffer, BusinessGalleryImage
     my_ad_posts = AdPost.objects.filter(user=user, status='approved').order_by('-created_at')[:30]
+    my_gallery = BusinessGalleryImage.objects.filter(user=user).order_by('-created_at')[:60]
     my_offers = LocalOffer.objects.filter(
         business_name__iexact=profile.company_name if profile else '', is_active=True
     ).order_by('-created_at')[:30] if profile else []
@@ -957,6 +958,7 @@ def employer_dashboard(request):
         'active_jobs':        active_jobs,
         'my_ad_posts':        my_ad_posts,
         'my_offers':          my_offers,
+        'my_gallery':         my_gallery,
         'expired_jobs':       expired_jobs,
         'paid_pending_jobs':  paid_pending_jobs,
         'plan_pending':       plan_pending,
@@ -989,6 +991,32 @@ def employer_dashboard(request):
         'voucher_purchases':  voucher_purchases,
         'voucher_revenue':    voucher_revenue,
     })
+
+
+@login_required
+def gallery_upload(request):
+    if request.method != 'POST':
+        return redirect('employer_dashboard')
+    from .models import BusinessGalleryImage
+    images = request.FILES.getlist('gallery_images')
+    for img in images[:10]:
+        BusinessGalleryImage.objects.create(
+            user=request.user,
+            image=img,
+            caption=request.POST.get('caption', '').strip()[:200],
+        )
+    from django.contrib import messages as dj_messages
+    dj_messages.success(request, f'{len(images)} image(s) uploaded to your gallery.')
+    return redirect('/employer/dashboard/#gallery')
+
+
+@login_required
+def gallery_delete(request, pk):
+    from .models import BusinessGalleryImage
+    img = get_object_or_404(BusinessGalleryImage, pk=pk, user=request.user)
+    img.image.delete(save=False)
+    img.delete()
+    return redirect('/employer/dashboard/#gallery')
 
 
 @login_required
