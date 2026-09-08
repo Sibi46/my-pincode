@@ -947,8 +947,12 @@ def employer_dashboard(request):
     except Exception:
         voucher_business = recent_vouchers = voucher_count = voucher_purchases = voucher_revenue = None
 
+    from .models import AdPost
+    my_ad_posts = AdPost.objects.filter(user=user, status='approved').order_by('-created_at')[:30]
+
     return render(request, 'employer_dashboard.html', {
         'active_jobs':        active_jobs,
+        'my_ad_posts':        my_ad_posts,
         'expired_jobs':       expired_jobs,
         'paid_pending_jobs':  paid_pending_jobs,
         'plan_pending':       plan_pending,
