@@ -146,12 +146,12 @@
       <div class="ig-logo-wrap">
         {% if profile and profile.logo %}
           {% with ln=profile.logo.name|lower %}
-          {% if '.mp4' in ln or '.mov' in ln or '.webm' in ln or '.avi' in ln %}
-            <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
-          {% else %}
+          {% if '.jpg' in ln or '.jpeg' in ln or '.png' in ln or '.gif' in ln or '.webp' in ln or '.svg' in ln %}
             <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="ig-logo"
                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
             <div class="ig-logo-init" style="display:none">{{ profile.company_name|first|upper|default:"B" }}</div>
+          {% else %}
+            <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
           {% endif %}
           {% endwith %}
         {% else %}
