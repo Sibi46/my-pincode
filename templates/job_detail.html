@@ -142,17 +142,6 @@
         </ul>
       </div>
 
-      <div class="jd-info-card">
-        <h3><i class="fas fa-phone"></i> Contact</h3>
-        {% if request.user.is_authenticated %}
-          <a href="tel:{{ job.contact_phone }}" class="contact-phone-btn">
-            <i class="fas fa-phone"></i> {{ job.contact_phone }}
-          </a>
-        {% else %}
-          <p style="font-size:13px;color:#666">Login to see contact number</p>
-          <a href="/login/" style="color:#0a66c2;font-weight:600;font-size:14px">Sign In</a>
-        {% endif %}
-      </div>
 
       <!-- Related Jobs -->
       {% if related %}

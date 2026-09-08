@@ -170,6 +170,30 @@
     </div>
   </div>
 
+  <!-- ── GALLERY PREVIEW for non-members ── -->
+  {% if not is_member and not is_admin and gallery_groups %}
+  <div class="csection">
+    <div class="csection-head">
+      <div class="csection-title">🖼️ Community Gallery</div>
+      <span style="font-size:11px;font-weight:700;color:#64748b">Preview</span>
+    </div>
+    <div style="padding:14px 16px 10px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px">
+        {% for grp in gallery_groups %}
+          {% for p in grp.items|slice:":9" %}
+          <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#eff6ff;cursor:pointer" onclick="pgOpenImg('{{ p.image.url }}')">
+            <img src="{{ p.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+          </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <div style="text-align:center;padding:10px;background:#f0f7ff;border-radius:10px;font-size:13px;color:#1d4ed8;font-weight:700">
+        <i class="fas fa-lock"></i> Join this community to see all posts and participate
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- ── COMMUNITY FEED ── -->
   <div class="csection">
     <div class="csection-head"><div class="csection-title">📢 Community Feed</div></div>

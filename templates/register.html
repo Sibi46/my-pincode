@@ -307,38 +307,6 @@
                             <label><i class="fas fa-map-marker-alt"></i> Pincode *</label>
                             <input type="text" id="emp-pincode-input" name="emp_pincode" placeholder="Enter 6-digit area pincode" maxlength="6" inputmode="numeric" pattern="\d{6}" required>
                         </div>
-                        <!-- Logo Upload -->
-                        <div class="form-group full">
-                            <label><i class="fas fa-image"></i> Business Logo <span style="font-weight:400;color:#888">(optional)</span></label>
-                            <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
-                                <label for="emp-logo-input" style="display:flex;align-items:center;justify-content:center;width:72px;height:72px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;flex-shrink:0" id="emp-logo-preview-wrap">
-                                    <img id="emp-logo-preview" src="" style="width:72px;height:72px;object-fit:cover;border-radius:10px;display:none">
-                                    <i class="fas fa-plus" id="emp-logo-icon" style="color:#90a4ae;font-size:20px"></i>
-                                </label>
-                                <div style="flex:1">
-                                    <input type="file" id="emp-logo-input" name="logo" accept="image/*" style="display:none" onchange="previewImg(this,'emp-logo-preview','emp-logo-icon')">
-                                    <button type="button" onclick="document.getElementById('emp-logo-input').click()" style="padding:8px 16px;border:1.5px solid #0a66c2;border-radius:8px;background:#fff;color:#0a66c2;font-size:13px;cursor:pointer;font-weight:600">
-                                        <i class="fas fa-upload"></i> Upload Logo
-                                    </button>
-                                    <p style="font-size:12px;color:#888;margin-top:4px">Square image recommended. JPG, PNG up to 5 MB.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Banner Upload -->
-                        <div class="form-group full">
-                            <label><i class="fas fa-panorama"></i> Business Banner <span style="font-weight:400;color:#888">(optional)</span></label>
-                            <div style="margin-top:6px">
-                                <label for="emp-banner-input" style="display:block;width:100%;height:100px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;position:relative" id="emp-banner-preview-wrap">
-                                    <img id="emp-banner-preview" src="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:none">
-                                    <div id="emp-banner-icon" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-                                        <i class="fas fa-panorama" style="color:#90a4ae;font-size:22px"></i>
-                                        <span style="font-size:12px;color:#90a4ae">Click to upload banner</span>
-                                    </div>
-                                </label>
-                                <input type="file" id="emp-banner-input" name="banner_image" accept="image/*" style="display:none" onchange="previewBanner(this)">
-                                <p style="font-size:12px;color:#888;margin-top:4px">Landscape image recommended (e.g. 1200×400). JPG, PNG up to 5 MB.</p>
-                            </div>
-                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label><i class="fas fa-lock"></i> Password *</label>
@@ -460,17 +428,43 @@
         </div>
 
 
-        <!-- ───────── STEP 2B: Employee Form ───────── -->
+        <!-- ───────── STEP 2B: Employee — Collar Selection ───────── -->
         <div class="reg-step hidden" id="step-employee">
             <div class="reg-card">
                 <div class="reg-header">
                     <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
-                    <div class="type-badge green"><i class="fas fa-user-tie"></i> Employee</div>
-                    <h2>Employee Registration</h2>
-                    <p>Create your job seeker profile</p>
+                    <div class="type-badge green"><i class="fas fa-user-tie"></i> Job Seeker</div>
+                    <h2>What type of job?</h2>
+                    <p>Choose your job category to find the right opportunities</p>
                 </div>
-                <form method="POST" action="/register/process/" onsubmit="injectField(this,'user_type','employee');injectField(this,'first_name',document.getElementById('empName').value);injectField(this,'phone',document.getElementById('empPhone').value);injectField(this,'pincode',document.getElementById('empPincode').value)">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:8px">
+                    <div class="collar-opt" onclick="selectCollar('blue')" id="collar-blue" style="border:2.5px solid #e5e7eb;border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:.2s">
+                        <div style="font-size:36px;margin-bottom:8px">🔧</div>
+                        <div style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">Blue Collar</div>
+                        <div style="font-size:12px;color:#888;line-height:1.4">Driver, Carpenter, Cook, Security, Factory, Plumber...</div>
+                    </div>
+                    <div class="collar-opt" onclick="selectCollar('white')" id="collar-white" style="border:2.5px solid #e5e7eb;border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:.2s">
+                        <div style="font-size:36px;margin-bottom:8px">👔</div>
+                        <div style="font-size:15px;font-weight:800;color:#111;margin-bottom:4px">White Collar</div>
+                        <div style="font-size:12px;color:#888;line-height:1.4">Manager, Teacher, Engineer, Accountant, IT, Admin...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ───────── STEP 2B2: Employee Registration Form ───────── -->
+        <div class="reg-step hidden" id="step-employee-form">
+            <div class="reg-card">
+                <div class="reg-header">
+                    <button class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div class="type-badge green" id="emp-collar-badge"><i class="fas fa-user-tie"></i> Job Seeker</div>
+                    <h2>Create Your Profile</h2>
+                    <p>Fill in your details to find jobs near you</p>
+                </div>
+                <form method="POST" action="/register/process/" enctype="multipart/form-data"
+                      onsubmit="injectField(this,'user_type','employee');injectField(this,'first_name',document.getElementById('empName').value);injectField(this,'phone',document.getElementById('empPhone').value);injectField(this,'pincode',document.getElementById('empPincode').value)">
                     {% csrf_token %}
+                    <input type="hidden" name="job_category" id="empCollarHidden" value="any">
                     <div class="form-group full">
                         <label><i class="fas fa-briefcase"></i> What kind of job? *</label>
                         <input type="text" name="primary_skill" placeholder="e.g. Software Developer, Driver, Nurse, Teacher" required autocomplete="off" data-ac="job">
@@ -508,6 +502,30 @@
                         </button>
                     </div>
                     <div class="verified-badge hidden" id="empVerified"><i class="fas fa-check-circle"></i> Mobile Verified</div>
+                    <!-- Photo Upload (optional) -->
+                    <div class="form-group full">
+                        <label><i class="fas fa-camera"></i> Profile Photo <span style="font-weight:400;color:#888">(optional)</span></label>
+                        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+                            <label for="emp-photo-input" style="width:64px;height:64px;border:2px dashed #b0bec5;border-radius:50%;cursor:pointer;overflow:hidden;background:#f8faff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <img id="emp-photo-preview" src="" style="width:64px;height:64px;object-fit:cover;border-radius:50%;display:none">
+                                <i class="fas fa-user" id="emp-photo-icon" style="color:#90a4ae;font-size:22px"></i>
+                            </label>
+                            <div>
+                                <input type="file" id="emp-photo-input" name="photo" accept="image/*" style="display:none" onchange="previewImg(this,'emp-photo-preview','emp-photo-icon')">
+                                <button type="button" onclick="document.getElementById('emp-photo-input').click()" style="padding:7px 14px;border:1.5px solid #0a66c2;border-radius:8px;background:#fff;color:#0a66c2;font-size:13px;cursor:pointer;font-weight:600"><i class="fas fa-upload"></i> Upload Photo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Resume Upload (optional) -->
+                    <div class="form-group full">
+                        <label><i class="fas fa-file-pdf"></i> Resume / CV <span style="font-weight:400;color:#888">(optional)</span></label>
+                        <div style="margin-top:6px">
+                            <input type="file" id="emp-resume-input" name="resume" accept=".pdf,.doc,.docx,image/*" style="display:none" onchange="showResumeName(this)">
+                            <button type="button" onclick="document.getElementById('emp-resume-input').click()" style="padding:8px 16px;border:1.5px solid #28a745;border-radius:8px;background:#fff;color:#28a745;font-size:13px;cursor:pointer;font-weight:600"><i class="fas fa-file-upload"></i> Upload Resume</button>
+                            <span id="emp-resume-name" style="font-size:12px;color:#444;margin-left:10px"></span>
+                            <p style="font-size:12px;color:#888;margin-top:4px">PDF, Word, or image. Max 5 MB.</p>
+                        </div>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fas fa-lock"></i> Password *</label>
@@ -523,7 +541,7 @@
                         <span style="font-size:12px;color:#555;line-height:1.5">I agree to the <a href="/terms/" target="_blank" style="color:#0a66c2;font-weight:600">Terms &amp; Conditions</a> and <a href="/privacy/" target="_blank" style="color:#0a66c2;font-weight:600">Privacy Policy</a>.</span>
                     </div>
                     <button type="submit" class="submit-btn">
-                        <i class="fas fa-check-circle"></i> Create Profile
+                        <i class="fas fa-check-circle"></i> Create Profile & Find Jobs
                     </button>
                 </form>
             </div>
@@ -704,6 +722,30 @@
 
     <script src="{% static 'js/register.js' %}?v=13"></script>
 <script>
+function selectCollar(type) {
+    document.getElementById('empCollarHidden').value = type;
+    var badge = document.getElementById('emp-collar-badge');
+    if (type === 'blue') {
+        document.getElementById('collar-blue').style.borderColor = '#e65100';
+        document.getElementById('collar-blue').style.background = '#fff8f0';
+        document.getElementById('collar-white').style.borderColor = '#e5e7eb';
+        document.getElementById('collar-white').style.background = '';
+        if (badge) badge.innerHTML = '<i class="fas fa-wrench"></i> Blue Collar';
+    } else {
+        document.getElementById('collar-white').style.borderColor = '#1d4ed8';
+        document.getElementById('collar-white').style.background = '#eff6ff';
+        document.getElementById('collar-blue').style.borderColor = '#e5e7eb';
+        document.getElementById('collar-blue').style.background = '';
+        if (badge) badge.innerHTML = '<i class="fas fa-user-tie"></i> White Collar';
+    }
+    // Show form step
+    document.querySelectorAll('.reg-step').forEach(function(s){ s.classList.add('hidden'); });
+    document.getElementById('step-employee-form').classList.remove('hidden');
+}
+function showResumeName(input) {
+    var f = input.files[0];
+    document.getElementById('emp-resume-name').textContent = f ? f.name : '';
+}
 function previewImg(input, previewId, iconId) {
     var file = input.files[0];
     if (!file) return;

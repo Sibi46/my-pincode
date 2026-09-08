@@ -345,7 +345,7 @@
 
 .jd-logo.blue-logo { background: #fff3e0; color: #e65100; }
 
-.jd-title { font-size: 24px; font-weight: 800; color: #191919; margin-bottom: 6px; }
+.jd-title { font-size: clamp(16px, 4vw, 24px); font-weight: 800; color: #191919; margin-bottom: 6px; word-break: break-word; overflow-wrap: anywhere; line-height: 1.3; }
 .jd-company { font-size: 14px; color: #666; display: flex; align-items: center; gap: 6px; }
 
 .jd-collar-badge {

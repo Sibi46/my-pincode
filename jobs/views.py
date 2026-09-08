@@ -342,14 +342,23 @@ def register_process(request):
                     sp_defaults['banner_image'] = banner_file
                 ShopProfile.objects.update_or_create(user=user, defaults=sp_defaults)
         elif user_type in ('employee', 'individual', 'freelancer'):
-            JobSeekerProfile.objects.get_or_create(
-                user=user,
-                defaults=dict(
-                    job_category=request.POST.get('job_category', ''),
-                    primary_skill=request.POST.get('primary_skill', ''),
-                    rate=request.POST.get('rate', ''),
-                )
+            seeker_defaults = dict(
+                job_category=request.POST.get('job_category', ''),
+                primary_skill=request.POST.get('primary_skill', ''),
+                rate=request.POST.get('rate', ''),
             )
+            seeker, _ = JobSeekerProfile.objects.get_or_create(user=user, defaults=seeker_defaults)
+            if not _:
+                # existing — update collar and skill
+                if request.POST.get('job_category'):
+                    seeker.job_category = request.POST.get('job_category')
+                if request.POST.get('primary_skill'):
+                    seeker.primary_skill = request.POST.get('primary_skill')
+            if request.FILES.get('photo'):
+                seeker.photo = request.FILES['photo']
+            if request.FILES.get('resume'):
+                seeker.resume = request.FILES['resume']
+            seeker.save()
     except Exception:
         logger.exception('register_process: profile create failed for user %s type=%s', user.pk, user_type)
         # User account was created — log them in; profile can be completed later.
@@ -359,6 +368,8 @@ def register_process(request):
 
     if user_type in User.EMPLOYER_TYPES:
         redirect_url = '/employer/dashboard/'
+    elif user_type == 'employee':
+        redirect_url = '/jobs/'
     else:
         redirect_url = '/'
 
@@ -951,6 +962,10 @@ def employer_profile_save(request):
         prof.industry     = p.get('industry', '').strip()
         prof.company_size = p.get('company_size', '').strip()
         prof.website      = p.get('website', '').strip()
+        if request.FILES.get('logo'):
+            prof.logo = request.FILES['logo']
+        if request.FILES.get('banner_image'):
+            prof.banner_image = request.FILES['banner_image']
         try:
             prof.save()
         except Exception:

@@ -938,6 +938,69 @@
         </div>
         <button type="submit" style="margin-top:20px;background:#0a66c2;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Profile</button>
       </form>
+
+      <!-- Logo & Banner Upload -->
+      <form method="POST" action="/employer/profile/save/" enctype="multipart/form-data" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:24px;margin-top:16px">
+        {% csrf_token %}
+        <div style="font-size:14px;font-weight:800;color:#0a66c2;margin-bottom:16px;display:flex;align-items:center;gap:8px"><i class="fas fa-image"></i> Business Logo & Banner</div>
+        <!-- Logo -->
+        <div style="margin-bottom:18px">
+          <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:8px"><i class="fas fa-image"></i> Business Logo <span style="font-weight:400;color:#888">(optional)</span></label>
+          <div style="display:flex;align-items:center;gap:14px">
+            <label for="dash-logo-input" style="display:flex;align-items:center;justify-content:center;width:80px;height:80px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;flex-shrink:0">
+              {% if profile.logo %}
+                <img id="dash-logo-preview" src="{{ profile.logo.url }}" style="width:80px;height:80px;object-fit:cover;border-radius:10px">
+              {% else %}
+                <img id="dash-logo-preview" src="" style="width:80px;height:80px;object-fit:cover;border-radius:10px;display:none">
+                <i class="fas fa-plus" id="dash-logo-icon" style="color:#90a4ae;font-size:22px"></i>
+              {% endif %}
+            </label>
+            <div>
+              <input type="file" id="dash-logo-input" name="logo" accept="image/*" style="display:none" onchange="dashPreviewImg(this,'dash-logo-preview','dash-logo-icon')">
+              <button type="button" onclick="document.getElementById('dash-logo-input').click()" style="padding:8px 18px;border:1.5px solid #0a66c2;border-radius:8px;background:#fff;color:#0a66c2;font-size:13px;cursor:pointer;font-weight:600"><i class="fas fa-upload"></i> Upload Logo</button>
+              <p style="font-size:12px;color:#888;margin-top:6px">Square image recommended. JPG/PNG, max 5 MB.</p>
+            </div>
+          </div>
+        </div>
+        <!-- Banner -->
+        <div style="margin-bottom:18px">
+          <label style="font-size:13px;font-weight:700;color:#444;display:block;margin-bottom:8px"><i class="fas fa-panorama"></i> Business Banner <span style="font-weight:400;color:#888">(optional)</span></label>
+          <label for="dash-banner-input" style="display:block;width:100%;height:110px;border:2px dashed #b0bec5;border-radius:12px;cursor:pointer;overflow:hidden;background:#f8faff;position:relative">
+            {% if profile.banner_image %}
+              <img id="dash-banner-preview" src="{{ profile.banner_image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">
+              <div id="dash-banner-icon" style="display:none"></div>
+            {% else %}
+              <img id="dash-banner-preview" src="" style="width:100%;height:100%;object-fit:cover;border-radius:10px;display:none">
+              <div id="dash-banner-icon" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+                <i class="fas fa-panorama" style="color:#90a4ae;font-size:24px"></i>
+                <span style="font-size:12px;color:#90a4ae">Click to upload banner</span>
+              </div>
+            {% endif %}
+          </label>
+          <input type="file" id="dash-banner-input" name="banner_image" accept="image/*" style="display:none" onchange="dashPreviewBanner(this)">
+          <p style="font-size:12px;color:#888;margin-top:6px">Landscape image recommended (1200×400). JPG/PNG, max 5 MB.</p>
+        </div>
+        <button type="submit" style="background:#0a66c2;color:#fff;border:none;padding:11px 28px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer"><i class="fas fa-save"></i> Save Images</button>
+      </form>
+
+      <!-- Business Sections -->
+      <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <a href="/advertiser/dashboard/" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:18px 14px;text-align:center;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#0a66c2'" onmouseout="this.style.borderColor='#e5e7eb'">
+          <div style="font-size:28px;margin-bottom:8px">📢</div>
+          <div style="font-size:13px;font-weight:800;color:#0a66c2">Advertisement</div>
+          <div style="font-size:11px;color:#888;margin-top:4px">Post & manage ads</div>
+        </a>
+        <a href="/vouchers/my-vouchers/" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:18px 14px;text-align:center;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#e5e7eb'">
+          <div style="font-size:28px;margin-bottom:8px">🎁</div>
+          <div style="font-size:13px;font-weight:800;color:#7c3aed">Gift Vouchers</div>
+          <div style="font-size:11px;color:#888;margin-top:4px">Create & manage vouchers</div>
+        </a>
+        <a href="/offers/post/" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:18px 14px;text-align:center;text-decoration:none;color:#111;transition:.2s" onmouseover="this.style.borderColor='#e65100'" onmouseout="this.style.borderColor='#e5e7eb'">
+          <div style="font-size:28px;margin-bottom:8px">🔥</div>
+          <div style="font-size:13px;font-weight:800;color:#e65100">Post Offer</div>
+          <div style="font-size:11px;color:#888;margin-top:4px">Deals & discounts</div>
+        </a>
+      </div>
     </section>
 
     <!-- ══ FLICKS ══ -->
@@ -1092,6 +1155,27 @@
 </div>
 
 <script>
+function dashPreviewImg(input, previewId, iconId) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById(previewId);
+    img.src = e.target.result; img.style.display = 'block';
+    var icon = document.getElementById(iconId);
+    if (icon) icon.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function dashPreviewBanner(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = document.getElementById('dash-banner-preview');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('dash-banner-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
 function showSection(id, navEl) {
   document.querySelectorAll('.dsec').forEach(s => s.classList.add('hidden'));
   document.querySelectorAll('.snav-item').forEach(a => a.classList.remove('active'));

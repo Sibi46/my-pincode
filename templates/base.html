@@ -709,7 +709,7 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 {% block site_bottom_nav %}
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <a href="/flicks/" class="bn-item {% if request.path == '/' %}active{% endif %}">
+    <a href="/" class="bn-item {% if request.path == '/' %}active{% endif %}">
       <i class="fas fa-home"></i><span>Home</span>
     </a>
     <a href="/advertise/" class="bn-item {% if '/advertise' in request.path %}active{% endif %}">
@@ -721,10 +721,14 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
     <a href="/vouchers/marketplace/" class="bn-item {% if '/vouchers' in request.path %}active{% endif %}">
       <span style="font-size:22px;line-height:1">🎁</span><span>Voucher</span>
     </a>
-    <a href="/jobs/" class="bn-item {% if '/jobs' in request.path %}active{% endif %}">
-      <span style="font-size:22px;line-height:1">🔍</span><span>Jobs</span>
+    <a href="/health/" class="bn-item {% if '/health' in request.path %}active{% endif %}">
+      <i class="fas fa-heartbeat" style="font-size:19px"></i><span>Health</span>
     </a>
   </div>
+  <!-- + button: register business -->
+  <a href="/register/?type=company" class="bn-plus-btn" title="Register Business">
+    <i class="fas fa-plus"></i>
+  </a>
 </nav>
 {% endblock site_bottom_nav %}
 
@@ -742,6 +746,8 @@ if(document.addEventListener)document.addEventListener('keydown',function(e){if(
 .bn-fab span{color:#0a66c2;font-weight:700}
 .bn-fab-active span{color:#7c3aed}
 .bn-fab-active .bn-fab-flick{box-shadow:0 4px 18px rgba(124,58,237,.6)}
+.bn-plus-btn{position:absolute;right:12px;bottom:64px;width:44px;height:44px;background:linear-gradient(135deg,#0a66c2,#004182);border-radius:50%;display:none;align-items:center;justify-content:center;color:#fff;font-size:20px;text-decoration:none;box-shadow:0 4px 16px rgba(10,102,194,.45);z-index:999}
+@media(max-width:768px){.bn-plus-btn{display:flex}}
 body{padding-bottom:62px}
 </style>
 
