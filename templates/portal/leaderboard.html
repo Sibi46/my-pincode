@@ -1,0 +1,152 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}{{ community.name }} — Top Contributors{% endblock %}
+
+{% block extra_css %}
+<style>
+.lb-wrap{max-width:680px;margin:0 auto;padding-bottom:80px}
+.lb-hero{background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:20px;padding:24px 20px;margin-bottom:16px;color:#fff;text-align:center}
+.lb-hero-title{font-size:22px;font-weight:900;letter-spacing:-.02em}
+.lb-hero-sub{font-size:13px;opacity:.8;margin-top:4px}
+.lb-period-tabs{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.lb-period-btn{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+.lb-period-btn.active{background:#fff;color:#1d4ed8}
+
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:12px;margin:20px 0}
+.podium-item{display:flex;flex-direction:column;align-items:center;gap:6px}
+.podium-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;flex-shrink:0;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.podium-avatar.gold{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.podium-avatar.silver{background:linear-gradient(135deg,#94a3b8,#64748b)}
+.podium-avatar.bronze{background:linear-gradient(135deg,#b45309,#92400e)}
+.podium-name{font-size:12px;font-weight:700;color:#0f172a;text-align:center;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podium-pts{font-size:11px;color:#6366f1;font-weight:800}
+.podium-rank{font-size:18px}
+.podium-block{border-radius:12px 12px 0 0;width:60px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:rgba(255,255,255,.9)}
+.podium-block.gold{background:linear-gradient(135deg,#f59e0b,#d97706);height:70px}
+.podium-block.silver{background:linear-gradient(135deg,#94a3b8,#64748b);height:55px}
+.podium-block.bronze{background:linear-gradient(135deg,#b45309,#92400e);height:44px}
+
+.lb-card{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;overflow:hidden;margin-bottom:12px}
+.lb-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:800;color:#0f172a}
+.lb-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #f8fafc;transition:background .15s}
+.lb-row:last-child{border-bottom:none}
+.lb-row.me{background:#eff6ff}
+.lb-rank{width:28px;font-size:14px;font-weight:900;color:#6b7280;text-align:center;flex-shrink:0}
+.lb-rank.top1{color:#f59e0b}
+.lb-rank.top2{color:#94a3b8}
+.lb-rank.top3{color:#b45309}
+.lb-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0}
+.lb-name{flex:1;font-size:14px;font-weight:700;color:#0f172a}
+.lb-pts{font-size:13px;font-weight:900;color:#4f46e5}
+.lb-badges{font-size:16px;letter-spacing:2px}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lb-wrap">
+
+  <!-- Hero -->
+  <div class="lb-hero">
+    <div class="lb-hero-title">🏆 Top Contributors</div>
+    <div class="lb-hero-sub">{{ community.name }}</div>
+    <div class="lb-period-tabs">
+      <button class="lb-period-btn active" onclick="setPeriod('alltime',this)">All Time</button>
+      <button class="lb-period-btn" onclick="setPeriod('year',this)">This Year</button>
+      <button class="lb-period-btn" onclick="setPeriod('month',this)">This Month</button>
+    </div>
+  </div>
+
+  {% if top3 %}
+  <!-- Podium -->
+  <div class="lb-card">
+    <div class="lb-head">🥇 Top 3</div>
+    <div style="padding:16px 0">
+      <div class="podium">
+        {% if top3|length >= 2 %}
+        <div class="podium-item">
+          <div class="podium-avatar silver">{{ top3.1.user.first_name|first|upper }}{{ top3.1.user.last_name|first|upper }}</div>
+          <div class="podium-name">{{ top3.1.user.get_full_name|truncatechars:12 }}</div>
+          <div class="podium-pts">{{ top3.1.total_points }} pts</div>
+          <div class="podium-block silver">2</div>
+        </div>
+        {% endif %}
+        {% if top3|length >= 1 %}
+        <div class="podium-item">
+          <div class="podium-rank">👑</div>
+          <div class="podium-avatar gold">{{ top3.0.user.first_name|first|upper }}{{ top3.0.user.last_name|first|upper }}</div>
+          <div class="podium-name">{{ top3.0.user.get_full_name|truncatechars:12 }}</div>
+          <div class="podium-pts">{{ top3.0.total_points }} pts</div>
+          <div class="podium-block gold">1</div>
+        </div>
+        {% endif %}
+        {% if top3|length >= 3 %}
+        <div class="podium-item">
+          <div class="podium-avatar bronze">{{ top3.2.user.first_name|first|upper }}{{ top3.2.user.last_name|first|upper }}</div>
+          <div class="podium-name">{{ top3.2.user.get_full_name|truncatechars:12 }}</div>
+          <div class="podium-pts">{{ top3.2.total_points }} pts</div>
+          <div class="podium-block bronze">3</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Full List -->
+  <div class="lb-card">
+    <div class="lb-head">📊 Full Rankings</div>
+    {% for mp in board %}
+    <div class="lb-row {% if request.user.is_authenticated and mp.user == request.user %}me{% endif %}">
+      <div class="lb-rank {% if forloop.counter == 1 %}top1{% elif forloop.counter == 2 %}top2{% elif forloop.counter == 3 %}top3{% endif %}">
+        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+      </div>
+      <div class="lb-avatar">{{ mp.user.first_name|first|upper }}{{ mp.user.last_name|first|upper }}</div>
+      <div>
+        <div class="lb-name">
+          {{ mp.user.get_full_name }}
+          {% if request.user.is_authenticated and mp.user == request.user %}<span style="font-size:10px;color:#4f46e5;font-weight:700;margin-left:4px">YOU</span>{% endif %}
+        </div>
+        {% with mp.user.badges.all as ubadges %}
+        {% if ubadges %}
+        <div class="lb-badges">{% for ub in ubadges|slice:":4" %}{{ ub.badge.icon }}{% endfor %}</div>
+        {% endif %}
+        {% endwith %}
+      </div>
+      <div class="lb-pts">{{ mp.total_points }} pts</div>
+    </div>
+    {% empty %}
+    <div style="padding:24px;text-align:center;color:#94a3b8;font-size:14px">No points recorded yet. Participate in events to earn points!</div>
+    {% endfor %}
+  </div>
+
+  {% if my_rank %}
+  <div style="background:linear-gradient(135deg,#eff6ff,#e0e7ff);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="font-size:28px">🎯</div>
+    <div>
+      <div style="font-size:14px;font-weight:800;color:#1d4ed8">Your Rank: #{{ my_rank }}</div>
+      <div style="font-size:12px;color:#4f46e5">Keep contributing to climb the leaderboard!</div>
+    </div>
+    <a href="{% url 'my_contribution_profile' slug=community.slug %}" style="margin-left:auto;background:#4f46e5;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">My Profile</a>
+  </div>
+  {% endif %}
+
+  {% if is_admin %}
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+    <a href="{% url 'point_config_admin' slug=community.slug %}" style="background:#4f46e5;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">⚙️ Configure Points</a>
+    <a href="{% url 'record_participation' slug=community.slug %}" style="background:#059669;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">➕ Record Participation</a>
+    <a href="{% url 'create_badge' slug=community.slug %}" style="background:#f59e0b;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">🏅 Manage Badges</a>
+    <a href="{% url 'year_end_recognition' slug=community.slug %}" style="background:#7c3aed;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">🎖 Recognition</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setPeriod(p, btn) {
+  document.querySelectorAll('.lb-period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // TODO: implement AJAX filtering if needed
+}
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Submit Contribution — {{ community.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;padding-bottom:80px">
+
+  <div style="background:linear-gradient(135deg,#1d4ed8,#7c3aed);border-radius:20px;padding:24px 20px;color:#fff;margin-bottom:16px">
+    <div style="font-size:20px;font-weight:900">Submit a Contribution</div>
+    <div style="font-size:13px;opacity:.8;margin-top:4px">{{ community.name }}</div>
+  </div>
+
+  <div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:20px">
+    <form method="post">
+      {% csrf_token %}
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Contribution Type *</label>
+        <select name="contribution_type" id="contribType" required
+          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— Select Type —</option>
+          {% for val, lbl in contribution_types %}
+          <option value="{{ val }}">{{ lbl }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div id="amountRow" style="display:none;margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Amount (₹)</label>
+        <input type="number" name="amount" step="0.01" min="0"
+          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc;box-sizing:border-box">
+        <div style="margin-top:6px">
+          <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Transaction Reference</label>
+          <input type="text" name="transaction_ref" placeholder="UPI ref / receipt number"
+            style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc;box-sizing:border-box">
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Description *</label>
+        <textarea name="description" rows="3" required placeholder="Describe what you contributed…"
+          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;resize:none;box-sizing:border-box"></textarea>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Estimated Value (₹) <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <input type="number" name="estimated_value" step="0.01" min="0"
+          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc;box-sizing:border-box">
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Link to Event <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="event" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for e in events %}
+          <option value="{{ e.pk }}">{{ e.name }} ({{ e.date|date:"M j" }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Link to Activity <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="activity" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for a in activities %}
+          <option value="{{ a.pk }}">{{ a.name }} ({{ a.date|date:"M j" }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Link to Cause <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="cause" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for c in causes %}
+          <option value="{{ c.pk }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" style="width:100%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer">
+        Submit Contribution
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('contribType').addEventListener('change', function() {
+  document.getElementById('amountRow').style.display = this.value === 'financial' ? 'block' : 'none';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}{{ community.name }} — Impact Report {{ year }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.impact-wrap{max-width:680px;margin:0 auto;padding-bottom:80px}
+.impact-hero{background:linear-gradient(135deg,#0f172a,#1d4ed8);border-radius:20px;padding:28px 20px;color:#fff;margin-bottom:16px;text-align:center}
+.impact-title{font-size:24px;font-weight:900;letter-spacing:-.02em}
+.impact-sub{font-size:13px;opacity:.75;margin-top:5px}
+.impact-year{font-size:40px;font-weight:900;opacity:.15;margin-top:4px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-tile{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:18px;text-align:center}
+.stat-tile-val{font-size:28px;font-weight:900;color:#4f46e5}
+.stat-tile-lbl{font-size:11px;color:#64748b;margin-top:4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.ic-card{background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;margin-bottom:12px;overflow:hidden}
+.ic-head{padding:12px 16px;border-bottom:1px solid #f1f5f9;font-size:14px;font-weight:800;color:#0f172a;display:flex;align-items:center;justify-content:space-between}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="impact-wrap">
+
+  <div class="impact-hero">
+    <div class="impact-title">{{ community.name }}</div>
+    <div class="impact-sub">Community Impact Report</div>
+    <div class="impact-year">{{ year }}</div>
+  </div>
+
+  <!-- Year toggle -->
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+    {% for y in "2026 2025 2024 2023"|split:" " %}
+    <a href="?year={{ y }}" style="padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-decoration:none;background:{% if y|add:'0' == year %}#4f46e5{% else %}#f1f5f9{% endif %};color:{% if y|add:'0' == year %}#fff{% else %}#374151{% endif %}">{{ y }}</a>
+    {% endfor %}
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stats-grid">
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ member_count }}</div>
+      <div class="stat-tile-lbl">Members</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ events_count }}</div>
+      <div class="stat-tile-lbl">Events</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ activities_count }}</div>
+      <div class="stat-tile-lbl">Activities</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ volunteer_count }}</div>
+      <div class="stat-tile-lbl">Volunteers</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ total_participation }}</div>
+      <div class="stat-tile-lbl">Participations</div>
+    </div>
+    <div class="stat-tile">
+      <div class="stat-tile-val">{{ causes_count }}</div>
+      <div class="stat-tile-lbl">Causes</div>
+    </div>
+  </div>
+
+  <!-- Top Contributors -->
+  <div class="ic-card">
+    <div class="ic-head">
+      🏆 Top Contributors
+      <a href="{% url 'community_leaderboard' slug=community.slug %}" style="font-size:12px;color:#4f46e5;font-weight:700;text-decoration:none">See All →</a>
+    </div>
+    {% for mp in top_contributors %}
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid #f8fafc">
+      <div style="width:28px;font-size:{% if forloop.counter <= 3 %}20px{% else %}14px{% endif %};text-align:center">
+        {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% else %}{{ forloop.counter }}{% endif %}
+      </div>
+      <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;flex-shrink:0">{{ mp.user.first_name|first|upper }}{{ mp.user.last_name|first|upper }}</div>
+      <div style="flex:1;font-size:14px;font-weight:700;color:#0f172a">{{ mp.user.get_full_name }}</div>
+      <div style="font-size:15px;font-weight:900;color:#4f46e5">{{ mp.total_points }} pts</div>
+    </div>
+    {% empty %}
+    <div style="padding:20px;text-align:center;color:#94a3b8;font-size:13px">No data yet.</div>
+    {% endfor %}
+  </div>
+
+  <!-- Recognitions -->
+  {% if recognitions %}
+  <div class="ic-card">
+    <div class="ic-head">🎖 {{ year }} Recognition Awards</div>
+    {% for r in recognitions %}
+    <div style="display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid #f8fafc">
+      <div style="font-size:24px">🏆</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:800;color:#0f172a">{{ r.award_name }}</div>
+        <div style="font-size:12px;color:#7c3aed;font-weight:700">{{ r.user.get_full_name }}</div>
+        {% if r.description %}<div style="font-size:11px;color:#64748b;margin-top:2px">{{ r.description }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Share -->
+  <div style="background:linear-gradient(135deg,#eff6ff,#e0e7ff);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+    <div style="font-size:24px">📤</div>
+    <div style="flex:1">
+      <div style="font-size:13px;font-weight:800;color:#1d4ed8">Share This Impact Report</div>
+      <div style="font-size:12px;color:#4f46e5">Show the world what {{ community.name }} achieved in {{ year }}</div>
+    </div>
+    <button onclick="shareImpact()" style="background:#4f46e5;color:#fff;border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Share</button>
+  </div>
+
+  {% if is_admin %}
+  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+    <a href="{% url 'year_end_recognition' slug=community.slug %}" style="background:#7c3aed;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">🎖 Add Recognition</a>
+    <a href="{% url 'community_leaderboard' slug=community.slug %}" style="background:#4f46e5;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none">🏆 Leaderboard</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareImpact() {
+  var url = window.location.href;
+  if (navigator.share) {
+    navigator.share({title:'{{ community.name|escapejs }} Impact {{ year }}', url: url});
+  } else {
+    navigator.clipboard.writeText(url).then(function(){ alert('Link copied!'); });
+  }
+}
+</script>
+{% endblock %}

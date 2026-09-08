@@ -1,0 +1,74 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Record Participation — {{ community.name }}{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;padding-bottom:80px">
+
+  <div style="background:linear-gradient(135deg,#059669,#047857);border-radius:16px;padding:20px;color:#fff;margin-bottom:14px">
+    <div style="font-size:18px;font-weight:900">➕ Record Participation</div>
+    <div style="font-size:12px;opacity:.8;margin-top:3px">{{ community.name }} · Manually record a member's participation</div>
+  </div>
+
+  <div style="background:#fff;border-radius:16px;border:1.5px solid #e5e7eb;padding:20px">
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Member *</label>
+        <select name="user_id" required style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— Select Member —</option>
+          {% for m in members %}
+          <option value="{{ m.user.pk }}">{{ m.user.get_full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Role *</label>
+        <select name="role" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          {% for val, lbl in roles %}
+          <option value="{{ val }}">{{ lbl }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Event <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="event_id" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for e in events %}
+          <option value="{{ e.pk }}">{{ e.name }} ({{ e.date|date:"M j" }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Activity <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="activity_id" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for a in activities %}
+          <option value="{{ a.pk }}">{{ a.name }} ({{ a.date|date:"M j" }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Cause <span style="font-weight:400;color:#94a3b8">optional</span></label>
+        <select name="cause_id" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc">
+          <option value="">— None —</option>
+          {% for c in causes %}
+          <option value="{{ c.pk }}">{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Notes</label>
+        <textarea name="notes" rows="2" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;resize:none;box-sizing:border-box" placeholder="Any notes about this participation…"></textarea>
+      </div>
+
+      <button type="submit" style="width:100%;background:#059669;color:#fff;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer">Record & Award Points</button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

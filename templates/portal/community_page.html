@@ -485,6 +485,49 @@
   </div>
   {% endif %}
 
+  <!-- ── TOP CONTRIBUTORS WIDGET ── -->
+  {% with community.member_points.all|dictsortreversed:"total_points" as top_pts %}
+  {% if top_pts %}
+  <div class="csection">
+    <div class="csection-head">
+      <span class="csection-title">🏆 Top Contributors</span>
+      <a href="{% url 'community_leaderboard' slug=community.slug %}" style="font-size:12px;color:#4f46e5;font-weight:700;text-decoration:none">See all →</a>
+    </div>
+    <div class="csection-body" style="padding:10px 16px">
+      {% for mp in top_pts|slice:":3" %}
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc">
+        <div style="width:24px;font-size:{% if forloop.counter <= 3 %}16px{% else %}12px{% endif %};text-align:center">
+          {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% elif forloop.counter == 3 %}🥉{% endif %}
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;flex-shrink:0">{{ mp.user.first_name|first|upper }}{{ mp.user.last_name|first|upper }}</div>
+        <div style="flex:1;font-size:13px;font-weight:700;color:#0f172a">{{ mp.user.get_full_name }}</div>
+        <div style="font-size:13px;font-weight:900;color:#4f46e5">{{ mp.total_points }} pts</div>
+      </div>
+      {% endfor %}
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <a href="{% url 'community_leaderboard' slug=community.slug %}" style="flex:1;text-align:center;background:#eff6ff;color:#4f46e5;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">🏆 Leaderboard</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'contribution_submit' slug=community.slug %}" style="flex:1;text-align:center;background:#f0fdf4;color:#059669;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">💙 Contribute</a>
+        <a href="{% url 'community_impact_page' slug=community.slug %}" style="flex:1;text-align:center;background:#faf5ff;color:#7c3aed;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">📊 Impact</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="csection">
+    <div class="csection-body" style="display:flex;gap:10px;align-items:center">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:700;color:#0f172a">Start earning points!</div>
+        <div style="font-size:12px;color:#64748b;margin-top:2px">Attend events, volunteer, and contribute to earn recognition.</div>
+      </div>
+      {% if user.is_authenticated %}
+      <a href="{% url 'contribution_submit' slug=community.slug %}" style="background:#4f46e5;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">💙 Contribute</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+  {% endwith %}
+
   <!-- ── JOIN MODE ── -->
   <div class="csection">
     <div class="csection-body" style="display:flex;align-items:center;justify-content:space-between">

@@ -409,6 +409,51 @@
 </div>
 {% endif %}
 
+<!-- ── Points & Participation ── -->
+{% if event.community %}
+<div class="ev-sect" style="margin-bottom:16px">
+  <div class="ev-sect-head">
+    <div class="ev-sect-title">⭐ Points & Participation</div>
+    {% if is_admin %}
+    <a href="{% url 'event_participation_admin' slug=event.community.slug event_id=event.pk %}" style="font-size:12px;color:#4f46e5;font-weight:700;text-decoration:none">Manage All →</a>
+    {% endif %}
+  </div>
+  <div class="ev-sect-body">
+    {% if user.is_authenticated %}
+      {% with event.participations.all as parts %}
+      {% for p in parts %}
+        {% if p.user == user %}
+        <div style="background:{% if p.status == 'confirmed' %}#f0fdf4{% elif p.status == 'rejected' %}#fef2f2{% else %}#fffbeb{% endif %};border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+          <div style="font-size:20px">{% if p.status == 'confirmed' %}✅{% elif p.status == 'rejected' %}❌{% else %}⏳{% endif %}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:#0f172a">Your participation: {{ p.get_role_display }}</div>
+            <div style="font-size:12px;color:#64748b">{{ p.get_status_display }}{% if p.points_awarded %} · {{ p.points_awarded }} pts awarded{% endif %}</div>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+      {% endwith %}
+    {% endif %}
+
+    {% if is_admin %}
+    <div style="background:#f8fafc;border-radius:12px;padding:12px 14px">
+      <div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px">Admin Actions</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a href="{% url 'event_participation_admin' slug=event.community.slug event_id=event.pk %}" style="background:#4f46e5;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">👥 View Participants</a>
+        <a href="{% url 'record_participation' slug=event.community.slug %}" style="background:#059669;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">➕ Record Participation</a>
+        <a href="{% url 'community_leaderboard' slug=event.community.slug %}" style="background:#f59e0b;color:#fff;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">🏆 Leaderboard</a>
+      </div>
+    </div>
+    {% elif user.is_authenticated %}
+    <div style="font-size:12px;color:#64748b">
+      Attend this event and get confirmed by the admin to earn points towards your community ranking.
+      <a href="{% url 'my_contribution_profile' slug=event.community.slug %}" style="color:#4f46e5;font-weight:700;text-decoration:none">View my points →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
 <!-- Similar Events -->
 {% if similar %}
 <div style="margin-top:24px">
