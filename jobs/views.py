@@ -783,6 +783,58 @@ def edit_job(request, pk):
     return render(request, 'edit_job.html', {'job': job, 'industries': industries})
 
 
+def business_profile(request, company_id):
+    from .models import CompanyProfile, Flick, LocalOffer, AdPost
+    profile = get_object_or_404(CompanyProfile, company_id=company_id)
+    owner = profile.user
+    user_type = owner.user_type
+
+    # Offers by this business
+    offers = LocalOffer.objects.filter(
+        business_name__iexact=profile.company_name, is_active=True
+    ).order_by('-created_at')[:20]
+
+    # Flicks posted by owner
+    flicks = Flick.objects.filter(user=owner).order_by('-created_at')[:12]
+
+    # Gallery: ad post images + offer images
+    gallery_images = []
+    for ap in AdPost.objects.filter(user=owner, status='approved').order_by('-created_at')[:20]:
+        if ap.image:
+            gallery_images.append(ap.image.url)
+    for o in LocalOffer.objects.filter(business_name__iexact=profile.company_name, is_active=True):
+        if o.image:
+            gallery_images.append(o.image.url)
+    gallery_images = list(dict.fromkeys(gallery_images))[:24]
+
+    # Gift vouchers via vouchers Business model
+    vouchers = []
+    vbiz = None
+    try:
+        from vouchers.models import Business as VBusiness, GiftVoucher
+        vbiz = VBusiness.objects.filter(owner=owner, status='approved').first()
+        if vbiz:
+            vouchers = GiftVoucher.objects.filter(
+                business=vbiz, status='published'
+            ).order_by('-created_at')[:10]
+    except Exception:
+        pass
+
+    return render(request, 'business_profile.html', {
+        'profile': profile,
+        'owner': owner,
+        'user_type': user_type,
+        'offers': offers,
+        'offers_count': offers.count(),
+        'vouchers': vouchers,
+        'vouchers_count': len(vouchers),
+        'flicks': flicks,
+        'flicks_count': flicks.count(),
+        'gallery_images': gallery_images,
+        'vbiz': vbiz,
+    })
+
+
 # ── DASHBOARDS ────────────────────────────────────────────────────────────────
 @login_required
 def employer_dashboard(request):

@@ -1,0 +1,342 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ profile.company_name }} — OUR PINCODE</title>
+<link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding-bottom:72px}
+
+/* ── TOPBAR ── */
+.bp-topbar{position:fixed;top:0;left:0;right:0;height:52px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px;padding:0 14px;z-index:600}
+.bp-topbar a{color:#374151;text-decoration:none;font-size:22px}
+.bp-topbar-title{font-size:15px;font-weight:800;color:#111;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.bp-topbar-share{background:#0a66c2;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px}
+
+/* ── HEADER ── */
+.bp-wrap{max-width:640px;margin:52px auto 0;padding:0 0 20px}
+.bp-banner{width:100%;height:180px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);position:relative;overflow:hidden}
+.bp-banner img{width:100%;height:100%;object-fit:cover;display:block}
+.bp-banner-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.45))}
+
+.bp-header{background:#fff;padding:0 16px 16px;position:relative;margin-bottom:10px}
+.bp-logo-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;margin-bottom:10px}
+.bp-logo{width:76px;height:76px;border-radius:18px;border:3px solid #fff;object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,.2);background:#fff;flex-shrink:0}
+.bp-logo-placeholder{width:76px;height:76px;border-radius:18px;border:3px solid #fff;background:linear-gradient(135deg,#0a66c2,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);flex-shrink:0}
+.bp-follow-btn{background:#0a66c2;color:#fff;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer}
+.bp-name{font-size:20px;font-weight:900;color:#111;margin-bottom:3px}
+.bp-type{font-size:12px;color:#0a66c2;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.bp-bio{font-size:13px;color:#555;line-height:1.6;margin-bottom:10px}
+.bp-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:#64748b;margin-bottom:10px}
+.bp-meta span{display:flex;align-items:center;gap:4px}
+.bp-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #f1f5f9;padding-top:12px;text-align:center}
+.bp-stat-num{font-size:18px;font-weight:900;color:#111}
+.bp-stat-lbl{font-size:11px;color:#888;margin-top:2px}
+
+/* ── TABS ── */
+.bp-tabs{background:#fff;display:flex;border-bottom:1.5px solid #e5e7eb;position:sticky;top:52px;z-index:100;overflow-x:auto;scrollbar-width:none}
+.bp-tabs::-webkit-scrollbar{display:none}
+.bp-tab{flex:1;min-width:60px;padding:12px 6px;text-align:center;font-size:12px;font-weight:700;color:#888;cursor:pointer;border-bottom:2.5px solid transparent;transition:.15s;white-space:nowrap}
+.bp-tab.active{color:#0a66c2;border-bottom-color:#0a66c2}
+.bp-tab i{display:block;font-size:18px;margin-bottom:3px}
+
+/* ── SECTIONS ── */
+.bp-section{display:none;padding:12px}
+.bp-section.active{display:block}
+
+/* OFFERS */
+.offer-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.offer-img{width:100%;height:160px;object-fit:cover;display:block}
+.offer-body{padding:12px 14px}
+.offer-discount{font-size:16px;font-weight:900;color:#e65100;margin-bottom:4px}
+.offer-title{font-size:13px;color:#374151;margin-bottom:6px}
+.offer-meta{font-size:11px;color:#888;display:flex;align-items:center;gap:8px}
+
+/* VOUCHERS */
+.voucher-card{background:#fff;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;gap:0}
+.voucher-left{background:linear-gradient(135deg,#7c3aed,#4f46e5);padding:16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:90px;text-align:center}
+.voucher-value{font-size:22px;font-weight:900;color:#fff;line-height:1}
+.voucher-label{font-size:10px;color:rgba(255,255,255,.8);margin-top:4px;font-weight:700;letter-spacing:.05em}
+.voucher-right{padding:14px;flex:1}
+.voucher-name{font-size:14px;font-weight:800;color:#111;margin-bottom:3px}
+.voucher-product{font-size:12px;color:#555;margin-bottom:6px}
+.voucher-expiry{font-size:11px;color:#888;display:flex;align-items:center;gap:4px}
+
+/* GALLERY */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.gallery-item{aspect-ratio:1;overflow:hidden;background:#e5e7eb;cursor:pointer}
+.gallery-item img{width:100%;height:100%;object-fit:cover;display:block;transition:.2s}
+.gallery-item img:hover{transform:scale(1.05)}
+
+/* FLICKS */
+.flick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.flick-card{border-radius:12px;overflow:hidden;background:#111;position:relative;aspect-ratio:9/16;cursor:pointer}
+.flick-thumb{width:100%;height:100%;object-fit:cover;display:block}
+.flick-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3)}
+.flick-play i{font-size:32px;color:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.flick-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:10px 8px 8px;font-size:11px;font-weight:600;color:#fff}
+
+/* EMPTY */
+.bp-empty{text-align:center;padding:40px 20px;color:#94a3b8}
+.bp-empty i{font-size:40px;margin-bottom:10px;display:block}
+.bp-empty p{font-size:13px;font-weight:600}
+
+/* LIGHTBOX */
+.lb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;align-items:center;justify-content:center}
+.lb-overlay.open{display:flex}
+.lb-overlay img{max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain}
+.lb-close{position:absolute;top:14px;right:14px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer}
+
+/* SOCIAL */
+.bp-social{display:flex;gap:10px;margin-top:8px}
+.bp-social a{width:34px;height:34px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#374151;text-decoration:none;font-size:16px;transition:.15s}
+.bp-social a:hover{background:#0a66c2;color:#fff}
+
+/* VIDEO MODAL */
+.vm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:3000;align-items:center;justify-content:center}
+.vm-overlay.open{display:flex}
+.vm-overlay video{max-width:96vw;max-height:90vh;border-radius:10px}
+.vm-close{position:absolute;top:14px;right:14px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;z-index:3001}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="bp-topbar">
+  <a href="javascript:history.back()"><i class="fas fa-arrow-left"></i></a>
+  <div class="bp-topbar-title">{{ profile.company_name }}</div>
+  <button class="bp-follow-btn" onclick="shareBiz()"><i class="fas fa-share-alt"></i> Share</button>
+</div>
+
+<div class="bp-wrap">
+
+  <!-- BANNER -->
+  <div class="bp-banner">
+    {% if profile.banner_image %}
+      <img src="{{ profile.banner_image.url }}" alt="Banner">
+    {% endif %}
+    <div class="bp-banner-overlay"></div>
+  </div>
+
+  <!-- HEADER CARD -->
+  <div class="bp-header">
+    <div class="bp-logo-row">
+      {% if profile.logo %}
+        <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="bp-logo">
+      {% else %}
+        <div class="bp-logo-placeholder">{{ profile.company_name|first|upper }}</div>
+      {% endif %}
+      <div></div>
+    </div>
+
+    <div class="bp-name">{{ profile.company_name }}</div>
+    <div class="bp-type">
+      {% if user_type == 'shop' %}<i class="fas fa-store"></i> Shop
+      {% elif user_type == 'factory' %}<i class="fas fa-industry"></i> Factory
+      {% elif user_type == 'hospital' %}<i class="fas fa-hospital"></i> Hospital
+      {% elif user_type == 'hotel' %}<i class="fas fa-hotel"></i> Hotel
+      {% elif user_type == 'ngo' %}<i class="fas fa-hands-helping"></i> NGO
+      {% elif user_type == 'startup' %}<i class="fas fa-rocket"></i> Startup
+      {% elif user_type == 'institution' %}<i class="fas fa-school"></i> Institution
+      {% elif user_type == 'farm' %}<i class="fas fa-leaf"></i> Farm
+      {% else %}<i class="fas fa-building"></i> Business{% endif %}
+    </div>
+
+    {% if profile.industry %}
+    <div class="bp-bio">{{ profile.industry }}</div>
+    {% endif %}
+
+    <div class="bp-meta">
+      {% if owner.city or owner.pincode %}
+      <span><i class="fas fa-map-marker-alt" style="color:#e65100"></i> {{ owner.city }}{% if owner.pincode %} — {{ owner.pincode }}{% endif %}</span>
+      {% endif %}
+      {% if profile.website %}
+      <span><i class="fas fa-globe" style="color:#0a66c2"></i> <a href="{{ profile.website }}" target="_blank" style="color:#0a66c2;text-decoration:none">Website</a></span>
+      {% endif %}
+    </div>
+
+    {% if vbiz and vbiz.instagram or vbiz and vbiz.facebook %}
+    <div class="bp-social">
+      {% if vbiz.instagram %}<a href="{{ vbiz.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>{% endif %}
+      {% if vbiz.facebook %}<a href="{{ vbiz.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>{% endif %}
+      {% if vbiz.twitter %}<a href="{{ vbiz.twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="bp-stats">
+      <div>
+        <div class="bp-stat-num">{{ offers_count }}</div>
+        <div class="bp-stat-lbl">Offers</div>
+      </div>
+      <div>
+        <div class="bp-stat-num">{{ vouchers_count }}</div>
+        <div class="bp-stat-lbl">Vouchers</div>
+      </div>
+      <div>
+        <div class="bp-stat-num">{{ flicks_count }}</div>
+        <div class="bp-stat-lbl">Flicks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="bp-tabs">
+    <div class="bp-tab active" onclick="switchTab('offers',this)">
+      <i class="fas fa-fire" style="color:#e65100"></i>Offers
+    </div>
+    <div class="bp-tab" onclick="switchTab('vouchers',this)">
+      <i class="fas fa-gift" style="color:#7c3aed"></i>Vouchers
+    </div>
+    <div class="bp-tab" onclick="switchTab('gallery',this)">
+      <i class="fas fa-images" style="color:#059669"></i>Gallery
+    </div>
+    <div class="bp-tab" onclick="switchTab('flicks',this)">
+      <i class="fas fa-bolt" style="color:#0a66c2"></i>Flicks
+    </div>
+  </div>
+
+  <!-- OFFERS -->
+  <div class="bp-section active" id="tab-offers">
+    {% if offers %}
+      {% for o in offers %}
+      <div class="offer-card">
+        {% if o.image %}
+        <img src="{{ o.image.url }}" alt="{{ o.title }}" class="offer-img" onclick="openLB('{{ o.image.url }}')">
+        {% endif %}
+        <div class="offer-body">
+          <div class="offer-discount">{{ o.discount_text }}</div>
+          <div class="offer-title">{{ o.title }}</div>
+          <div class="offer-meta">
+            {% if o.valid_until %}<span><i class="fas fa-calendar-alt"></i> Valid till {{ o.valid_until|date:"d M Y" }}</span>{% endif %}
+            {% if o.is_flash %}<span style="color:#e65100;font-weight:700"><i class="fas fa-bolt"></i> Flash Deal</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="bp-empty"><i class="fas fa-fire"></i><p>No offers posted yet</p></div>
+    {% endif %}
+  </div>
+
+  <!-- VOUCHERS -->
+  <div class="bp-section" id="tab-vouchers">
+    {% if vouchers %}
+      {% for v in vouchers %}
+      <div class="voucher-card">
+        <div class="voucher-left">
+          <div class="voucher-value">₹{{ v.voucher_value|floatformat:0 }}</div>
+          <div class="voucher-label">VOUCHER</div>
+        </div>
+        <div class="voucher-right">
+          <div class="voucher-name">{{ v.voucher_name }}</div>
+          <div class="voucher-product">{{ v.product_service_name }}</div>
+          <div class="voucher-expiry"><i class="fas fa-calendar"></i> Expires {{ v.expiry_date|date:"d M Y" }}</div>
+          {% if v.is_available %}
+          <div style="margin-top:8px">
+            <a href="/vouchers/marketplace/" style="background:#7c3aed;color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;text-decoration:none">Buy Voucher</a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="bp-empty"><i class="fas fa-gift"></i><p>No vouchers available</p></div>
+    {% endif %}
+  </div>
+
+  <!-- GALLERY -->
+  <div class="bp-section" id="tab-gallery">
+    {% if gallery_images %}
+      <div class="gallery-grid">
+        {% for img in gallery_images %}
+        <div class="gallery-item" onclick="openLB('{{ img }}')">
+          <img src="{{ img }}" alt="Gallery">
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bp-empty"><i class="fas fa-images"></i><p>No images yet</p></div>
+    {% endif %}
+  </div>
+
+  <!-- FLICKS -->
+  <div class="bp-section" id="tab-flicks">
+    {% if flicks %}
+      <div class="flick-grid">
+        {% for f in flicks %}
+        <div class="flick-card" onclick="openVideo('{% if f.video %}{{ f.video.url }}{% endif %}','{% if f.image %}{{ f.image.url }}{% endif %}')">
+          {% if f.image %}
+            <img src="{{ f.image.url }}" alt="" class="flick-thumb">
+          {% elif f.video %}
+            <video src="{{ f.video.url }}" class="flick-thumb" muted playsinline preload="metadata"></video>
+          {% endif %}
+          <div class="flick-play"><i class="fas fa-play-circle"></i></div>
+          {% if f.title or f.caption %}
+          <div class="flick-caption">{{ f.title|default:f.caption|truncatechars:40 }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bp-empty"><i class="fas fa-bolt"></i><p>No flicks posted yet</p></div>
+    {% endif %}
+  </div>
+
+</div><!-- /bp-wrap -->
+
+<!-- LIGHTBOX -->
+<div class="lb-overlay" id="lb" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()"><i class="fas fa-times"></i></button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="vm-overlay" id="vm">
+  <button class="vm-close" onclick="closeVM()"><i class="fas fa-times"></i></button>
+  <video id="vm-video" controls playsinline style="max-width:96vw;max-height:88vh;border-radius:10px"></video>
+</div>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.bp-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.bp-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  el.classList.add('active');
+}
+function openLB(url) {
+  document.getElementById('lb-img').src = url;
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB() { document.getElementById('lb').classList.remove('open'); }
+function openVideo(videoUrl, imgUrl) {
+  if (videoUrl) {
+    document.getElementById('vm-video').src = videoUrl;
+    document.getElementById('vm').classList.add('open');
+    document.getElementById('vm-video').play();
+  } else if (imgUrl) {
+    openLB(imgUrl);
+  }
+}
+function closeVM() {
+  var v = document.getElementById('vm-video');
+  v.pause(); v.src = '';
+  document.getElementById('vm').classList.remove('open');
+}
+function shareBiz() {
+  var url = window.location.href;
+  var name = '{{ profile.company_name|escapejs }}';
+  if (navigator.share) {
+    navigator.share({ title: name, url: url });
+  } else {
+    navigator.clipboard.writeText(url).then(function(){
+      alert('Link copied!');
+    });
+  }
+}
+</script>
+</body>
+</html>

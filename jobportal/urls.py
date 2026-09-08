@@ -26,6 +26,9 @@ urlpatterns = [
     path('api/check-phone/',        views.check_phone,        name='check_phone'),
     path('api/phone-login/',        views.phone_login,        name='phone_login'),
 
+    # Business Public Profile
+    path('business/<str:company_id>/', views.business_profile, name='business_profile'),
+
     # Jobs
     path('jobs/',                   views.job_list,           name='job_list'),
     path('jobs/<int:pk>/',          views.job_detail,         name='job_detail'),
