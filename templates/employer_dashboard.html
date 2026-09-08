@@ -145,9 +145,15 @@
     <div class="ig-logo-row">
       <div class="ig-logo-wrap">
         {% if profile and profile.logo %}
-          <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="ig-logo"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-          <div class="ig-logo-init" style="display:none">{{ profile.company_name|first|upper|default:"B" }}</div>
+          {% with ln=profile.logo.name|lower %}
+          {% if '.mp4' in ln or '.mov' in ln or '.webm' in ln or '.avi' in ln %}
+            <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
+          {% else %}
+            <img src="{{ profile.logo.url }}" alt="{{ profile.company_name }}" class="ig-logo"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="ig-logo-init" style="display:none">{{ profile.company_name|first|upper|default:"B" }}</div>
+          {% endif %}
+          {% endwith %}
         {% else %}
           <div class="ig-logo-init">{{ profile.company_name|first|upper|default:"B" }}</div>
         {% endif %}
@@ -821,31 +827,51 @@
     <!-- ═══ GALLERY ═══ -->
     <section class="dsec hidden" id="sec-gallery">
       <div class="dsec-header">
-        <div><h2><i class="fas fa-images"></i> My Gallery</h2><p>Your approved ads and offer images</p></div>
-        <a href="/ads/post/" class="dsec-btn"><i class="fas fa-plus"></i> Post Ad</a>
+        <div><h2><i class="fas fa-images"></i> My Gallery</h2><p>Shop images, ads &amp; offer photos</p></div>
+        <div style="display:flex;gap:8px">
+          <a href="/ads/post/" class="dsec-btn" style="background:#0a66c2"><i class="fas fa-bullhorn"></i> Post Ad</a>
+          <a href="/offers/post/" class="dsec-btn" style="background:#FF5722"><i class="fas fa-tag"></i> Post Offer</a>
+        </div>
       </div>
-      {% with gallery_ads=my_ad_posts %}
-      {% if gallery_ads %}
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-        {% for ad in gallery_ads %}
+
+      <!-- Combined gallery: ad images + offer images -->
+      {% with has_any=my_ad_posts|length %}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="galGrid">
+        {% for ad in my_ad_posts %}
         {% if ad.image %}
-        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer" onclick="document.getElementById('gal-lb').style.display='flex';document.getElementById('gal-lb-img').src='{{ ad.image.url }}'">
+        <div class="gal-item" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
+             onclick="galOpen('{{ ad.image.url }}','{{ ad.company_name|default:"" }}','Ad')">
           <img src="{{ ad.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:6px 8px;font-size:10px;color:#fff;font-weight:700">📢 Ad</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% for offer in my_offers %}
+        {% if offer.image %}
+        <div class="gal-item" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
+             onclick="galOpen('{{ offer.image.url }}','{{ offer.title|default:"" }}','Offer')">
+          <img src="{{ offer.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:6px 8px;font-size:10px;color:#fff;font-weight:700">🔥 {{ offer.title|truncatechars:18 }}</div>
         </div>
         {% endif %}
         {% endfor %}
       </div>
-      {% else %}
+      {% if not my_ad_posts and not my_offers %}
       <div style="text-align:center;padding:40px 20px;color:#888">
         <i class="fas fa-images" style="font-size:40px;margin-bottom:12px;display:block;color:#cbd5e1"></i>
-        No images yet. Post an ad or offer to build your gallery.
-        <br><a href="/ads/post/" style="display:inline-block;margin-top:14px;background:#0a66c2;color:#fff;padding:10px 22px;border-radius:10px;text-decoration:none;font-weight:700">Post Ad</a>
+        No images yet — post an ad or offer to build your shop gallery.
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
+          <a href="/ads/post/" style="background:#0a66c2;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px">Post Ad</a>
+          <a href="/offers/post/" style="background:#FF5722;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px">Post Offer</a>
+        </div>
       </div>
       {% endif %}
       {% endwith %}
+
       <!-- Lightbox -->
-      <div id="gal-lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center" onclick="this.style.display='none'">
-        <img id="gal-lb-img" src="" style="max-width:96vw;max-height:96vh;border-radius:12px;object-fit:contain">
+      <div id="gal-lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:10px" onclick="this.style.display='none'">
+        <img id="gal-lb-img" src="" style="max-width:96vw;max-height:80vh;border-radius:12px;object-fit:contain">
+        <div id="gal-lb-cap" style="color:#fff;font-size:13px;font-weight:700;opacity:.85"></div>
       </div>
     </section>
 
@@ -1247,6 +1273,13 @@ function showSection(id, navEl) {
   history.replaceState(null, '', '#' + id);
   const tabs = document.querySelector('.ig-tabs');
   if (tabs) window.scrollTo({top: tabs.offsetTop - 52, behavior: 'smooth'});
+}
+
+function galOpen(url, title, type) {
+  event.stopPropagation();
+  document.getElementById('gal-lb-img').src = url;
+  document.getElementById('gal-lb-cap').textContent = (type === 'Offer' ? '🔥 ' : '📢 ') + title;
+  document.getElementById('gal-lb').style.display = 'flex';
 }
 
 function filterApps(status) {
