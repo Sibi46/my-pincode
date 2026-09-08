@@ -66,6 +66,21 @@ urlpatterns = [
     path('my/events/',                          views.my_events,              name='portal_my_events'),
     path('my/notifications/',                   views.portal_notifications,   name='portal_notifications'),
 
+    # ── Points & Recognition ──────────────────────────────────────────────────
+    path('c/<slug:slug>/points/',                    views.community_leaderboard,         name='community_leaderboard'),
+    path('c/<slug:slug>/my-contribution/',           views.my_contribution_profile,       name='my_contribution_profile'),
+    path('c/<slug:slug>/impact/',                    views.community_impact_page,         name='community_impact_page'),
+    path('c/<slug:slug>/contributions/submit/',      views.contribution_submit,           name='contribution_submit'),
+    path('c/<slug:slug>/contributions/<int:pk>/verify/', views.contribution_verify,       name='contribution_verify'),
+    path('c/<slug:slug>/participation/record/',      views.record_participation,          name='record_participation'),
+    path('c/<slug:slug>/participation/<int:pk>/confirm/', views.participation_confirm,    name='participation_confirm'),
+    path('c/<slug:slug>/events/<int:event_id>/participants/', views.event_participation_admin, name='event_participation_admin'),
+    path('c/<slug:slug>/badges/create/',             views.create_badge,                  name='create_badge'),
+    path('c/<slug:slug>/badges/award/',              views.award_badge_view,              name='award_badge'),
+    path('c/<slug:slug>/recognition/',               views.year_end_recognition,          name='year_end_recognition'),
+    path('c/<slug:slug>/points/admin/',              views.point_config_admin,            name='point_config_admin'),
+    path('c/<slug:slug>/members/<int:member_id>/adjust-points/', views.adjust_points,     name='adjust_points'),
+
     # Platform admin
     path('admin/communities/',                  views.admin_communities,      name='portal_admin_communities'),
     path('admin/communities/<int:pk>/verify/',  views.admin_verify_community, name='portal_admin_verify'),

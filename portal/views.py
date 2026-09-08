@@ -16,6 +16,9 @@ from .models import (
     VolunteerRequest, Activity, ActivityPhoto,
     Post, PostLike, PostComment, ShortVideo, PortalNotification,
     Flick, FlickLike, FlickComment,
+    PointConfig, Participation, Contribution, MemberPoints,
+    Badge, MemberBadge, Recognition, PointAuditLog,
+    award_points, get_point_value,
 )
 
 
@@ -1835,3 +1838,574 @@ def admin_delete_event(request, pk):
         messages.success(request, f'Event "{name}" has been deleted.')
         return redirect('portal_events')
     return render(request, 'portal/admin_event_confirm_delete.html', {'event': event})
+
+
+# ── Community Points & Recognition Views ─────────────────────────────────────
+
+def community_leaderboard(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    period = request.GET.get('period', 'alltime')
+    now = timezone.now()
+
+    qs = MemberPoints.objects.filter(community=community).select_related('user').order_by('-total_points')
+    board = list(qs[:50])
+
+    my_rank = None
+    if request.user.is_authenticated:
+        for i, mp in enumerate(board, 1):
+            if mp.user == request.user:
+                my_rank = i
+                break
+
+    # top 3 for podium
+    top3 = board[:3]
+
+    ctx = {
+        'community': community,
+        'board': board,
+        'top3': top3,
+        'my_rank': my_rank,
+        'period': period,
+        'is_admin': community.is_admin(request.user),
+    }
+    return render(request, 'portal/leaderboard.html', ctx)
+
+
+@login_required
+def my_contribution_profile(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    user = request.user
+
+    mp = MemberPoints.objects.filter(user=user, community=community).first()
+    total_points = mp.total_points if mp else 0
+
+    participations = Participation.objects.filter(
+        user=user, community=community
+    ).select_related('event', 'activity', 'cause').order_by('-created_at')
+
+    contributions = Contribution.objects.filter(
+        user=user, community=community
+    ).select_related('event', 'activity', 'cause').order_by('-created_at')
+
+    badges = MemberBadge.objects.filter(user=user, community=community).select_related('badge')
+    recognitions = Recognition.objects.filter(user=user, community=community).order_by('-year')
+    audit_log = PointAuditLog.objects.filter(user=user, community=community)[:20]
+
+    # rank
+    rank = MemberPoints.objects.filter(
+        community=community, total_points__gt=total_points
+    ).count() + 1
+
+    events_count = participations.filter(event__isnull=False, status='confirmed').count()
+    activities_count = participations.filter(activity__isnull=False, status='confirmed').count()
+    volunteer_count = participations.filter(role='volunteer', status='confirmed').count()
+    causes_count = participations.filter(cause__isnull=False, status='confirmed').values('cause').distinct().count()
+
+    ctx = {
+        'community': community,
+        'total_points': total_points,
+        'rank': rank,
+        'events_count': events_count,
+        'activities_count': activities_count,
+        'volunteer_count': volunteer_count,
+        'causes_count': causes_count,
+        'participations': participations,
+        'contributions': contributions,
+        'badges': badges,
+        'recognitions': recognitions,
+        'audit_log': audit_log,
+    }
+    return render(request, 'portal/my_contribution.html', ctx)
+
+
+@login_required
+def contribution_submit(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    # must be a member
+    is_member = community.memberships.filter(user=request.user, status='approved').exists()
+    is_admin = community.is_admin(request.user)
+    if not (is_member or is_admin):
+        messages.error(request, 'You must be a member to submit contributions.')
+        return redirect('portal_community', page_id=community.page_id)
+
+    events = community.events.filter(is_active=True).order_by('-date')
+    activities = community.activities.filter(is_active=True).order_by('-date')
+    causes = community.causes.filter(is_active=True)
+
+    if request.method == 'POST':
+        ctype = request.POST.get('contribution_type')
+        desc = request.POST.get('description', '').strip()
+        if not ctype or not desc:
+            messages.error(request, 'Please fill all required fields.')
+        else:
+            contrib = Contribution(
+                user=request.user,
+                community=community,
+                contribution_type=ctype,
+                description=desc,
+                status='pending',
+            )
+            amt = request.POST.get('amount')
+            if amt:
+                try:
+                    contrib.amount = float(amt)
+                except ValueError:
+                    pass
+            ev = request.POST.get('amount')
+            est = request.POST.get('estimated_value')
+            if est:
+                try:
+                    contrib.estimated_value = float(est)
+                except ValueError:
+                    pass
+            contrib.transaction_ref = request.POST.get('transaction_ref', '')
+            eid = request.POST.get('event')
+            if eid:
+                try:
+                    contrib.event = community.events.get(pk=eid)
+                except Event.DoesNotExist:
+                    pass
+            aid = request.POST.get('activity')
+            if aid:
+                try:
+                    contrib.activity = community.activities.get(pk=aid)
+                except Activity.DoesNotExist:
+                    pass
+            cid = request.POST.get('cause')
+            if cid:
+                try:
+                    contrib.cause = community.causes.get(pk=cid)
+                except Cause.DoesNotExist:
+                    pass
+            contrib.save()
+            # award minimal points for submitting
+            pts = get_point_value('upload_contribution', 5)
+            award_points(request.user, community, pts, 'Submitted contribution', done_by=request.user)
+            messages.success(request, 'Contribution submitted and is pending approval.')
+            return redirect('my_contribution_profile', slug=slug)
+
+    ctx = {
+        'community': community,
+        'events': events,
+        'activities': activities,
+        'causes': causes,
+        'contribution_types': Contribution.TYPES,
+    }
+    return render(request, 'portal/contribution_form.html', ctx)
+
+
+@login_required
+def contribution_verify(request, slug, pk):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    contrib = get_object_or_404(Contribution, pk=pk, community=community)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve' and contrib.status == 'pending':
+            contrib.status = 'approved'
+            contrib.verified_by = request.user
+            contrib.verified_at = timezone.now()
+            # award points
+            if contrib.contribution_type == 'financial':
+                pts = get_point_value('financial_contribution', 10)
+            else:
+                pts = get_point_value('upload_contribution', 5)
+            contrib.points_awarded = pts
+            contrib.save()
+            award_points(contrib.user, community, pts,
+                         f'Contribution approved: {contrib.contribution_type}', done_by=request.user)
+            messages.success(request, f'Contribution approved. {pts} points awarded.')
+        elif action == 'reject':
+            contrib.status = 'rejected'
+            contrib.verified_by = request.user
+            contrib.verified_at = timezone.now()
+            contrib.save()
+            messages.success(request, 'Contribution rejected.')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect('portal_community', page_id=community.page_id)
+
+
+@login_required
+def participation_confirm(request, slug, pk):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    part = get_object_or_404(Participation, pk=pk, community=community)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'confirm' and part.status == 'pending':
+            part.status = 'confirmed'
+            part.verified_by = request.user
+            part.verified_at = timezone.now()
+            # determine point key
+            role_map = {
+                'attendee': 'attend_event',
+                'organiser': 'organise_event',
+                'volunteer': 'volunteer_event' if part.event else 'volunteer_activity',
+                'contributor': 'upload_contribution',
+            }
+            key = role_map.get(part.role, 'attend_event')
+            pts = get_point_value(key, 10)
+            part.points_awarded = pts
+            part.save()
+            award_points(part.user, community, pts,
+                         f'Participation confirmed: {part.role}', done_by=request.user)
+            messages.success(request, f'Participation confirmed. {pts} points awarded.')
+        elif action == 'reject':
+            part.status = 'rejected'
+            part.verified_by = request.user
+            part.verified_at = timezone.now()
+            part.save()
+            messages.success(request, 'Participation rejected.')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect('portal_community', page_id=community.page_id)
+
+
+@login_required
+def event_participation_admin(request, slug, event_id):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    event = get_object_or_404(Event, pk=event_id, community=community)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'confirm_all':
+            # confirm all pending participations for this event
+            pending = Participation.objects.filter(event=event, community=community, status='pending')
+            for p in pending:
+                p.status = 'confirmed'
+                p.verified_by = request.user
+                p.verified_at = timezone.now()
+                pts = get_point_value('attend_event', 10)
+                p.points_awarded = pts
+                p.save()
+                award_points(p.user, community, pts, f'Event attended: {event.name}', done_by=request.user)
+            messages.success(request, f'All {pending.count()} participants confirmed.')
+        else:
+            part_id = request.POST.get('participation_id')
+            part = get_object_or_404(Participation, pk=part_id, event=event, community=community)
+            if action == 'confirm' and part.status == 'pending':
+                part.status = 'confirmed'
+                part.verified_by = request.user
+                part.verified_at = timezone.now()
+                role_map = {'attendee': 'attend_event', 'organiser': 'organise_event', 'volunteer': 'volunteer_event'}
+                key = role_map.get(part.role, 'attend_event')
+                pts = get_point_value(key, 10)
+                part.points_awarded = pts
+                part.save()
+                award_points(part.user, community, pts, f'Event: {event.name} ({part.role})', done_by=request.user)
+                messages.success(request, f'Confirmed. {pts} pts awarded.')
+            elif action == 'reject':
+                part.status = 'rejected'
+                part.verified_by = request.user
+                part.verified_at = timezone.now()
+                part.save()
+                messages.success(request, 'Rejected.')
+        return redirect('event_participation_admin', slug=slug, event_id=event_id)
+
+    participations = Participation.objects.filter(
+        event=event, community=community
+    ).select_related('user').order_by('status', 'created_at')
+
+    ctx = {
+        'community': community,
+        'event': event,
+        'participations': participations,
+        'is_admin': True,
+    }
+    return render(request, 'portal/event_participants_admin.html', ctx)
+
+
+@login_required
+def record_participation(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+
+    members = community.memberships.filter(status='approved').select_related('user')
+    events = community.events.filter(is_active=True).order_by('-date')
+    activities = community.activities.filter(is_active=True).order_by('-date')
+    causes = community.causes.filter(is_active=True)
+
+    if request.method == 'POST':
+        uid = request.POST.get('user_id')
+        role = request.POST.get('role', 'attendee')
+        eid = request.POST.get('event_id')
+        aid = request.POST.get('activity_id')
+        cid = request.POST.get('cause_id')
+        notes = request.POST.get('notes', '')
+        try:
+            target_user = User.objects.get(pk=uid)
+        except User.DoesNotExist:
+            messages.error(request, 'Invalid user.')
+            return redirect('record_participation', slug=slug)
+
+        kwargs = dict(user=target_user, community=community, role=role)
+        if eid:
+            try:
+                kwargs['event'] = community.events.get(pk=eid)
+            except Event.DoesNotExist:
+                pass
+        if aid:
+            try:
+                kwargs['activity'] = community.activities.get(pk=aid)
+            except Activity.DoesNotExist:
+                pass
+        if cid:
+            try:
+                kwargs['cause'] = community.causes.get(pk=cid)
+            except Cause.DoesNotExist:
+                pass
+
+        part, created = Participation.objects.get_or_create(
+            **kwargs,
+            defaults={'status': 'confirmed', 'notes': notes, 'verified_by': request.user,
+                      'verified_at': timezone.now()}
+        )
+        if not created:
+            messages.warning(request, 'Participation record already exists.')
+        else:
+            role_map = {'attendee': 'attend_event', 'organiser': 'organise_event',
+                        'volunteer': 'volunteer_event', 'contributor': 'upload_contribution'}
+            key = role_map.get(role, 'attend_event')
+            pts = get_point_value(key, 10)
+            part.points_awarded = pts
+            part.save()
+            award_points(target_user, community, pts, f'Manual participation: {role}', done_by=request.user)
+            messages.success(request, f'Participation recorded. {pts} pts awarded.')
+        return redirect('record_participation', slug=slug)
+
+    ctx = {
+        'community': community,
+        'members': members,
+        'events': events,
+        'activities': activities,
+        'causes': causes,
+        'roles': Participation.ROLES,
+    }
+    return render(request, 'portal/record_participation.html', ctx)
+
+
+@login_required
+def adjust_points(request, slug, member_id):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    target_user = get_object_or_404(User, pk=member_id)
+    if request.method == 'POST':
+        try:
+            pts = int(request.POST.get('points', 0))
+        except ValueError:
+            pts = 0
+        reason = request.POST.get('reason', 'Manual adjustment').strip() or 'Manual adjustment'
+        if pts != 0:
+            award_points(target_user, community, pts, f'Manual: {reason}', done_by=request.user)
+            messages.success(request, f'Points adjusted by {pts}.')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect('portal_community', page_id=community.page_id)
+
+
+@login_required
+def create_badge(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+
+    badges = Badge.objects.filter(community=community).order_by('-created_at')
+    members = community.memberships.filter(status='approved').select_related('user')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'create':
+            name = request.POST.get('name', '').strip()
+            if name:
+                Badge.objects.create(
+                    community=community,
+                    name=name,
+                    description=request.POST.get('description', ''),
+                    icon=request.POST.get('icon', '🏅'),
+                    criteria_type=request.POST.get('criteria_type', 'manual'),
+                    criteria_value=int(request.POST.get('criteria_value', 0) or 0),
+                )
+                messages.success(request, f'Badge "{name}" created.')
+            return redirect('create_badge', slug=slug)
+        elif action == 'award':
+            badge_id = request.POST.get('badge_id')
+            uid = request.POST.get('user_id')
+            try:
+                badge = Badge.objects.get(pk=badge_id, community=community)
+                target_user = User.objects.get(pk=uid)
+                MemberBadge.objects.get_or_create(
+                    user=target_user, community=community, badge=badge,
+                    defaults={'awarded_by': request.user}
+                )
+                messages.success(request, f'Badge awarded to {target_user.get_full_name()}.')
+            except (Badge.DoesNotExist, User.DoesNotExist):
+                messages.error(request, 'Invalid badge or user.')
+            return redirect('create_badge', slug=slug)
+
+    ctx = {
+        'community': community,
+        'badges': badges,
+        'members': members,
+        'criteria_choices': Badge.CRITERIA_CHOICES,
+    }
+    return render(request, 'portal/badges_admin.html', ctx)
+
+
+@login_required
+def award_badge_view(request, slug):
+    """Simple POST endpoint to award a badge."""
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    if request.method == 'POST':
+        badge_id = request.POST.get('badge_id')
+        uid = request.POST.get('user_id')
+        try:
+            badge = Badge.objects.get(pk=badge_id, community=community)
+            target_user = User.objects.get(pk=uid)
+            MemberBadge.objects.get_or_create(
+                user=target_user, community=community, badge=badge,
+                defaults={'awarded_by': request.user}
+            )
+            messages.success(request, 'Badge awarded.')
+        except (Badge.DoesNotExist, User.DoesNotExist):
+            messages.error(request, 'Invalid badge or user.')
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def year_end_recognition(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+
+    year = int(request.GET.get('year', timezone.now().year))
+    members_qs = community.memberships.filter(status='approved').select_related('user')
+
+    # build stats per member
+    member_stats = []
+    for m in members_qs:
+        u = m.user
+        pts = MemberPoints.objects.filter(user=u, community=community).first()
+        stats = {
+            'user': u,
+            'points': pts.total_points if pts else 0,
+            'events': Participation.objects.filter(user=u, community=community, role='attendee', status='confirmed').count(),
+            'volunteered': Participation.objects.filter(user=u, community=community, role='volunteer', status='confirmed').count(),
+            'organised': Participation.objects.filter(user=u, community=community, role='organiser', status='confirmed').count(),
+        }
+        member_stats.append(stats)
+    member_stats.sort(key=lambda x: x['points'], reverse=True)
+
+    existing = Recognition.objects.filter(community=community, year=year)
+
+    if request.method == 'POST':
+        award_names = request.POST.getlist('award_name')
+        user_ids = request.POST.getlist('user_id')
+        descriptions = request.POST.getlist('description')
+        for award, uid, desc in zip(award_names, user_ids, descriptions):
+            award = award.strip()
+            if award and uid:
+                try:
+                    u = User.objects.get(pk=uid)
+                    Recognition.objects.get_or_create(
+                        community=community, user=u, award_name=award, year=year,
+                        defaults={'description': desc, 'awarded_by': request.user}
+                    )
+                except User.DoesNotExist:
+                    pass
+        messages.success(request, f'{year} recognitions saved.')
+        return redirect('year_end_recognition', slug=slug)
+
+    ctx = {
+        'community': community,
+        'year': year,
+        'member_stats': member_stats[:20],
+        'existing': existing,
+        'years': range(timezone.now().year, timezone.now().year - 5, -1),
+    }
+    return render(request, 'portal/year_end_recognition.html', ctx)
+
+
+def community_impact_page(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    year = int(request.GET.get('year', timezone.now().year))
+
+    member_count = community.memberships.filter(status='approved').count()
+    events_count = community.events.filter(is_active=True).count()
+    activities_count = community.activities.filter(is_active=True).count()
+    volunteer_count = Participation.objects.filter(community=community, role='volunteer', status='confirmed').count()
+    total_participation = Participation.objects.filter(community=community, status='confirmed').count()
+    causes_count = community.causes.filter(is_active=True).count()
+
+    top_contributors = MemberPoints.objects.filter(community=community).select_related('user').order_by('-total_points')[:5]
+    recognitions = Recognition.objects.filter(community=community, year=year).select_related('user')
+
+    ctx = {
+        'community': community,
+        'year': year,
+        'member_count': member_count,
+        'events_count': events_count,
+        'activities_count': activities_count,
+        'volunteer_count': volunteer_count,
+        'total_participation': total_participation,
+        'causes_count': causes_count,
+        'top_contributors': top_contributors,
+        'recognitions': recognitions,
+        'is_admin': community.is_admin(request.user),
+    }
+    return render(request, 'portal/community_impact.html', ctx)
+
+
+@login_required
+def point_config_admin(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+
+    # ensure all default configs exist
+    DEFAULTS = [
+        ('attend_event', 'Attend Event', 10),
+        ('volunteer_event', 'Volunteer at Event', 20),
+        ('organise_event', 'Organise Event', 50),
+        ('complete_activity', 'Complete Activity', 30),
+        ('volunteer_activity', 'Volunteer Activity', 20),
+        ('support_cause', 'Support Cause', 10),
+        ('upload_contribution', 'Upload Contribution', 5),
+        ('financial_contribution', 'Financial Contribution', 10),
+    ]
+    for action, label, pts in DEFAULTS:
+        PointConfig.objects.get_or_create(action=action, defaults={'label': label, 'points': pts})
+
+    configs = PointConfig.objects.all().order_by('action')
+
+    if request.method == 'POST':
+        for cfg in configs:
+            val = request.POST.get(f'points_{cfg.pk}')
+            if val is not None:
+                try:
+                    cfg.points = max(0, int(val))
+                    cfg.save()
+                except ValueError:
+                    pass
+        messages.success(request, 'Point values updated.')
+        return redirect('point_config_admin', slug=slug)
+
+    ctx = {
+        'community': community,
+        'configs': configs,
+    }
+    return render(request, 'portal/point_config_admin.html', ctx)

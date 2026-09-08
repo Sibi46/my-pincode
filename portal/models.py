@@ -461,3 +461,220 @@ class PortalNotification(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+# ── Community Points & Recognition ──────────────────────────────────────────
+
+class PointConfig(models.Model):
+    ACTION_CHOICES = [
+        ('attend_event','Attend Event'),
+        ('volunteer_event','Volunteer at Event'),
+        ('organise_event','Organise Event'),
+        ('complete_activity','Complete Activity'),
+        ('volunteer_activity','Volunteer Activity'),
+        ('support_cause','Support Cause'),
+        ('upload_contribution','Upload Contribution'),
+        ('financial_contribution','Financial Contribution'),
+        ('other','Other'),
+    ]
+    action     = models.CharField(max_length=50, unique=True, choices=ACTION_CHOICES)
+    label      = models.CharField(max_length=100)
+    points     = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.label} → {self.points} pts'
+
+
+class Participation(models.Model):
+    ROLES    = [('attendee','Attendee'),('organiser','Organiser'),('volunteer','Volunteer'),
+                ('contributor','Contributor'),('guest','Guest'),('sponsor','Sponsor')]
+    STATUSES = [('pending','Pending'),('confirmed','Confirmed'),('rejected','Rejected')]
+
+    user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='participations')
+    community     = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='participations')
+    event         = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True, related_name='participations')
+    activity      = models.ForeignKey(Activity, on_delete=models.SET_NULL, null=True, blank=True, related_name='participations')
+    cause         = models.ForeignKey(Cause, on_delete=models.SET_NULL, null=True, blank=True, related_name='participations')
+    role          = models.CharField(max_length=15, choices=ROLES, default='attendee')
+    status        = models.CharField(max_length=10, choices=STATUSES, default='pending')
+    points_awarded = models.PositiveIntegerField(default=0)
+    verified_by   = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_participations')
+    verified_at   = models.DateTimeField(null=True, blank=True)
+    notes         = models.TextField(blank=True)
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'event', 'activity', 'cause', 'role')
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} — {self.role} @ {self.community.name}'
+
+
+class Contribution(models.Model):
+    TYPES = [
+        ('financial','Financial'),('food','Food'),('equipment','Equipment'),
+        ('materials','Materials'),('books','Books'),('clothing','Clothing'),
+        ('transport','Transport'),('professional','Professional Service'),
+        ('sponsorship','Sponsorship'),('venue','Venue Support'),('other','Other'),
+    ]
+    STATUSES = [('pending','Pending'),('approved','Approved'),('rejected','Rejected')]
+
+    user              = models.ForeignKey(User, on_delete=models.CASCADE, related_name='contributions')
+    community         = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='contributions')
+    event             = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True, related_name='contributions')
+    activity          = models.ForeignKey(Activity, on_delete=models.SET_NULL, null=True, blank=True, related_name='contributions')
+    cause             = models.ForeignKey(Cause, on_delete=models.SET_NULL, null=True, blank=True, related_name='contributions')
+    contribution_type = models.CharField(max_length=20, choices=TYPES)
+    amount            = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    description       = models.TextField()
+    estimated_value   = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    status            = models.CharField(max_length=10, choices=STATUSES, default='pending')
+    points_awarded    = models.PositiveIntegerField(default=0)
+    verified_by       = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_contributions')
+    verified_at       = models.DateTimeField(null=True, blank=True)
+    transaction_ref   = models.CharField(max_length=200, blank=True)
+    created_at        = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} — {self.contribution_type} @ {self.community.name}'
+
+
+class MemberPoints(models.Model):
+    user         = models.ForeignKey(User, on_delete=models.CASCADE, related_name='member_points')
+    community    = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='member_points')
+    total_points = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        unique_together = ('user', 'community')
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} — {self.total_points} pts @ {self.community.name}'
+
+
+class Badge(models.Model):
+    CRITERIA_CHOICES = [
+        ('points','Points Threshold'),('events','Events Attended'),
+        ('organised','Events Organised'),('volunteer','Volunteer Activities'),
+        ('causes','Causes Supported'),('manual','Manual Award'),
+    ]
+    community      = models.ForeignKey(Community, on_delete=models.SET_NULL, null=True, blank=True, related_name='badges')
+    name           = models.CharField(max_length=100)
+    description    = models.TextField()
+    icon           = models.CharField(max_length=10, default='🏅')
+    criteria_type  = models.CharField(max_length=30, choices=CRITERIA_CHOICES, default='manual')
+    criteria_value = models.PositiveIntegerField(default=0)
+    created_at     = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.icon} {self.name}'
+
+
+class MemberBadge(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='badges')
+    community  = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='awarded_badges')
+    badge      = models.ForeignKey(Badge, on_delete=models.CASCADE, related_name='awards')
+    awarded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='badges_awarded')
+    awarded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'community', 'badge')
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} — {self.badge.name}'
+
+
+class Recognition(models.Model):
+    user        = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recognitions')
+    community   = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='recognitions')
+    award_name  = models.CharField(max_length=200)
+    year        = models.PositiveSmallIntegerField()
+    description = models.TextField(blank=True)
+    awarded_by  = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='recognitions_given')
+    awarded_at  = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.award_name} — {self.user.get_full_name()} ({self.year})'
+
+
+class PointAuditLog(models.Model):
+    community     = models.ForeignKey(Community, on_delete=models.CASCADE, related_name='audit_logs')
+    user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='point_audit_logs')
+    action        = models.CharField(max_length=100)
+    points_before = models.IntegerField(default=0)
+    points_after  = models.IntegerField(default=0)
+    note          = models.TextField(blank=True)
+    done_by       = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='audit_actions')
+    created_at    = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.get_full_name()} {self.action} ({self.points_after} pts)'
+
+
+# ── Helper functions ─────────────────────────────────────────────────────────
+
+def award_points(user, community, points, action_note, done_by=None):
+    """Award points, update MemberPoints, log audit, then check badges."""
+    mp, _ = MemberPoints.objects.get_or_create(user=user, community=community)
+    before = mp.total_points
+    mp.total_points += points
+    mp.save()
+    PointAuditLog.objects.create(
+        community=community, user=user, action=action_note,
+        points_before=before, points_after=mp.total_points, done_by=done_by,
+    )
+    check_auto_badges(user, community)
+
+
+def check_auto_badges(user, community):
+    """Auto-award badges based on criteria."""
+    mp = MemberPoints.objects.filter(user=user, community=community).first()
+    total = mp.total_points if mp else 0
+    events_attended = Participation.objects.filter(
+        user=user, community=community, role='attendee', status='confirmed').count()
+    organised = Participation.objects.filter(
+        user=user, community=community, role='organiser', status='confirmed').count()
+    volunteered = Participation.objects.filter(
+        user=user, community=community, role='volunteer', status='confirmed').count()
+    causes = Participation.objects.filter(
+        user=user, community=community, cause__isnull=False, status='confirmed'
+    ).values('cause').distinct().count()
+
+    for badge in Badge.objects.filter(community=community).exclude(criteria_type='manual'):
+        if MemberBadge.objects.filter(user=user, community=community, badge=badge).exists():
+            continue
+        earned = False
+        if badge.criteria_type == 'points' and total >= badge.criteria_value:
+            earned = True
+        elif badge.criteria_type == 'events' and events_attended >= badge.criteria_value:
+            earned = True
+        elif badge.criteria_type == 'organised' and organised >= badge.criteria_value:
+            earned = True
+        elif badge.criteria_type == 'volunteer' and volunteered >= badge.criteria_value:
+            earned = True
+        elif badge.criteria_type == 'causes' and causes >= badge.criteria_value:
+            earned = True
+        if earned:
+            MemberBadge.objects.create(user=user, community=community, badge=badge, awarded_by=None)
+
+
+def get_point_value(action_key, default=0):
+    """Get point value from PointConfig, creating defaults if missing."""
+    DEFAULTS = {
+        'attend_event': 10,
+        'volunteer_event': 20,
+        'organise_event': 50,
+        'complete_activity': 30,
+        'volunteer_activity': 20,
+        'support_cause': 10,
+        'upload_contribution': 5,
+        'financial_contribution': 10,
+    }
+    obj, _ = PointConfig.objects.get_or_create(
+        action=action_key,
+        defaults={'label': action_key.replace('_', ' ').title(), 'points': DEFAULTS.get(action_key, default)},
+    )
+    return obj.points
