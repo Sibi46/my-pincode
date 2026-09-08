@@ -828,18 +828,40 @@
     <section class="dsec hidden" id="sec-gallery">
       <div class="dsec-header">
         <div><h2><i class="fas fa-images"></i> My Gallery</h2><p>Shop images, ads &amp; offer photos</p></div>
-        <div style="display:flex;gap:8px">
-          <a href="/ads/post/" class="dsec-btn" style="background:#0a66c2"><i class="fas fa-bullhorn"></i> Post Ad</a>
-          <a href="/offers/post/" class="dsec-btn" style="background:#FF5722"><i class="fas fa-tag"></i> Post Offer</a>
-        </div>
+        <button onclick="document.getElementById('galUploadBox').classList.toggle('hidden')" class="dsec-btn" style="background:#10b981"><i class="fas fa-plus"></i> Upload</button>
       </div>
 
-      <!-- Combined gallery: ad images + offer images -->
-      {% with has_any=my_ad_posts|length %}
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px" id="galGrid">
+      <!-- Upload box -->
+      <div id="galUploadBox" class="hidden" style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:14px;padding:18px;margin-bottom:16px">
+        <form method="post" action="/employer/gallery/upload/" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div style="margin-bottom:10px;font-size:13px;font-weight:700;color:#374151">Upload shop images / product photos</div>
+          <input type="file" name="gallery_images" multiple accept="image/*" required
+                 style="display:block;width:100%;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-size:13px;margin-bottom:10px">
+          <input type="text" name="caption" placeholder="Caption (optional)" maxlength="200"
+                 style="display:block;width:100%;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;margin-bottom:10px">
+          <button type="submit" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer"><i class="fas fa-upload"></i> Upload Images</button>
+          <button type="button" onclick="document.getElementById('galUploadBox').classList.add('hidden')" style="background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;margin-left:8px">Cancel</button>
+        </form>
+      </div>
+
+      <!-- Grid: uploaded gallery + ad images + offer images -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+        {% for img in my_gallery %}
+        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
+             onclick="galOpen('{{ img.image.url }}','{{ img.caption|default:"Shop Image" }}','Gallery')">
+          <img src="{{ img.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+          <div style="position:absolute;top:4px;right:4px">
+            <a href="/employer/gallery/{{ img.pk }}/delete/" onclick="return confirm('Delete this image?')"
+               style="background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:11px;text-decoration:none">
+              <i class="fas fa-trash"></i></a>
+          </div>
+          {% if img.caption %}<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:6px 8px;font-size:10px;color:#fff;font-weight:700">{{ img.caption|truncatechars:20 }}</div>{% endif %}
+        </div>
+        {% endfor %}
         {% for ad in my_ad_posts %}
         {% if ad.image %}
-        <div class="gal-item" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
+        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
              onclick="galOpen('{{ ad.image.url }}','{{ ad.company_name|default:"" }}','Ad')">
           <img src="{{ ad.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
           <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:6px 8px;font-size:10px;color:#fff;font-weight:700">📢 Ad</div>
@@ -848,7 +870,7 @@
         {% endfor %}
         {% for offer in my_offers %}
         {% if offer.image %}
-        <div class="gal-item" style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
+        <div style="aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f1f5f9;cursor:pointer;position:relative"
              onclick="galOpen('{{ offer.image.url }}','{{ offer.title|default:"" }}','Offer')">
           <img src="{{ offer.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
           <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.55));padding:6px 8px;font-size:10px;color:#fff;font-weight:700">🔥 {{ offer.title|truncatechars:18 }}</div>
@@ -856,17 +878,17 @@
         {% endif %}
         {% endfor %}
       </div>
-      {% if not my_ad_posts and not my_offers %}
+
+      {% if not my_gallery and not my_ad_posts and not my_offers %}
       <div style="text-align:center;padding:40px 20px;color:#888">
         <i class="fas fa-images" style="font-size:40px;margin-bottom:12px;display:block;color:#cbd5e1"></i>
-        No images yet — post an ad or offer to build your shop gallery.
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px">
-          <a href="/ads/post/" style="background:#0a66c2;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px">Post Ad</a>
-          <a href="/offers/post/" style="background:#FF5722;color:#fff;padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px">Post Offer</a>
-        </div>
+        No images yet — upload your shop photos or post an offer.
+        <br><button onclick="document.getElementById('galUploadBox').classList.remove('hidden')"
+                    style="display:inline-block;margin-top:14px;background:#10b981;color:#fff;padding:10px 22px;border-radius:10px;border:none;font-weight:700;cursor:pointer;font-size:13px">
+          <i class="fas fa-upload"></i> Upload Images
+        </button>
       </div>
       {% endif %}
-      {% endwith %}
 
       <!-- Lightbox -->
       <div id="gal-lb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:10px" onclick="this.style.display='none'">

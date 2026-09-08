@@ -1182,6 +1182,19 @@ class UserSpin(models.Model):
         return f"{self.user} {self.date} {'WIN' if self.won else 'LOSE'}"
 
 
+class BusinessGalleryImage(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gallery_images')
+    image      = models.ImageField(upload_to='business_gallery/')
+    caption    = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user} gallery image"
+
+
 class LocalOffer(models.Model):
     CATEGORY_CHOICES = [
         ('food',     'Food & Drinks'),
