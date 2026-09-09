@@ -395,11 +395,11 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
   <div class="fk-feed" id="fkFeed">
 
     {% if messages %}
-    {% for msg in messages %}
-    <div id="fk-msg-banner" style="position:fixed;top:110px;left:50%;transform:translateX(-50%);z-index:200;background:#e8f5e9;border:1.5px solid #2e7d32;color:#2e7d32;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.15);white-space:nowrap">
-      <i class="fas fa-check-circle"></i> {{ msg }}
+    {% with messages|last as msg %}
+    <div style="position:fixed;top:110px;left:50%;transform:translateX(-50%);z-index:200;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 14px rgba(0,0,0,.2);white-space:nowrap;max-width:90vw;text-align:center;{% if msg.tags == 'error' %}background:#fee2e2;border:1.5px solid #ef4444;color:#b91c1c{% else %}background:#e8f5e9;border:1.5px solid #2e7d32;color:#2e7d32{% endif %}">
+      {% if msg.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>{% else %}<i class="fas fa-check-circle"></i>{% endif %} {{ msg }}
     </div>
-    {% endfor %}
+    {% endwith %}
     {% endif %}
 
     {% for flick in flicks %}
