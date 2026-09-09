@@ -1979,10 +1979,11 @@ def contribution_submit(request, slug):
                 except Cause.DoesNotExist:
                     pass
             contrib.save()
-            # award minimal points for submitting
-            pts = get_point_value('upload_contribution', 5)
-            award_points(request.user, community, pts, 'Submitted contribution', done_by=request.user)
-            messages.success(request, 'Contribution submitted and is pending approval.')
+            # notify admin
+            _notify(community.created_by, 'contribution_pending',
+                    f'💙 {request.user.get_full_name() or request.user.username} submitted a contribution in {community.name}.',
+                    f'/portal/c/{community.slug}/contributions/pending/')
+            messages.success(request, 'Contribution submitted! Waiting for admin approval.')
             return redirect('my_contribution_profile', slug=slug)
 
     ctx = {
@@ -1993,6 +1994,18 @@ def contribution_submit(request, slug):
         'contribution_types': Contribution.TYPES,
     }
     return render(request, 'portal/contribution_form.html', ctx)
+
+
+@login_required
+def contributions_pending(request, slug):
+    community = get_object_or_404(Community, slug=slug)
+    if not community.is_admin(request.user):
+        messages.error(request, 'Admin access required.')
+        return redirect('portal_community', page_id=community.page_id)
+    pending = Contribution.objects.filter(community=community, status='pending').select_related('user', 'event').order_by('-created_at')
+    return render(request, 'portal/contributions_pending.html', {
+        'community': community, 'pending': pending,
+    })
 
 
 @login_required

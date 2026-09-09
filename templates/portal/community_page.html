@@ -466,6 +466,7 @@
       <div class="csection-title">Members ({{ community.member_count }})</div>
       {% if is_admin %}
         <a href="/portal/c/{{ community.page_id }}/members/" class="pbtn pbtn-outline pbtn-sm">Manage</a>
+        <a href="{% url 'contributions_pending' slug=community.slug %}" class="pbtn pbtn-outline pbtn-sm" style="background:#fef3c7;border-color:#f59e0b;color:#b45309">💙 Contributions</a>
       {% else %}
         <a href="/portal/c/{{ community.page_id }}/members/" class="pbtn pbtn-outline pbtn-sm">View All</a>
       {% endif %}

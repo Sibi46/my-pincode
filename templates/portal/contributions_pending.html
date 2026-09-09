@@ -1,0 +1,48 @@
+{% extends "portal/base_portal.html" %}
+{% block title %}Pending Contributions — {{ community.name }}{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:0 auto;padding:16px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+    <a href="/portal/c/{{ community.page_id }}/" style="color:#64748b;font-size:13px;text-decoration:none">← Back</a>
+    <h2 style="font-size:18px;font-weight:800;color:#0f172a;margin:0">💙 Pending Contributions</h2>
+    <span style="background:#fef3c7;color:#b45309;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px">{{ pending.count }} pending</span>
+  </div>
+
+  {% if not pending %}
+  <div style="text-align:center;padding:40px 20px;color:#64748b;font-size:14px">
+    No pending contributions 🎉
+  </div>
+  {% endif %}
+
+  {% for c in pending %}
+  <div style="background:#fff;border-radius:14px;border:1.5px solid #e2e8f0;padding:16px;margin-bottom:14px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px">
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#0f172a">{{ c.user.get_full_name|default:c.user.username }}</div>
+        <div style="font-size:11px;color:#94a3b8">{{ c.created_at|timesince }} ago</div>
+      </div>
+      <span style="background:#fef3c7;color:#b45309;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap">{{ c.get_contribution_type_display }}</span>
+    </div>
+    <div style="font-size:13px;color:#374151;margin-bottom:8px">{{ c.description }}</div>
+    {% if c.amount %}<div style="font-size:12px;color:#059669;font-weight:700;margin-bottom:4px">₹{{ c.amount }}</div>{% endif %}
+    {% if c.event %}<div style="font-size:12px;color:#6366f1;margin-bottom:4px">📅 {{ c.event.title }}</div>{% endif %}
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <form method="post" action="{% url 'contribution_verify' slug=community.slug pk=c.pk %}" style="flex:1">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="approve">
+        <button type="submit" style="width:100%;background:#059669;color:#fff;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">
+          ✅ Approve (+{% if c.contribution_type == 'financial' %}15{% else %}10{% endif %} pts)
+        </button>
+      </form>
+      <form method="post" action="{% url 'contribution_verify' slug=community.slug pk=c.pk %}" style="flex:1">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="reject">
+        <button type="submit" style="width:100%;background:#fee2e2;color:#dc2626;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">
+          ❌ Reject
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
