@@ -212,16 +212,38 @@
               <option value="cause">❤️ Cause</option>
               <option value="activity">🏃 Activity</option>
             </select>
-            <textarea name="content" placeholder="Share something with your community..."></textarea>
+            <input type="text" name="title" placeholder="Title (optional)" style="border:1.5px solid #e5e7eb;border-radius:10px;padding:7px 12px;font-size:13px;width:100%;box-sizing:border-box;background:#f8fafc;outline:none;margin-bottom:4px">
+            <div style="position:relative">
+              <textarea name="content" placeholder="Share something with your community..." maxlength="160" oninput="var c=document.getElementById('feed-char-count');if(c)c.textContent=(160-this.value.length)+' left'" style="min-height:60px;resize:none;width:100%;box-sizing:border-box;border:1.5px solid #e5e7eb;border-radius:10px;padding:8px 12px 20px;font-size:13px;font-family:inherit;outline:none;background:#f8fafc"></textarea>
+              <span id="feed-char-count" style="position:absolute;bottom:6px;right:10px;font-size:10px;color:#94a3b8;font-weight:700">160 left</span>
+            </div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
               <label style="font-size:11px;font-weight:700;color:#64748b;white-space:nowrap">📅 Date</label>
               <input type="date" name="event_date" style="flex:1;padding:6px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;font-family:inherit;outline:none;color:#0f172a;background:#f8fafc">
             </div>
             <div class="feed-compose-footer">
-              <input type="file" name="image" accept="image/*" style="display:none" id="post-img-input">
-              <label for="post-img-input" class="pbtn pbtn-outline pbtn-sm" style="cursor:pointer"><i class="fas fa-image"></i></label>
+              <input type="file" name="image" accept="image/*" multiple style="display:none" id="post-img-input" onchange="cpShowImgPreviews(this)">
+              <label for="post-img-input" class="pbtn pbtn-outline pbtn-sm" style="cursor:pointer;background:#f0f7ff;border:1.5px solid #bfdbfe;color:#0a66c2;display:inline-flex;align-items:center;gap:4px"><i class="fas fa-image"></i> <span style="font-size:11px">+ Photo</span></label>
+              <div id="cp-img-preview-row" style="display:flex;gap:4px;flex-wrap:wrap;flex:1;overflow:hidden;align-items:center"></div>
               <button type="submit" class="pbtn pbtn-primary pbtn-sm">Post</button>
             </div>
+            <script>
+            function cpShowImgPreviews(input){
+              var row=document.getElementById('cp-img-preview-row');
+              row.innerHTML='';
+              Array.from(input.files).slice(0,5).forEach(function(f){
+                var r=new FileReader();
+                r.onload=function(e){
+                  var img=document.createElement('img');
+                  img.src=e.target.result;
+                  img.style.cssText='width:36px;height:36px;object-fit:cover;border-radius:6px;border:1.5px solid #e5e7eb';
+                  row.appendChild(img);
+                };
+                r.readAsDataURL(f);
+              });
+              if(input.files.length>5){var more=document.createElement('div');more.style.cssText='width:36px;height:36px;border-radius:6px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#64748b';more.textContent='+'+( input.files.length-5);row.appendChild(more);}
+            }
+            </script>
           </div>
         </div>
       </form>

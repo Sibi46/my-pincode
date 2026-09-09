@@ -1834,8 +1834,10 @@ def offer_post(request):
             obj.image = request.FILES['image']
         obj.save()
         return redirect('/offers/post/success/')
+    profile = CompanyProfile.objects.filter(user=user).first()
     return render(request, 'offer_post.html', {
         'categories': LocalOffer.CATEGORY_CHOICES,
+        'company_profile': profile,
     })
 
 

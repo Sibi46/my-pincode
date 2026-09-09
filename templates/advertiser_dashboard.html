@@ -44,11 +44,17 @@
         <span class="mya-pill p-{{ adv.status }}" style="margin-left:6px">{{ adv.get_status_display }}</span>
       </p>
     </div>
-    {% if adv.status == 'approved' %}
-    <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
-      <i class="fas fa-plus"></i> Create New Ad
-    </a>
-    {% endif %}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <a href="https://wa.me/919876543210?text={{ adv.business_name|urlencode }}%20-%20Advertiser%20Dashboard%20Query" target="_blank"
+         style="display:inline-flex;align-items:center;gap:7px;padding:11px 18px;background:#25D366;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
+        <i class="fab fa-whatsapp"></i> Chat Admin
+      </a>
+      {% if adv.status == 'approved' %}
+      <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:11px 22px;background:#0a66c2;color:#fff;border-radius:22px;font-size:13px;font-weight:700;text-decoration:none">
+        <i class="fas fa-plus"></i> Post Ad
+      </a>
+      {% endif %}
+    </div>
   </div>
 
   {% if messages %}
@@ -73,9 +79,39 @@
     </a>
   </div>
   {% elif adv.status == 'approved' %}
-  <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">
-    <i class="fas fa-image" style="font-size:18px;flex-shrink:0;margin-top:1px"></i>
-    <div><strong>Admin Approved successfully</strong> — {% if ads %}Post more ads to reach more customers!{% else %}Post your first ads!{% endif %}</div>
+  {% if not ads %}
+  <!-- Approval gift popup -->
+  <div id="approvalGiftPopup" style="position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div style="font-size:48px;margin-bottom:8px">🎁</div>
+      <h3 style="font-size:20px;font-weight:900;color:#111;margin-bottom:6px">Congratulations!</h3>
+      <p style="font-size:13px;color:#666;margin-bottom:20px">Your business is approved by admin</p>
+      <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:2px solid #a5d6a7;border-radius:14px;padding:16px;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:900;color:#2e7d32;margin-bottom:4px">🎉 1st Month — FREE GIFT!</div>
+        <div style="font-size:12px;color:#388e3c">Admin approved — your first month is completely free</div>
+      </div>
+      <div style="background:#f8faff;border:1.5px solid #c8ddf8;border-radius:14px;padding:14px;margin-bottom:20px;text-align:left">
+        <div style="font-size:12px;font-weight:800;color:#0a66c2;margin-bottom:8px">Continue after free month:</div>
+        <div style="font-size:13px;font-weight:700;color:#111;margin-bottom:4px">Valid till 2026</div>
+        <div style="font-size:12px;color:#666;margin-bottom:8px">2 months plan</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#999;text-decoration:line-through">₹1,000</span>
+          <span style="background:#e65100;color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px">40% OFF</span>
+          <span style="font-size:18px;font-weight:900;color:#e65100">₹600 only</span>
+        </div>
+        <a href="https://wa.me/919876543210?text=I+want+to+continue+my+ad+plan+after+free+month" target="_blank"
+           style="display:block;margin-top:12px;padding:10px;background:#0a66c2;color:#fff;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;text-align:center">
+          <i class="fab fa-whatsapp"></i> Submit Screenshot to Admin
+        </a>
+      </div>
+      <button onclick="document.getElementById('approvalGiftPopup').style.display='none'"
+              style="background:none;border:none;color:#999;font-size:11px;cursor:pointer;text-decoration:underline">No thanks</button>
+    </div>
+  </div>
+  {% endif %}
+  <div style="background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#1b5e20;display:flex;gap:10px;align-items:flex-start">
+    <i class="fas fa-check-circle" style="font-size:18px;flex-shrink:0;margin-top:1px;color:#2e7d32"></i>
+    <div><strong>Admin Approved!</strong> — {% if ads %}Post more ads to reach more customers!{% else %}Post your first ad now!{% endif %}</div>
   </div>
   {% elif adv.status == 'pending' %}
   <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:#7c5700;display:flex;gap:10px;align-items:flex-start">
@@ -301,12 +337,12 @@
   </div>
 
   {% else %}
-  <div style="text-align:center;padding:60px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
+  <div style="text-align:center;padding:40px 20px;background:#fff;border:1.5px solid #e5e7eb;border-radius:16px">
     <i class="fas fa-bullhorn" style="font-size:48px;color:#e5e7eb;display:block;margin-bottom:14px"></i>
-    <h4 style="font-size:16px;font-weight:700;color:#444;margin-bottom:8px">No advertisements yet</h4>
-    <p style="font-size:13px;color:#888;margin-bottom:20px">Create your first ad — 1 month free after admin approval</p>
+    <h4 style="font-size:16px;font-weight:700;color:#444;margin-bottom:8px">Ready to reach customers?</h4>
+    <p style="font-size:13px;color:#888;margin-bottom:20px">🎁 1st month FREE after admin approval</p>
     <a href="/ads/post/" style="display:inline-flex;align-items:center;gap:7px;padding:12px 28px;background:#0a66c2;color:#fff;border-radius:22px;font-size:14px;font-weight:700;text-decoration:none">
-      <i class="fas fa-plus"></i> Create First Ad
+      <i class="fas fa-plus"></i> Post Ad
     </a>
   </div>
   {% endif %}
