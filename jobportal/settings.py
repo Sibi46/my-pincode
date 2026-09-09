@@ -59,6 +59,8 @@ X_FRAME_OPTIONS              = 'DENY'
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -307,3 +309,14 @@ if _SENTRY_DSN:
         environment=os.environ.get('DJANGO_ENV', 'production'),
         release=os.environ.get('GIT_COMMIT', ''),
     )
+
+# Channels
+ASGI_APPLICATION = 'jobportal.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}

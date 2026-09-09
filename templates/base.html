@@ -340,6 +340,41 @@ document.addEventListener('click',function(){
   var d=document.getElementById('bellDrop');
   if(d)d.style.display='none';
 });
+
+{% if user.is_authenticated %}
+(function(){
+  var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  var ws = new WebSocket(proto + '://' + location.host + '/ws/notifications/');
+  var badges = document.querySelectorAll('.nav-bell-badge');
+
+  function bumpBadge(){
+    badges.forEach(function(b){
+      var n = (parseInt(b.textContent)||0) + 1;
+      b.textContent = n;
+      b.style.display = 'flex';
+    });
+  }
+
+  function showToast(msg, link){
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:320px;text-align:center;cursor:pointer';
+    t.textContent = '🔔 ' + msg;
+    if(link){ t.onclick = function(){ location.href = link; }; }
+    document.body.appendChild(t);
+    setTimeout(function(){ t.style.opacity='0';t.style.transition='opacity .5s'; setTimeout(function(){t.remove();},500); }, 4000);
+  }
+
+  ws.onmessage = function(e){
+    try{
+      var data = JSON.parse(e.data);
+      bumpBadge();
+      showToast(data.message, data.link);
+    }catch(err){}
+  };
+
+  ws.onerror = ws.onclose = function(){};
+})();
+{% endif %}
 </script>
 {% endif %}
 
