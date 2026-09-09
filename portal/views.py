@@ -1509,9 +1509,23 @@ def edit_community(request, page_id):
         community.join_mode   = p.get('join_mode', community.join_mode)
         cat_id = p.get('category')
         community.category_id = cat_id if cat_id else None
-        if 'logo' in request.FILES:
+        def _save_b64(field_name, file_name):
+            import base64, io
+            from django.core.files.base import ContentFile
+            data = request.POST.get(field_name + '_cropped', '')
+            if data and data.startswith('data:image'):
+                fmt, imgstr = data.split(';base64,', 1)
+                return ContentFile(base64.b64decode(imgstr), name=file_name + '.jpg')
+            return None
+        logo_file = _save_b64('logo', f'logo_{community.page_id}')
+        cover_file = _save_b64('cover', f'cover_{community.page_id}')
+        if logo_file:
+            community.logo = logo_file
+        elif 'logo' in request.FILES:
             community.logo = request.FILES['logo']
-        if 'cover' in request.FILES:
+        if cover_file:
+            community.cover = cover_file
+        elif 'cover' in request.FILES:
             community.cover = request.FILES['cover']
         community.save()
         messages.success(request, 'Community updated successfully!')
