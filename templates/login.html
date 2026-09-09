@@ -34,9 +34,22 @@
         <a href="/forgot-password/" style="font-size:13px;color:#0a66c2;text-decoration:none">Forgot password?</a>
       </div>
       <button type="submit" class="submit-btn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
-      <div style="text-align:center;margin-top:16px;font-size:14px;color:#666">
-        Don't have an account? <a href="/?signup=1" style="color:#0a66c2;font-weight:700;text-decoration:none">Create Account</a>
+
+      {% if not_registered %}
+      <div style="background:#fff7ed;border:1.5px solid #fb923c;border-radius:12px;padding:14px 16px;margin-top:14px;text-align:center">
+        <div style="font-size:15px;font-weight:800;color:#ea580c;margin-bottom:6px">👋 No account found!</div>
+        <div style="font-size:13px;color:#7c2d12;margin-bottom:10px">
+          <strong>{{ tried_username }}</strong> is not registered yet.<br>Please create your account first.
+        </div>
+        <a href="/register/" style="display:inline-block;background:#0a66c2;color:#fff;font-size:14px;font-weight:700;padding:10px 28px;border-radius:10px;text-decoration:none">
+          📝 Register Now
+        </a>
       </div>
+      {% else %}
+      <div style="text-align:center;margin-top:16px;font-size:14px;color:#666">
+        Don't have an account? <a href="/register/" style="color:#0a66c2;font-weight:700;text-decoration:none">Create Account</a>
+      </div>
+      {% endif %}
     </form>
 
 

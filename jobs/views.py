@@ -421,6 +421,17 @@ def login_view(request):
                 from django.http import JsonResponse as _JR
                 return _JR({'success': True, 'redirect': next_url or '/'})
             return redirect(next_url or 'dashboard')
+        # Check if the user exists at all
+        user_exists = User.objects.filter(phone=username).exists() or \
+                      User.objects.filter(email=username).exists() or \
+                      User.objects.filter(username=username).exists()
+        if not user_exists:
+            error_msg = 'No account found. Please register first.'
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                from django.http import JsonResponse as _JR
+                return _JR({'success': False, 'error': error_msg, 'not_registered': True})
+            messages.error(request, error_msg)
+            return render(request, 'login.html', {'next': next_url, 'not_registered': True, 'tried_username': username})
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             from django.http import JsonResponse as _JR
             return _JR({'success': False, 'error': 'Invalid phone/email or password.'})
