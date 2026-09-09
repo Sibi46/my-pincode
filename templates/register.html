@@ -47,62 +47,29 @@
         <div class="reg-step" id="step1">
           <div style="max-width:700px;margin:0 auto;padding:28px 16px">
 
-            <div style="text-align:center;margin-bottom:28px">
+            <div style="text-align:center;margin-bottom:24px">
               <h2 style="font-size:24px;font-weight:900;color:#111;margin-bottom:6px">Join OUR PINCODE</h2>
-              <p style="font-size:14px;color:#666">Select how you want to use the platform</p>
+              <p style="font-size:14px;color:#666">Select your account type to get started</p>
             </div>
 
-            <!-- CARD 1: POST JOBS -->
-            <div class="role-card" id="roleHire" onclick="toggleRole('hire')">
-              <div class="role-card-header">
-                <div class="role-icon-wrap" style="background:#e3f2fd">
-                  <i class="fas fa-briefcase" style="color:#0a66c2"></i>
-                </div>
-                <div class="role-card-text">
-                  <h3>Post Jobs / Hire</h3>
-                  <p>I want to find workers &amp; employees for my business</p>
-                </div>
-                <i class="fas fa-chevron-down role-chevron" id="chevHire"></i>
-              </div>
-              <div class="role-subtypes" id="subHire">
-                <div class="subtype-grid">
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('company')"><i class="fas fa-building"></i><span>Business</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('shop')"><i class="fas fa-store"></i><span>Shop</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('recruiter')"><i class="fas fa-user-tie"></i><span>Recruiter</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('factory')"><i class="fas fa-industry"></i><span>Factory</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('startup')"><i class="fas fa-rocket"></i><span>Startup</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('institution')"><i class="fas fa-university"></i><span>Institution</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('ngo')"><i class="fas fa-hands-helping"></i><span>NGO</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('hospital')"><i class="fas fa-hospital"></i><span>Hospital</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('hotel')"><i class="fas fa-hotel"></i><span>Hotel</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('farm')"><i class="fas fa-leaf"></i><span>Farm</span></button>
-                  <button class="stype-btn" onclick="event.stopPropagation();selectType('individual_employer')"><i class="fas fa-user-plus"></i><span>Individual</span></button>
-                </div>
-              </div>
+            <div class="subtype-grid" style="margin-bottom:20px">
+              <button class="stype-btn" onclick="selectType('company')"><i class="fas fa-building"></i><span>Business</span></button>
+              <button class="stype-btn" onclick="selectType('shop')"><i class="fas fa-store"></i><span>Shop</span></button>
+              <button class="stype-btn" onclick="selectType('recruiter')"><i class="fas fa-user-tie"></i><span>Recruiter</span></button>
+              <button class="stype-btn" onclick="selectType('factory')"><i class="fas fa-industry"></i><span>Factory</span></button>
+              <button class="stype-btn" onclick="selectType('startup')"><i class="fas fa-rocket"></i><span>Startup</span></button>
+              <button class="stype-btn" onclick="selectType('institution')"><i class="fas fa-university"></i><span>Institution</span></button>
+              <button class="stype-btn" onclick="selectType('ngo')"><i class="fas fa-hands-helping"></i><span>NGO</span></button>
+              <button class="stype-btn" onclick="selectType('hospital')"><i class="fas fa-hospital"></i><span>Hospital</span></button>
+              <button class="stype-btn" onclick="selectType('hotel')"><i class="fas fa-hotel"></i><span>Hotel</span></button>
+              <button class="stype-btn" onclick="selectType('farm')"><i class="fas fa-leaf"></i><span>Farm</span></button>
+              <button class="stype-btn" onclick="selectType('individual_employer')"><i class="fas fa-user-plus"></i><span>Individual</span></button>
+              <button class="stype-btn stype-green" onclick="selectType('employee')"><i class="fas fa-user-tie"></i><span>Employee</span></button>
+              <button class="stype-btn stype-green" onclick="selectType('individual')"><i class="fas fa-user"></i><span>Individual</span></button>
+              <button class="stype-btn stype-green" onclick="selectType('freelancer')"><i class="fas fa-laptop"></i><span>Freelancer</span></button>
             </div>
 
-            <!-- CARD 2: FIND JOBS -->
-            <div class="role-card" id="roleSeek" onclick="toggleRole('seek')" style="margin-top:14px">
-              <div class="role-card-header">
-                <div class="role-icon-wrap" style="background:#e8f5e9">
-                  <i class="fas fa-search" style="color:#2e7d32"></i>
-                </div>
-                <div class="role-card-text">
-                  <h3>Find a Job</h3>
-                  <p>I am looking for employment opportunities near me</p>
-                </div>
-                <i class="fas fa-chevron-down role-chevron" id="chevSeek"></i>
-              </div>
-              <div class="role-subtypes" id="subSeek">
-                <div class="subtype-grid">
-                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('employee')"><i class="fas fa-user-tie"></i><span>Employee</span></button>
-                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('individual')"><i class="fas fa-user"></i><span>Individual</span></button>
-                  <button class="stype-btn stype-green" onclick="event.stopPropagation();selectType('freelancer')"><i class="fas fa-laptop"></i><span>Freelancer</span></button>
-                </div>
-              </div>
-            </div>
-
-            <p style="text-align:center;margin-top:20px;font-size:13px;color:#888">
+            <p style="text-align:center;margin-top:8px;font-size:13px;color:#888">
               Already have an account? <a href="/login/" style="color:#0a66c2;font-weight:600">Sign in</a>
             </p>
           </div>
