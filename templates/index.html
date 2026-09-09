@@ -767,6 +767,116 @@ var olxAdCur = 0;
 
 </section>
 
+<!-- FEATURE SHOWCASE -->
+<section style="background:#fff;padding:32px 0 8px">
+  <div style="max-width:680px;margin:0 auto;padding:0 16px">
+
+    {% with items="business,campas,community,family,giftvouchers,health,jobs,offers,school"|split:"," %}
+    {% for item in items %}{% endfor %}
+    {% endwith %}
+
+    <!-- 1. Business — image LEFT -->
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/business.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Business">
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#0a66c2;margin-bottom:4px">📣 Business</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Promote your local business and reach customers within your pincode. Stand out in your neighbourhood.</div>
+      </div>
+    </div>
+
+    <!-- 2. Campus — image RIGHT -->
+    <div style="display:flex;align-items:center;gap:18px;flex-direction:row-reverse;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/campas.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Campus">
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:800;color:#7c3aed;margin-bottom:4px">🏫 Campus</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Connect with students, colleges and campus opportunities near you. Education at your doorstep.</div>
+      </div>
+    </div>
+
+    <!-- 3. Community — image LEFT -->
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/community.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Community">
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#059669;margin-bottom:4px">🌐 Community</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Join local communities, share news and stay connected with people around your area.</div>
+      </div>
+    </div>
+
+    <!-- 4. Family — image RIGHT -->
+    <div style="display:flex;align-items:center;gap:18px;flex-direction:row-reverse;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/family.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Family">
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:800;color:#dc2626;margin-bottom:4px">👨‍👩‍👧‍👦 Family</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">A stronger family, a brighter life. Connect grandparents, parents, children and loved ones — all in one place.</div>
+      </div>
+    </div>
+
+    <!-- 5. Gift Vouchers — image LEFT -->
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/giftvouchers.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Gift Vouchers">
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#f59e0b;margin-bottom:4px">🎁 Gift Vouchers</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Discover exclusive gift vouchers and special deals from local shops and services around you.</div>
+      </div>
+    </div>
+
+    <!-- 6. Health — image RIGHT -->
+    <div style="display:flex;align-items:center;gap:18px;flex-direction:row-reverse;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/health.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Health">
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:800;color:#10b981;margin-bottom:4px">🏥 Health</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Find pharmacies, clinics, hospitals and wellness services closest to your pincode.</div>
+      </div>
+    </div>
+
+    <!-- 7. Jobs — image LEFT -->
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/jobs.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Jobs">
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#6366f1;margin-bottom:4px">💼 Jobs</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Find local job opportunities and hiring businesses in your area. Work close to home.</div>
+      </div>
+    </div>
+
+    <!-- 8. Offers — image RIGHT -->
+    <div style="display:flex;align-items:center;gap:18px;flex-direction:row-reverse;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/offers.jpeg" style="width:100%;height:100%;object-fit:cover" alt="Offers">
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:15px;font-weight:800;color:#ef4444;margin-bottom:4px">🏷️ Offers</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Grab flash deals and exclusive offers from businesses near your pincode. Save more, shop local.</div>
+      </div>
+    </div>
+
+    <!-- 9. School — image LEFT -->
+    <div style="display:flex;align-items:center;gap:18px;margin-bottom:36px">
+      <div style="flex-shrink:0;width:120px;height:120px;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.1)">
+        <img src="/static/images/school.jpeg" style="width:100%;height:100%;object-fit:cover" alt="School">
+      </div>
+      <div>
+        <div style="font-size:15px;font-weight:800;color:#f97316;margin-bottom:4px">🏫 My School</div>
+        <div style="font-size:13px;color:#374151;line-height:1.6">Stay connected with your school community. News, events and updates from schools near you.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 {% comment %}<!-- ABOUT SECTION - moved to /smart-marketing/ story page -->
 <section id="about-section" style="background:#fff;border-top:2px solid #e5e7eb;padding:56px 24px 64px">
   <div style="max-width:1100px;margin:0 auto">

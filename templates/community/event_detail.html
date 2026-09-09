@@ -91,6 +91,52 @@
     </div>
   </div>
 
+  {% if avg_rating %}
+  <div style="background:#fff8f0;border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid #ffe0b2;display:flex;align-items:center;gap:10px">
+    <span style="font-size:22px;font-weight:800;color:#f59e0b">{{ avg_rating|floatformat:1 }}</span>
+    <span style="font-size:18px;line-height:1">{% with avg_rating|floatformat:0 as stars %}{% for i in "12345" %}{% if forloop.counter <= stars|add:0 %}⭐{% else %}☆{% endif %}{% endfor %}{% endwith %}</span>
+    <span style="font-size:12px;color:#888">{{ event.ratings.count }} rating{{ event.ratings.count|pluralize }}</span>
+  </div>
+  {% endif %}
+
+  {% if request.user.is_authenticated %}
+  <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid #e2e8f0">
+    <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:8px">Rate this event</div>
+    <form method="post" action="{% url 'portal_event_rate' pk=event.pk %}" id="rateForm" style="display:flex;align-items:center;gap:12px">
+      {% csrf_token %}
+      <div class="star-pick" style="display:flex;gap:4px;font-size:26px;cursor:pointer" id="starPick">
+        {% for i in "12345" %}
+        <span data-val="{{ forloop.counter }}" onclick="pickStar({{ forloop.counter }})" style="color:#d1d5db;transition:color .15s">☆</span>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="rating" id="ratingVal" value="{{ user_rating.rating|default:'' }}">
+      <button type="submit" id="rateBtn" style="display:none;background:#f59e0b;color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:700;cursor:pointer">Submit</button>
+    </form>
+  </div>
+  <script>
+  (function(){
+    var cur = parseInt("{{ user_rating.rating|default:0 }}") || 0;
+    function render(n){
+      document.querySelectorAll('#starPick span').forEach(function(s,i){
+        s.textContent = i<n ? '⭐' : '☆';
+        s.style.color = i<n ? '#f59e0b' : '#d1d5db';
+      });
+    }
+    render(cur);
+    window.pickStar = function(n){
+      cur = n;
+      document.getElementById('ratingVal').value = n;
+      document.getElementById('rateBtn').style.display = 'inline-block';
+      render(n);
+    };
+    document.querySelectorAll('#starPick span').forEach(function(s,i){
+      s.onmouseenter = function(){ render(i+1); };
+      s.onmouseleave = function(){ render(cur); };
+    });
+  })();
+  </script>
+  {% endif %}
+
   <div class="evd-comments">
     <h3>Comments ({{ comments.count }})</h3>
     {% if comments %}
