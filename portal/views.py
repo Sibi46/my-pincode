@@ -2008,15 +2008,14 @@ def contribution_verify(request, slug, pk):
             contrib.status = 'approved'
             contrib.verified_by = request.user
             contrib.verified_at = timezone.now()
-            # award points
-            if contrib.contribution_type == 'financial':
-                pts = get_point_value('financial_contribution', 10)
-            else:
-                pts = get_point_value('upload_contribution', 5)
+            pts = 15 if contrib.contribution_type == 'financial' else 10
             contrib.points_awarded = pts
             contrib.save()
             award_points(contrib.user, community, pts,
                          f'Contribution approved: {contrib.contribution_type}', done_by=request.user)
+            _notify(contrib.user, 'points',
+                    f'🙌 Your contribution to {community.name} was approved! You earned {pts} points.',
+                    f'/portal/c/{community.slug}/my-contribution/')
             messages.success(request, f'Contribution approved. {pts} points awarded.')
         elif action == 'reject':
             contrib.status = 'rejected'
