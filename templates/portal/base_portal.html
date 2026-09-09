@@ -281,15 +281,13 @@ select.pform-input{background:#fff}
   {% endif %}
 </div>
 
-{% if messages %}
+{% for msg in messages %}{% if forloop.last %}
 <div style="max-width:1100px;margin:12px auto;padding:0 16px">
-  {% with messages|last as msg %}
   <div class="palert {% if msg.tags == 'error' %}palert-error{% elif msg.tags == 'success' %}palert-success{% else %}palert-info{% endif %}">
     {{ msg }}
   </div>
-  {% endwith %}
 </div>
-{% endif %}
+{% endif %}{% endfor %}
 
 {% block content %}{% endblock %}
 
