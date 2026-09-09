@@ -259,7 +259,7 @@
         </div>
         <span class="pbadge pbadge-blue" style="font-size:10px">{{ post.get_post_type_display }}</span>
       </div>
-      {% if post.image %}<img src="{{ post.image.url }}" alt="" class="p-post-img" style="margin-bottom:8px">{% endif %}
+      {% if post.image %}<img src="{{ post.image.url }}" alt="" class="p-post-img" style="width:100%;border-radius:10px;margin-bottom:8px;display:block">{% endif %}
       <p style="font-size:13px;color:#374151;line-height:1.6;margin:0 0 8px">{{ post.content }}</p>
       <div style="display:flex;gap:14px;padding-top:8px;border-top:1px solid #f8fafc;align-items:center">
         <button onclick="likePost({{ post.pk }}, this)" style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;display:flex;align-items:center;gap:4px;padding:0">

@@ -1362,8 +1362,9 @@ def create_post(request, page_id):
             content=p.get('content', '').strip(),
             event_date=event_date,
         )
-        if 'image' in request.FILES:
-            post.image = request.FILES['image']
+        imgs = request.FILES.getlist('image')
+        if imgs:
+            post.image = imgs[0]
         post.save()
         messages.success(request, 'Post published!')
     return redirect('portal_community', page_id=page_id)
