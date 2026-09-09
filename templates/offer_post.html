@@ -103,7 +103,7 @@ textarea.op-input{min-height:90px;resize:vertical}
   <div class="op-card-title">🏪 Business Details</div>
   <div class="op-field">
     <label class="op-label">Business Name *</label>
-    <input class="op-input" type="text" name="business_name" placeholder="e.g. Sri Murugan Hotel" required style="text-transform:capitalize" oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase())">
+    <input class="op-input" type="text" name="business_name" placeholder="e.g. Sri Murugan Hotel" required style="text-transform:uppercase" oninput="var s=this.selectionStart;this.value=this.value.toUpperCase();this.setSelectionRange(s,s)">
   </div>
   <div class="op-field">
     <label class="op-label">WhatsApp / Contact Number <span style="color:#94A3B8;font-weight:400">(optional)</span></label>
@@ -117,7 +117,7 @@ textarea.op-input{min-height:90px;resize:vertical}
   <div class="op-card-title">🏷️ Offer Details</div>
   <div class="op-field">
     <label class="op-label">Offer Title * <span style="color:#94A3B8;font-weight:400">(max 50 chars)</span></label>
-    <input class="op-input" type="text" name="title" placeholder="e.g. Special Lunch Combo, Weekend Sale" required maxlength="50" style="text-transform:capitalize" oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase());document.getElementById('titleCount').textContent=this.value.length+'/50'">
+    <input class="op-input" type="text" name="title" placeholder="e.g. Special Lunch Combo, Weekend Sale" required maxlength="50" style="text-transform:uppercase" oninput="var s=this.selectionStart;this.value=this.value.toUpperCase();this.setSelectionRange(s,s);document.getElementById('titleCount').textContent=this.value.length+'/50'">
     <div class="op-hint"><span id="titleCount">0/50</span> characters</div>
   </div>
   <div class="op-field">

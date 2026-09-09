@@ -238,6 +238,19 @@
 <!-- Offer data for JS -->
 <script>
 var OFFERS_DATA = {
+  {% for o in flash_offers %}
+  "{{ o.pk }}": {
+    name: "{{ o.business_name|escapejs }}",
+    title: "{{ o.title|escapejs }}",
+    discount: "{{ o.discount_text|escapejs }}",
+    category: "{{ o.get_category_display|escapejs }}",
+    description: "{{ o.description|escapejs }}",
+    phone: "{{ o.contact_phone|escapejs }}",
+    valid_until: "{% if o.valid_until %}{{ o.valid_until|date:'d M Y' }}{% endif %}",
+    valid_days: "{{ o.valid_days|escapejs }}",
+    image: "{% if o.image %}{{ o.image.url }}{% endif %}"
+  },
+  {% endfor %}
   {% for o in normal_offers %}
   "{{ o.pk }}": {
     name: "{{ o.business_name|escapejs }}",

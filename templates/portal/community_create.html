@@ -98,7 +98,7 @@
 
         <div class="pform-group">
           <label class="pform-label">Community Name *</label>
-          <input type="text" name="name" class="pform-input" required placeholder="e.g. Kattur Green Community" style="text-transform:capitalize" oninput="this.value=this.value.replace(/\b\w/g,c=>c.toUpperCase())">
+          <input type="text" name="name" class="pform-input" required placeholder="e.g. Kattur Green Community" style="text-transform:uppercase" oninput="var s=this.selectionStart;this.value=this.value.toUpperCase();this.setSelectionRange(s,s)">
           <div style="font-size:11px;color:#94a3b8;margin-top:4px">A unique Page ID will be auto-generated (e.g. OPC-KGC-001)</div>
         </div>
         <div class="pform-group">
