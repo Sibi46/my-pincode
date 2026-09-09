@@ -208,8 +208,8 @@
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
       {% for o in normal_offers %}
       <div onclick="openOffer({{ o.pk }})" style="background:#fff;border-radius:12px;overflow:hidden;border:1.5px solid #E2E8F0;cursor:pointer;display:flex;flex-direction:column">
-        <!-- Square image box -->
-        <div style="position:relative;width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center;font-size:2.5rem;overflow:hidden">
+        <!-- Image box -->
+        <div style="position:relative;width:100%;height:120px;background:linear-gradient(135deg,#F1F5F9,#E2E8F0);display:flex;align-items:center;justify-content:center;font-size:2.5rem;overflow:hidden">
           {% if o.image %}<img src="{{ o.image.url }}" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0" alt="">{% else %}
           {% if o.category == 'food' %}🍕{% elif o.category == 'salon' %}💈{% elif o.category == 'health' %}🏥{% elif o.category == 'shop' %}🛒{% elif o.category == 'services' %}🔧{% else %}🎁{% endif %}
           {% endif %}
