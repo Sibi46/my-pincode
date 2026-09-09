@@ -1039,6 +1039,11 @@ function flickSave(){
   document.getElementById('famFlickAgreeBtn').disabled=true;
   document.getElementById('famFlickAgreeBtn').style.opacity='.4';
 }
+function setFamFlickProg(pct){
+  var c=301.6;
+  document.getElementById('famFlickRing').style.strokeDashoffset=c-(c*pct/100);
+  document.getElementById('famFlickPct').textContent=pct+'%';
+}
 function famFlickDoUpload(){
   document.getElementById('famFlickModal').style.display='none';
   var photoInput=document.getElementById('flickPhotoInput');
@@ -1052,9 +1057,25 @@ function famFlickDoUpload(){
   fd.append('caption',document.getElementById('flickCaption').value);
   var evDate=document.getElementById('flickEventDate').value;
   if(evDate) fd.append('event_date',evDate);
-  fetch('/community/family/flick/add/',{method:'POST',body:fd})
-    .then(function(r){return r.json();})
-    .then(function(d){
+  var overlay=document.getElementById('famFlickOverlay');
+  overlay.style.display='flex';
+  setFamFlickProg(0);
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST','/community/family/flick/add/');
+  xhr.upload.onprogress=function(e){
+    if(e.lengthComputable){
+      var pct=Math.round((e.loaded/e.total)*100);
+      setFamFlickProg(pct);
+      document.getElementById('famFlickProgMsg').textContent=pct<100?'Uploading…':'Processing…';
+    }
+  };
+  xhr.onerror=function(){overlay.style.display='none';alert('Network error. Please try again.');};
+  xhr.onload=function(){
+    setFamFlickProg(100);
+    document.getElementById('famFlickProgMsg').textContent='Done! ✓';
+    setTimeout(function(){overlay.style.display='none';},500);
+    if(xhr.status<400){
+      var d=JSON.parse(xhr.responseText);
       if(!d.ok){alert(d.error||'Error');return;}
       /* Format display date */
       var rawDate=d.event_date||'';
@@ -1100,7 +1121,9 @@ function famFlickDoUpload(){
       document.getElementById('flickCaption').value='';
       document.getElementById('flickEventDate').value='';
       document.getElementById('flickPreviewWrap').style.display='none';
-    });
+    } else { alert('Upload failed. Please try again.'); }
+  };
+  xhr.send(fd);
 }
 document.addEventListener('change',function(e){
   if(e.target.id&&['ff1','ff2','ff3'].indexOf(e.target.id)>=0){
@@ -1242,6 +1265,18 @@ function postSave(){
   </div>
 </div>
 {% endblock %}
+
+<!-- Family Flick circular upload progress overlay -->
+<div id="famFlickOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;flex-direction:column">
+  <svg width="110" height="110" viewBox="0 0 110 110">
+    <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="8"/>
+    <circle id="famFlickRing" cx="55" cy="55" r="48" fill="none" stroke="#25d366" stroke-width="8"
+      stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"
+      transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .4s ease"/>
+  </svg>
+  <div id="famFlickPct" style="position:absolute;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px">0%</div>
+  <div id="famFlickProgMsg" style="margin-top:18px;font-size:14px;font-weight:700;color:rgba(255,255,255,.85)">Uploading…</div>
+</div>
 
 <!-- Family Flick Content Agreement Modal -->
 <div id="famFlickModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px">

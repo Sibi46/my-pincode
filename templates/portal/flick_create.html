@@ -69,13 +69,6 @@
       🚀 Post Flick
     </button>
 
-    <!-- Upload progress (hidden until submit) -->
-    <div id="uploadProgress" style="display:none;margin-top:14px">
-      <div style="background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin-bottom:8px">
-        <div id="uploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,#4f46e5,#7c3aed);border-radius:99px;transition:width .3s ease"></div>
-      </div>
-      <div id="uploadStatus" style="text-align:center;font-size:13px;color:#64748b;font-weight:600">Uploading… 0%</div>
-    </div>
   </form>
   {% endif %}
 </div>
@@ -109,6 +102,18 @@
   </div>
 </div>
 
+<!-- WhatsApp-style circular upload progress overlay -->
+<div id="flickUploadOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;flex-direction:column">
+  <svg width="110" height="110" viewBox="0 0 110 110">
+    <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="8"/>
+    <circle id="flickRing" cx="55" cy="55" r="48" fill="none" stroke="#25d366" stroke-width="8"
+      stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"
+      transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .4s ease"/>
+  </svg>
+  <div id="flickPct" style="position:absolute;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px">0%</div>
+  <div id="flickUploadMsg" style="margin-top:18px;font-size:14px;font-weight:700;color:rgba(255,255,255,.85)">Uploading…</div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -137,42 +142,48 @@ function closeModal() {
     }
   });
 });
+function setFlickProgress(pct) {
+  var circumference = 301.6;
+  document.getElementById('flickRing').style.strokeDashoffset = circumference - (circumference * pct / 100);
+  document.getElementById('flickPct').textContent = pct + '%';
+}
 function submitFlick() {
   closeModal();
   var form = document.querySelector('form');
   var file = document.getElementById('mediaInput').files[0];
   if (!file) return;
   var btn = document.getElementById('submitBtn');
-  var progressWrap = document.getElementById('uploadProgress');
-  var bar = document.getElementById('uploadBar');
-  var status = document.getElementById('uploadStatus');
   btn.disabled = true;
-  btn.textContent = 'Uploading…';
-  progressWrap.style.display = 'block';
+  var overlay = document.getElementById('flickUploadOverlay');
+  overlay.style.display = 'flex';
+  setFlickProgress(0);
   var xhr = new XMLHttpRequest();
   xhr.open('POST', form.action || window.location.pathname);
   xhr.upload.onprogress = function(e) {
     if (e.lengthComputable) {
       var pct = Math.round((e.loaded / e.total) * 100);
-      bar.style.width = pct + '%';
-      status.textContent = 'Uploading… ' + pct + '%';
-      if (pct === 100) status.textContent = 'Processing… please wait';
+      setFlickProgress(pct);
+      document.getElementById('flickUploadMsg').textContent = pct < 100 ? 'Uploading…' : 'Processing…';
     }
   };
   xhr.onload = function() {
+    setFlickProgress(100);
+    document.getElementById('flickUploadMsg').textContent = 'Done! ✓';
     if (xhr.status >= 200 && xhr.status < 400) {
-      status.textContent = 'Done! Redirecting…';
-      bar.style.width = '100%';
-      document.open(); document.write(xhr.responseText); document.close();
-      window.history.replaceState({}, '', xhr.responseURL || window.location.pathname);
+      setTimeout(function() {
+        document.open(); document.write(xhr.responseText); document.close();
+        window.history.replaceState({}, '', xhr.responseURL || window.location.pathname);
+      }, 400);
     } else {
-      status.textContent = 'Upload failed. Please try again.';
-      btn.disabled = false; btn.textContent = '🚀 Post Flick';
+      overlay.style.display = 'none';
+      btn.disabled = false;
+      alert('Upload failed. Please try again.');
     }
   };
   xhr.onerror = function() {
-    status.textContent = 'Network error. Please try again.';
-    btn.disabled = false; btn.textContent = '🚀 Post Flick';
+    overlay.style.display = 'none';
+    btn.disabled = false;
+    alert('Network error. Please try again.');
   };
   var formData = new FormData(form);
   xhr.setRequestHeader('X-CSRFToken', formData.get('csrfmiddlewaretoken'));

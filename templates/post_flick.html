@@ -85,6 +85,18 @@
   </div>
 </div>
 
+<!-- WhatsApp-style circular upload progress overlay -->
+<div id="mFlickOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;flex-direction:column">
+  <svg width="110" height="110" viewBox="0 0 110 110">
+    <circle cx="55" cy="55" r="48" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="8"/>
+    <circle id="mFlickRing" cx="55" cy="55" r="48" fill="none" stroke="#25d366" stroke-width="8"
+      stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"
+      transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .4s ease"/>
+  </svg>
+  <div id="mFlickPct" style="position:absolute;font-size:22px;font-weight:900;color:#fff;letter-spacing:-.5px">0%</div>
+  <div id="mFlickMsg" style="margin-top:18px;font-size:14px;font-weight:700;color:rgba(255,255,255,.85)">Uploading…</div>
+</div>
+
 
 <script>
 var videoSelected = false, imageSelected = false;
@@ -140,9 +152,49 @@ document.addEventListener('change', function(e) {
     document.getElementById('flickAgreeBtn').style.opacity = all ? '1' : '.4';
   }
 });
+function setMFlickProgress(pct) {
+  var c = 301.6;
+  document.getElementById('mFlickRing').style.strokeDashoffset = c - (c * pct / 100);
+  document.getElementById('mFlickPct').textContent = pct + '%';
+}
 function doPostFlick() {
   closeFlickModal();
-  document.querySelector('form').submit();
+  var form = document.querySelector('form');
+  var overlay = document.getElementById('mFlickOverlay');
+  overlay.style.display = 'flex';
+  setMFlickProgress(0);
+  document.getElementById('postFlickBtn').disabled = true;
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', form.action || window.location.pathname);
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      setMFlickProgress(pct);
+      document.getElementById('mFlickMsg').textContent = pct < 100 ? 'Uploading…' : 'Processing…';
+    }
+  };
+  xhr.onload = function() {
+    setMFlickProgress(100);
+    document.getElementById('mFlickMsg').textContent = 'Done! ✓';
+    if (xhr.status >= 200 && xhr.status < 400) {
+      setTimeout(function() {
+        document.open(); document.write(xhr.responseText); document.close();
+        window.history.replaceState({}, '', xhr.responseURL || window.location.pathname);
+      }, 400);
+    } else {
+      overlay.style.display = 'none';
+      document.getElementById('postFlickBtn').disabled = false;
+      alert('Upload failed. Please try again.');
+    }
+  };
+  xhr.onerror = function() {
+    overlay.style.display = 'none';
+    document.getElementById('postFlickBtn').disabled = false;
+    alert('Network error. Please try again.');
+  };
+  var formData = new FormData(form);
+  xhr.setRequestHeader('X-CSRFToken', formData.get('csrfmiddlewaretoken'));
+  xhr.send(formData);
 }
 </script>
 
