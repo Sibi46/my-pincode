@@ -1487,6 +1487,72 @@ def phone_login(request):
     return JsonResponse({'success': False, 'error': 'Wrong phone number or password. Try again.'})
 
 
+def send_register_otp(request):
+    """Generate OTP, store in session, send via email if phone looks like email."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json, random
+    from django.core.mail import send_mail
+    data  = json.loads(request.body)
+    phone = data.get('phone', '').strip()
+    name  = data.get('name', '').strip()
+    if not phone or not name:
+        return JsonResponse({'success': False, 'error': 'Name and phone are required'})
+    User = get_user_model()
+    if User.objects.filter(phone=phone).exists():
+        return JsonResponse({'success': False, 'error': 'This phone number is already registered. Please sign in.'})
+    otp = str(random.randint(100000, 999999))
+    request.session['reg_otp']   = otp
+    request.session['reg_phone'] = phone
+    request.session['reg_name']  = name
+    request.session['reg_data']  = data
+    # Try to email if input looks like email
+    if '@' in phone:
+        try:
+            send_mail(
+                'OUR PINCODE — Your OTP',
+                f'Hi {name},\n\nYour OTP to register on OUR PINCODE is: {otp}\n\nValid for 10 minutes.',
+                None, [phone], fail_silently=True,
+            )
+        except Exception:
+            pass
+    return JsonResponse({'success': True, 'otp_sent': True})
+
+
+def verify_register_otp(request):
+    """Verify OTP then create the user account."""
+    if request.method != 'POST':
+        return JsonResponse({'success': False})
+    import json
+    data = json.loads(request.body)
+    otp_input = data.get('otp', '').strip()
+    stored_otp = request.session.get('reg_otp')
+    if not stored_otp or otp_input != stored_otp:
+        return JsonResponse({'success': False, 'error': 'Invalid OTP. Please try again.'})
+    reg_data = request.session.get('reg_data', {})
+    name     = reg_data.get('name', '').strip()
+    phone    = reg_data.get('phone', '').strip()
+    pincode  = reg_data.get('pincode', '').strip()
+    password = reg_data.get('password', '').strip()
+    if not name or not phone or not pincode or not password:
+        return JsonResponse({'success': False, 'error': 'Missing registration data. Please start again.'})
+    User = get_user_model()
+    if User.objects.filter(phone=phone).exists():
+        return JsonResponse({'success': False, 'error': 'Already registered. Please sign in.'})
+    username = phone
+    if User.objects.filter(username=username).exists():
+        import random as _r
+        username = phone + str(_r.randint(10, 99))
+    user = User.objects.create_user(
+        username=username, first_name=name, phone=phone,
+        pincode=pincode, user_type='individual', password=password,
+    )
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    for k in ('reg_otp', 'reg_phone', 'reg_name', 'reg_data'):
+        request.session.pop(k, None)
+    return JsonResponse({'success': True, 'redirect': '/'})
+
+
 def quick_register(request):
     """Create basic user profile after OTP verification from onboarding modal."""
     if request.method != 'POST':
