@@ -1581,11 +1581,16 @@ def flick_feed(request):
         if getattr(request.user, 'admin_role', '') == 'super_admin':
             admin_community_ids = set(Community.objects.values_list('page_id', flat=True))
 
+    my_pending = []
+    if request.user.is_authenticated:
+        my_pending = Flick.objects.filter(posted_by=request.user, is_active=False).order_by('-created_at')
+
     return render(request, 'portal/flick_feed.html', {
         'flicks': flicks_qs,
         'liked_ids': liked_ids,
         'community_filter': community_filter,
         'admin_community_ids': admin_community_ids,
+        'my_pending': my_pending,
     })
 
 

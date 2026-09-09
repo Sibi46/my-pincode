@@ -400,6 +400,12 @@ body { overflow: hidden !important; margin: 0 !important; padding: 0 !important;
     </div>
     {% endif %}{% endfor %}
 
+    {% if my_pending %}
+    <div style="position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:300;background:#1e293b;color:#fff;padding:10px 18px;border-radius:12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:90vw">
+      <span>⏳ {{ my_pending.count }} flick{{ my_pending.count|pluralize }} pending admin approval</span>
+    </div>
+    {% endif %}
+
     {% for flick in flicks %}
     <div class="fk-reel" id="fkr-{{ flick.pk }}" data-pk="{{ flick.pk }}">
 
