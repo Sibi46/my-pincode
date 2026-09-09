@@ -529,6 +529,7 @@
       <div style="display:flex;gap:8px;margin-top:10px">
         <a href="{% url 'community_leaderboard' slug=community.slug %}" style="flex:1;text-align:center;background:#eff6ff;color:#4f46e5;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">🏆 Leaderboard</a>
         {% if user.is_authenticated %}
+        <a href="{% url 'my_contribution_profile' slug=community.slug %}" style="flex:1;text-align:center;background:#fefce8;color:#b45309;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">⭐ My Points</a>
         <a href="{% url 'contribution_submit' slug=community.slug %}" style="flex:1;text-align:center;background:#f0fdf4;color:#059669;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">💙 Contribute</a>
         <a href="{% url 'community_impact_page' slug=community.slug %}" style="flex:1;text-align:center;background:#faf5ff;color:#7c3aed;padding:8px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none">📊 Impact</a>
         {% endif %}
