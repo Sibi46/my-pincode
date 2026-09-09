@@ -71,22 +71,10 @@
         </div>
       </div>
 
-      <!-- Community Guidelines Checklist -->
-      <div style="background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:14px">
-        <div style="font-size:11px;font-weight:800;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">⚠️ Agree before posting</div>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:8px">
-          <input type="checkbox" id="warnCheck1" onchange="checkWarning()" style="width:16px;height:16px;accent-color:#dc2626;flex-shrink:0;cursor:pointer">
-          <span style="font-size:12px;color:#555">🚫 No political content or opinions</span>
-        </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-          <input type="checkbox" id="warnCheck2" onchange="checkWarning()" style="width:16px;height:16px;accent-color:#dc2626;flex-shrink:0;cursor:pointer">
-          <span style="font-size:12px;color:#555">🔞 No abuse, violence, or sexual content</span>
-        </label>
-      </div>
-
-      <button type="submit" id="postFlickBtn" disabled
-        style="width:100%;padding:14px;background:#ccc;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:not-allowed;transition:.3s">
-        <i class="fas fa-bolt"></i> Post Flick
+      <button type="button" id="postFlickBtn"
+        onclick="openFlickAgreement()"
+        style="width:100%;padding:14px;background:linear-gradient(135deg,#0a66c2,#004182);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:.3s">
+        🚀 Post Flick
       </button>
     </form>
   </div>
@@ -103,9 +91,14 @@ var videoSelected = false, imageSelected = false;
 
 function previewVideo(input) {
   if (!input.files[0]) return;
+  var file = input.files[0];
+  if (file.size > 50 * 1024 * 1024) {
+    alert('❌ File too large!\n\nYour file: ' + (file.size/1024/1024).toFixed(1) + ' MB\nMaximum allowed: 50 MB');
+    input.value = ''; return;
+  }
   videoSelected = true;
   document.getElementById('video-box').style.borderColor = '#0a66c2';
-  const url = URL.createObjectURL(input.files[0]);
+  const url = URL.createObjectURL(file);
   document.getElementById('video-prev-el').src = url;
   document.getElementById('video-preview').style.display = 'block';
 }
@@ -131,12 +124,52 @@ function clearImage() {
   document.getElementById('image-box').style.borderColor = '#e0e0e0';
 }
 
-function checkWarning() {
-  var both = document.getElementById('warnCheck1').checked && document.getElementById('warnCheck2').checked;
-  var btn = document.getElementById('postFlickBtn');
-  btn.disabled = !both;
-  btn.style.background = both ? 'linear-gradient(135deg,#0a66c2,#004182)' : '#ccc';
-  btn.style.cursor = both ? 'pointer' : 'not-allowed';
+function openFlickAgreement() {
+  document.getElementById('flickModal').style.display = 'flex';
+  ['fc1','fc2','fc3'].forEach(function(id){ document.getElementById(id).checked = false; });
+  document.getElementById('flickAgreeBtn').disabled = true;
+  document.getElementById('flickAgreeBtn').style.opacity = '.4';
+}
+function closeFlickModal() {
+  document.getElementById('flickModal').style.display = 'none';
+}
+document.addEventListener('change', function(e) {
+  if (e.target.id && ['fc1','fc2','fc3'].indexOf(e.target.id) >= 0) {
+    var all = document.getElementById('fc1').checked && document.getElementById('fc2').checked && document.getElementById('fc3').checked;
+    document.getElementById('flickAgreeBtn').disabled = !all;
+    document.getElementById('flickAgreeBtn').style.opacity = all ? '1' : '.4';
+  }
+});
+function doPostFlick() {
+  closeFlickModal();
+  document.querySelector('form').submit();
 }
 </script>
+
+<!-- Content Agreement Modal -->
+<div id="flickModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:20px;padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:22px;text-align:center;margin-bottom:6px">📋</div>
+    <div style="font-size:16px;font-weight:800;color:#0f172a;text-align:center;margin-bottom:4px">Content Agreement</div>
+    <div style="font-size:13px;color:#64748b;text-align:center;margin-bottom:20px">Please confirm before posting your Flick</div>
+
+    <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#fef2f2;border-radius:12px;margin-bottom:10px;cursor:pointer">
+      <input type="checkbox" id="fc1" style="width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:#ef4444">
+      <span style="font-size:13px;color:#374151;font-weight:600">🚫 This video contains <strong>no abusive</strong> or violent content</span>
+    </label>
+    <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#fefce8;border-radius:12px;margin-bottom:10px;cursor:pointer">
+      <input type="checkbox" id="fc2" style="width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:#f59e0b">
+      <span style="font-size:13px;color:#374151;font-weight:600">🏛️ This video contains <strong>no political</strong> content or propaganda</span>
+    </label>
+    <label style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:#fdf4ff;border-radius:12px;margin-bottom:20px;cursor:pointer">
+      <input type="checkbox" id="fc3" style="width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:#a855f7">
+      <span style="font-size:13px;color:#374151;font-weight:600">🔞 This video contains <strong>no sexual</strong> or adult content</span>
+    </label>
+
+    <div style="display:flex;gap:10px">
+      <button type="button" onclick="closeFlickModal()" style="flex:1;background:#f1f5f9;color:#64748b;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer">Cancel</button>
+      <button type="button" id="flickAgreeBtn" onclick="doPostFlick()" style="flex:2;background:#0a66c2;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;opacity:.4" disabled>✅ I Agree & Post</button>
+    </div>
+  </div>
+</div>
 {% endblock %}
