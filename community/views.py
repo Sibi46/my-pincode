@@ -533,17 +533,17 @@ def family_hub(request):
         core_count = 1  # me
         if is_married:
             core_count += 1  # partner
-        children_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['son', 'daughter']).count()
-        pets_count = FamilyMember.objects.filter(creator=request.user, member_type='pet').count()
-        grands_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['grandfather', 'grandmother']).count()
-        relatives_count = FamilyMember.objects.filter(creator=request.user, member_type__in=['brother','sister','uncle','aunt','cousin','friend']).count()
-        total_count = core_count + children_count + pets_count + grands_count + relatives_count
+        total_count = core_count + FamilyMember.objects.filter(creator=request.user).count()
 
     my_father = FamilyMember.objects.filter(creator=request.user, member_type='father', side='husband').first() if request.user.is_authenticated else None
     my_mother = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='husband').first() if request.user.is_authenticated else None
     p_father  = FamilyMember.objects.filter(creator=request.user, member_type='father', side='wife').first()  if request.user.is_authenticated else None
     p_mother  = FamilyMember.objects.filter(creator=request.user, member_type='mother', side='wife').first()  if request.user.is_authenticated else None
     friends   = []
+    # Family directory — all members ordered by type
+    directory_members = []
+    if request.user.is_authenticated and setup and setup.setup_done:
+        directory_members = list(FamilyMember.objects.filter(creator=request.user).order_by('member_type', 'name'))
     # Determine the family owner (child accounts resolve to parent)
     _family_owner = request.user
     if request.user.is_authenticated and getattr(request.user, 'user_type', '') == 'family_child':
@@ -662,6 +662,7 @@ def family_hub(request):
         'posts':           posts,
         'relatives_exist': relatives_exist,
         'birthday_cards':  birthday_cards,
+        'directory_members': directory_members,
     })
 
 
@@ -712,6 +713,7 @@ def family_member_create(request):
             house_name  = request.POST.get('house_name', '').strip(),
             occupation  = request.POST.get('occupation', '').strip(),
             education   = request.POST.get('education', '').strip(),
+            gender      = request.POST.get('gender', '').strip(),
             phone       = request.POST.get('phone', '').strip(),
             status      = request.POST.get('status', 'living'),
             species     = request.POST.get('species', '').strip(),
@@ -800,6 +802,7 @@ def family_member_edit(request, pk):
         member.about       = request.POST.get('about', '').strip()
         member.village     = request.POST.get('village', '').strip()
         member.house_name  = request.POST.get('house_name', '').strip()
+        member.gender      = request.POST.get('gender', '').strip()
         member.occupation  = request.POST.get('occupation', '').strip()
         member.education   = request.POST.get('education', '').strip()
         member.phone       = request.POST.get('phone', '').strip()

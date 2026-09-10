@@ -937,6 +937,8 @@ class FamilyMember(models.Model):
     age         = models.PositiveIntegerField(blank=True, null=True)
     village     = models.CharField(max_length=150, blank=True)
     house_name  = models.CharField(max_length=150, blank=True)
+    GENDER_CHOICES = [('male','Male'),('female','Female'),('other','Other')]
+    gender      = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
     occupation  = models.CharField(max_length=150, blank=True)
     education   = models.CharField(max_length=150, blank=True)
     phone       = models.CharField(max_length=20, blank=True)
