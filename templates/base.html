@@ -33,9 +33,9 @@
 
             {% if request.user.is_authenticated %}
                 {% if request.user.is_employer %}
-                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
                 {% else %}
-                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
                 {% endif %}
 
                 {% with biz=request.user.businesses.first %}
@@ -104,10 +104,10 @@
                 {% if request.user.is_employer %}
                     <a href="/candidates/"><i class="fas fa-users"></i> Candidates</a>
                     <a href="/post-job/"><i class="fas fa-plus"></i> Post Job</a>
-                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
                 {% else %}
                     {% if '/profile/edit' not in request.path %}<a href="/jobs/"><i class="fas fa-search"></i> Find Jobs</a>{% endif %}
-                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
                 {% endif %}
 
                 {% with biz=request.user.businesses.first %}
