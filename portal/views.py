@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Count, Sum, F, ExpressionWrapper, IntegerField
+from django.db.models import Q, Count, Sum, F, ExpressionWrapper, IntegerField, Avg
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
@@ -1238,7 +1238,7 @@ def event_attendee_ratings(request, pk):
     attendee_data = []
     for user in attendee_users:
         ratings = AttendeeRating.objects.filter(event=event, ratee=user)
-        avg = ratings.aggregate(a=models.Avg('rating'))['a']
+        avg = ratings.aggregate(a=Avg('rating'))['a']
         my_rating = AttendeeRating.objects.filter(event=event, rater=request.user, ratee=user).first()
         attendee_data.append({
             'user': user,
