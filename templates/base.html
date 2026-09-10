@@ -220,9 +220,9 @@
         {# ── VOUCHER PAGES: minimal menu ── #}
         {% if request.user.is_authenticated %}
             {% if request.user.is_employer %}
-                <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
             {% else %}
-                <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
             {% endif %}
             <a href="/messages/"><i class="fas fa-comment-dots"></i> Messages</a>
             <a href="/vouchers/my-vouchers/" style="color:#7c3aed"><i class="fas fa-ticket-alt"></i> My Vouchers</a>
@@ -241,9 +241,9 @@
         {% if request.user.is_authenticated %}
             {% if request.user.is_employer %}
                 <a href="/post-job/">Post Job</a>
-                <a href="/employer/dashboard/">Dashboard</a>
+                <a href="/employer/dashboard/">Business Dashboard</a>
             {% else %}
-                <a href="/jobseeker/dashboard/">Dashboard</a>
+                <a href="/jobseeker/dashboard/">My Dashboard</a>
                 <a href="/profile/edit/">Profile</a>
             {% endif %}
             {% with adv=request.user.advertiser %}
