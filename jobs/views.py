@@ -3882,6 +3882,7 @@ def profile_edit(request):
             job_cat = p.get('job_category', '').strip()
             if job_cat in ('blue', 'white', 'any'):
                 seeker.job_category = job_cat
+            seeker.blue_collar_type = p.get('blue_collar_type', '').strip()
             salary_min = p.get('salary_min', '').strip()
             if salary_min:
                 try:

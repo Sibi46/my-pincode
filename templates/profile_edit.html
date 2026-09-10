@@ -236,19 +236,46 @@
       <!-- Blue Collar Skills -->
       <div id="blueSection" style="display:none">
         <div class="dsec-card">
-          <div class="dsec-card-title"><i class="fas fa-tools"></i> Skills & Work</div>
+          <div class="dsec-card-title"><i class="fas fa-tools"></i> Blue Collar Work Details</div>
           <div class="pe-grid">
-            <div class="pe-field">
-              <label class="pe-label"><i class="fas fa-star"></i> Primary Skill / Trade</label>
-              <input type="text" name="primary_skill" id="bc_primary_skill" value="{{ seeker.primary_skill }}" placeholder="e.g. Welding, Driving, Plumbing" class="pe-input">
+            <div class="pe-field pe-full">
+              <label class="pe-label">🦺 Work Type / Trade</label>
+              <select name="blue_collar_type" class="pe-input" id="bcTypeSelect">
+                <option value="">-- Select your work type --</option>
+                <option value="construction" {% if seeker.blue_collar_type == 'construction' %}selected{% endif %}>🏗️ Construction / Mason / Carpenter</option>
+                <option value="electrician" {% if seeker.blue_collar_type == 'electrician' %}selected{% endif %}>⚡ Electrician / Wireman</option>
+                <option value="plumber" {% if seeker.blue_collar_type == 'plumber' %}selected{% endif %}>🔧 Plumber / Pipe Fitter</option>
+                <option value="driver" {% if seeker.blue_collar_type == 'driver' %}selected{% endif %}>🚗 Driver / Delivery / Logistics</option>
+                <option value="factory" {% if seeker.blue_collar_type == 'factory' %}selected{% endif %}>🏭 Factory / Production / Machine Operator</option>
+                <option value="security" {% if seeker.blue_collar_type == 'security' %}selected{% endif %}>🛡️ Security Guard / Watchman</option>
+                <option value="domestic" {% if seeker.blue_collar_type == 'domestic' %}selected{% endif %}>🏠 Domestic Worker / Cook / Maid</option>
+                <option value="agriculture" {% if seeker.blue_collar_type == 'agriculture' %}selected{% endif %}>🌾 Agriculture / Farming / Labour</option>
+                <option value="welder" {% if seeker.blue_collar_type == 'welder' %}selected{% endif %}>🔩 Welder / Fabricator / Turner</option>
+                <option value="painter" {% if seeker.blue_collar_type == 'painter' %}selected{% endif %}>🎨 Painter / Polisher</option>
+                <option value="helper" {% if seeker.blue_collar_type == 'helper' %}selected{% endif %}>🙋 Helper / Loading / Unloading</option>
+                <option value="sweeper" {% if seeker.blue_collar_type == 'sweeper' %}selected{% endif %}>🧹 Sweeper / Housekeeping / Cleaning</option>
+                <option value="tailor" {% if seeker.blue_collar_type == 'tailor' %}selected{% endif %}>🪡 Tailor / Embroidery / Textile</option>
+                <option value="mechanic" {% if seeker.blue_collar_type == 'mechanic' %}selected{% endif %}>🔨 Mechanic / Auto Service / Repair</option>
+                <option value="other_blue" {% if seeker.blue_collar_type == 'other_blue' %}selected{% endif %}>⚙️ Other Blue Collar</option>
+              </select>
             </div>
             <div class="pe-field">
               <label class="pe-label"><i class="fas fa-clock"></i> Total Experience</label>
-              <input type="text" name="experience" id="bc_experience" value="{{ seeker.experience }}" placeholder="e.g. 2 years / Fresher" class="pe-input">
+              <select name="experience" class="pe-input">
+                <option value="">Select experience</option>
+                {% with ex=seeker.experience %}
+                <option value="Fresher" {% if ex == "Fresher" %}selected{% endif %}>Fresher (0 years)</option>
+                <option value="Less than 1 year" {% if ex == "Less than 1 year" %}selected{% endif %}>Less than 1 year</option>
+                <option value="1-2 years" {% if ex == "1-2 years" %}selected{% endif %}>1–2 years</option>
+                <option value="3-5 years" {% if ex == "3-5 years" %}selected{% endif %}>3–5 years</option>
+                <option value="6-10 years" {% if ex == "6-10 years" %}selected{% endif %}>6–10 years</option>
+                <option value="10+ years" {% if ex == "10+ years" %}selected{% endif %}>10+ years</option>
+                {% endwith %}
+              </select>
             </div>
             <div class="pe-field">
-              <label class="pe-label"><i class="fas fa-rupee-sign"></i> Expected Wage (₹)</label>
-              <input type="number" name="salary_min" id="bc_salary" value="{{ seeker.salary_min|default:'' }}" placeholder="e.g. 500/day or 12000/month" class="pe-input">
+              <label class="pe-label"><i class="fas fa-rupee-sign"></i> Expected Wage (₹/month)</label>
+              <input type="number" name="salary_min" id="bc_salary" value="{{ seeker.salary_min|default:'' }}" placeholder="e.g. 12000" class="pe-input">
             </div>
             <div class="pe-field">
               <label class="pe-label"><i class="fas fa-language"></i> Languages Known</label>
@@ -269,6 +296,20 @@
               </select>
             </div>
           </div>
+        </div>
+
+        <!-- Resume for Blue Collar -->
+        <div class="dsec-card" style="border-color:#fde68a;background:#fffbeb">
+          <div class="dsec-card-title" style="color:#b45309"><i class="fas fa-file-alt"></i> Resume / Experience Certificate <span style="font-size:11px;background:#dc2626;color:#fff;padding:2px 8px;border-radius:6px;margin-left:6px">Required</span></div>
+          {% if seeker.resume %}
+          <div style="font-size:12px;color:#059669;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+            <i class="fas fa-check-circle"></i> Resume on file — <a href="{{ seeker.resume.url }}" target="_blank" style="color:#0a66c2">View</a>
+          </div>
+          {% else %}
+          <div style="font-size:12px;color:#92400e;font-weight:600;margin-bottom:10px">🦺 Upload your resume or any work experience certificate to apply for jobs.</div>
+          {% endif %}
+          <input type="file" name="resume" accept=".pdf,.doc,.docx" class="pe-input" style="padding:6px" {% if not seeker.resume %}required{% endif %}>
+          <span class="pe-note">PDF, DOC, DOCX — max 5MB</span>
         </div>
       </div>
 
