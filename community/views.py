@@ -1994,6 +1994,14 @@ def event_rate_user(request, pk):
         messages.info(request, 'You have already submitted your ratings for this event.')
         return redirect(f'/community/events/{pk}/')
     from django.contrib.auth.models import User as AuthUser
+    from portal.models import Community, MemberPoints
+    from portal.views import award_points
+
+    # Find a shared community for points awarding
+    rater_community_ids = set(
+        Community.objects.filter(members__user=request.user, members__status='approved').values_list('id', flat=True)
+    )
+
     for key, val in request.POST.items():
         if key.startswith('rating_'):
             try:
@@ -2006,10 +2014,20 @@ def event_rate_user(request, pk):
                     ratee = AuthUser.objects.get(pk=uid)
                 except AuthUser.DoesNotExist:
                     continue
-                CommunityEventUserRating.objects.get_or_create(
+                obj, created = CommunityEventUserRating.objects.get_or_create(
                     event=event, rater=request.user, ratee=ratee,
                     defaults={'rating': rating_val},
                 )
+                if created:
+                    # Award points in shared community if any
+                    ratee_community_ids = set(
+                        Community.objects.filter(members__user=ratee, members__status='approved').values_list('id', flat=True)
+                    )
+                    shared = rater_community_ids & ratee_community_ids
+                    if shared:
+                        community = Community.objects.get(pk=next(iter(shared)))
+                        award_points(ratee, community, rating_val,
+                                     f'Peer rating at event: {event.title} ({rating_val}⭐ from {request.user.get_full_name() or request.user.username})')
     messages.success(request, 'Your ratings have been submitted! ⭐')
     return redirect(f'/community/events/{pk}/')
 

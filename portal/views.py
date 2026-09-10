@@ -1259,6 +1259,17 @@ def event_attendee_ratings(request, pk):
         if already_rated:
             messages.info(request, 'You have already submitted your ratings for this event.')
             return redirect('portal_event_detail', pk=pk)
+        community = event.community
+
+        def _save_and_award(ratee, rating_val):
+            obj, created = AttendeeRating.objects.get_or_create(
+                event=event, rater=request.user, ratee=ratee,
+                defaults={'rating': rating_val},
+            )
+            if created and community:
+                award_points(ratee, community, rating_val,
+                             f'Peer rating at event: {event.name} ({rating_val}⭐ from {request.user.get_full_name or request.user.username})')
+
         # Single-rating POST (from separate ratings page)
         ratee_id = request.POST.get('ratee_id')
         if ratee_id:
@@ -1266,10 +1277,7 @@ def event_attendee_ratings(request, pk):
             if 1 <= rating_val <= 5:
                 ratee = get_object_or_404(User, pk=ratee_id)
                 if ratee in attendee_users and ratee != request.user:
-                    AttendeeRating.objects.get_or_create(
-                        event=event, rater=request.user, ratee=ratee,
-                        defaults={'rating': rating_val},
-                    )
+                    _save_and_award(ratee, rating_val)
         else:
             # Multi-rating POST from embedded event detail form (rating_<uid> fields)
             for key, val in request.POST.items():
@@ -1285,10 +1293,7 @@ def event_attendee_ratings(request, pk):
                         except User.DoesNotExist:
                             continue
                         if ratee in attendee_users and ratee != request.user:
-                            AttendeeRating.objects.get_or_create(
-                                event=event, rater=request.user, ratee=ratee,
-                                defaults={'rating': rating_val},
-                            )
+                            _save_and_award(ratee, rating_val)
             messages.success(request, 'Your ratings have been submitted! ⭐')
         return redirect('portal_event_detail', pk=pk)
     return render(request, 'portal/event_attendee_ratings.html', {
