@@ -1896,19 +1896,49 @@ def event_detail(request, pk):
     event    = get_object_or_404(CommunityEvent, pk=pk, is_active=True)
     comments = event.comments.select_related('user').all()
     my_rsvp  = None
+    has_photo = False
     if request.user.is_authenticated:
         r = EventRSVP.objects.filter(user=request.user, event=event).first()
         my_rsvp = r.status if r else None
+        try:
+            has_photo = bool(request.user.seeker.photo)
+        except Exception:
+            has_photo = False
     if request.method == 'POST' and request.user.is_authenticated:
         text = request.POST.get('comment', '').strip()
         if text:
             EventComment.objects.create(user=request.user, event=event, text=text)
         return redirect(f'/community/events/{pk}/')
+    going_users = list(event.rsvps.filter(status='going').select_related('user'))
+    # Load user-to-user ratings for this event
+    from .models import CommunityEventUserRating
+    ratings_by_ratee = {}
+    my_given_ratings = {}
+    if request.user.is_authenticated:
+        for ur in CommunityEventUserRating.objects.filter(event=event):
+            ratings_by_ratee.setdefault(ur.ratee_id, []).append(ur.rating)
+            if ur.rater_id == request.user.pk:
+                my_given_ratings[ur.ratee_id] = ur.rating
+    going_user_data = []
+    going_user_ids = {r.user_id for r in going_users}
+    for r in going_users:
+        u = r.user
+        ratings = ratings_by_ratee.get(u.pk, [])
+        avg = round(sum(ratings) / len(ratings), 1) if ratings else None
+        going_user_data.append({
+            'user': u,
+            'avg': avg,
+            'count': len(ratings),
+            'my_rating': my_given_ratings.get(u.pk),
+        })
     return render(request, 'community/event_detail.html', {
-        'event':    event,
-        'comments': comments,
-        'my_rsvp':  my_rsvp,
+        'event':     event,
+        'comments':  comments,
+        'my_rsvp':   my_rsvp,
+        'has_photo': has_photo,
         'cat_icons': EV_CAT_ICONS,
+        'going_user_data': going_user_data,
+        'going_user_ids': going_user_ids,
     })
 
 
@@ -1916,6 +1946,17 @@ def event_detail(request, pk):
 def event_rsvp(request, pk):
     event  = get_object_or_404(CommunityEvent, pk=pk)
     status = request.POST.get('status', 'going')
+
+    # Require profile photo before going RSVP
+    if status == 'going':
+        try:
+            has_photo = bool(request.user.seeker.photo)
+        except Exception:
+            has_photo = False
+        if not has_photo:
+            return JsonResponse({'error': 'photo_required', 'status': None,
+                                 'going': event.going_count(), 'interested': event.interested_count()})
+
     rsvp, created = EventRSVP.objects.get_or_create(user=request.user, event=event,
                                                     defaults={'status': status})
     if not created:
@@ -1930,6 +1971,36 @@ def event_rsvp(request, pk):
         'going':       event.going_count(),
         'interested':  event.interested_count(),
     })
+
+
+@login_required
+def event_rate_user(request, pk):
+    """Submit user-to-user ratings for a community event."""
+    from .models import CommunityEventUserRating
+    event = get_object_or_404(CommunityEvent, pk=pk)
+    going_user_ids = set(event.rsvps.filter(status='going').values_list('user_id', flat=True))
+    if request.user.pk not in going_user_ids:
+        messages.error(request, 'Only attendees can rate others.')
+        return redirect(f'/community/events/{pk}/')
+    for key, val in request.POST.items():
+        if key.startswith('rating_'):
+            try:
+                uid = int(key[7:])
+                rating_val = int(val)
+            except (ValueError, TypeError):
+                continue
+            if 1 <= rating_val <= 5 and uid in going_user_ids and uid != request.user.pk:
+                from django.contrib.auth.models import User as AuthUser
+                try:
+                    ratee = AuthUser.objects.get(pk=uid)
+                except AuthUser.DoesNotExist:
+                    continue
+                CommunityEventUserRating.objects.update_or_create(
+                    event=event, rater=request.user, ratee=ratee,
+                    defaults={'rating': rating_val},
+                )
+    messages.success(request, 'Your ratings have been submitted! ⭐')
+    return redirect(f'/community/events/{pk}/')
 
 
 @login_required

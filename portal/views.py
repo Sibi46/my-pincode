@@ -965,13 +965,15 @@ def event_register(request, pk):
         request.session['join_required_community'] = {'name': community.name, 'page_id': community.page_id}
         return redirect('portal_event_detail', pk=pk)
 
-    needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact or event.require_profile_photo
+    # Always check profile photo (compulsory for all RSVPs)
+    try:
+        has_photo = bool(request.user.seeker.photo)
+    except Exception:
+        has_photo = False
+
+    needs_rsvp_page = event.rsvp_questions or event.is_paid or event.collect_contact or event.require_profile_photo or not has_photo
 
     if needs_rsvp_page and request.method == 'GET':
-        try:
-            has_photo = bool(request.user.seeker.photo)
-        except Exception:
-            has_photo = False
         return render(request, 'portal/event_rsvp.html', {'event': event, 'has_photo': has_photo})
 
     # --- Profile photo check / upload ---
@@ -1021,7 +1023,9 @@ def event_register(request, pk):
             elif existing.status == 'pending':
                 messages.success(request, 'Payment screenshot submitted! Awaiting creator approval.')
             else:
-                messages.success(request, "You're going!")
+                if community:
+                    award_points(request.user, community, 5, f'Event RSVP: {event.name}')
+                messages.success(request, "You're going! 🎉 +5 points awarded!")
         else:
             messages.info(request, 'You are already registered.')
         return redirect('portal_event_detail', pk=pk)
@@ -1041,7 +1045,10 @@ def event_register(request, pk):
     elif initial_status == 'pending':
         messages.success(request, 'Payment screenshot submitted! Awaiting creator approval.')
     else:
-        messages.success(request, "You're going! See you there.")
+        # Award 5 points automatically on approved RSVP
+        if community:
+            award_points(request.user, community, 5, f'Event RSVP: {event.name}')
+        messages.success(request, "You're going! See you there. 🎉 +5 points awarded!")
     return redirect('portal_event_detail', pk=pk)
 
 
@@ -1241,16 +1248,38 @@ def event_attendee_ratings(request, pk):
             'is_self': user == request.user,
         })
     if request.method == 'POST':
+        # Single-rating POST (from separate ratings page)
         ratee_id = request.POST.get('ratee_id')
-        rating_val = int(request.POST.get('rating', 0))
-        if ratee_id and 1 <= rating_val <= 5:
-            ratee = get_object_or_404(User, pk=ratee_id)
-            if ratee in attendee_users and ratee != request.user:
-                AttendeeRating.objects.update_or_create(
-                    event=event, rater=request.user, ratee=ratee,
-                    defaults={'rating': rating_val},
-                )
-        return redirect('portal_event_attendee_ratings', pk=pk)
+        if ratee_id:
+            rating_val = int(request.POST.get('rating', 0))
+            if 1 <= rating_val <= 5:
+                ratee = get_object_or_404(User, pk=ratee_id)
+                if ratee in attendee_users and ratee != request.user:
+                    AttendeeRating.objects.update_or_create(
+                        event=event, rater=request.user, ratee=ratee,
+                        defaults={'rating': rating_val},
+                    )
+        else:
+            # Multi-rating POST from embedded event detail form (rating_<uid> fields)
+            for key, val in request.POST.items():
+                if key.startswith('rating_'):
+                    try:
+                        uid = int(key[7:])
+                        rating_val = int(val)
+                    except (ValueError, TypeError):
+                        continue
+                    if 1 <= rating_val <= 5:
+                        try:
+                            ratee = User.objects.get(pk=uid)
+                        except User.DoesNotExist:
+                            continue
+                        if ratee in attendee_users and ratee != request.user:
+                            AttendeeRating.objects.update_or_create(
+                                event=event, rater=request.user, ratee=ratee,
+                                defaults={'rating': rating_val},
+                            )
+            messages.success(request, 'Your ratings have been submitted!')
+        return redirect('portal_event_detail', pk=pk)
     return render(request, 'portal/event_attendee_ratings.html', {
         'event': event,
         'attendee_data': attendee_data,

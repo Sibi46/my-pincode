@@ -91,6 +91,17 @@
 
 <div class="ev-body">
 
+{% if registration.status == 'approved' %}
+<div style="background:linear-gradient(135deg,#059669,#10b981);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(5,150,105,.25)">
+  <div style="font-size:32px;line-height:1">✅</div>
+  <div>
+    <div style="font-size:13px;font-weight:900;color:#fff;letter-spacing:.04em">I AM GOING!</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.85);margin-top:2px">You're registered for this event · 5 pts earned</div>
+  </div>
+  <a href="/portal/my/events/" style="margin-left:auto;background:rgba(255,255,255,.2);color:#fff;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;text-decoration:none;border:1px solid rgba(255,255,255,.35)">📅 My Events</a>
+</div>
+{% endif %}
+
 {% if join_required %}
 <div style="background:#fef3c7;border:1.5px solid #f59e0b;border-radius:14px;padding:14px 18px;margin-bottom:16px;font-size:14px;color:#92400e;font-weight:600">
   <i class="fas fa-exclamation-circle"></i>
@@ -281,6 +292,60 @@
       </div>
       {% endif %}
     </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- User-to-User Attendee Ratings -->
+{% if attendees %}
+<div class="ev-sect">
+  <div class="ev-sect-head">
+    <div class="ev-sect-title">🌟 Rate Fellow Attendees</div>
+  </div>
+  <div class="ev-sect-body" id="attendeeRatingsBox">
+    {% if registration.status == 'approved' %}
+    <form method="post" action="{% url 'portal_event_attendee_ratings' pk=event.pk %}" id="attendeeRateForm">
+      {% csrf_token %}
+      {% for p in attendees %}
+      {% if p.user != request.user %}
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          {% if p.user.seeker.photo %}<img src="{{ p.user.seeker.photo.url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">{% else %}{{ p.user.get_full_name|default:p.user.username|slice:":2"|upper }}{% endif %}
+        </div>
+        <div style="flex:1;font-size:13px;font-weight:700;color:#0f172a">{{ p.user.get_full_name|default:p.user.username }}</div>
+        <div style="display:flex;gap:3px" id="stars_{{ p.user.pk }}">
+          {% for i in "12345"|make_list %}
+          <span data-uid="{{ p.user.pk }}" data-val="{{ forloop.counter }}" onclick="setAttRating({{ p.user.pk }},{{ forloop.counter }})" style="font-size:22px;cursor:pointer;color:#d1d5db;transition:color .1s">☆</span>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="rating_{{ p.user.pk }}" id="rval_{{ p.user.pk }}" value="">
+      </div>
+      {% endif %}
+      {% endfor %}
+      <button type="submit" style="margin-top:12px;width:100%;background:#4f46e5;color:#fff;border:none;padding:11px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer">Submit Ratings</button>
+    </form>
+    <script>
+    function setAttRating(uid, val){
+      document.getElementById('rval_'+uid).value = val;
+      var stars = document.querySelectorAll('#stars_'+uid+' span');
+      stars.forEach(function(s,i){ s.textContent = i<val?'⭐':'☆'; s.style.color=i<val?'#f59e0b':'#d1d5db'; });
+    }
+    document.querySelectorAll('[data-uid]').forEach(function(s){
+      s.onmouseenter=function(){ var uid=this.dataset.uid,val=parseInt(this.dataset.val); document.querySelectorAll('[data-uid="'+uid+'"]').forEach(function(x,i){x.textContent=i<val?'⭐':'☆';}); };
+      s.onmouseleave=function(){ var uid=this.dataset.uid,cur=parseInt(document.getElementById('rval_'+uid).value)||0; document.querySelectorAll('[data-uid="'+uid+'"]').forEach(function(x,i){x.textContent=i<cur?'⭐':'☆'; x.style.color=i<cur?'#f59e0b':'#d1d5db';}); };
+    });
+    </script>
+    {% else %}
+    <div style="font-size:13px;color:#94a3b8;text-align:center;padding:12px 0">Register for this event to rate fellow attendees.</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+      {% for p in attendees %}
+      <div style="display:flex;align-items:center;gap:6px;background:#f8fafc;border-radius:10px;padding:6px 10px">
+        <div style="width:28px;height:28px;border-radius:50%;background:#e0e7ff;color:#4f46e5;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ p.user.get_full_name|default:p.user.username|slice:":2"|upper }}</div>
+        <span style="font-size:12px;font-weight:600;color:#374151">{{ p.user.first_name|default:p.user.username }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endif %}

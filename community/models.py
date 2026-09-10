@@ -1002,3 +1002,14 @@ class FamilyPost(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class CommunityEventUserRating(models.Model):
+    event   = models.ForeignKey(CommunityEvent, on_delete=models.CASCADE, related_name='user_ratings')
+    rater   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_event_user_ratings')
+    ratee   = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_event_user_ratings')
+    rating  = models.PositiveSmallIntegerField()  # 1-5
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('event', 'rater', 'ratee')
