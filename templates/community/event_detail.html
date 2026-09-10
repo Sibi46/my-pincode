@@ -162,7 +162,11 @@
   {% if going_user_data %}
   <div style="background:#fff;border-radius:16px;border:1.5px solid #bae6fd;overflow:hidden;margin-bottom:12px">
     <h3 style="font-size:12px;font-weight:800;color:#0891b2;text-transform:uppercase;letter-spacing:.06em;padding:14px 16px 0;margin:0">🌟 Rate Fellow Attendees ({{ going_user_data|length }} going)</h3>
-    {% if my_rsvp == 'going' %}
+    {% if my_rsvp == 'going' and already_rated %}
+    <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin:12px 16px;text-align:center;font-size:13px;color:#166534;font-weight:700">
+      ✅ You have already submitted your ratings for this event.
+    </div>
+    {% elif my_rsvp == 'going' %}
     <form method="post" action="/community/events/{{ event.pk }}/rate-user/" style="padding:12px 16px">
       {% csrf_token %}
       {% for ud in going_user_data %}

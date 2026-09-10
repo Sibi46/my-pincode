@@ -214,6 +214,10 @@ def event_detail(request, pk):
         if pres:
             community_president = pres.user
     join_required = request.session.pop('join_required_community', None)
+    already_rated = False
+    if request.user.is_authenticated:
+        from portal.models import AttendeeRating
+        already_rated = AttendeeRating.objects.filter(event=event, rater=request.user).exists()
     return render(request, 'portal/event_detail.html', {
         'event': event, 'is_admin': is_admin, 'is_super_admin': is_super_admin,
         'registration': registration, 'user_rating': user_rating,
@@ -225,6 +229,7 @@ def event_detail(request, pk):
         'waitlist_count': waitlist.count(),
         'community_president': community_president,
         'join_required': join_required,
+        'already_rated': already_rated,
     })
 
 
@@ -1247,7 +1252,13 @@ def event_attendee_ratings(request, pk):
             'my_rating': my_rating.rating if my_rating else None,
             'is_self': user == request.user,
         })
+    # Check if user has already submitted any rating for this event
+    already_rated = AttendeeRating.objects.filter(event=event, rater=request.user).exists()
+
     if request.method == 'POST':
+        if already_rated:
+            messages.info(request, 'You have already submitted your ratings for this event.')
+            return redirect('portal_event_detail', pk=pk)
         # Single-rating POST (from separate ratings page)
         ratee_id = request.POST.get('ratee_id')
         if ratee_id:
@@ -1255,7 +1266,7 @@ def event_attendee_ratings(request, pk):
             if 1 <= rating_val <= 5:
                 ratee = get_object_or_404(User, pk=ratee_id)
                 if ratee in attendee_users and ratee != request.user:
-                    AttendeeRating.objects.update_or_create(
+                    AttendeeRating.objects.get_or_create(
                         event=event, rater=request.user, ratee=ratee,
                         defaults={'rating': rating_val},
                     )
@@ -1274,15 +1285,16 @@ def event_attendee_ratings(request, pk):
                         except User.DoesNotExist:
                             continue
                         if ratee in attendee_users and ratee != request.user:
-                            AttendeeRating.objects.update_or_create(
+                            AttendeeRating.objects.get_or_create(
                                 event=event, rater=request.user, ratee=ratee,
                                 defaults={'rating': rating_val},
                             )
-            messages.success(request, 'Your ratings have been submitted!')
+            messages.success(request, 'Your ratings have been submitted! ⭐')
         return redirect('portal_event_detail', pk=pk)
     return render(request, 'portal/event_attendee_ratings.html', {
         'event': event,
         'attendee_data': attendee_data,
+        'already_rated': already_rated,
     })
 
 

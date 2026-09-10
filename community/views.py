@@ -1919,8 +1919,11 @@ def event_detail(request, pk):
             ratings_by_ratee.setdefault(ur.ratee_id, []).append(ur.rating)
             if ur.rater_id == request.user.pk:
                 my_given_ratings[ur.ratee_id] = ur.rating
+    already_rated = False
     going_user_data = []
     going_user_ids = {r.user_id for r in going_users}
+    if request.user.is_authenticated and request.user.pk in going_user_ids:
+        already_rated = CommunityEventUserRating.objects.filter(event=event, rater=request.user).exists()
     for r in going_users:
         u = r.user
         ratings = ratings_by_ratee.get(u.pk, [])
@@ -1939,6 +1942,7 @@ def event_detail(request, pk):
         'cat_icons': EV_CAT_ICONS,
         'going_user_data': going_user_data,
         'going_user_ids': going_user_ids,
+        'already_rated': already_rated,
     })
 
 
@@ -1982,6 +1986,11 @@ def event_rate_user(request, pk):
     if request.user.pk not in going_user_ids:
         messages.error(request, 'Only attendees can rate others.')
         return redirect(f'/community/events/{pk}/')
+    # One-time only — block re-submission
+    if CommunityEventUserRating.objects.filter(event=event, rater=request.user).exists():
+        messages.info(request, 'You have already submitted your ratings for this event.')
+        return redirect(f'/community/events/{pk}/')
+    from django.contrib.auth.models import User as AuthUser
     for key, val in request.POST.items():
         if key.startswith('rating_'):
             try:
@@ -1990,12 +1999,11 @@ def event_rate_user(request, pk):
             except (ValueError, TypeError):
                 continue
             if 1 <= rating_val <= 5 and uid in going_user_ids and uid != request.user.pk:
-                from django.contrib.auth.models import User as AuthUser
                 try:
                     ratee = AuthUser.objects.get(pk=uid)
                 except AuthUser.DoesNotExist:
                     continue
-                CommunityEventUserRating.objects.update_or_create(
+                CommunityEventUserRating.objects.get_or_create(
                     event=event, rater=request.user, ratee=ratee,
                     defaults={'rating': rating_val},
                 )

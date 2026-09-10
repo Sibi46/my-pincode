@@ -303,7 +303,7 @@
     <div class="ev-sect-title">🌟 Rate Fellow Attendees</div>
   </div>
   <div class="ev-sect-body" id="attendeeRatingsBox">
-    {% if registration.status == 'approved' %}
+    {% if registration.status == 'approved' and not already_rated %}
     <form method="post" action="{% url 'portal_event_attendee_ratings' pk=event.pk %}" id="attendeeRateForm">
       {% csrf_token %}
       {% for p in attendees %}
@@ -335,6 +335,10 @@
       s.onmouseleave=function(){ var uid=this.dataset.uid,cur=parseInt(document.getElementById('rval_'+uid).value)||0; document.querySelectorAll('[data-uid="'+uid+'"]').forEach(function(x,i){x.textContent=i<cur?'⭐':'☆'; x.style.color=i<cur?'#f59e0b':'#d1d5db';}); };
     });
     </script>
+    {% elif registration.status == 'approved' and already_rated %}
+    <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 16px;text-align:center;font-size:13px;color:#166534;font-weight:700">
+      ✅ You have already submitted your ratings for this event.
+    </div>
     {% else %}
     <div style="font-size:13px;color:#94a3b8;text-align:center;padding:12px 0">Register for this event to rate fellow attendees.</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
