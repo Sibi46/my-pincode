@@ -89,7 +89,7 @@
                 {% if request.user.is_employer %}
                     <a href="/employer/dashboard/"><i class="fas fa-tachometer-alt"></i> Business Dashboard</a>
                 {% else %}
-                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/jobseeker/dashboard/"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
                 {% endif %}
                 {% with adv=request.user.advertiser %}
                 {% if adv and adv.status == 'approved' %}
