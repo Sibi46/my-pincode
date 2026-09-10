@@ -569,7 +569,6 @@ def apply_job(request, pk):
         if profile_complete and not request.GET.get('full'):
             return render(request, 'job_apply_confirm.html', {'job': job, 'seeker': seeker, 'user': request.user})
         # Profile incomplete — send to profile edit, come back after saving
-        messages.info(request, 'Please complete your profile first, then apply for the job.')
         return redirect(f'/profile/edit/?next=/jobs/{pk}/apply/')
 
     if request.method == 'POST':
