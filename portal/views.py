@@ -1221,6 +1221,43 @@ def event_rate(request, pk):
 
 
 @login_required
+def event_attendee_ratings(request, pk):
+    """Show all attendees of a completed event with their average received ratings."""
+    from .models import AttendeeRating
+    event = get_object_or_404(Event, pk=pk)
+    attendees = event.participants.filter(status='approved').select_related('user')
+    attendee_users = [p.user for p in attendees]
+    # Build rating data for each attendee
+    attendee_data = []
+    for user in attendee_users:
+        ratings = AttendeeRating.objects.filter(event=event, ratee=user)
+        avg = ratings.aggregate(a=models.Avg('rating'))['a']
+        my_rating = AttendeeRating.objects.filter(event=event, rater=request.user, ratee=user).first()
+        attendee_data.append({
+            'user': user,
+            'avg_rating': round(avg, 1) if avg else None,
+            'count': ratings.count(),
+            'my_rating': my_rating.rating if my_rating else None,
+            'is_self': user == request.user,
+        })
+    if request.method == 'POST':
+        ratee_id = request.POST.get('ratee_id')
+        rating_val = int(request.POST.get('rating', 0))
+        if ratee_id and 1 <= rating_val <= 5:
+            ratee = get_object_or_404(User, pk=ratee_id)
+            if ratee in attendee_users and ratee != request.user:
+                AttendeeRating.objects.update_or_create(
+                    event=event, rater=request.user, ratee=ratee,
+                    defaults={'rating': rating_val},
+                )
+        return redirect('portal_event_attendee_ratings', pk=pk)
+    return render(request, 'portal/event_attendee_ratings.html', {
+        'event': event,
+        'attendee_data': attendee_data,
+    })
+
+
+@login_required
 def event_update_status(request, pk):
     event = get_object_or_404(Event, pk=pk)
     if not event.community.is_admin(request.user):
@@ -1880,6 +1917,22 @@ def community_leaderboard(request, slug):
     # top 3 for podium
     top3 = board[:3]
 
+    # Last month best performer
+    last_month_start = (now.replace(day=1) - timezone.timedelta(days=1)).replace(day=1)
+    last_month_end   = now.replace(day=1) - timezone.timedelta(seconds=1)
+    last_month_best = PointAuditLog.objects.filter(
+        community=community,
+        created_at__gte=last_month_start,
+        created_at__lte=last_month_end,
+    ).values('user').annotate(total=models.Sum('points')).order_by('-total').first()
+    last_month_performer = None
+    if last_month_best:
+        try:
+            last_month_performer = User.objects.get(pk=last_month_best['user'])
+            last_month_performer.last_month_pts = last_month_best['total']
+        except User.DoesNotExist:
+            pass
+
     ctx = {
         'community': community,
         'board': board,
@@ -1887,6 +1940,8 @@ def community_leaderboard(request, slug):
         'my_rank': my_rank,
         'period': period,
         'is_admin': community.is_admin(request.user),
+        'last_month_performer': last_month_performer,
+        'last_month_label': last_month_start.strftime('%B %Y'),
     }
     return render(request, 'portal/leaderboard.html', ctx)
 
@@ -2040,7 +2095,11 @@ def contribution_verify(request, slug, pk):
             contrib.status = 'approved'
             contrib.verified_by = request.user
             contrib.verified_at = timezone.now()
-            pts = 15 if contrib.contribution_type == 'financial' else 10
+            # Points = estimated_value / 200 (min 1, max 100)
+            if contrib.estimated_value and contrib.estimated_value > 0:
+                pts = max(1, min(100, int(float(contrib.estimated_value) / 200)))
+            else:
+                pts = 15 if contrib.contribution_type == 'financial' else 10
             contrib.points_awarded = pts
             contrib.save()
             award_points(contrib.user, community, pts,

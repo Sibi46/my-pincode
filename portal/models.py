@@ -295,6 +295,21 @@ class EventRating(models.Model):
         unique_together = ('event', 'user')
 
 
+class AttendeeRating(models.Model):
+    """User rates another user who attended the same event."""
+    event      = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='attendee_ratings')
+    rater      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_attendee_ratings')
+    ratee      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_attendee_ratings')
+    rating     = models.PositiveSmallIntegerField()  # 1-5
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('event', 'rater', 'ratee')
+
+    def __str__(self):
+        return f'{self.rater} rated {self.ratee} @ {self.event} — {self.rating}★'
+
+
 class VolunteerRequest(models.Model):
     STATUSES = [('pending','Pending'),('approved','Approved'),('rejected','Rejected')]
 
@@ -487,8 +502,9 @@ class PointConfig(models.Model):
 
 
 class Participation(models.Model):
-    ROLES    = [('attendee','Attendee'),('organiser','Organiser'),('volunteer','Volunteer'),
-                ('contributor','Contributor'),('guest','Guest'),('sponsor','Sponsor')]
+    ROLES    = [('organiser','Organiser'),('volunteer','Volunteer'),
+                ('contributor','Contributor'),('guest','Guest'),('sponsor','Sponsor'),
+                ('performer','Performer'),('leadership','Leadership'),('bonus','Bonus Points')]
     STATUSES = [('pending','Pending'),('confirmed','Confirmed'),('rejected','Rejected')]
 
     user          = models.ForeignKey(User, on_delete=models.CASCADE, related_name='participations')

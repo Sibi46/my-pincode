@@ -43,9 +43,23 @@
 
       <div style="margin-bottom:14px">
         <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Estimated Value (₹) <span style="font-weight:400;color:#94a3b8">optional</span></label>
-        <input type="number" name="estimated_value" step="0.01" min="0"
-          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc;box-sizing:border-box">
+        <input type="number" name="estimated_value" id="estValueInput" step="0.01" min="0"
+          style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:13px;background:#f8fafc;box-sizing:border-box"
+          oninput="updateEstPoints(this.value)">
+        <div id="estPointsPreview" style="display:none;margin-top:6px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;font-size:13px;color:#166534;font-weight:600">
+          ⭐ Your estimated points: <span id="estPointsVal">0</span> pts <span style="font-weight:400;color:#4ade80">(₹ value ÷ 200)</span>
+        </div>
       </div>
+<script>
+function updateEstPoints(val){
+  var n = parseFloat(val);
+  var el = document.getElementById('estPointsPreview');
+  if(!val || isNaN(n) || n <= 0){ el.style.display='none'; return; }
+  var pts = Math.max(1, Math.min(100, Math.floor(n/200)));
+  document.getElementById('estPointsVal').textContent = pts;
+  el.style.display = 'block';
+}
+</script>
 
       <div style="margin-bottom:14px">
         <label style="font-size:13px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Link to Event <span style="font-weight:400;color:#94a3b8">optional</span></label>

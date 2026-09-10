@@ -178,19 +178,44 @@
         <div class="collar-row">
           <label class="collar-opt {% if profile.job_category == 'white' %}selected{% endif %}">
             <input type="radio" name="job_category" value="white" {% if profile.job_category == 'white' %}checked{% endif %}
-              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
+              onchange="onCollarChange(this,'white')">
             <i class="fa-solid fa-briefcase"></i> White Collar
           </label>
           <label class="collar-opt {% if profile.job_category == 'blue' %}selected{% endif %}">
             <input type="radio" name="job_category" value="blue" {% if profile.job_category == 'blue' %}checked{% endif %}
-              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
-            <i class="fa-solid fa-hard-hat"></i> Blue Collar
+              onchange="onCollarChange(this,'blue')">
+            🦺 Blue Collar
           </label>
           <label class="collar-opt {% if profile.job_category == 'any' or not profile.job_category %}selected{% endif %}">
             <input type="radio" name="job_category" value="any" {% if profile.job_category == 'any' or not profile.job_category %}checked{% endif %}
-              onchange="this.closest('.collar-row').querySelectorAll('.collar-opt').forEach(e=>e.classList.remove('selected'));this.closest('.collar-opt').classList.add('selected')">
+              onchange="onCollarChange(this,'any')">
             <i class="fa-solid fa-layer-group"></i> Any
           </label>
+        </div>
+      </div>
+
+      <!-- Blue Collar Work Type (shown only when Blue Collar selected) -->
+      <div id="blueCollarTypeWrap" style="display:{% if profile.job_category == 'blue' %}block{% else %}none{% endif %}">
+        <div class="sp-field">
+          <label>Blue Collar Work Type</label>
+          <select name="blue_collar_type" id="blueCollarType">
+            <option value="">-- Select Work Type --</option>
+            <option value="construction" {% if profile.blue_collar_type == 'construction' %}selected{% endif %}>🏗️ Construction / Mason / Carpenter</option>
+            <option value="electrician" {% if profile.blue_collar_type == 'electrician' %}selected{% endif %}>⚡ Electrician / Wireman</option>
+            <option value="plumber" {% if profile.blue_collar_type == 'plumber' %}selected{% endif %}>🔧 Plumber / Pipe Fitter</option>
+            <option value="driver" {% if profile.blue_collar_type == 'driver' %}selected{% endif %}>🚗 Driver / Delivery / Logistics</option>
+            <option value="factory" {% if profile.blue_collar_type == 'factory' %}selected{% endif %}>🏭 Factory / Production / Machine Operator</option>
+            <option value="security" {% if profile.blue_collar_type == 'security' %}selected{% endif %}>🛡️ Security Guard / Watchman</option>
+            <option value="domestic" {% if profile.blue_collar_type == 'domestic' %}selected{% endif %}>🏠 Domestic Worker / Cook / Maid</option>
+            <option value="agriculture" {% if profile.blue_collar_type == 'agriculture' %}selected{% endif %}>🌾 Agriculture / Farming / Labour</option>
+            <option value="welder" {% if profile.blue_collar_type == 'welder' %}selected{% endif %}>🔩 Welder / Fabricator / Turner</option>
+            <option value="painter" {% if profile.blue_collar_type == 'painter' %}selected{% endif %}>🎨 Painter / Polisher</option>
+            <option value="helper" {% if profile.blue_collar_type == 'helper' %}selected{% endif %}>🙋 Helper / Loading / Unloading</option>
+            <option value="sweeper" {% if profile.blue_collar_type == 'sweeper' %}selected{% endif %}>🧹 Sweeper / Housekeeping / Cleaning</option>
+            <option value="tailor" {% if profile.blue_collar_type == 'tailor' %}selected{% endif %}>🪡 Tailor / Embroidery / Textile</option>
+            <option value="mechanic" {% if profile.blue_collar_type == 'mechanic' %}selected{% endif %}>🔨 Mechanic / Auto Service / Repair</option>
+            <option value="other_blue" {% if profile.blue_collar_type == 'other_blue' %}selected{% endif %}>⚙️ Other Blue Collar</option>
+          </select>
         </div>
       </div>
 
@@ -406,17 +431,18 @@
       <h2 class="sec-title"><i class="fa-solid fa-folder-open"></i> Documents & Portfolio</h2>
 
       <!-- Resume -->
-      <div class="doc-card">
+      <div class="doc-card" id="resumeDocCard">
         <div class="doc-icon"><i class="fa-solid fa-file-lines"></i></div>
         <div class="doc-body">
-          <h4>Resume / CV</h4>
+          <h4>Resume / CV <span id="resumeRequiredBadge" style="display:{% if profile.job_category == 'blue' and not profile.resume %}inline{% else %}none{% endif %};font-size:11px;color:#fff;background:#dc2626;padding:2px 8px;border-radius:6px;font-weight:700;margin-left:6px">Required</span></h4>
           {% if profile.resume %}
             <p class="doc-existing">
               <a href="{{ profile.resume.url }}" target="_blank"><i class="fa-solid fa-eye"></i> View Current</a>
             </p>
           {% endif %}
-          <input type="file" name="resume" accept=".pdf,.doc,.docx" class="doc-file-input">
+          <input type="file" name="resume" id="resumeInput" accept=".pdf,.doc,.docx" class="doc-file-input" {% if profile.job_category == 'blue' and not profile.resume %}required{% endif %}>
           <small>PDF, DOC or DOCX — max 5MB</small>
+          <div id="blueResumeNote" style="display:{% if profile.job_category == 'blue' %}block{% else %}none{% endif %};margin-top:6px;font-size:12px;color:#b45309;font-weight:600">🦺 Blue Collar applicants must upload a resume or experience certificate</div>
         </div>
       </div>
 
@@ -871,6 +897,22 @@ function renderPrefLocTags() {
     box.appendChild(tag);
   });
   document.getElementById('prefLocHidden').value = prefLocList.join(', ');
+}
+
+// ── Blue / White collar toggle ───────────────────────────────────────
+function onCollarChange(radio, val) {
+  radio.closest('.collar-row').querySelectorAll('.collar-opt').forEach(function(e){ e.classList.remove('selected'); });
+  radio.closest('.collar-opt').classList.add('selected');
+  var isBlue = val === 'blue';
+  document.getElementById('blueCollarTypeWrap').style.display = isBlue ? 'block' : 'none';
+  document.getElementById('blueResumeNote').style.display = isBlue ? 'block' : 'none';
+  var resumeInput = document.getElementById('resumeInput');
+  var resumeBadge = document.getElementById('resumeRequiredBadge');
+  if (resumeInput) {
+    var hasResume = resumeInput.closest('.doc-body').querySelector('.doc-existing') != null;
+    resumeInput.required = isBlue && !hasResume;
+    if (resumeBadge) resumeBadge.style.display = (isBlue && !hasResume) ? 'inline' : 'none';
+  }
 }
 
 // ── Preferred PIN code tags ───────────────────────────────────────────

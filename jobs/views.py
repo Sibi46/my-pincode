@@ -1204,8 +1204,9 @@ def seeker_profile(request):
         profile.open_to_relocate   = 'open_to_relocate' in p
 
         # ── Career ────────────────────────────────────────────
-        profile.job_category    = p.get('job_category', 'any')
-        profile.industry        = p.get('industry', '').strip()
+        profile.job_category     = p.get('job_category', 'any')
+        profile.blue_collar_type = p.get('blue_collar_type', '').strip()
+        profile.industry         = p.get('industry', '').strip()
         profile.preferred_roles = p.get('preferred_roles', '').strip()
         profile.availability    = p.get('availability', 'immediate')
 

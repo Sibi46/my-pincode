@@ -92,11 +92,18 @@
   </div>
 
   {% if avg_rating %}
-  <div style="background:#fff8f0;border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid #ffe0b2;display:flex;align-items:center;gap:10px">
+  <div style="background:#fff8f0;border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid #ffe0b2;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span style="font-size:22px;font-weight:800;color:#f59e0b">{{ avg_rating|floatformat:1 }}</span>
     <span style="font-size:18px;line-height:1">{% with avg_rating|floatformat:0 as stars %}{% for i in "12345" %}{% if forloop.counter <= stars|add:0 %}⭐{% else %}☆{% endif %}{% endfor %}{% endwith %}</span>
     <span style="font-size:12px;color:#888">{{ event.ratings.count }} rating{{ event.ratings.count|pluralize }}</span>
+    <a href="{% url 'portal_event_attendee_ratings' pk=event.pk %}" style="margin-left:auto;font-size:12px;font-weight:700;color:#4f46e5;text-decoration:none;background:#ede9fe;padding:6px 12px;border-radius:8px">👥 Rate Attendees</a>
   </div>
+  {% else %}
+  {% if request.user.is_authenticated %}
+  <div style="margin:12px 0">
+    <a href="{% url 'portal_event_attendee_ratings' pk=event.pk %}" style="font-size:13px;font-weight:700;color:#4f46e5;text-decoration:none;background:#ede9fe;padding:8px 16px;border-radius:10px;display:inline-block">👥 Rate Attendees</a>
+  </div>
+  {% endif %}
   {% endif %}
 
   {% if request.user.is_authenticated %}

@@ -122,9 +122,10 @@ class JobSeekerProfile(models.Model):
     open_to_relocate   = models.BooleanField(default=False)
 
     # ── Career Preferences ────────────────────────
-    job_category    = models.CharField(max_length=10, choices=COLLAR, default='any')
-    industry        = models.CharField(max_length=300, blank=True)
-    preferred_roles = models.CharField(max_length=500, blank=True)
+    job_category      = models.CharField(max_length=10, choices=COLLAR, default='any')
+    blue_collar_type  = models.CharField(max_length=30, blank=True)
+    industry          = models.CharField(max_length=300, blank=True)
+    preferred_roles   = models.CharField(max_length=500, blank=True)
     availability    = models.CharField(max_length=20, choices=AVAILABILITY, default='immediate')
 
     # ── Compensation ──────────────────────────────

@@ -1,0 +1,91 @@
+{% extends 'portal/base_portal.html' %}
+{% block title %}Attendee Ratings — {{ event.name }}{% endblock %}
+{% block content %}
+<div class="pcontent" style="max-width:600px">
+  <div class="psec-header">
+    <div class="psec-title">⭐ Attendee Ratings</div>
+    <a href="{% url 'portal_event_detail' pk=event.pk %}" class="pbtn pbtn-outline pbtn-sm">← Back</a>
+  </div>
+
+  <div class="pcard" style="margin-bottom:16px;border-color:#e0e7ff">
+    <div class="pcard-body" style="padding:14px 16px">
+      <div style="font-size:15px;font-weight:800;color:#0f172a">{{ event.name }}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:2px">{{ event.date|date:"d M Y" }} · Rate your fellow attendees</div>
+    </div>
+  </div>
+
+  {% if not attendee_data %}
+  <div class="pcard"><div class="pcard-body" style="text-align:center;padding:32px;color:#64748b">No approved attendees yet.</div></div>
+  {% endif %}
+
+  {% for item in attendee_data %}
+  <div class="pcard" style="margin-bottom:12px">
+    <div class="pcard-body" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <!-- Avatar -->
+        <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:900;color:#fff;overflow:hidden">
+          {% if item.user.profile_pic %}
+            <img src="{{ item.user.profile_pic.url }}" style="width:100%;height:100%;object-fit:cover">
+          {% else %}
+            {{ item.user.get_full_name|default:item.user.username|first|upper }}
+          {% endif %}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:#0f172a">{{ item.user.get_full_name|default:item.user.username }}{% if item.is_self %} <span style="font-size:11px;color:#94a3b8">(you)</span>{% endif %}</div>
+          {% if item.avg_rating %}
+          <div style="font-size:12px;color:#64748b;margin-top:2px">
+            {% with item.avg_rating|floatformat:1 as avg %}
+            Avg ⭐ {{ avg }} from {{ item.count }} rating{{ item.count|pluralize }}
+            {% endwith %}
+          </div>
+          {% else %}
+          <div style="font-size:12px;color:#94a3b8;margin-top:2px">No ratings yet</div>
+          {% endif %}
+        </div>
+        {% if not item.is_self and request.user.is_authenticated %}
+        <!-- Star rating form -->
+        <form method="post" style="display:flex;gap:3px;align-items:center">
+          {% csrf_token %}
+          <input type="hidden" name="ratee_id" value="{{ item.user.pk }}">
+          <input type="hidden" name="rating" id="ratingVal_{{ item.user.pk }}" value="{{ item.my_rating|default:'' }}">
+          {% for i in "12345" %}
+          <span onclick="setRating({{ item.user.pk }}, {{ forloop.counter }})"
+            id="star_{{ item.user.pk }}_{{ forloop.counter }}"
+            style="font-size:22px;cursor:pointer;transition:transform .1s"
+            onmouseover="hoverRating({{ item.user.pk }}, {{ forloop.counter }})"
+            onmouseout="resetHover({{ item.user.pk }})">
+            {% if item.my_rating and forloop.counter <= item.my_rating %}⭐{% else %}☆{% endif %}
+          </span>
+          {% endfor %}
+          <button type="submit" id="rateSubmit_{{ item.user.pk }}" style="margin-left:8px;background:#4f46e5;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;{% if not item.my_rating %}display:none{% endif %}">Save</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+function setRating(uid, val) {
+  document.getElementById('ratingVal_' + uid).value = val;
+  for (var i = 1; i <= 5; i++) {
+    var star = document.getElementById('star_' + uid + '_' + i);
+    star.textContent = i <= val ? '⭐' : '☆';
+  }
+  var btn = document.getElementById('rateSubmit_' + uid);
+  if (btn) btn.style.display = 'inline-block';
+}
+function hoverRating(uid, val) {
+  for (var i = 1; i <= 5; i++) {
+    document.getElementById('star_' + uid + '_' + i).textContent = i <= val ? '⭐' : '☆';
+  }
+}
+function resetHover(uid) {
+  var saved = parseInt(document.getElementById('ratingVal_' + uid).value) || 0;
+  for (var i = 1; i <= 5; i++) {
+    document.getElementById('star_' + uid + '_' + i).textContent = i <= saved ? '⭐' : '☆';
+  }
+}
+</script>
+{% endblock %}
