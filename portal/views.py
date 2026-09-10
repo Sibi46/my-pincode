@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, F, ExpressionWrapper, IntegerField
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
@@ -1924,7 +1924,9 @@ def community_leaderboard(request, slug):
         community=community,
         created_at__gte=last_month_start,
         created_at__lte=last_month_end,
-    ).values('user').annotate(total=Sum('points')).order_by('-total').first()
+    ).values('user').annotate(
+        total=Sum(ExpressionWrapper(F('points_after') - F('points_before'), output_field=IntegerField()))
+    ).order_by('-total').first()
     last_month_performer = None
     if last_month_best:
         try:
