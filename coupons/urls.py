@@ -25,6 +25,7 @@ urlpatterns = [
     path('salesman/shops/new/',                 views.salesman_shop_create,     name='opc_salesman_shop_create'),
     path('salesman/shops/<int:pk>/',            views.salesman_shop_detail,     name='opc_salesman_shop_detail'),
     path('salesman/give-coupons/',              views.salesman_give_coupons,    name='opc_salesman_give_coupons'),
+    path('salesman/shops/add-from-biz/',        views.salesman_add_shop_from_biz, name='opc_salesman_add_shop_from_biz'),
     path('salesman/coupon-history/',            views.salesman_coupon_history,  name='opc_salesman_coupon_history'),
 
     # ── Customer ──────────────────────────────────────────────────────────────

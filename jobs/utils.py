@@ -134,16 +134,16 @@ def generate_referral_code():
 
 
 def generate_biz_id():
-    """Generate a unique OPC-BIZ-XXXXXX salesman business ID."""
+    """Generate a unique BIZXXXXXX salesman business ID (no hyphens)."""
     import random
     import string
     from .models import User
     digits = string.digits
     for _ in range(30):
-        code = 'OPC-BIZ-' + ''.join(random.choices(digits, k=6))
+        code = 'BIZ' + ''.join(random.choices(digits, k=6))
         if not User.objects.filter(salesman_biz_id=code).exists():
             return code
-    return 'OPC-BIZ-' + ''.join(random.choices(digits, k=8))
+    return 'BIZ' + ''.join(random.choices(digits, k=8))
 
 
 def award_referral_points(referrer, amount, txn_type, description):

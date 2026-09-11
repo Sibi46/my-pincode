@@ -41,7 +41,7 @@
       <div style="font-size:15px;font-weight:900;color:#0f172a">{{ biz_result.name }}</div>
       <span style="background:#4f46e5;color:#fff;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:.05em">{{ biz_result.biz_id }}</span>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:14px">
       <div><span style="color:#94a3b8;font-weight:600">Owner</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.owner }}</span></div>
       <div><span style="color:#94a3b8;font-weight:600">Phone</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.phone|default:"—" }}</span></div>
       <div><span style="color:#94a3b8;font-weight:600">Type</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.user_type }}</span></div>
@@ -51,6 +51,14 @@
       {% endif %}
       <div><span style="color:#94a3b8;font-weight:600">Joined</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.joined|date:"d M Y" }}</span></div>
     </div>
+    <!-- Add shop + Give Coupons actions -->
+    <form method="post" action="/coupons/salesman/shops/add-from-biz/">
+      {% csrf_token %}
+      <input type="hidden" name="biz_id" value="{{ biz_result.biz_id }}">
+      <button type="submit" class="sm-btn sm-btn-green" style="width:100%;padding:11px;font-size:13px;font-weight:800">
+        🏪 Add This Shop &amp; Give Coupons
+      </button>
+    </form>
   </div>
   {% endif %}
 </div>
@@ -75,7 +83,7 @@
         {% endfor %}
       </td>
       <td>
-        <a href="/coupons/salesman/give-coupons/?shop={{ shop.pk }}" class="sm-btn sm-btn-ghost" style="padding:6px 10px;font-size:11px">Give Coupons</a>
+        <a href="/coupons/salesman/give-coupons/?shop={{ shop.pk }}" class="sm-btn sm-btn-green" style="padding:7px 12px;font-size:12px;font-weight:800">🎟️ Give Coupons</a>
       </td>
     </tr>
     {% endfor %}

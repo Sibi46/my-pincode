@@ -488,6 +488,65 @@ def salesman_give_coupons(request):
 
 
 @salesman_required
+def salesman_add_shop_from_biz(request):
+    """Add a business as a shop under this salesman (via BIZ ID lookup)."""
+    sm = request.user.salesman_profile
+    if request.method != 'POST':
+        return redirect('opc_salesman_dashboard')
+
+    biz_id = request.POST.get('biz_id', '').strip().upper()
+    biz_user = User.objects.filter(salesman_biz_id=biz_id).first()
+    if not biz_user:
+        messages.error(request, f'Business "{biz_id}" not found.')
+        return redirect('opc_salesman_dashboard')
+
+    # Get business details
+    biz_name = ''
+    try:
+        biz_name = biz_user.company.company_name
+    except Exception:
+        pass
+    if not biz_name:
+        try:
+            biz_name = biz_user.shop.shop_name
+        except Exception:
+            pass
+    if not biz_name:
+        biz_name = biz_user.get_full_name() or biz_user.username
+
+    phone = ''
+    try:
+        phone = biz_user.phone or biz_user.business_phone or ''
+    except Exception:
+        pass
+
+    address = ''
+    try:
+        parts = [p for p in [biz_user.address, biz_user.city] if p]
+        address = ', '.join(parts)
+    except Exception:
+        pass
+
+    pincode = getattr(biz_user, 'pincode', '') or ''
+
+    # Check if this salesman already has a shop with this name + pincode
+    existing = Shop.objects.filter(salesman=sm, name=biz_name, pincode=pincode).first()
+    if existing:
+        messages.success(request, f'✓ {biz_name} is already in your shops list.')
+        return redirect('opc_salesman_give_coupons') if request.POST.get('goto_coupons') else redirect('opc_salesman_dashboard')
+
+    shop = Shop.objects.create(
+        salesman=sm,
+        name=biz_name,
+        pincode=pincode,
+        address=address,
+        phone=phone,
+    )
+    messages.success(request, f'✓ {biz_name} added to your shops. Now give coupons!')
+    return redirect(f'/coupons/salesman/give-coupons/?shop={shop.pk}')
+
+
+@salesman_required
 def salesman_coupon_history(request):
     sm = request.user.salesman_profile
     batches = sm.batches.select_related('shop').order_by('-created_at')
