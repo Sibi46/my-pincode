@@ -24,16 +24,22 @@
 <div class="jp-wrap">
   <div class="jp-hero">
     <div class="jp-comm-badge">🏘️ {{ community.name }}</div>
-    <div class="jp-hero-title">One quick step before joining!</div>
-    <div class="jp-hero-sub">Complete your profile so other members can recognise you</div>
+    <div class="jp-hero-title">Complete your profile to join!</div>
+    <div class="jp-hero-sub">📸 Profile photo &amp; 📍 Pincode are required to join any community</div>
   </div>
+
+  {% if messages %}
+  {% for m in messages %}
+  <div style="background:#fee2e2;color:#dc2626;border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px;font-weight:600">⚠️ {{ m }}</div>
+  {% endfor %}
+  {% endif %}
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
     <!-- Photo -->
     <div class="jp-card">
-      <div class="jp-card-title">📸 Your Profile Photo</div>
+      <div class="jp-card-title">📸 Your Profile Photo <span style="color:#dc2626;font-size:12px">* Required</span></div>
       <div class="jp-photo-picker">
         <div class="jp-photo-preview" id="photoPreview" onclick="document.getElementById('photoInput').click()">
           {% if user.seeker.photo %}
@@ -76,7 +82,7 @@
 
     <!-- Pincode -->
     <div class="jp-card">
-      <div class="jp-card-title">📍 Your Pincode</div>
+      <div class="jp-card-title">📍 Your Pincode <span style="color:#dc2626;font-size:12px">* Required</span></div>
       <div class="pform-group" style="margin-bottom:0">
         <input type="text" name="pincode" class="pform-input" value="{{ user.pincode }}"
                placeholder="Enter your 6-digit pincode" maxlength="6" required
@@ -89,8 +95,8 @@
       ✅ Save & Join {{ community.name }}
     </button>
 
-    <a href="/portal/c/{{ community.page_id }}/" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#94a3b8">
-      Skip for now and browse
+    <a href="/portal/c/{{ community.page_id }}/" style="display:block;text-align:center;margin-top:12px;font-size:12px;color:#94a3b8;text-decoration:none">
+      ← Back to community page
     </a>
   </form>
 </div>

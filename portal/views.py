@@ -542,6 +542,26 @@ def join_community(request, page_id):
             except Exception:
                 pass
 
+        # Re-check after saving — block join if still missing photo or pincode
+        try:
+            has_photo = bool(user.seeker.photo)
+        except Exception:
+            has_photo = False
+        errors = []
+        if not has_photo:
+            errors.append('Please upload a profile photo.')
+        if not user.pincode:
+            errors.append('Please enter your pincode.')
+        if not user.get_full_name().strip():
+            errors.append('Please enter your full name.')
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+            return render(request, 'portal/join_profile.html', {
+                'community': community,
+                'user': user,
+            })
+
     # Do the join
     if community.join_mode == 'open':
         CommunityMember.objects.create(community=community, user=request.user, status='approved', approved_at=timezone.now())
