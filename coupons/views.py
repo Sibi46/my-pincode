@@ -429,16 +429,47 @@ def salesman_give_coupons(request):
 
     if request.method == 'POST':
         shop_id = request.POST.get('shop_id')
-        quantity = int(request.POST.get('quantity', 0))
-        if quantity < 1 or quantity > 1000:
-            messages.error(request, 'Quantity must be between 1 and 1000.')
-            return redirect('opc_salesman_give_coupons')
+        dist_date = request.POST.get('distributed_date') or None
+        start_raw = request.POST.get('start_number', '').strip()
+        end_raw = request.POST.get('end_number', '').strip()
+
         shop = get_object_or_404(Shop, pk=shop_id, is_active=True)
+
+        # Parse and validate start/end numbers
+        try:
+            start = int(start_raw)
+            end = int(end_raw)
+        except (ValueError, TypeError):
+            messages.error(request, '❌ Please enter valid start and end coupon numbers.')
+            return redirect('opc_salesman_give_coupons')
+
+        if start < 1 or end < start:
+            messages.error(request, '❌ End number must be greater than or equal to start number.')
+            return redirect('opc_salesman_give_coupons')
+
+        quantity = end - start + 1
+        if quantity > 10000:
+            messages.error(request, '❌ Maximum 10,000 coupons per batch.')
+            return redirect('opc_salesman_give_coupons')
+
+        # Check for overlapping coupon numbers
+        conflict = Coupon.objects.filter(number__gte=start, number__lte=end).exists()
+        if conflict:
+            messages.error(request, f'❌ Some coupon numbers in OPC-{start:06d} → OPC-{end:06d} are already used. Please check the range.')
+            return redirect('opc_salesman_give_coupons')
+
         with transaction.atomic():
-            start, end = CouponCounter.next_range(quantity)
+            # Update global counter if needed
+            with transaction.atomic():
+                counter, _ = CouponCounter.objects.select_for_update().get_or_create(pk=1)
+                if end > counter.last_number:
+                    counter.last_number = end
+                    counter.save(update_fields=['last_number'])
+
             batch = CouponBatch.objects.create(
                 shop=shop, salesman=sm, quantity=quantity,
                 start_number=start, end_number=end,
+                distributed_date=dist_date or None,
             )
             coupons = [
                 Coupon(code=f'OPC-{n:06d}', number=n, batch=batch)

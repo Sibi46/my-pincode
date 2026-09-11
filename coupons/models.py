@@ -62,6 +62,7 @@ class CouponBatch(models.Model):
     quantity = models.PositiveIntegerField()
     start_number = models.PositiveIntegerField()
     end_number = models.PositiveIntegerField()
+    distributed_date = models.DateField(null=True, blank=True, help_text='Date coupons were physically distributed')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
