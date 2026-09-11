@@ -192,6 +192,17 @@
     <div class="ig-incomplete"><i class="fas fa-exclamation-circle"></i> Profile {{ profile_pct }}% complete — finish to unlock job posting</div>
     {% endif %}
 
+    {% if request.user.salesman_biz_id %}
+    <div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1.5px solid #bfdbfe;border-radius:12px;padding:10px 14px;margin:10px 0 4px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.08em">Salesman Support ID</div>
+        <div style="font-size:14px;font-weight:900;color:#1d4ed8;font-family:monospace;letter-spacing:1px;margin-top:2px">{{ request.user.salesman_biz_id }}</div>
+        <div style="font-size:10px;color:#94a3b8;margin-top:1px">Share this ID with your salesman to link your business</div>
+      </div>
+      <button onclick="navigator.clipboard.writeText('{{ request.user.salesman_biz_id }}');this.textContent='✅';setTimeout(()=>this.textContent='📋',1500)" style="background:#1d4ed8;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:16px;cursor:pointer;flex-shrink:0" title="Copy ID">📋</button>
+    </div>
+    {% endif %}
+
     <!-- STATS -->
     <div class="ig-stats">
       <div class="ig-stat" onclick="showSection('active-jobs')">

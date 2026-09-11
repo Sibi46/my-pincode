@@ -133,6 +133,19 @@ def generate_referral_code():
     return ''.join(random.choices(chars, k=12))
 
 
+def generate_biz_id():
+    """Generate a unique OPC-BIZ-XXXXXX salesman business ID."""
+    import random
+    import string
+    from .models import User
+    digits = string.digits
+    for _ in range(30):
+        code = 'OPC-BIZ-' + ''.join(random.choices(digits, k=6))
+        if not User.objects.filter(salesman_biz_id=code).exists():
+            return code
+    return 'OPC-BIZ-' + ''.join(random.choices(digits, k=8))
+
+
 def award_referral_points(referrer, amount, txn_type, description):
     """Credit points to referrer's wallet and create a notification."""
     from .models import PointsWallet, PointsTransaction, UserNotification

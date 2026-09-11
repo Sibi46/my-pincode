@@ -21,6 +21,40 @@
   </div>
 </div>
 
+<!-- Business ID Lookup -->
+<div class="sm-card" style="margin-bottom:16px">
+  <div style="font-size:14px;font-weight:800;margin-bottom:12px">🔍 Business Lookup</div>
+  <form method="get" style="display:flex;gap:8px">
+    <input name="biz" value="{{ biz_query }}" placeholder="Enter OPC-BIZ-XXXXXX"
+      style="flex:1;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:monospace;font-weight:700;letter-spacing:1px;outline:none;text-transform:uppercase"
+      oninput="this.value=this.value.toUpperCase()">
+    <button type="submit" class="sm-btn sm-btn-primary" style="padding:10px 18px;white-space:nowrap">Search</button>
+  </form>
+
+  {% if biz_error %}
+  <div style="margin-top:12px;background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600">❌ {{ biz_error }}</div>
+  {% endif %}
+
+  {% if biz_result %}
+  <div style="margin-top:12px;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1.5px solid #bbf7d0;border-radius:12px;padding:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:15px;font-weight:900;color:#0f172a">{{ biz_result.name }}</div>
+      <span style="background:#4f46e5;color:#fff;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800;letter-spacing:.05em">{{ biz_result.biz_id }}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+      <div><span style="color:#94a3b8;font-weight:600">Owner</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.owner }}</span></div>
+      <div><span style="color:#94a3b8;font-weight:600">Phone</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.phone|default:"—" }}</span></div>
+      <div><span style="color:#94a3b8;font-weight:600">Type</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.user_type }}</span></div>
+      <div><span style="color:#94a3b8;font-weight:600">Pincode</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.pincode|default:"—" }}</span></div>
+      {% if biz_result.address %}
+      <div style="grid-column:1/-1"><span style="color:#94a3b8;font-weight:600">Address</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.address }}{% if biz_result.city %}, {{ biz_result.city }}{% endif %}</span></div>
+      {% endif %}
+      <div><span style="color:#94a3b8;font-weight:600">Joined</span><br><span style="font-weight:700;color:#0f172a">{{ biz_result.joined|date:"d M Y" }}</span></div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
 <div class="sm-card">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
     <div style="font-size:14px;font-weight:800">My Shops</div>

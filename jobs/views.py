@@ -346,6 +346,11 @@ def register_process(request):
             if banner_file:
                 cp_defaults['banner_image'] = banner_file
             CompanyProfile.objects.update_or_create(user=user, defaults=cp_defaults)
+            # Generate salesman BIZ ID if not already set
+            if not user.salesman_biz_id:
+                from .utils import generate_biz_id
+                user.salesman_biz_id = generate_biz_id()
+                User.objects.filter(pk=user.pk).update(salesman_biz_id=user.salesman_biz_id)
             if user_type == 'shop':
                 sp_defaults = dict(
                     shop_name=org_name,

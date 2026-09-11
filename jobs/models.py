@@ -46,6 +46,8 @@ class User(AbstractUser):
     city          = models.CharField(max_length=100, blank=True)
     pincode       = models.CharField(max_length=6, blank=True)
     referral_code = models.CharField(max_length=12, unique=True, blank=True, null=True)
+    salesman_biz_id = models.CharField(max_length=16, unique=True, blank=True, null=True,
+                                       help_text='Unique ID shared with salesman for business linkage')
 
     def __str__(self):
         return self.username
