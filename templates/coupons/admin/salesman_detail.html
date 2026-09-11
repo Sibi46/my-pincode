@@ -1,0 +1,78 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — {{ salesman }}{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <div style="margin-bottom:16px">
+    <a href="/coupons/admin/salesmen/" style="font-size:12px;color:#64748b;text-decoration:none">← Salesmen</a>
+  </div>
+  {% if messages %}{% for m in messages %}<div style="background:#d1fae5;color:#065f46;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px">✓ {{ m }}</div>{% endfor %}{% endif %}
+
+  <div class="opc-card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div>
+        <h2 style="font-size:20px;font-weight:900;color:#0f172a;margin:0">{{ salesman }}</h2>
+        <div style="font-size:13px;color:#64748b;margin-top:4px">@{{ salesman.user.username }}</div>
+      </div>
+      {% if salesman.is_active %}<span class="opc-badge opc-badge-green" style="font-size:13px;padding:4px 14px">Active</span>
+      {% else %}<span class="opc-badge opc-badge-red" style="font-size:13px;padding:4px 14px">Inactive</span>{% endif %}
+    </div>
+    <div class="opc-stat-grid" style="margin-bottom:0">
+      <div class="opc-stat"><div class="opc-stat-num">{{ shops|length }}</div><div class="opc-stat-label">Shops</div></div>
+      <div class="opc-stat"><div class="opc-stat-num">{{ salesman.total_coupons_given }}</div><div class="opc-stat-label">Coupons Given</div></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+    <div class="opc-card">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Toggle Status</div>
+      <form method="post">{% csrf_token %}<input type="hidden" name="action" value="toggle">
+        <button class="opc-btn {% if salesman.is_active %}opc-btn-danger{% else %}opc-btn-green{% endif %}" style="width:100%">
+          {% if salesman.is_active %}Deactivate{% else %}Activate{% endif %}
+        </button>
+      </form>
+    </div>
+    <div class="opc-card">
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px">Reset Password</div>
+      <form method="post" style="display:flex;gap:8px">{% csrf_token %}<input type="hidden" name="action" value="reset_password">
+        <input class="opc-input" name="new_password" placeholder="New password" style="flex:1">
+        <button class="opc-btn opc-btn-primary">Reset</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="opc-card">
+    <div style="font-size:13px;font-weight:700;margin-bottom:10px">Edit Details</div>
+    <form method="post" style="display:flex;gap:10px;flex-wrap:wrap">{% csrf_token %}<input type="hidden" name="action" value="edit">
+      <input class="opc-input" name="full_name" placeholder="Full name" value="{{ salesman.user.get_full_name }}" style="flex:2;min-width:200px">
+      <input class="opc-input" name="notes" placeholder="Notes" value="{{ salesman.notes }}" style="flex:3;min-width:200px">
+      <button class="opc-btn opc-btn-ghost">Update</button>
+    </form>
+  </div>
+
+  <div class="opc-card" style="padding:0;overflow:hidden">
+    <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;font-size:14px;font-weight:800">Shops Entered</div>
+    {% if shops %}
+    <table class="opc-table">
+      <thead><tr><th>Shop</th><th>Pincode</th><th>Phone</th><th>Coupons Given</th><th>Range</th></tr></thead>
+      <tbody>
+      {% for shop in shops %}
+      <tr>
+        <td><div style="font-weight:700">{{ shop.name }}</div><div style="font-size:11px;color:#94a3b8">{{ shop.address|truncatechars:40 }}</div></td>
+        <td>{{ shop.pincode }}</td>
+        <td>{{ shop.phone }}</td>
+        <td><span class="opc-badge opc-badge-gold">{{ shop.total_coupons }} coupons</span></td>
+        <td>
+          {% for b in shop.batches.all %}
+          <div style="font-size:11px;font-family:monospace;color:#4f46e5">{{ b.start_code }} → {{ b.end_code }}</div>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="opc-empty">No shops entered yet</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

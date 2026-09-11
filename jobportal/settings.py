@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'community',
     'campus',
     'portal',
+    'coupons',
 ]
 
 AUTH_USER_MODEL = 'jobs.User'

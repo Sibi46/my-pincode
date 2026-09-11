@@ -1,0 +1,35 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Redemptions{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <h1 class="opc-page-title">🎟️ Redemptions</h1>
+  <div class="opc-nav">
+    <a href="/coupons/admin/">Dashboard</a>
+    <a href="/coupons/admin/customers/">Customers</a>
+    <a href="/coupons/admin/redemptions/" class="active">Redemptions</a>
+  </div>
+  <div class="opc-card" style="padding:0;overflow:hidden">
+    <table class="opc-table">
+      <thead><tr><th>Code</th><th>Customer</th><th>Reward</th><th>Points</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for r in redemptions %}
+      <tr>
+        <td><span style="font-family:monospace;font-weight:700;color:#059669">{{ r.code }}</span></td>
+        <td>{{ r.user.get_full_name|default:r.user.username }}</td>
+        <td><div style="font-weight:600">{{ r.reward.name }}</div><div style="font-size:11px;color:#94a3b8">{{ r.reward.business_name }}</div></td>
+        <td><span class="opc-badge opc-badge-gold">⭐ {{ r.points_used }}</span></td>
+        <td>
+          {% if r.status == 'redeemed' %}<span class="opc-badge opc-badge-green">Redeemed</span>
+          {% elif r.status == 'pending' %}<span class="opc-badge opc-badge-gold">Pending</span>
+          {% else %}<span class="opc-badge opc-badge-red">{{ r.status|capfirst }}</span>{% endif %}
+        </td>
+        <td style="font-size:12px;color:#64748b">{{ r.created_at|date:"d M Y" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6"><div class="opc-empty">No redemptions yet</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

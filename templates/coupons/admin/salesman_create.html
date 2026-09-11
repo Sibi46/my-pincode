@@ -1,0 +1,33 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — New Salesman{% endblock %}
+{% block opc_content %}
+<div class="opc-page" style="max-width:500px">
+  <div style="margin-bottom:20px">
+    <a href="/coupons/admin/salesmen/" style="font-size:12px;color:#64748b;text-decoration:none">← Back to Salesmen</a>
+    <h1 class="opc-page-title" style="margin-top:8px">Create Salesman</h1>
+  </div>
+  {% if messages %}{% for m in messages %}<div style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px">{{ m }}</div>{% endfor %}{% endif %}
+  <div class="opc-card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="opc-field">
+        <label class="opc-label">Full Name</label>
+        <input class="opc-input" name="full_name" placeholder="e.g. Karthik Kumar" required>
+      </div>
+      <div class="opc-field">
+        <label class="opc-label">Username</label>
+        <input class="opc-input" name="username" placeholder="e.g. karthik_opc" required>
+      </div>
+      <div class="opc-field">
+        <label class="opc-label">Password</label>
+        <input class="opc-input" type="password" name="password" placeholder="OPC@1234" required>
+      </div>
+      <div class="opc-field">
+        <label class="opc-label">Notes (optional)</label>
+        <textarea class="opc-input" name="notes" rows="2" placeholder="Area, territory..."></textarea>
+      </div>
+      <button type="submit" class="opc-btn opc-btn-primary" style="width:100%;padding:12px">Create Salesman</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

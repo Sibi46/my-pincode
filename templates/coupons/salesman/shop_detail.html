@@ -1,0 +1,38 @@
+{% extends "coupons/salesman/base.html" %}
+{% block title %}{{ shop.name }} — OURPINCODE Salesman{% endblock %}
+{% block sm_content %}
+<div style="margin-bottom:16px">
+  <a href="/coupons/salesman/shops/" style="font-size:12px;color:#64748b;text-decoration:none">← My Shops</a>
+</div>
+{% if messages %}{% for m in messages %}<div class="msg-success">{{ m }}</div>{% endfor %}{% endif %}
+
+<div class="sm-card">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+    <div>
+      <div style="font-size:20px;font-weight:900">{{ shop.name }}</div>
+      <div style="font-size:13px;color:#64748b;margin-top:4px">📍 Pincode: {{ shop.pincode }}</div>
+      {% if shop.address %}<div style="font-size:12px;color:#94a3b8;margin-top:2px">{{ shop.address }}</div>{% endif %}
+      {% if shop.phone %}<div style="font-size:12px;color:#94a3b8;margin-top:2px">📞 {{ shop.phone }}</div>{% endif %}
+    </div>
+    <span class="sm-badge-gold" style="font-size:13px;padding:5px 14px">{{ shop.total_coupons }} coupons total</span>
+  </div>
+  <a href="/coupons/salesman/give-coupons/?shop={{ shop.pk }}" class="sm-btn sm-btn-green">Give More Coupons</a>
+</div>
+
+<div class="sm-card">
+  <div style="font-size:14px;font-weight:800;margin-bottom:14px">Coupon History</div>
+  {% if batches %}
+  {% for b in batches %}
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border-radius:10px;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:13px;font-weight:700">{{ b.quantity }} coupons given</div>
+      <div style="font-size:11px;color:#94a3b8">{{ b.created_at|date:"d M Y" }}</div>
+    </div>
+    <div style="font-size:13px;font-family:monospace;font-weight:700;color:#4f46e5">{{ b.start_code }} → {{ b.end_code }}</div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:20px;color:#94a3b8;font-size:13px">No coupons given yet</div>
+  {% endif %}
+</div>
+{% endblock %}

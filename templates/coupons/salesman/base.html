@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Salesman — OURPINCODE{% endblock %}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
+    .sm-header{background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .sm-logo{font-size:11px;font-weight:900;color:rgba(255,255,255,.7);letter-spacing:.08em;text-transform:uppercase}
+    .sm-name{font-size:14px;font-weight:700;color:#fff}
+    .sm-nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 20px;display:flex;gap:0;overflow-x:auto}
+    .sm-nav a{padding:12px 14px;font-size:12px;font-weight:700;color:#64748b;text-decoration:none;white-space:nowrap;border-bottom:2px solid transparent}
+    .sm-nav a.active,.sm-nav a:hover{color:#4f46e5;border-bottom-color:#4f46e5}
+    .sm-page{max-width:900px;margin:0 auto;padding:16px}
+    .sm-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px;margin-bottom:16px}
+    .sm-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+    .sm-stat{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:14px;text-align:center}
+    .sm-stat-num{font-size:24px;font-weight:900;color:#4f46e5}
+    .sm-stat-label{font-size:11px;color:#94a3b8;margin-top:2px}
+    .sm-btn{display:inline-block;padding:10px 18px;border-radius:10px;border:none;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none}
+    .sm-btn-primary{background:#4f46e5;color:#fff}
+    .sm-btn-green{background:#059669;color:#fff}
+    .sm-btn-ghost{background:#ede9fe;color:#4f46e5}
+    .sm-input{width:100%;box-sizing:border-box;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+    .sm-input:focus{border-color:#4f46e5}
+    .sm-label{font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.04em}
+    .sm-field{margin-bottom:14px}
+    .sm-badge-purple{background:#ede9fe;color:#4f46e5;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .sm-badge-gold{background:#fef3c7;color:#d97706;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .sm-badge-green{background:#d1fae5;color:#059669;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+    .sm-table{width:100%;border-collapse:collapse;font-size:13px}
+    .sm-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid #e2e8f0}
+    .sm-table td{padding:10px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    .sm-table tr:last-child td{border-bottom:none}
+    .msg-success{background:#d1fae5;color:#065f46;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+    .msg-error{background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+  </style>
+</head>
+<body>
+<div class="sm-header">
+  <div class="sm-logo">OURPINCODE Salesman</div>
+  <div class="sm-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+</div>
+<nav class="sm-nav">
+  <a href="/coupons/salesman/" {% if request.path == '/coupons/salesman/' %}class="active"{% endif %}>Dashboard</a>
+  <a href="/coupons/salesman/shops/" {% if 'shops' in request.path and 'new' not in request.path %}class="active"{% endif %}>My Shops</a>
+  <a href="/coupons/salesman/shops/new/" {% if 'new' in request.path %}class="active"{% endif %}>+ New Shop</a>
+  <a href="/coupons/salesman/give-coupons/" {% if 'give-coupons' in request.path %}class="active"{% endif %}>Give Coupons</a>
+  <a href="/coupons/salesman/coupon-history/" {% if 'coupon-history' in request.path %}class="active"{% endif %}>History</a>
+  <a href="/coupons/salesman/logout/" style="color:#dc2626;margin-left:auto">Logout</a>
+</nav>
+<div class="sm-page">
+  {% block sm_content %}{% endblock %}
+</div>
+</body>
+</html>

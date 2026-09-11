@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Spin & Win — OURPINCODE{% endblock %}
+{% block extra_css %}
+<style>
+body{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);min-height:100vh}
+.spin-page{max-width:480px;margin:0 auto;padding:20px;text-align:center}
+.spin-brand{font-size:11px;font-weight:900;color:rgba(99,102,241,.7);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.spin-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:4px}
+.spin-sub{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:24px}
+.coupon-badge{background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.4);border-radius:12px;padding:10px 20px;display:inline-block;margin-bottom:24px}
+.coupon-badge-code{font-size:18px;font-family:monospace;font-weight:900;color:#a5b4fc;letter-spacing:.06em}
+.coupon-badge-shop{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.wheel-wrap{position:relative;width:280px;height:280px;margin:0 auto 24px}
+#wheelCanvas{border-radius:50%;box-shadow:0 0 40px rgba(99,102,241,.5)}
+.wheel-pointer{position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:28px solid #fbbf24;filter:drop-shadow(0 2px 6px rgba(251,191,36,.6))}
+.spin-btn{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#0f172a;border:none;border-radius:16px;padding:16px 40px;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(251,191,36,.4);letter-spacing:.02em;transition:transform .1s}
+.spin-btn:hover{transform:scale(1.03)}
+.spin-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+#resultBox{display:none;background:rgba(255,255,255,.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:28px 24px;margin-top:20px;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.result-pts{font-size:52px;font-weight:900;color:#fbbf24;margin:8px 0}
+.result-label{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:4px}
+.result-heading{font-size:16px;font-weight:700;color:#fff}
+.result-action{display:inline-block;margin-top:16px;background:#4f46e5;color:#fff;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:700;text-decoration:none}
+</style>
+{% endblock %}
+{% block content %}
+<div class="spin-page">
+  <div class="spin-brand">OURPINCODE</div>
+  <div class="spin-title">🎡 Spin & Win!</div>
+  <div class="spin-sub">Your coupon is valid. Spin to reveal your prize!</div>
+
+  <div class="coupon-badge">
+    <div class="coupon-badge-code">{{ coupon.code }}</div>
+    <div class="coupon-badge-shop">{{ coupon.shop.name }}</div>
+  </div>
+
+  <div class="wheel-wrap">
+    <div class="wheel-pointer"></div>
+    <canvas id="wheelCanvas" width="280" height="280"></canvas>
+  </div>
+
+  <button class="spin-btn" id="spinBtn" onclick="doSpin()">🎲 SPIN NOW</button>
+
+  <div id="resultBox">
+    <div class="result-label">🎉 CONGRATULATIONS {{ request.user.get_full_name|default:request.user.username|upper }}!</div>
+    <div class="result-heading">You Won</div>
+    <div class="result-pts" id="resultPts"></div>
+    <div style="font-size:14px;color:rgba(255,255,255,.7);margin-bottom:4px">OURPINCODE Points</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.5)">Coupon: {{ coupon.code }} · {{ coupon.shop.name }}</div>
+    <a href="/coupons/my-points/" class="result-action">VIEW MY POINTS →</a>
+  </div>
+</div>
+
+<script>
+const slots = [
+  {% for s in slots %}
+  {label:"{{ s.label }}", points:{{ s.points }}, color:"{{ s.color }}", prob:{{ s.probability }}},
+  {% endfor %}
+];
+
+const canvas = document.getElementById('wheelCanvas');
+const ctx = canvas.getContext('2d');
+const W = 280, cx = W/2, cy = W/2, r = cx - 8;
+let currentAngle = 0;
+
+function drawWheel(rot) {
+  ctx.clearRect(0, 0, W, W);
+  const n = slots.length;
+  if (!n) { ctx.fillStyle='#333'; ctx.fillRect(0,0,W,W); return; }
+  const arc = (2 * Math.PI) / n;
+  slots.forEach((s, i) => {
+    const start = rot + i * arc;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + arc);
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px -apple-system,sans-serif';
+    ctx.textAlign = 'right';
+    ctx.shadowColor = 'rgba(0,0,0,0.4)';
+    ctx.shadowBlur = 3;
+    ctx.fillText(s.label, r - 10, 4);
+    ctx.restore();
+  });
+  // Centre hub
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, 2*Math.PI);
+  ctx.fillStyle = '#0f172a';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+drawWheel(currentAngle);
+
+let spinning = false;
+function doSpin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  const spins = 5 + Math.random() * 5;
+  const extra = Math.random() * 2 * Math.PI;
+  const total = spins * 2 * Math.PI + extra;
+  const dur = 4000;
+  let start = null;
+  function ease(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+  function animate(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / dur, 1);
+    currentAngle = (total * ease(progress)) % (2 * Math.PI);
+    drawWheel(currentAngle);
+    if (progress < 1) { requestAnimationFrame(animate); return; }
+    // Call API to record result
+    fetch('/coupons/api/spin/', {
+      method:'POST',
+      headers:{'X-CSRFToken': getCookie('csrftoken'), 'Content-Type':'application/json'},
+    }).then(r=>r.json()).then(data => {
+      if (data.error) { alert(data.error); location.href='/coupons/activate/'; return; }
+      document.getElementById('resultPts').textContent = '⭐ ' + data.points;
+      document.getElementById('resultBox').style.display = 'block';
+      document.getElementById('resultBox').scrollIntoView({behavior:'smooth'});
+    });
+  }
+  requestAnimationFrame(animate);
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : null;
+}
+</script>
+{% endblock %}

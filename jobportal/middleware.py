@@ -39,6 +39,11 @@ PUBLIC_PREFIXES = [
     '/ads/',
     '/admin/',
     '/campus/',       # campus public pages
+    '/coupons/salesman/login/',
+    '/coupons/salesman/logout/',
+    '/coupons/verify/',           # shop redemption verify (no login)
+    '/api/send-register-otp/',
+    '/api/verify-register-otp/',
 ]
 
 

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Salesman Login — OURPINCODE</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:20px}
+    .card{background:#fff;border-radius:20px;padding:36px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(79,70,229,.3)}
+    .logo{text-align:center;margin-bottom:24px}
+    .logo-text{font-size:13px;font-weight:900;color:#4f46e5;letter-spacing:.08em;text-transform:uppercase}
+    .logo-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+    h1{font-size:22px;font-weight:900;color:#0f172a;text-align:center;margin-bottom:6px}
+    .subtitle{font-size:13px;color:#64748b;text-align:center;margin-bottom:24px}
+    .field{margin-bottom:16px}
+    label{font-size:11px;font-weight:700;color:#64748b;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+    input{width:100%;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px 14px;font-size:14px;outline:none;transition:border .2s}
+    input:focus{border-color:#4f46e5}
+    .btn{width:100%;background:#4f46e5;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+    .btn:hover{background:#4338ca}
+    .error{background:#fee2e2;color:#dc2626;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-text">OURPINCODE</div>
+    <div class="logo-sub">Salesman Portal</div>
+  </div>
+  <h1>Welcome Back</h1>
+  <p class="subtitle">Sign in to your salesman account</p>
+  {% if messages %}{% for m in messages %}<div class="error">{{ m }}</div>{% endfor %}{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label>Username</label>
+      <input name="username" placeholder="karthik_opc" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn">LOGIN</button>
+  </form>
+</div>
+</body>
+</html>

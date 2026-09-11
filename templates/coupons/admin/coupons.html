@@ -1,0 +1,50 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Coupons{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <h1 class="opc-page-title" style="margin:0">🎟️ Coupons</h1>
+    <form method="get" style="display:flex;gap:8px;flex-wrap:wrap">
+      <input class="opc-input" name="q" value="{{ q }}" placeholder="OPC-000001" style="width:160px">
+      <select class="opc-input" name="status" style="width:140px">
+        <option value="">All status</option>
+        <option value="available" {% if status_f == 'available' %}selected{% endif %}>Available</option>
+        <option value="activated" {% if status_f == 'activated' %}selected{% endif %}>Activated</option>
+        <option value="expired" {% if status_f == 'expired' %}selected{% endif %}>Expired</option>
+      </select>
+      <button class="opc-btn opc-btn-ghost">Filter</button>
+    </form>
+  </div>
+  <div class="opc-nav">
+    <a href="/coupons/admin/">Dashboard</a>
+    <a href="/coupons/admin/salesmen/">Salesmen</a>
+    <a href="/coupons/admin/shops/">Shops</a>
+    <a href="/coupons/admin/coupons/" class="active">Coupons</a>
+    <a href="/coupons/admin/coupon-audit/">Audit</a>
+  </div>
+  <div class="opc-card" style="padding:0;overflow:hidden">
+    <table class="opc-table">
+      <thead><tr><th>Code</th><th>Shop</th><th>Salesman</th><th>Status</th><th>Customer</th><th>Points</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for c in coupons %}
+      <tr>
+        <td><span style="font-family:monospace;font-weight:700;color:#4f46e5">{{ c.code }}</span></td>
+        <td>{{ c.batch.shop.name }}</td>
+        <td>{{ c.batch.salesman }}</td>
+        <td>
+          {% if c.status == 'available' %}<span class="opc-badge opc-badge-green">Available</span>
+          {% elif c.status == 'activated' %}<span class="opc-badge opc-badge-purple">Activated</span>
+          {% else %}<span class="opc-badge opc-badge-red">{{ c.status|capfirst }}</span>{% endif %}
+        </td>
+        <td>{% if c.activated_by %}{{ c.activated_by.get_full_name|default:c.activated_by.username }}{% else %}—{% endif %}</td>
+        <td>{% if c.points_awarded %}<span class="opc-badge opc-badge-gold">⭐ {{ c.points_awarded }}</span>{% else %}—{% endif %}</td>
+        <td style="font-size:11px;color:#94a3b8">{% if c.activated_at %}{{ c.activated_at|date:"d M Y" }}{% else %}—{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7"><div class="opc-empty">No coupons found</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

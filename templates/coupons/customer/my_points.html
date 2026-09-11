@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}My OPC Points — OURPINCODE{% endblock %}
+{% block extra_css %}
+<style>
+.opc-cp{max-width:520px;margin:0 auto;padding:16px}
+.nav-row{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}
+.nav-row a{padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#64748b;text-decoration:none;white-space:nowrap;background:#f1f5f9}
+.nav-row a.active{background:#ede9fe;color:#4f46e5}
+.wallet-hero{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:20px;padding:28px;text-align:center;margin-bottom:16px;color:#fff}
+.wallet-bal{font-size:52px;font-weight:900;color:#fbbf24;line-height:1}
+.wallet-label{font-size:14px;font-weight:700;color:rgba(255,255,255,.8);margin-top:6px}
+.tx-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:0;overflow:hidden}
+.tx-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid #f1f5f9}
+.tx-row:last-child{border-bottom:none}
+.tx-desc{font-size:13px;font-weight:600;color:#0f172a}
+.tx-date{font-size:11px;color:#94a3b8;margin-top:1px}
+.tx-credit{font-size:15px;font-weight:900;color:#059669}
+.tx-debit{font-size:15px;font-weight:900;color:#dc2626}
+</style>
+{% endblock %}
+{% block content %}
+<div class="opc-cp">
+  <div class="nav-row">
+    <a href="/coupons/activate/">🎁 Activate</a>
+    <a href="/coupons/my-points/" class="active">⭐ My Points</a>
+    <a href="/coupons/rewards/">🎁 Rewards</a>
+    <a href="/coupons/my-redemptions/">🎟️ My Redemptions</a>
+  </div>
+
+  <div class="wallet-hero">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:8px">My OURPINCODE Points</div>
+    <div class="wallet-bal">⭐ {{ wallet.balance }}</div>
+    <div class="wallet-label">Available Points</div>
+    <div style="margin-top:16px">
+      <a href="/coupons/rewards/" style="background:rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:9px 20px;font-size:13px;font-weight:700;text-decoration:none;display:inline-block">Browse Rewards →</a>
+    </div>
+  </div>
+
+  {% if transactions %}
+  <div style="font-size:13px;font-weight:800;color:#0f172a;margin-bottom:8px">Transaction History</div>
+  <div class="tx-card">
+    {% for tx in transactions %}
+    <div class="tx-row">
+      <div>
+        <div class="tx-desc">{% if tx.coupon %}🎁 Gift Coupon {{ tx.coupon.code }}{% elif tx.redemption %}🎟️ Redeemed: {{ tx.redemption.reward.name }}{% else %}{{ tx.description|truncatechars:40 }}{% endif %}</div>
+        <div class="tx-date">{{ tx.created_at|date:"d M Y, H:i" }} · Balance: {{ tx.balance_after }} pts</div>
+      </div>
+      <div class="{% if tx.type == 'credit' %}tx-credit{% else %}tx-debit{% endif %}">
+        {% if tx.type == 'credit' %}+{% else %}−{% endif %}{{ tx.amount }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;color:#94a3b8;font-size:14px">
+    No transactions yet. <a href="/coupons/activate/" style="color:#4f46e5;font-weight:700">Activate a coupon →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

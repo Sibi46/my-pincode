@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Confirm Redemption — OURPINCODE{% endblock %}
+{% block extra_css %}
+<style>
+.opc-cp{max-width:460px;margin:0 auto;padding:16px}
+.conf-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;padding:28px 24px;margin-bottom:14px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="opc-cp">
+  <div style="margin-bottom:16px"><a href="/coupons/rewards/" style="font-size:12px;color:#64748b;text-decoration:none">← Rewards</a></div>
+  <div style="font-size:20px;font-weight:900;color:#0f172a;margin-bottom:20px;text-align:center">Redeem Reward?</div>
+  <div class="conf-card" style="text-align:center">
+    <div style="font-size:22px;font-weight:900;color:#0f172a;margin-bottom:4px">{{ reward.name }}</div>
+    <div style="font-size:14px;color:#64748b;margin-bottom:20px">🏪 {{ reward.business_name }}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;text-align:left;margin-bottom:20px">
+      <div style="background:#fef3c7;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:#b45309;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Required</div>
+        <div style="font-size:22px;font-weight:900;color:#d97706">⭐ {{ reward.points_required }}</div>
+      </div>
+      <div style="background:#f8fafc;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Current Balance</div>
+        <div style="font-size:22px;font-weight:900;color:#4f46e5">⭐ {{ wallet.balance }}</div>
+      </div>
+    </div>
+    <div style="background:#d1fae5;border-radius:12px;padding:12px;margin-bottom:20px">
+      <div style="font-size:12px;color:#065f46;font-weight:700">After Redemption</div>
+      <div style="font-size:18px;font-weight:900;color:#059669">⭐ {{ balance_after }}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <a href="/coupons/rewards/" style="background:#f1f5f9;color:#64748b;border-radius:10px;padding:12px;font-size:13px;font-weight:700;text-align:center;text-decoration:none">CANCEL</a>
+      <form method="post" style="margin:0">
+        {% csrf_token %}
+        <button type="submit" style="width:100%;background:#059669;color:#fff;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer">CONFIRM REDEMPTION</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

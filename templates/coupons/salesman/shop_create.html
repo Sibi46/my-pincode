@@ -1,0 +1,33 @@
+{% extends "coupons/salesman/base.html" %}
+{% block title %}New Shop — OURPINCODE Salesman{% endblock %}
+{% block sm_content %}
+<div style="max-width:480px">
+  <div style="margin-bottom:16px">
+    <a href="/coupons/salesman/shops/" style="font-size:12px;color:#64748b;text-decoration:none">← My Shops</a>
+    <div style="font-size:18px;font-weight:900;margin-top:8px">+ Enter New Shop</div>
+  </div>
+  {% if messages %}{% for m in messages %}<div class="msg-error">{{ m }}</div>{% endfor %}{% endif %}
+  <div class="sm-card">
+    <form method="post">
+      {% csrf_token %}
+      <div class="sm-field">
+        <label class="sm-label">Pincode</label>
+        <input class="sm-input" name="pincode" placeholder="600001" required maxlength="10">
+      </div>
+      <div class="sm-field">
+        <label class="sm-label">Shop Name</label>
+        <input class="sm-input" name="name" placeholder="Ravi's Bakery" required>
+      </div>
+      <div class="sm-field">
+        <label class="sm-label">Shop Address</label>
+        <textarea class="sm-input" name="address" rows="2" placeholder="12, Main Road, Chennai"></textarea>
+      </div>
+      <div class="sm-field">
+        <label class="sm-label">Phone Number</label>
+        <input class="sm-input" name="phone" placeholder="9876543210" maxlength="15">
+      </div>
+      <button type="submit" class="sm-btn sm-btn-primary" style="width:100%;padding:12px">SAVE SHOP</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

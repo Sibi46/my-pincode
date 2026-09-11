@@ -1,0 +1,26 @@
+{% extends "coupons/salesman/base.html" %}
+{% block title %}Coupon History — OURPINCODE Salesman{% endblock %}
+{% block sm_content %}
+<div style="font-size:18px;font-weight:900;margin-bottom:16px">📋 Coupon History</div>
+{% if batches %}
+{% for b in batches %}
+<div class="sm-card" style="padding:14px 16px">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:14px;font-weight:800">{{ b.shop.name }}</div>
+      <div style="font-size:11px;color:#94a3b8">{{ b.shop.pincode }} · {{ b.created_at|date:"d M Y" }}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:14px;font-weight:700;color:#4f46e5">{{ b.quantity }} coupons</div>
+      <div style="font-size:12px;font-family:monospace;color:#64748b">{{ b.start_code }} → {{ b.end_code }}</div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="sm-card" style="text-align:center;padding:40px 20px">
+  <div style="font-size:40px;margin-bottom:10px">🎟️</div>
+  <div style="font-size:14px;color:#64748b">No coupon history yet</div>
+</div>
+{% endif %}
+{% endblock %}

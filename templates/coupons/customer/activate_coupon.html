@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Activate Gift Coupon — OURPINCODE{% endblock %}
+{% block extra_css %}
+<style>
+.opc-customer-page{max-width:480px;margin:0 auto;padding:16px}
+.opc-ccard{background:#fff;border:1.5px solid #e2e8f0;border-radius:20px;padding:28px 24px;margin-bottom:16px}
+.opc-input{width:100%;box-sizing:border-box;border:2px solid #e2e8f0;border-radius:12px;padding:14px 16px;font-size:16px;font-family:monospace;font-weight:700;text-transform:uppercase;letter-spacing:.08em;outline:none;text-align:center}
+.opc-input:focus{border-color:#4f46e5}
+.opc-cbtn{width:100%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px}
+.nav-row{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}
+.nav-row a{padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;color:#64748b;text-decoration:none;white-space:nowrap;background:#f1f5f9}
+.nav-row a.active{background:#ede9fe;color:#4f46e5}
+</style>
+{% endblock %}
+{% block content %}
+<div class="opc-customer-page">
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:11px;font-weight:900;color:#4f46e5;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">OURPINCODE</div>
+    <div style="font-size:22px;font-weight:900;color:#0f172a">🎁 Activate Gift Coupon</div>
+    <div style="font-size:13px;color:#64748b;margin-top:6px">Enter the coupon number from your physical coupon</div>
+  </div>
+
+  <div class="nav-row">
+    <a href="/coupons/activate/" class="active">🎁 Activate</a>
+    <a href="/coupons/my-points/">⭐ My Points</a>
+    <a href="/coupons/rewards/">🎁 Rewards</a>
+    <a href="/coupons/my-redemptions/">🎟️ My Redemptions</a>
+  </div>
+
+  {% if messages %}
+  {% for m in messages %}
+  <div style="background:#fee2e2;color:#dc2626;border-radius:12px;padding:14px;margin-bottom:14px;font-size:14px;text-align:center">{{ m }}</div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="opc-ccard">
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom:16px">
+        <label style="font-size:12px;font-weight:700;color:#64748b;display:block;margin-bottom:8px;text-align:center;text-transform:uppercase;letter-spacing:.04em">Coupon Number</label>
+        <input class="opc-input" name="code" placeholder="OPC-000001" autofocus required>
+      </div>
+      <button type="submit" class="opc-cbtn">ACTIVATE COUPON</button>
+    </form>
+  </div>
+
+  <div style="background:#f8fafc;border-radius:14px;padding:16px;font-size:13px;color:#64748b;text-align:center">
+    💡 Get a coupon from participating shops. Enter the coupon number above, spin the wheel, and win OURPINCODE Points!
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Shops{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <h1 class="opc-page-title" style="margin:0">🏪 All Shops</h1>
+    <form method="get" style="display:flex;gap:8px">
+      <input class="opc-input" name="q" value="{{ q }}" placeholder="Search name or pincode" style="width:220px">
+      <button class="opc-btn opc-btn-ghost">Search</button>
+    </form>
+  </div>
+  <div class="opc-nav">
+    <a href="/coupons/admin/">Dashboard</a>
+    <a href="/coupons/admin/salesmen/">Salesmen</a>
+    <a href="/coupons/admin/shops/" class="active">Shops</a>
+    <a href="/coupons/admin/coupons/">Coupons</a>
+    <a href="/coupons/admin/rewards/">Rewards</a>
+  </div>
+  <div class="opc-card" style="padding:0;overflow:hidden">
+    <table class="opc-table">
+      <thead><tr><th>Shop</th><th>Pincode</th><th>Phone</th><th>Salesman</th><th>Coupons</th></tr></thead>
+      <tbody>
+      {% for shop in shops %}
+      <tr>
+        <td><div style="font-weight:700">{{ shop.name }}</div><div style="font-size:11px;color:#94a3b8">{{ shop.address|truncatechars:40 }}</div></td>
+        <td>{{ shop.pincode }}</td>
+        <td>{{ shop.phone }}</td>
+        <td>{{ shop.salesman }}</td>
+        <td><span class="opc-badge opc-badge-gold">{{ shop.coupon_count|default:0 }}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5"><div class="opc-empty">No shops found</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

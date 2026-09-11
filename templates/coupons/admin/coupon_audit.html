@@ -1,0 +1,81 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Coupon Audit{% endblock %}
+{% block opc_content %}
+<div class="opc-page" style="max-width:660px">
+  <h1 class="opc-page-title">🔍 Coupon Audit</h1>
+  <div class="opc-nav">
+    <a href="/coupons/admin/">Dashboard</a>
+    <a href="/coupons/admin/coupons/">Coupons</a>
+    <a href="/coupons/admin/coupon-audit/" class="active">Audit</a>
+  </div>
+  <div class="opc-card">
+    <form method="get" style="display:flex;gap:10px">
+      <input class="opc-input" name="q" value="{{ q }}" placeholder="OPC-000007" style="flex:1;font-family:monospace;font-size:15px" autofocus>
+      <button class="opc-btn opc-btn-primary" style="padding:10px 24px">Search</button>
+    </form>
+  </div>
+
+  {% if q and not coupon %}
+  <div style="background:#fee2e2;border-radius:12px;padding:16px;color:#dc2626;font-size:14px">❌ Coupon {{ q }} not found.</div>
+  {% endif %}
+
+  {% if coupon %}
+  <div class="opc-card">
+    <div style="font-size:24px;font-family:monospace;font-weight:900;color:#4f46e5;margin-bottom:16px;letter-spacing:.05em">{{ coupon.code }}</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <div class="opc-label">Salesman</div>
+        <div style="font-weight:700">{{ coupon.salesman }}</div>
+      </div>
+      <div>
+        <div class="opc-label">Shop</div>
+        <div style="font-weight:700">{{ coupon.shop.name }}</div>
+        <div style="font-size:12px;color:#64748b">Pincode: {{ coupon.shop.pincode }}</div>
+      </div>
+      <div>
+        <div class="opc-label">Status</div>
+        {% if coupon.status == 'available' %}<span class="opc-badge opc-badge-green">Available</span>
+        {% elif coupon.status == 'activated' %}<span class="opc-badge opc-badge-purple">Activated</span>
+        {% else %}<span class="opc-badge opc-badge-red">{{ coupon.status|capfirst }}</span>{% endif %}
+      </div>
+      <div>
+        <div class="opc-label">Given to Shop</div>
+        <div style="font-size:13px">{{ coupon.batch.created_at|date:"d M Y" }}</div>
+      </div>
+    </div>
+
+    {% if coupon.activated_by %}
+    <div style="background:#ede9fe;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:#4f46e5;margin-bottom:8px">CUSTOMER ACTIVATION</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div class="opc-label">Customer</div><div style="font-weight:700">{{ coupon.activated_by.get_full_name|default:coupon.activated_by.username }}</div></div>
+        <div><div class="opc-label">Activated On</div><div>{{ coupon.activated_at|date:"d M Y H:i" }}</div></div>
+        <div><div class="opc-label">Points Awarded</div><div style="font-size:18px;font-weight:900;color:#d97706">⭐ {{ coupon.points_awarded }}</div></div>
+        {% if coupon.is_surprise_gift %}<div><div class="opc-label">Surprise Gift</div><div style="font-weight:700">{{ coupon.surprise_gift_name }}</div></div>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if coupon._redemption %}
+    <div style="background:#d1fae5;border-radius:12px;padding:14px">
+      <div style="font-size:11px;font-weight:700;color:#059669;margin-bottom:8px">REDEMPTION</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><div class="opc-label">Redemption Code</div><div style="font-family:monospace;font-weight:900;color:#059669">{{ coupon._redemption.code }}</div></div>
+        <div><div class="opc-label">Reward</div><div style="font-weight:700">{{ coupon._redemption.reward.name }}</div></div>
+        <div><div class="opc-label">Points Used</div><div style="font-weight:700">{{ coupon._redemption.points_used }}</div></div>
+        <div><div class="opc-label">Status</div>
+          {% if coupon._redemption.status == 'redeemed' %}<span class="opc-badge opc-badge-green">Redeemed</span>
+          {% else %}<span class="opc-badge opc-badge-gold">Pending</span>{% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="margin-top:16px;font-size:11px;color:#94a3b8">
+      Complete chain: Admin → {{ coupon.salesman }} → {{ coupon.shop.name }} → {{ coupon.code }}{% if coupon.activated_by %} → {{ coupon.activated_by.get_full_name|default:coupon.activated_by.username }}{% if coupon._redemption %} → {{ coupon._redemption.code }}{% endif %}{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -196,4 +196,5 @@ urlpatterns = [
     path('community/',  include('community.urls')),
     path('campus/',     include('campus.urls')),
     path('portal/',     include('portal.urls')),
+    path('coupons/',    include('coupons.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

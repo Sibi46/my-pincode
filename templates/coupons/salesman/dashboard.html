@@ -1,0 +1,72 @@
+{% extends "coupons/salesman/base.html" %}
+{% block title %}Salesman Dashboard — OURPINCODE{% endblock %}
+{% block sm_content %}
+<div style="margin-bottom:20px">
+  <div style="font-size:18px;font-weight:900;color:#0f172a">Welcome, {{ salesman }} 👋</div>
+  <div style="font-size:13px;color:#64748b;margin-top:2px">OURPINCODE Salesman Dashboard</div>
+</div>
+
+<div class="sm-stat-grid">
+  <div class="sm-stat">
+    <div class="sm-stat-num">{{ total_shops }}</div>
+    <div class="sm-stat-label">Total Shops</div>
+  </div>
+  <div class="sm-stat">
+    <div class="sm-stat-num">{{ total_given }}</div>
+    <div class="sm-stat-label">Coupons Given</div>
+  </div>
+  <div class="sm-stat">
+    <div class="sm-stat-num" style="color:#059669">{{ activated }}</div>
+    <div class="sm-stat-label">Activated</div>
+  </div>
+</div>
+
+<div class="sm-card">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div style="font-size:14px;font-weight:800">My Shops</div>
+    <a href="/coupons/salesman/shops/new/" class="sm-btn sm-btn-primary" style="padding:8px 14px;font-size:12px">+ New Shop</a>
+  </div>
+  {% if shops %}
+  <table class="sm-table">
+    <thead><tr><th>Shop</th><th>Pincode</th><th>Coupons Given</th><th>Range</th><th></th></tr></thead>
+    <tbody>
+    {% for shop in shops %}
+    <tr>
+      <td><div style="font-weight:700">{{ shop.name }}</div></td>
+      <td>{{ shop.pincode }}</td>
+      <td><span class="sm-badge-gold">{{ shop.coupon_count|default:0 }} coupons</span></td>
+      <td>
+        {% for b in shop.batches.all|slice:":2" %}
+        <div style="font-size:11px;font-family:monospace;color:#4f46e5">{{ b.start_code }} → {{ b.end_code }}</div>
+        {% endfor %}
+      </td>
+      <td>
+        <a href="/coupons/salesman/give-coupons/?shop={{ shop.pk }}" class="sm-btn sm-btn-ghost" style="padding:6px 10px;font-size:11px">Give Coupons</a>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="text-align:center;padding:30px 20px;color:#94a3b8;font-size:14px">No shops yet. <a href="/coupons/salesman/shops/new/" style="color:#4f46e5;font-weight:700">Add your first shop →</a></div>
+  {% endif %}
+</div>
+
+{% if recent_batches %}
+<div class="sm-card">
+  <div style="font-size:14px;font-weight:800;margin-bottom:14px">Recent Activity</div>
+  {% for b in recent_batches %}
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9">
+    <div>
+      <div style="font-size:13px;font-weight:700">{{ b.shop.name }}</div>
+      <div style="font-size:11px;color:#94a3b8">{{ b.created_at|date:"d M Y" }}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:13px;font-weight:700;color:#4f46e5">{{ b.quantity }} coupons</div>
+      <div style="font-size:11px;font-family:monospace;color:#64748b">{{ b.start_code }} → {{ b.end_code }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Dashboard{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#4f46e5;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">OURPINCODE</div>
+      <h1 class="opc-page-title" style="margin:0">Coupon System Admin</h1>
+    </div>
+    <a href="/coupons/admin/salesmen/create/" class="opc-btn opc-btn-primary">+ New Salesman</a>
+  </div>
+
+  <div class="opc-stat-grid">
+    <div class="opc-stat">
+      <div class="opc-stat-num">{{ total_salesmen }}</div>
+      <div class="opc-stat-label">Total Salesmen</div>
+    </div>
+    <div class="opc-stat">
+      <div class="opc-stat-num">{{ total_shops }}</div>
+      <div class="opc-stat-label">Total Shops</div>
+    </div>
+    <div class="opc-stat">
+      <div class="opc-stat-num">{{ total_coupons_given }}</div>
+      <div class="opc-stat-label">Coupons Given</div>
+    </div>
+    <div class="opc-stat">
+      <div class="opc-stat-num" style="color:#059669">{{ total_activated }}</div>
+      <div class="opc-stat-label">Activated</div>
+    </div>
+    <div class="opc-stat">
+      <div class="opc-stat-num" style="color:#d97706">{{ total_points_issued }}</div>
+      <div class="opc-stat-label">Points Issued</div>
+    </div>
+    <div class="opc-stat">
+      <div class="opc-stat-num" style="color:#7c3aed">{{ total_redemptions }}</div>
+      <div class="opc-stat-label">Redemptions</div>
+    </div>
+  </div>
+
+  <div class="opc-nav">
+    <a href="/coupons/admin/" class="active">Dashboard</a>
+    <a href="/coupons/admin/salesmen/">Salesmen</a>
+    <a href="/coupons/admin/shops/">Shops</a>
+    <a href="/coupons/admin/coupons/">Coupons</a>
+    <a href="/coupons/admin/coupon-audit/">Audit</a>
+    <a href="/coupons/admin/rewards/">Rewards</a>
+    <a href="/coupons/admin/spinwheel/">Spin Wheel</a>
+    <a href="/coupons/admin/customers/">Customers</a>
+    <a href="/coupons/admin/redemptions/">Redemptions</a>
+  </div>
+
+  <div class="opc-card">
+    <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:12px">Recent Activations</div>
+    {% if recent_activations %}
+    <table class="opc-table">
+      <thead><tr><th>Coupon</th><th>Customer</th><th>Shop</th><th>Salesman</th><th>Points</th><th>Date</th></tr></thead>
+      <tbody>
+      {% for c in recent_activations %}
+      <tr>
+        <td><span style="font-family:monospace;font-weight:700;color:#4f46e5">{{ c.code }}</span></td>
+        <td>{{ c.activated_by.get_full_name|default:c.activated_by.username }}</td>
+        <td>{{ c.batch.shop.name }}</td>
+        <td>{{ c.batch.salesman }}</td>
+        <td><span class="opc-badge opc-badge-gold">⭐ {{ c.points_awarded }}</span></td>
+        <td style="color:#64748b;font-size:12px">{{ c.activated_at|date:"d M H:i" }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="opc-empty">No activations yet</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "coupons/base.html" %}
+{% block title %}OPC Admin — Salesmen{% endblock %}
+{% block opc_content %}
+<div class="opc-page">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <h1 class="opc-page-title" style="margin:0">👥 Salesmen</h1>
+    <a href="/coupons/admin/salesmen/create/" class="opc-btn opc-btn-primary">+ Add Salesman</a>
+  </div>
+  <div class="opc-nav">
+    <a href="/coupons/admin/">Dashboard</a>
+    <a href="/coupons/admin/salesmen/" class="active">Salesmen</a>
+    <a href="/coupons/admin/shops/">Shops</a>
+    <a href="/coupons/admin/coupons/">Coupons</a>
+    <a href="/coupons/admin/rewards/">Rewards</a>
+    <a href="/coupons/admin/spinwheel/">Spin Wheel</a>
+    <a href="/coupons/admin/customers/">Customers</a>
+    <a href="/coupons/admin/redemptions/">Redemptions</a>
+  </div>
+  <div class="opc-card" style="padding:0;overflow:hidden">
+    <table class="opc-table">
+      <thead><tr><th>Salesman</th><th>Username</th><th>Shops</th><th>Coupons Given</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for sm in salesmen %}
+      <tr>
+        <td><div style="font-weight:700">{{ sm }}</div><div style="font-size:11px;color:#94a3b8">Since {{ sm.created_at|date:"d M Y" }}</div></td>
+        <td style="font-family:monospace;font-size:13px">{{ sm.user.username }}</td>
+        <td><span class="opc-badge opc-badge-purple">{{ sm.shop_count|default:0 }} shops</span></td>
+        <td><span class="opc-badge opc-badge-gold">{{ sm.coupon_count|default:0 }} coupons</span></td>
+        <td>{% if sm.is_active %}<span class="opc-badge opc-badge-green">Active</span>{% else %}<span class="opc-badge opc-badge-red">Inactive</span>{% endif %}</td>
+        <td><a href="/coupons/admin/salesmen/{{ sm.pk }}/" class="opc-btn opc-btn-ghost" style="padding:6px 12px;font-size:12px">View</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6"><div class="opc-empty">No salesmen yet</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
