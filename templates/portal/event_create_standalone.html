@@ -79,7 +79,7 @@
       <div class="ec-card-body">
         <div class="pform-group">
           <label class="pform-label">Event Name *</label>
-          <input type="text" name="name" class="pform-input" required placeholder="e.g. Photography Walk – Coimbatore">
+          <input type="text" name="name" class="pform-input" required placeholder="e.g. Photography Walk – Coimbatore" autocapitalize="words" oninput="var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.replace(/\b\w/g,function(c){return c.toUpperCase()});this.setSelectionRange(s,e)">
         </div>
         <div class="pform-group">
           <label class="pform-label">Description *</label>

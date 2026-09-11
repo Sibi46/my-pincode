@@ -12,7 +12,7 @@
 
     <div class="pcard" style="margin-bottom:14px">
       <div class="pcard-body">
-        <div class="pform-group"><label class="pform-label">Event Name *</label><input type="text" name="name" class="pform-input" required value="{{ event.name }}"></div>
+        <div class="pform-group"><label class="pform-label">Event Name *</label><input type="text" name="name" class="pform-input" required value="{{ event.name }}" autocapitalize="words" oninput="var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.replace(/\b\w/g,function(c){return c.toUpperCase()});this.setSelectionRange(s,e)"></div>
         <div class="pform-group"><label class="pform-label">Description *</label><textarea name="description" class="pform-input" rows="4" required>{{ event.description }}</textarea></div>
         <div class="pform-group"><label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">(space-separated)</span></label>
           <input type="text" name="tags" class="pform-input" value="{{ event.tags }}"></div>
