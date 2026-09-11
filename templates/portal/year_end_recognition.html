@@ -42,7 +42,8 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
             <div>
               <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Award Name *</label>
-              <input type="text" name="award_name" placeholder="Member of the Year" required
+              <input type="text" name="award_name" placeholder="Member of the Year" required autocapitalize="words"
+                oninput="var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.replace(/\b\w/g,function(c){return c.toUpperCase()});this.setSelectionRange(s,e)"
                 style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;box-sizing:border-box">
             </div>
             <div>
@@ -56,8 +57,11 @@
             </div>
           </div>
           <div>
-            <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:4px">Description</label>
+            <label style="font-size:12px;font-weight:700;color:#374151;display:flex;justify-content:space-between;margin-bottom:4px">
+              <span>Description</span><span class="desc-wc" style="font-size:11px;font-weight:600;color:#94a3b8">0 / 120 words</span>
+            </label>
             <textarea name="description" rows="2" placeholder="Reason for this award…"
+              oninput="opcWordLimit(this,this.previousElementSibling.querySelector('.desc-wc'),120)"
               style="width:100%;padding:8px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;resize:none;box-sizing:border-box"></textarea>
           </div>
         </div>
@@ -90,9 +94,18 @@
 
 {% block extra_js %}
 <script>
+function opcWordLimit(ta, counterEl, max){
+  if(typeof counterEl === 'string') counterEl = document.getElementById(counterEl);
+  if(!counterEl) return;
+  var words = ta.value.trim().split(/\s+/).filter(Boolean);
+  if(words.length > max){ ta.value = words.slice(0,max).join(' '); words = words.slice(0,max); }
+  counterEl.textContent = words.length + ' / ' + max + ' words';
+  counterEl.style.color = words.length >= max ? '#ef4444' : '#94a3b8';
+}
 function addRow() {
   var tmpl = document.querySelector('.award-row').cloneNode(true);
   tmpl.querySelectorAll('input,select,textarea').forEach(function(el){ el.value=''; });
+  tmpl.querySelectorAll('.desc-wc').forEach(function(el){ el.textContent='0 / 120 words'; el.style.color='#94a3b8'; });
   document.getElementById('awardRows').appendChild(tmpl);
 }
 </script>

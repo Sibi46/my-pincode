@@ -13,7 +13,13 @@
     <div class="pcard" style="margin-bottom:14px">
       <div class="pcard-body">
         <div class="pform-group"><label class="pform-label">Event Name *</label><input type="text" name="name" class="pform-input" required value="{{ event.name }}" autocapitalize="words" oninput="var s=this.selectionStart,e=this.selectionEnd;this.value=this.value.replace(/\b\w/g,function(c){return c.toUpperCase()});this.setSelectionRange(s,e)"></div>
-        <div class="pform-group"><label class="pform-label">Description *</label><textarea name="description" class="pform-input" rows="4" required>{{ event.description }}</textarea></div>
+        <div class="pform-group">
+          <label class="pform-label" style="display:flex;justify-content:space-between">
+            <span>Description *</span>
+            <span id="desc-counter" style="font-size:11px;font-weight:600;color:#94a3b8">0 / 120 words</span>
+          </label>
+          <textarea name="description" id="ev-desc" class="pform-input" rows="4" required oninput="opcWordLimit(this,'desc-counter',120)">{{ event.description }}</textarea>
+        </div>
         <div class="pform-group"><label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">(space-separated)</span></label>
           <input type="text" name="tags" class="pform-input" value="{{ event.tags }}"></div>
       </div>
@@ -100,7 +106,8 @@
           <div class="pform-group" style="grid-column:1/-1">
             <label class="pform-label">Event Poster {% if event.image %}<span style="color:#059669;font-size:11px">(current image kept if blank)</span>{% endif %}</label>
             {% if event.image %}<img src="{{ event.image.url }}" style="display:block;max-height:100px;border-radius:8px;margin-bottom:8px">{% endif %}
-            <input type="file" name="image" accept="image/*" class="pform-input" style="padding:6px">
+            <input type="file" name="image" id="posterInput" accept="image/*" class="pform-input" style="padding:6px" onchange="opcBannerPreview(this,'posterPreview')">
+            <img id="posterPreview" src="" alt="" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:180px;object-fit:cover">
           </div>
         </div>
       </div>
@@ -198,5 +205,26 @@ function addQuestion(){
   document.getElementById('qList').appendChild(div);
   div.querySelector('input').focus();
 }
+function opcWordLimit(ta,counterId,max){
+  var words=ta.value.trim().split(/\s+/).filter(Boolean);
+  var counter=document.getElementById(counterId);
+  if(words.length>max){
+    ta.value=words.slice(0,max).join(' ');
+    words=words.slice(0,max);
+  }
+  if(counter){
+    counter.textContent=words.length+' / '+max+' words';
+    counter.style.color=words.length>=max?'#ef4444':'#94a3b8';
+  }
+}
+function opcBannerPreview(input,previewId){
+  var prev=document.getElementById(previewId);
+  if(!input.files||!input.files[0]||!prev)return;
+  prev.src=URL.createObjectURL(input.files[0]); prev.style.display='block';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var ta=document.getElementById('ev-desc');
+  if(ta)opcWordLimit(ta,'desc-counter',120);
+});
 </script>
 {% endblock %}

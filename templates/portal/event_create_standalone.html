@@ -83,7 +83,8 @@
         </div>
         <div class="pform-group">
           <label class="pform-label">Description *</label>
-          <textarea name="description" class="pform-input" rows="4" required placeholder="What's happening? Who should come? What to bring?"></textarea>
+          <textarea name="description" id="ev-desc" class="pform-input" rows="4" required placeholder="What's happening? Who should come? What to bring?" oninput="opcWordLimit(this,'desc-counter',120)"></textarea>
+          <div style="text-align:right;margin-top:3px"><span id="desc-counter" style="font-size:11px;font-weight:600;color:#94a3b8">0 / 120 words</span></div>
         </div>
         <div class="pform-group">
           <label class="pform-label">Tags <span style="font-weight:400;color:#94a3b8">space-separated</span></label>
@@ -345,5 +346,15 @@ function removeQuestion2(idx){
   var el=document.getElementById('qItem2_'+idx);
   if(el){el.remove();qTotal2--;}
 }
+function opcWordLimit(ta,counterId,max){
+  var words=ta.value.trim().split(/\s+/).filter(Boolean);
+  var counter=document.getElementById(counterId);
+  if(words.length>max){ta.value=words.slice(0,max).join(' ');words=words.slice(0,max);}
+  if(counter){counter.textContent=words.length+' / '+max+' words';counter.style.color=words.length>=max?'#ef4444':'#94a3b8';}
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var ta=document.getElementById('ev-desc');
+  if(ta&&ta.value)opcWordLimit(ta,'desc-counter',120);
+});
 </script>
 {% endblock %}
