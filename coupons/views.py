@@ -335,6 +335,41 @@ def salesman_dashboard(request):
     shops = sm.shops.annotate(coupon_count=Sum('batches__quantity'))
     total_given = sm.batches.aggregate(t=Sum('quantity'))['t'] or 0
     activated = Coupon.objects.filter(batch__salesman=sm, status='activated').count()
+
+    # Business ID lookup
+    biz_result = None
+    biz_error = None
+    biz_query = request.GET.get('biz', '').strip().upper()
+    if biz_query:
+        biz_user = User.objects.filter(salesman_biz_id=biz_query).first()
+        if biz_user:
+            # Collect business name from company profile or shop profile
+            biz_name = ''
+            try:
+                biz_name = biz_user.company.company_name
+            except Exception:
+                pass
+            if not biz_name:
+                try:
+                    biz_name = biz_user.shop.shop_name
+                except Exception:
+                    pass
+            if not biz_name:
+                biz_name = biz_user.get_full_name() or biz_user.username
+            biz_result = {
+                'biz_id': biz_query,
+                'name': biz_name,
+                'owner': biz_user.get_full_name() or biz_user.username,
+                'phone': biz_user.phone or biz_user.business_phone,
+                'address': biz_user.address,
+                'city': biz_user.city,
+                'pincode': biz_user.pincode,
+                'user_type': biz_user.get_user_type_display() if hasattr(biz_user, 'get_user_type_display') else biz_user.user_type,
+                'joined': biz_user.date_joined,
+            }
+        else:
+            biz_error = f'No business found with ID "{biz_query}".'
+
     ctx = {
         'salesman': sm,
         'shops': shops,
@@ -342,6 +377,9 @@ def salesman_dashboard(request):
         'total_given': total_given,
         'activated': activated,
         'recent_batches': sm.batches.select_related('shop').order_by('-created_at')[:5],
+        'biz_result': biz_result,
+        'biz_error': biz_error,
+        'biz_query': biz_query,
     }
     return render(request, 'coupons/salesman/dashboard.html', ctx)
 
@@ -384,14 +422,18 @@ def salesman_shop_detail(request, pk):
 @salesman_required
 def salesman_give_coupons(request):
     sm = request.user.salesman_profile
-    shops = sm.shops.all()
+    # All active shops — salesman's own first, then others
+    my_shops = list(Shop.objects.filter(salesman=sm, is_active=True).order_by('name'))
+    other_shops = list(Shop.objects.exclude(salesman=sm).filter(is_active=True).order_by('name'))
+    all_shops = my_shops + other_shops
+
     if request.method == 'POST':
         shop_id = request.POST.get('shop_id')
         quantity = int(request.POST.get('quantity', 0))
         if quantity < 1 or quantity > 1000:
             messages.error(request, 'Quantity must be between 1 and 1000.')
             return redirect('opc_salesman_give_coupons')
-        shop = get_object_or_404(Shop, pk=shop_id, salesman=sm)
+        shop = get_object_or_404(Shop, pk=shop_id, is_active=True)
         with transaction.atomic():
             start, end = CouponCounter.next_range(quantity)
             batch = CouponBatch.objects.create(
@@ -405,10 +447,12 @@ def salesman_give_coupons(request):
             Coupon.objects.bulk_create(coupons)
         messages.success(request, f'✓ {quantity} coupons given to {shop.name} '
                                    f'(OPC-{start:06d} → OPC-{end:06d})')
-        return redirect('opc_salesman_shop_detail', pk=shop.pk)
+        return redirect('opc_salesman_coupon_history')
     pre_shop = request.GET.get('shop')
     return render(request, 'coupons/salesman/give_coupons.html', {
-        'shops': shops, 'pre_shop': pre_shop
+        'shops': all_shops,
+        'my_shop_ids': [s.pk for s in my_shops],
+        'pre_shop': pre_shop,
     })
 
 

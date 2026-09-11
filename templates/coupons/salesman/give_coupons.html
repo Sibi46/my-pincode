@@ -13,9 +13,13 @@
         <select class="sm-input" name="shop_id" required>
           <option value="">Select shop...</option>
           {% for shop in shops %}
-          <option value="{{ shop.pk }}" {% if pre_shop == shop.pk|stringformat:'s' %}selected{% endif %}>{{ shop.name }} ({{ shop.pincode }})</option>
+          <option value="{{ shop.pk }}"
+            {% if pre_shop == shop.pk|stringformat:'s' %}selected{% endif %}>
+            {% if shop.pk in my_shop_ids %}⭐ {% endif %}{{ shop.name }} — {{ shop.pincode }}{% if shop.pk not in my_shop_ids %} ({{ shop.salesman }}){% endif %}
+          </option>
           {% endfor %}
         </select>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px">⭐ = your shops &nbsp;·&nbsp; Others are shops registered by other salesmen</div>
       </div>
       <div class="sm-field">
         <label class="sm-label">Number of Coupons</label>
@@ -37,12 +41,7 @@
         </div>
         <div style="font-size:11px;color:#94a3b8;margin-top:8px">System will auto-assign coupon numbers (OPC-XXXXXX)</div>
       </div>
-      {% if not shops %}
-      <div style="background:#fef3c7;border-radius:10px;padding:12px;font-size:13px;color:#b45309;margin-bottom:14px">
-        ⚠️ No shops yet. <a href="/coupons/salesman/shops/new/" style="color:#4f46e5;font-weight:700">Add a shop first →</a>
-      </div>
-      {% endif %}
-      <button type="submit" class="sm-btn sm-btn-green" style="width:100%;padding:13px" {% if not shops %}disabled{% endif %}>CONFIRM &amp; GIVE COUPONS</button>
+      <button type="submit" class="sm-btn sm-btn-green" style="width:100%;padding:13px">CONFIRM &amp; GIVE COUPONS</button>
     </form>
   </div>
 </div>
