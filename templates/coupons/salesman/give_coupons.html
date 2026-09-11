@@ -19,8 +19,23 @@
       </div>
       <div class="sm-field">
         <label class="sm-label">Number of Coupons</label>
-        <input class="sm-input" type="number" name="quantity" min="1" max="1000" placeholder="20" required style="font-size:18px;font-weight:700">
-        <div style="font-size:11px;color:#94a3b8;margin-top:4px">System will auto-assign coupon numbers (OPC-XXXXXX)</div>
+        <div style="display:flex;align-items:center;gap:0;border:1.5px solid #e2e8f0;border-radius:12px;overflow:hidden;background:#fff">
+          <button type="button" onclick="opcCouponStep(-1)" style="width:54px;height:54px;border:none;background:#f1f5f9;font-size:24px;font-weight:900;color:#4f46e5;cursor:pointer;flex-shrink:0;transition:.15s" onmousedown="this.style.background='#e0e7ff'" onmouseup="this.style.background='#f1f5f9'" onmouseleave="this.style.background='#f1f5f9'">−</button>
+          <input id="couponQty" class="sm-input" type="number" name="quantity" min="1" max="1000" value="1" required
+            style="border:none;border-radius:0;text-align:center;font-size:28px;font-weight:900;color:#0f172a;padding:0;height:54px;flex:1;outline:none;background:#fff;letter-spacing:2px"
+            oninput="opcCouponSync(this)">
+          <button type="button" onclick="opcCouponStep(1)" style="width:54px;height:54px;border:none;background:#f1f5f9;font-size:24px;font-weight:900;color:#4f46e5;cursor:pointer;flex-shrink:0;transition:.15s" onmousedown="this.style.background='#e0e7ff'" onmouseup="this.style.background='#f1f5f9'" onmouseleave="this.style.background='#f1f5f9'">+</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          {% for n in quick_picks %}<button type="button" onclick="document.getElementById('couponQty').value={{ n }}" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">{{ n }}</button>{% empty %}
+          <button type="button" onclick="document.getElementById('couponQty').value=5" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">5</button>
+          <button type="button" onclick="document.getElementById('couponQty').value=10" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">10</button>
+          <button type="button" onclick="document.getElementById('couponQty').value=20" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">20</button>
+          <button type="button" onclick="document.getElementById('couponQty').value=50" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">50</button>
+          <button type="button" onclick="document.getElementById('couponQty').value=100" style="padding:5px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;color:#374151;cursor:pointer">100</button>
+          {% endfor %}
+        </div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:8px">System will auto-assign coupon numbers (OPC-XXXXXX)</div>
       </div>
       {% if not shops %}
       <div style="background:#fef3c7;border-radius:10px;padding:12px;font-size:13px;color:#b45309;margin-bottom:14px">
@@ -31,4 +46,17 @@
     </form>
   </div>
 </div>
+<script>
+function opcCouponStep(delta){
+  var inp=document.getElementById('couponQty');
+  var val=parseInt(inp.value)||1;
+  val=Math.min(1000,Math.max(1,val+delta));
+  inp.value=val;
+}
+function opcCouponSync(inp){
+  var val=parseInt(inp.value)||1;
+  if(val<1)val=1; if(val>1000)val=1000;
+  inp.value=val;
+}
+</script>
 {% endblock %}
