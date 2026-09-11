@@ -2161,6 +2161,9 @@ def contribution_verify(request, slug, pk):
             contrib.verified_by = request.user
             contrib.verified_at = timezone.now()
             contrib.save()
+            _notify(contrib.user, 'announcement',
+                    f'❌ Your contribution to {community.name} was not approved this time.',
+                    f'/portal/c/{community.slug}/my-contribution/')
             messages.success(request, 'Contribution rejected.')
         return redirect(request.META.get('HTTP_REFERER', '/'))
     return redirect('portal_community', page_id=community.page_id)
