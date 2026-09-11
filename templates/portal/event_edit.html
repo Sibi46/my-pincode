@@ -106,8 +106,11 @@
           <div class="pform-group" style="grid-column:1/-1">
             <label class="pform-label">Event Poster {% if event.image %}<span style="color:#059669;font-size:11px">(current image kept if blank)</span>{% endif %}</label>
             {% if event.image %}<img src="{{ event.image.url }}" style="display:block;max-height:100px;border-radius:8px;margin-bottom:8px">{% endif %}
-            <input type="file" name="image" id="posterInput" accept="image/*" class="pform-input" style="padding:6px" onchange="opcBannerPreview(this,'posterPreview')">
-            <img id="posterPreview" src="" alt="" style="display:none;width:100%;border-radius:10px;margin-top:8px;max-height:180px;object-fit:cover">
+            <input type="file" name="image" id="posterInput" accept="image/*" class="pform-input" style="padding:6px" onchange="opcBannerCrop(this)">
+            <div id="posterPreviewWrap" style="display:none;position:relative;margin-top:8px">
+              <img id="posterPreview" src="" alt="" style="width:100%;border-radius:10px;max-height:180px;object-fit:cover;display:block">
+              <button type="button" onclick="document.getElementById('posterInput').click()" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">✂️ Recrop</button>
+            </div>
           </div>
         </div>
       </div>
@@ -178,6 +181,24 @@
   </form>
 </div>
 
+<!-- Banner Crop Modal -->
+<div id="banner-crop-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;padding:12px">
+  <div style="background:#1a1a2e;border-radius:18px;padding:18px;max-width:360px;width:100%;text-align:center">
+    <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px">✂️ Crop Banner</div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:12px">Drag to reposition · Slider to zoom</div>
+    <canvas id="banner-canvas" width="320" height="180" style="display:block;border-radius:10px;cursor:grab;touch-action:none;margin:0 auto 12px;max-width:100%"></canvas>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:0 4px">
+      <i class="fas fa-search-minus" style="color:#888;font-size:12px"></i>
+      <input type="range" id="banner-zoom" min="1" max="4" step="0.01" value="1" style="flex:1;accent-color:#4f46e5">
+      <i class="fas fa-search-plus" style="color:#888;font-size:12px"></i>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button type="button" onclick="document.getElementById('banner-crop-modal').style.display='none'" style="flex:1;padding:10px;border-radius:10px;border:1.5px solid #555;background:none;color:#ccc;font-weight:700;cursor:pointer;font-size:13px">Cancel</button>
+      <button type="button" onclick="_bcApply()" style="flex:1;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-weight:800;cursor:pointer;font-size:13px">Use Banner</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function toggleOnline(cb){
   document.getElementById('offline-fields').style.display = cb.checked ? 'none' : 'block';
@@ -217,14 +238,59 @@ function opcWordLimit(ta,counterId,max){
     counter.style.color=words.length>=max?'#ef4444':'#94a3b8';
   }
 }
-function opcBannerPreview(input,previewId){
-  var prev=document.getElementById(previewId);
-  if(!input.files||!input.files[0]||!prev)return;
-  prev.src=URL.createObjectURL(input.files[0]); prev.style.display='block';
+/* ── Banner crop ── */
+var _bc={img:new Image(),x:0,y:0,scale:1,dragging:false,lx:0,ly:0,file:null,input:null,CW:320,CH:180};
+function opcBannerCrop(input){
+  if(!input.files||!input.files[0])return;
+  _bc.input=input; _bc.file=input.files[0];
+  var url=URL.createObjectURL(_bc.file);
+  _bc.img=new Image();
+  _bc.img.onload=function(){_bcFit();_bcDraw();document.getElementById('banner-crop-modal').style.display='flex';};
+  _bc.img.src=url;
+}
+function _bcFit(){
+  var s=Math.max(_bc.CW/_bc.img.naturalWidth,_bc.CH/_bc.img.naturalHeight);
+  _bc.scale=s; _bc.x=(_bc.CW-_bc.img.naturalWidth*s)/2; _bc.y=(_bc.CH-_bc.img.naturalHeight*s)/2;
+  document.getElementById('banner-zoom').value=1;
+}
+function _bcDraw(){
+  var cv=document.getElementById('banner-canvas'),ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(_bc.img,_bc.x,_bc.y,_bc.img.naturalWidth*_bc.scale,_bc.img.naturalHeight*_bc.scale);
+  ctx.strokeStyle='rgba(255,255,255,.3)'; ctx.lineWidth=1;
+  [cv.width/3,cv.width*2/3].forEach(function(x){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cv.height);ctx.stroke();});
+  [cv.height/3,cv.height*2/3].forEach(function(y){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cv.width,y);ctx.stroke();});
+}
+function _bcApply(){
+  var out=document.createElement('canvas'); out.width=1280; out.height=720;
+  var ctx=out.getContext('2d'),r=1280/_bc.CW;
+  ctx.drawImage(_bc.img,_bc.x*r,_bc.y*r,_bc.img.naturalWidth*_bc.scale*r,_bc.img.naturalHeight*_bc.scale*r);
+  out.toBlob(function(blob){
+    var file=new File([blob],'banner.jpg',{type:'image/jpeg'});
+    var dt=new DataTransfer(); dt.items.add(file); _bc.input.files=dt.files;
+    document.getElementById('posterPreview').src=URL.createObjectURL(blob);
+    document.getElementById('posterPreviewWrap').style.display='block';
+    document.getElementById('banner-crop-modal').style.display='none';
+  },'image/jpeg',0.92);
 }
 document.addEventListener('DOMContentLoaded',function(){
   var ta=document.getElementById('ev-desc');
   if(ta)opcWordLimit(ta,'desc-counter',120);
+  var cv=document.getElementById('banner-canvas'); if(!cv)return;
+  cv.addEventListener('mousedown',function(e){_bc.dragging=true;_bc.lx=e.clientX;_bc.ly=e.clientY;cv.style.cursor='grabbing';});
+  document.addEventListener('mousemove',function(e){if(!_bc.dragging)return;_bc.x+=e.clientX-_bc.lx;_bc.y+=e.clientY-_bc.ly;_bc.lx=e.clientX;_bc.ly=e.clientY;_bcDraw();});
+  document.addEventListener('mouseup',function(){_bc.dragging=false;cv.style.cursor='grab';});
+  cv.addEventListener('touchstart',function(e){_bc.dragging=true;_bc.lx=e.touches[0].clientX;_bc.ly=e.touches[0].clientY;},{passive:true});
+  cv.addEventListener('touchmove',function(e){if(!_bc.dragging)return;_bc.x+=e.touches[0].clientX-_bc.lx;_bc.y+=e.touches[0].clientY-_bc.ly;_bc.lx=e.touches[0].clientX;_bc.ly=e.touches[0].clientY;_bcDraw();e.preventDefault();},{passive:false});
+  cv.addEventListener('touchend',function(){_bc.dragging=false;});
+  document.getElementById('banner-zoom').addEventListener('input',function(){
+    var cx=_bc.CW/2,cy=_bc.CH/2;
+    var base=Math.max(_bc.CW/_bc.img.naturalWidth,_bc.CH/_bc.img.naturalHeight);
+    var newS=base*parseFloat(this.value);
+    _bc.x=cx-(_bc.img.naturalWidth*newS)*(cx-_bc.x)/(_bc.img.naturalWidth*_bc.scale);
+    _bc.y=cy-(_bc.img.naturalHeight*newS)*(cy-_bc.y)/(_bc.img.naturalHeight*_bc.scale);
+    _bc.scale=newS; _bcDraw();
+  });
 });
 </script>
 {% endblock %}
