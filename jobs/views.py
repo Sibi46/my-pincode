@@ -892,6 +892,12 @@ def business_profile(request, company_id):
 def employer_dashboard(request):
     user = request.user
 
+    # ── Auto-generate salesman BIZ ID for existing employers ──
+    if user.is_employer() and not user.salesman_biz_id:
+        from .utils import generate_biz_id
+        User.objects.filter(pk=user.pk).update(salesman_biz_id=generate_biz_id())
+        user.refresh_from_db(fields=['salesman_biz_id'])
+
     # ── Auto-expire free plans ──
     import datetime
     today = datetime.date.today()
