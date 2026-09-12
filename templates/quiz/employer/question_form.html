@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Question — {{ quiz.title }}{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:30px auto;padding:0 16px 60px">
+  <div style="margin-bottom:22px">
+    <a href="/quiz/{{ quiz.pk }}/" style="font-size:13px;color:#4f46e5;text-decoration:none">← {{ quiz.title }}</a>
+    <div style="font-size:22px;font-weight:900;color:#0f172a;margin-top:8px">{{ action }} Question</div>
+  </div>
+
+  {% if messages %}{% for m in messages %}
+  <div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#fee2e2;color:#dc2626;font-size:13px;font-weight:600">{{ m }}</div>
+  {% endfor %}{% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Question -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:22px;margin-bottom:14px">
+      <div style="font-size:14px;font-weight:800;color:#374151;margin-bottom:16px">📝 Question</div>
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">Question Text *</label>
+        <textarea name="question_text" required rows="3"
+          style="width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;resize:vertical;box-sizing:border-box;outline:none">{{ question.question_text|default:'' }}</textarea>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px">Question Image (optional)</label>
+        {% if question.question_image %}<img src="{{ question.question_image.url }}" style="max-height:80px;border-radius:8px;display:block;margin-bottom:8px">{% endif %}
+        <input type="file" name="question_image" accept="image/*" style="font-size:13px;color:#374151">
+      </div>
+    </div>
+
+    <!-- Option A -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:800;color:#4f46e5;margin-bottom:10px">Option A</div>
+      <input name="option_a_text" required maxlength="300" value="{{ question.option_a_text|default:'' }}"
+        placeholder="Option A text" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;margin-bottom:10px">
+      {% if question.option_a_image %}<img src="{{ question.option_a_image.url }}" style="max-height:60px;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
+      <input type="file" name="option_a_image" accept="image/*" style="font-size:13px;color:#374151">
+    </div>
+
+    <!-- Option B -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:800;color:#4f46e5;margin-bottom:10px">Option B</div>
+      <input name="option_b_text" required maxlength="300" value="{{ question.option_b_text|default:'' }}"
+        placeholder="Option B text" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;margin-bottom:10px">
+      {% if question.option_b_image %}<img src="{{ question.option_b_image.url }}" style="max-height:60px;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
+      <input type="file" name="option_b_image" accept="image/*" style="font-size:13px;color:#374151">
+    </div>
+
+    <!-- Option C -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:800;color:#4f46e5;margin-bottom:10px">Option C</div>
+      <input name="option_c_text" required maxlength="300" value="{{ question.option_c_text|default:'' }}"
+        placeholder="Option C text" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;margin-bottom:10px">
+      {% if question.option_c_image %}<img src="{{ question.option_c_image.url }}" style="max-height:60px;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
+      <input type="file" name="option_c_image" accept="image/*" style="font-size:13px;color:#374151">
+    </div>
+
+    <!-- Option D -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:800;color:#4f46e5;margin-bottom:10px">Option D</div>
+      <input name="option_d_text" required maxlength="300" value="{{ question.option_d_text|default:'' }}"
+        placeholder="Option D text" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;box-sizing:border-box;outline:none;margin-bottom:10px">
+      {% if question.option_d_image %}<img src="{{ question.option_d_image.url }}" style="max-height:60px;border-radius:6px;display:block;margin-bottom:6px">{% endif %}
+      <input type="file" name="option_d_image" accept="image/*" style="font-size:13px;color:#374151">
+    </div>
+
+    <!-- Correct Answer -->
+    <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-bottom:20px">
+      <div style="font-size:13px;font-weight:800;color:#374151;margin-bottom:14px">✅ Correct Answer *</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        {% for opt in "A,B,C,D" %}
+        <label id="lbl-{{ opt }}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;cursor:pointer">
+          <input type="radio" name="correct_answer" value="{{ opt }}" required
+            {% if question.correct_answer == opt %}checked{% endif %}
+            style="accent-color:#4f46e5;width:16px;height:16px">
+          <span style="font-size:14px;font-weight:700;color:#0f172a">Option {{ opt }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button type="submit" style="flex:1;background:#4f46e5;color:#fff;padding:14px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+        {{ action }} Question
+      </button>
+      {% if action == 'Edit' %}
+      <button type="submit" name="action" value="delete"
+        onclick="return confirm('Delete this question?')"
+        style="background:#fee2e2;color:#dc2626;padding:14px 20px;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+        Delete
+      </button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<script>
+document.querySelectorAll('input[name="correct_answer"]').forEach(function(r){
+  function highlight(){
+    document.querySelectorAll('input[name="correct_answer"]').forEach(function(x){
+      document.getElementById('lbl-'+x.value).style.borderColor='#e2e8f0';
+      document.getElementById('lbl-'+x.value).style.background='';
+    });
+    if(r.checked){
+      document.getElementById('lbl-'+r.value).style.borderColor='#4f46e5';
+      document.getElementById('lbl-'+r.value).style.background='#eef2ff';
+    }
+  }
+  r.addEventListener('change', highlight);
+  if(r.checked) highlight();
+});
+</script>
+{% endblock %}

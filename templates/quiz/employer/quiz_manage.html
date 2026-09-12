@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ quiz.title }} — Manage Quiz{% endblock %}
+{% block content %}
+<div style="max-width:720px;margin:30px auto;padding:0 16px 60px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:10px">
+    <a href="/quiz/" style="font-size:13px;color:#4f46e5;text-decoration:none">← My Quizzes</a>
+    <form method="post" action="/quiz/{{ quiz.pk }}/toggle/">
+      {% csrf_token %}
+      <button type="submit" style="background:{% if quiz.is_active %}#fee2e2{% else %}#dcfce7{% endif %};color:{% if quiz.is_active %}#dc2626{% else %}#166534{% endif %};border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">
+        {% if quiz.is_active %}⏸ Pause Quiz{% else %}▶ Activate Quiz{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <div style="margin-bottom:20px">
+    <div style="font-size:22px;font-weight:900;color:#0f172a">{{ quiz.title }}</div>
+    <div style="font-size:13px;color:#64748b;margin-top:4px">
+      {{ questions|length }} / 20 questions ·
+      <span style="font-weight:700;{% if quiz.is_active %}color:#059669{% else %}color:#94a3b8{% endif %}">
+        {% if quiz.is_active %}Active{% else %}Paused{% endif %}
+      </span>
+    </div>
+  </div>
+
+  {% if messages %}{% for m in messages %}
+  <div style="margin-bottom:14px;padding:10px 14px;border-radius:10px;background:#dcfce7;color:#166534;font-size:13px;font-weight:600">{{ m }}</div>
+  {% endfor %}{% endif %}
+
+  {% if can_add %}
+  <a href="/quiz/{{ quiz.pk }}/questions/add/"
+    style="display:flex;align-items:center;justify-content:center;gap:8px;background:#4f46e5;color:#fff;padding:13px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;margin-bottom:20px">
+    + Add Question ({{ questions|length }}/20)
+  </a>
+  {% else %}
+  <div style="text-align:center;padding:11px;background:#fef3c7;border-radius:10px;font-size:13px;font-weight:700;color:#92400e;margin-bottom:20px">
+    Maximum 20 questions reached
+  </div>
+  {% endif %}
+
+  {% if questions %}
+  {% for q in questions %}
+  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:700;color:#4f46e5;margin-bottom:5px">Q{{ q.order }}</div>
+        <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:10px">{{ q.question_text }}</div>
+        {% if q.question_image %}
+        <img src="{{ q.question_image.url }}" style="max-height:80px;border-radius:8px;margin-bottom:10px">
+        {% endif %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div style="padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;{% if q.correct_answer == 'A' %}background:#dcfce7;color:#166534;border:1.5px solid #86efac{% else %}background:#f8fafc;color:#374151;border:1.5px solid #e2e8f0{% endif %}">
+            A. {{ q.option_a_text }}{% if q.correct_answer == 'A' %} ✓{% endif %}
+          </div>
+          <div style="padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;{% if q.correct_answer == 'B' %}background:#dcfce7;color:#166534;border:1.5px solid #86efac{% else %}background:#f8fafc;color:#374151;border:1.5px solid #e2e8f0{% endif %}">
+            B. {{ q.option_b_text }}{% if q.correct_answer == 'B' %} ✓{% endif %}
+          </div>
+          <div style="padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;{% if q.correct_answer == 'C' %}background:#dcfce7;color:#166534;border:1.5px solid #86efac{% else %}background:#f8fafc;color:#374151;border:1.5px solid #e2e8f0{% endif %}">
+            C. {{ q.option_c_text }}{% if q.correct_answer == 'C' %} ✓{% endif %}
+          </div>
+          <div style="padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;{% if q.correct_answer == 'D' %}background:#dcfce7;color:#166534;border:1.5px solid #86efac{% else %}background:#f8fafc;color:#374151;border:1.5px solid #e2e8f0{% endif %}">
+            D. {{ q.option_d_text }}{% if q.correct_answer == 'D' %} ✓{% endif %}
+          </div>
+        </div>
+      </div>
+      <a href="/quiz/{{ quiz.pk }}/questions/{{ q.pk }}/edit/"
+        style="background:#f1f5f9;color:#374151;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0">Edit</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:40px 20px;background:#f8fafc;border-radius:12px;color:#94a3b8;font-size:14px">
+    No questions yet. Click "Add Question" above to start.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

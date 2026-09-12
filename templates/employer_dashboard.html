@@ -231,6 +231,7 @@
     <div class="ig-tab" onclick="window.location.href='/advertiser/dashboard/'"><i class="fas fa-bullhorn"></i>Ads</div>
     <div class="ig-tab" onclick="showSection('flicks',this)" data-sec="flicks"><i class="fas fa-bolt" style="color:#f59e0b"></i>Flicks</div>
     <div class="ig-tab" onclick="showSection('gallery',this)" data-sec="gallery"><i class="fas fa-images" style="color:#10b981"></i>Gallery</div>
+    <div class="ig-tab" onclick="window.location.href='/quiz/'"><i class="fas fa-brain" style="color:#7c3aed"></i>Quiz</div>
     <div class="ig-tab" onclick="showSection('notifications',this)" data-sec="notifications"><i class="fas fa-bell"></i>Notifs{% if unread_notif_count %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">{{ unread_notif_count }}</span>{% endif %}</div>
     <div class="ig-tab" onclick="showSection('messages',this)" data-sec="messages"><i class="fas fa-comment-dots"></i>Msgs{% if unread_msg_count %} <span style="background:#e65100;color:#fff;border-radius:10px;padding:1px 5px;font-size:9px">{{ unread_msg_count }}</span>{% endif %}</div>
     <div class="ig-tab active" onclick="showSection('active-jobs',this)" data-sec="active-jobs"><i class="fas fa-briefcase"></i>Jobs</div>

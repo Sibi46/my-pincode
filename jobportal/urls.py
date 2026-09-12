@@ -197,4 +197,5 @@ urlpatterns = [
     path('campus/',     include('campus.urls')),
     path('portal/',     include('portal.urls')),
     path('coupons/',    include('coupons.urls')),
+    path('quiz/',       include('quiz.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
