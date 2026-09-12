@@ -44,10 +44,38 @@ def employer_quiz_manage(request, pk):
         return redirect('home')
     quiz = get_object_or_404(Quiz, pk=pk, created_by=request.user)
     questions = quiz.questions.all()
+
+    from django.db.models import Count, Q
+    questions = list(questions)
+
+    # Attach per-question stats directly to question objects
+    for q in questions:
+        agg = UserQuizAnswer.objects.filter(question=q).aggregate(
+            total=Count('id'),
+            correct=Count('id', filter=Q(is_correct=True)),
+            wrong=Count('id', filter=Q(is_correct=False)),
+            skipped=Count('id', filter=Q(answer='')),
+        )
+        q.stat_total = agg['total']
+        q.stat_correct = agg['correct']
+        q.stat_wrong = agg['wrong']
+        q.stat_skipped = agg['skipped']
+
+    # Overall quiz stats
+    all_answers = UserQuizAnswer.objects.filter(question__quiz=quiz)
+    overall = all_answers.aggregate(
+        total=Count('id'),
+        correct=Count('id', filter=Q(is_correct=True)),
+        wrong=Count('id', filter=Q(is_correct=False)),
+        skipped=Count('id', filter=Q(answer='')),
+        users=Count('user', distinct=True),
+    )
+
     return render(request, 'quiz/employer/quiz_manage.html', {
         'quiz': quiz,
         'questions': questions,
-        'can_add': questions.count() < 20,
+        'can_add': len(questions) < 20,
+        'overall': overall,
     })
 
 
