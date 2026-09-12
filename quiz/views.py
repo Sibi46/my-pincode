@@ -10,7 +10,7 @@ from .models import Quiz, QuizQuestion, UserQuizAnswer
 
 
 def _is_employer(user):
-    return user.is_authenticated and hasattr(user, 'user_type') and user.user_type == 'employer'
+    return user.is_authenticated and hasattr(user, 'is_employer') and user.is_employer()
 
 
 # ── Employer views ────────────────────────────────────────────────────────────
